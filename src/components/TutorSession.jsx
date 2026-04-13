@@ -6,6 +6,7 @@ import { askTutor } from '../utils/storage';
 import { speak } from '../utils/speech';
 import TutorBubble from './TutorBubble';
 import TensOnes from './TensOnes';
+import InteractiveTenFrames from './InteractiveTenFrames';
 
 function generateTutorQuestion() {
   const r = Math.random();
@@ -21,12 +22,14 @@ export default function TutorSession({ onHome }) {
   const [tutorMessages, setTutorMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [questionCount, setQuestionCount] = useState(0);
+  const [showScratchPad, setShowScratchPad] = useState(false);
 
   const newQuestion = useCallback(() => {
     const q = generateTutorQuestion();
     setQuestion(q);
     setSelected(null);
     setShowResult(false);
+    setShowScratchPad(false);
     setTutorMessages([{ text: 'Lis bien! 📖', isLoading: false }]);
     speak('Lis bien!');
     setQuestionCount((c) => c + 1);
@@ -105,9 +108,23 @@ Explique-lui pourquoi sa réponse est incorrecte et guide-le vers la bonne répo
         <p className="text-xl font-bold text-white leading-relaxed mb-2">
           {question.text}
         </p>
-        <button onClick={() => speak(question.text)} className="text-sm text-purple-300 font-semibold mb-4">
-          🔊 Ecouter
-        </button>
+        <div className="flex gap-4 mb-4">
+          <button onClick={() => speak(question.text)} className="text-sm text-purple-300 font-semibold">
+            🔊 Ecouter
+          </button>
+          {!showResult && (
+            <button
+              onClick={() => setShowScratchPad((v) => !v)}
+              className="text-sm text-star font-semibold"
+            >
+              {showScratchPad ? '📝 Fermer les boîtes' : '📝 Mes boîtes de travail'}
+            </button>
+          )}
+        </div>
+
+        {showScratchPad && !showResult && (
+          <InteractiveTenFrames onClose={() => setShowScratchPad(false)} />
+        )}
 
         {question.visual && <TensOnes a={question.visual.a} b={question.visual.b} op={question.visual.op} />}
 

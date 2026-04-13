@@ -125,22 +125,59 @@ app.post('/api/session', (req, res) => {
 });
 
 app.get('/api/dashboard', (req, res) => {
-  const pin = req.query.pin;
-  if (pin !== '1234') {
-    return res.status(401).json({ error: 'PIN incorrect' });
-  }
   const stats = queryAll('SELECT * FROM category_stats');
-  const sessions = queryAll('SELECT * FROM sessions ORDER BY id DESC LIMIT 10');
+  const sessions = queryAll('SELECT * FROM sessions ORDER BY id DESC LIMIT 30');
   const totals = queryOne('SELECT COALESCE(SUM(correct),0) as correct, COALESCE(SUM(total),0) as total FROM category_stats');
   const sessionCount = queryOne('SELECT COUNT(*) as count FROM sessions');
-  res.json({ stats, sessions, totals, sessionCount: sessionCount?.count || 0 });
+  // Daily aggregates for progress chart
+  const daily = queryAll(`
+    SELECT date, SUM(correct) as correct, SUM(total) as total
+    FROM sessions GROUP BY date ORDER BY date DESC LIMIT 14
+  `);
+  res.json({ stats, sessions, totals, sessionCount: sessionCount?.count || 0, daily: daily.reverse() });
+});
+
+app.get('/api/dashboard/advice', async (req, res) => {
+  if (!anthropic) {
+    return res.json({ message: "Configurez la cle API Anthropic pour obtenir des conseils." });
+  }
+  try {
+    const stats = queryAll('SELECT * FROM category_stats');
+    const recentSessions = queryAll('SELECT * FROM sessions ORDER BY id DESC LIMIT 5');
+    const recentDetails = recentSessions.map(s => {
+      let details = [];
+      try { details = JSON.parse(s.details || '[]'); } catch {}
+      return { date: s.date, mode: s.mode, score: `${s.correct}/${s.total}`, details };
+    });
+
+    const prompt = `Voici les stats de Ryan (7 ans, 2e annee Quebec):
+
+Statistiques par categorie:
+${stats.map(s => `- ${s.category}: ${s.correct}/${s.total} (${s.total > 0 ? Math.round(s.correct/s.total*100) : 0}%)`).join('\n')}
+
+5 dernieres sessions:
+${JSON.stringify(recentDetails, null, 2)}
+
+Donne-moi:
+1. Ses points forts
+2. Ses difficultes actuelles (avec exemples concrets des erreurs)
+3. Ce qu'il devrait pratiquer en priorite cette semaine
+4. Des conseils pour l'aider a la maison`;
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 600,
+      system: `Tu es un tuteur de mathematiques expert pour enfants au Quebec. Tu parles au PARENT de Ryan, pas a Ryan. Sois precis, actionnable et encourageant. Utilise des emojis. Reponds en francais.`,
+      messages: [{ role: 'user', content: prompt }],
+    });
+    res.json({ message: response.content[0].text });
+  } catch (err) {
+    console.error('Advice API error:', err);
+    res.json({ message: "Erreur lors de la generation des conseils. Reessayez plus tard." });
+  }
 });
 
 app.post('/api/reset', (req, res) => {
-  const { pin } = req.body;
-  if (pin !== '1234') {
-    return res.status(401).json({ error: 'PIN incorrect' });
-  }
   db.run('DELETE FROM sessions');
   db.run('DELETE FROM category_stats');
   saveDb();

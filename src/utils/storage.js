@@ -14,16 +14,20 @@ export async function getProgress() {
   return res.json();
 }
 
-export async function getDashboard(pin) {
-  const res = await fetch(`${API_BASE}/dashboard?pin=${pin}`);
+export async function getDashboard() {
+  const res = await fetch(`${API_BASE}/dashboard`);
   return res.json();
 }
 
-export async function resetData(pin) {
+export async function getAdvice() {
+  const res = await fetch(`${API_BASE}/dashboard/advice`);
+  return res.json();
+}
+
+export async function resetData() {
   const res = await fetch(`${API_BASE}/reset`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ pin }),
   });
   return res.json();
 }

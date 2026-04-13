@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { getDashboard, resetData } from '../utils/storage';
+import React, { useState, useEffect } from 'react';
+import { getDashboard, getAdvice, resetData } from '../utils/storage';
 
 const categoryLabels = {
   calcul: '🔢 Calcul',
@@ -11,103 +11,195 @@ const categoryLabels = {
   mental: '🧠 Calcul mental',
 };
 
-export default function ParentDashboard({ onHome }) {
-  const [pin, setPin] = useState('');
-  const [data, setData] = useState(null);
-  const [error, setError] = useState('');
-  const [showReset, setShowReset] = useState(false);
+function ProgressChart({ daily }) {
+  if (!daily || daily.length === 0) return null;
+  const maxTotal = Math.max(...daily.map((d) => d.total), 1);
+  const barWidth = Math.max(20, Math.floor(280 / daily.length));
 
-  async function handleSubmitPin() {
-    try {
-      const res = await getDashboard(pin);
-      if (res.error) {
-        setError('PIN incorrect');
-        return;
+  return (
+    <div className="bg-white/10 backdrop-blur-sm rounded-2xl shadow-sm p-4 mb-4 border border-white/10">
+      <h3 className="font-bold text-purple-200 mb-3">📈 Progres par jour</h3>
+      <div className="flex items-end gap-1 justify-center" style={{ height: 140 }}>
+        {daily.map((d, i) => {
+          const pct = d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0;
+          const barH = Math.max(8, (d.total / maxTotal) * 110);
+          const fillH = d.total > 0 ? (d.correct / d.total) * barH : 0;
+          const color = pct >= 70 ? '#00b894' : pct >= 50 ? '#6c5ce7' : '#e84393';
+          const dateLabel = d.date.slice(5); // MM-DD
+          return (
+            <div key={i} className="flex flex-col items-center" style={{ width: barWidth }}>
+              <span className="text-xs font-bold text-white mb-1">{pct}%</span>
+              <div
+                className="rounded-t relative overflow-hidden"
+                style={{ width: barWidth - 4, height: barH, background: 'rgba(255,255,255,0.1)' }}
+              >
+                <div
+                  className="absolute bottom-0 left-0 right-0 rounded-t transition-all"
+                  style={{ height: fillH, background: color }}
+                />
+              </div>
+              <span className="text-[10px] text-purple-400 mt-1">{dateLabel}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex justify-center gap-4 mt-3 text-xs text-purple-400">
+        <span><span className="inline-block w-2 h-2 rounded-full mr-1" style={{ background: '#00b894' }} />70%+</span>
+        <span><span className="inline-block w-2 h-2 rounded-full mr-1" style={{ background: '#6c5ce7' }} />50-69%</span>
+        <span><span className="inline-block w-2 h-2 rounded-full mr-1" style={{ background: '#e84393' }} />&lt;50%</span>
+      </div>
+    </div>
+  );
+}
+
+function WeakAreas({ stats, sessions }) {
+  // Find categories with lowest scores
+  const weak = [...stats]
+    .filter((s) => s.total >= 3)
+    .sort((a, b) => (a.correct / a.total) - (b.correct / b.total))
+    .slice(0, 3);
+
+  // Gather recent wrong answers from session details
+  const wrongAnswers = [];
+  for (const s of sessions) {
+    let details = [];
+    try { details = JSON.parse(s.details || '[]'); } catch {}
+    for (const d of details) {
+      if (!d.correct && d.question) {
+        wrongAnswers.push({ ...d, date: s.date });
       }
-      setData(res);
-      setError('');
-    } catch {
-      setError('Erreur de connexion');
     }
   }
+  const recentWrong = wrongAnswers.slice(0, 8);
 
-  async function handleReset() {
-    await resetData(pin);
-    setData(null);
-    setShowReset(false);
-    setPin('');
-  }
+  return (
+    <div className="bg-white/10 backdrop-blur-sm rounded-2xl shadow-sm p-4 mb-4 border border-white/10">
+      <h3 className="font-bold text-purple-200 mb-3">🎯 Points a travailler</h3>
 
-  // PIN entry screen
-  if (!data) {
-    return (
-      <div className="max-w-md mx-auto px-4 pt-10">
-        <button onClick={onHome} className="text-purple-400 font-bold text-sm mb-6">← Menu</button>
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl shadow-lg p-6 text-center border border-white/10">
-          <div className="text-4xl mb-3">🔒</div>
-          <h2 className="text-xl font-bold text-white mb-4">Tableau de bord parent</h2>
-          <p className="text-sm text-purple-300 mb-4">Entrez le code PIN</p>
+      {weak.length > 0 && (
+        <div className="space-y-2 mb-4">
+          {weak.map((cat) => {
+            const pct = Math.round((cat.correct / cat.total) * 100);
+            return (
+              <div key={cat.category} className="flex items-center justify-between bg-red-500/10 rounded-xl p-3 border border-red-500/15">
+                <span className="text-sm font-semibold text-white">{categoryLabels[cat.category] || cat.category}</span>
+                <span className="text-sm font-bold text-red-300">{pct}% ({cat.correct}/{cat.total})</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-          {/* PIN dots */}
-          <div className="flex justify-center gap-2 mb-4">
-            {pin.split('').map((d, i) => (
-              <div key={i} className="w-10 h-10 rounded-lg bg-cosmic/40 flex items-center justify-center text-xl font-bold text-star">
-                •
+      {recentWrong.length > 0 ? (
+        <>
+          <h4 className="text-sm font-bold text-purple-300 mb-2">Erreurs recentes:</h4>
+          <div className="space-y-2">
+            {recentWrong.map((item, i) => (
+              <div key={i} className="bg-white/5 rounded-xl p-3 border-l-4 border-red-400/50">
+                <p className="font-semibold text-white text-sm">{item.question}</p>
+                <div className="flex gap-4 mt-1 text-xs">
+                  <span className="text-red-300">Ryan: {item.userAnswer}</span>
+                  <span className="text-green-300 font-bold">Reponse: {item.correctAnswer}</span>
+                </div>
+                <div className="text-[10px] text-purple-500 mt-1">
+                  {categoryLabels[item.category] || item.category} — {item.date}
+                </div>
               </div>
             ))}
-            {Array.from({ length: 4 - pin.length }, (_, i) => (
-              <div key={`e${i}`} className="w-10 h-10 rounded-lg bg-white/5 border-2 border-dashed border-white/20" />
-            ))}
           </div>
+        </>
+      ) : (
+        <p className="text-sm text-purple-400">Pas encore assez de donnees</p>
+      )}
+    </div>
+  );
+}
 
-          {/* Keypad */}
-          <div className="grid grid-cols-3 gap-2 max-w-[200px] mx-auto mb-4">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, null, 0, 'del'].map((num, i) => {
-              if (num === null) return <div key={i} />;
-              if (num === 'del') {
-                return (
-                  <button
-                    key={i}
-                    onClick={() => setPin((p) => p.slice(0, -1))}
-                    className="py-3 rounded-xl font-bold text-purple-300 bg-white/10"
-                  >
-                    ←
-                  </button>
-                );
-              }
-              return (
-                <button
-                  key={i}
-                  onClick={() => pin.length < 4 && setPin((p) => p + num)}
-                  className="py-3 rounded-xl font-bold text-lg text-white bg-white/10 border border-white/10"
-                >
-                  {num}
-                </button>
-              );
-            })}
-          </div>
+function TutorAdvice() {
+  const [advice, setAdvice] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-          <button
-            onClick={handleSubmitPin}
-            disabled={pin.length !== 4}
-            className="w-full py-3 rounded-xl font-bold text-white disabled:opacity-50"
-            style={{ background: 'linear-gradient(90deg, #6c5ce7, #e84393)' }}
-          >
-            Entrer
-          </button>
+  async function loadAdvice() {
+    setLoading(true);
+    try {
+      const res = await getAdvice();
+      setAdvice(res.message);
+    } catch {
+      setAdvice("Erreur de connexion. Reessayez.");
+    }
+    setLoading(false);
+  }
 
-          {error && <p className="text-red-400 font-semibold mt-3 text-sm">{error}</p>}
+  return (
+    <div className="bg-white/10 backdrop-blur-sm rounded-2xl shadow-sm p-4 mb-4 border border-white/10">
+      <h3 className="font-bold text-purple-200 mb-3">👨‍🏫 Conseils du tuteur IA</h3>
+      {!advice && !loading && (
+        <button
+          onClick={loadAdvice}
+          className="w-full py-3 rounded-xl font-bold text-white text-sm"
+          style={{ background: 'linear-gradient(90deg, #6c5ce7, #e84393)' }}
+        >
+          Obtenir les recommandations
+        </button>
+      )}
+      {loading && (
+        <div className="text-center py-4">
+          <div className="text-2xl mb-2 animate-pulse">🤔</div>
+          <p className="text-sm text-purple-300">Analyse en cours...</p>
         </div>
+      )}
+      {advice && (
+        <div className="text-sm text-purple-100 leading-relaxed whitespace-pre-line">
+          {advice}
+        </div>
+      )}
+      {advice && (
+        <button
+          onClick={loadAdvice}
+          className="mt-3 text-xs text-purple-400 font-semibold"
+        >
+          🔄 Actualiser
+        </button>
+      )}
+    </div>
+  );
+}
+
+export default function ParentDashboard({ onHome }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showReset, setShowReset] = useState(false);
+
+  useEffect(() => {
+    getDashboard().then((res) => {
+      setData(res);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="max-w-md mx-auto px-4 pt-10 text-center">
+        <div className="text-4xl mb-4 animate-pulse">📊</div>
+        <p className="text-lg font-semibold text-purple-300">Chargement...</p>
       </div>
     );
   }
 
-  // Dashboard view
-  const { stats, sessions, totals, sessionCount } = data;
+  if (!data) {
+    return (
+      <div className="max-w-md mx-auto px-4 pt-10 text-center">
+        <button onClick={onHome} className="text-purple-400 font-bold text-sm mb-6">← Menu</button>
+        <p className="text-purple-300">Erreur de chargement</p>
+      </div>
+    );
+  }
+
+  const { stats, sessions, totals, sessionCount, daily } = data;
   const overallPct = totals.total > 0 ? Math.round((totals.correct / totals.total) * 100) : 0;
 
   return (
-    <div className="max-w-md mx-auto px-4 pt-6">
+    <div className="max-w-md mx-auto px-4 pt-6 pb-8">
       <div className="flex items-center justify-between mb-4">
         <button onClick={onHome} className="text-purple-400 font-bold text-sm">← Menu</button>
         <h2 className="font-bold text-purple-200">📊 Tableau de bord</h2>
@@ -133,6 +225,9 @@ export default function ParentDashboard({ onHome }) {
           </div>
         </div>
       </div>
+
+      {/* Progress chart */}
+      <ProgressChart daily={daily} />
 
       {/* Category breakdown */}
       <div className="bg-white/10 backdrop-blur-sm rounded-2xl shadow-sm p-4 mb-4 border border-white/10">
@@ -160,6 +255,12 @@ export default function ParentDashboard({ onHome }) {
           })}
         </div>
       </div>
+
+      {/* Weak areas & recent errors */}
+      <WeakAreas stats={stats} sessions={sessions} />
+
+      {/* AI tutor advice */}
+      <TutorAdvice />
 
       {/* Recent sessions */}
       <div className="bg-white/10 backdrop-blur-sm rounded-2xl shadow-sm p-4 mb-4 border border-white/10">
@@ -200,7 +301,12 @@ export default function ParentDashboard({ onHome }) {
             </p>
             <div className="flex gap-3">
               <button
-                onClick={handleReset}
+                onClick={async () => {
+                  await resetData();
+                  setData(null);
+                  setShowReset(false);
+                  getDashboard().then(setData);
+                }}
                 className="flex-1 py-2 rounded-xl font-bold text-white bg-red-500"
               >
                 Confirmer

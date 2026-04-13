@@ -10,6 +10,7 @@ import { saveSession } from '../utils/storage';
 import { speak } from '../utils/speech';
 import TensOnes from './TensOnes';
 import CountingBoxes from './CountingBoxes';
+import InteractiveTenFrames from './InteractiveTenFrames';
 
 const TOTAL_QUESTIONS = 8;
 
@@ -49,6 +50,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
   const [operationPhase, setOperationPhase] = useState(false);
   const [operationAnswer, setOperationAnswer] = useState(null);
   const [operationCorrect, setOperationCorrect] = useState(null);
+  const [showScratchPad, setShowScratchPad] = useState(false);
 
   const generate = useCallback(() => getGenerator(mode), [mode]);
 
@@ -140,11 +142,12 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
     setOperationAnswer(null);
     setOperationCorrect(null);
     setOperationPhase(false);
+    setShowScratchPad(false);
   }
 
   function finishSession() {
     const correct = results.filter((r) => r.correct).length;
-    const details = results.map((r) => ({ category: r.category, correct: r.correct }));
+    const details = results.map((r) => ({ category: r.category, correct: r.correct, question: r.question, userAnswer: r.userAnswer, correctAnswer: r.correctAnswer }));
     saveSession(mode, results.length, correct, details);
     onFinish({ results, correct, total: results.length, mode, streak });
   }
@@ -192,13 +195,28 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.text}
         </p>
 
-        {/* Listen button */}
-        <button
-          onClick={() => speak(question.text)}
-          className="text-sm text-purple-300 font-semibold mb-4"
-        >
-          🔊 Ecouter
-        </button>
+        {/* Listen button + scratch pad toggle */}
+        <div className="flex gap-4 mb-4">
+          <button
+            onClick={() => speak(question.text)}
+            className="text-sm text-purple-300 font-semibold"
+          >
+            🔊 Ecouter
+          </button>
+          {!showResult && (
+            <button
+              onClick={() => setShowScratchPad((v) => !v)}
+              className="text-sm text-star font-semibold"
+            >
+              {showScratchPad ? '📝 Fermer les boîtes' : '📝 Mes boîtes de travail'}
+            </button>
+          )}
+        </div>
+
+        {/* Interactive scratch pad */}
+        {showScratchPad && !showResult && (
+          <InteractiveTenFrames onClose={() => setShowScratchPad(false)} />
+        )}
 
         {/* Visual for calcul questions — show both tens/ones AND counting boxes */}
         {question.visual && !showResult && (
