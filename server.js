@@ -2,9 +2,8 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
-import initSqlJs from 'sql.js';
+import pg from 'pg';
 import Anthropic from '@anthropic-ai/sdk';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -14,75 +13,52 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// --- Database setup with sql.js ---
-// Use RAILWAY_VOLUME_MOUNT_PATH if available (persistent volume), otherwise local data/
-const dataDir = process.env.RAILWAY_VOLUME_MOUNT_PATH || path.join(__dirname, 'data');
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
-}
-const dbPath = path.join(dataDir, 'ryan.db');
-let db;
+// --- Database setup with PostgreSQL ---
+const pool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL?.includes('railway') ? { rejectUnauthorized: false } : false,
+});
 
 async function initDb() {
-  const SQL = await initSqlJs();
-
-  // Load existing db file if it exists — NEVER overwrite existing data
-  if (fs.existsSync(dbPath)) {
-    const buffer = fs.readFileSync(dbPath);
-    db = new SQL.Database(buffer);
-    console.log('Loaded existing database from', dbPath);
-  } else {
-    db = new SQL.Database();
-    console.log('Created new database');
+  const client = await pool.connect();
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS sessions (
+        id SERIAL PRIMARY KEY,
+        date TEXT NOT NULL,
+        mode TEXT NOT NULL,
+        total INTEGER NOT NULL,
+        correct INTEGER NOT NULL,
+        details TEXT
+      )
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS category_stats (
+        category TEXT PRIMARY KEY,
+        correct INTEGER DEFAULT 0,
+        total INTEGER DEFAULT 0
+      )
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS settings (
+        key TEXT PRIMARY KEY,
+        value TEXT
+      )
+    `);
+    console.log('Database tables ready');
+  } finally {
+    client.release();
   }
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS sessions (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      date TEXT NOT NULL,
-      mode TEXT NOT NULL,
-      total INTEGER NOT NULL,
-      correct INTEGER NOT NULL,
-      details TEXT
-    )
-  `);
-  db.run(`
-    CREATE TABLE IF NOT EXISTS category_stats (
-      category TEXT PRIMARY KEY,
-      correct INTEGER DEFAULT 0,
-      total INTEGER DEFAULT 0
-    )
-  `);
-  db.run(`
-    CREATE TABLE IF NOT EXISTS settings (
-      key TEXT PRIMARY KEY,
-      value TEXT
-    )
-  `);
-
-  saveDb();
 }
 
-function saveDb() {
-  const data = db.export();
-  const buffer = Buffer.from(data);
-  fs.writeFileSync(dbPath, buffer);
+async function queryAll(sql, params = []) {
+  const result = await pool.query(sql, params);
+  return result.rows;
 }
 
-function queryAll(sql, params = []) {
-  const stmt = db.prepare(sql);
-  if (params.length) stmt.bind(params);
-  const rows = [];
-  while (stmt.step()) {
-    rows.push(stmt.getAsObject());
-  }
-  stmt.free();
-  return rows;
-}
-
-function queryOne(sql, params = []) {
-  const rows = queryAll(sql, params);
-  return rows[0] || null;
+async function queryOne(sql, params = []) {
+  const result = await pool.query(sql, params);
+  return result.rows[0] || null;
 }
 
 // --- Anthropic client ---
@@ -93,48 +69,63 @@ if (process.env.ANTHROPIC_API_KEY) {
 
 // --- API Routes ---
 
-app.get('/api/progress', (req, res) => {
-  const stats = queryAll('SELECT * FROM category_stats');
-  const sessions = queryAll('SELECT * FROM sessions ORDER BY id DESC LIMIT 10');
-  const totals = queryOne('SELECT COALESCE(SUM(correct),0) as correct, COALESCE(SUM(total),0) as total FROM category_stats');
-  res.json({ stats, sessions, totals });
-});
-
-app.post('/api/session', (req, res) => {
-  const { mode, total, correct, details } = req.body;
-  const date = new Date().toISOString().split('T')[0];
-
-  db.run('INSERT INTO sessions (date, mode, total, correct, details) VALUES (?, ?, ?, ?, ?)',
-    [date, mode, total, correct, JSON.stringify(details)]);
-
-  if (details && Array.isArray(details)) {
-    for (const d of details) {
-      const correctVal = d.correct ? 1 : 0;
-      db.run(`
-        INSERT INTO category_stats (category, correct, total)
-        VALUES (?, ?, 1)
-        ON CONFLICT(category) DO UPDATE SET
-          correct = correct + ?,
-          total = total + 1
-      `, [d.category, correctVal, correctVal]);
-    }
+app.get('/api/progress', async (req, res) => {
+  try {
+    const stats = await queryAll('SELECT * FROM category_stats');
+    const sessions = await queryAll('SELECT * FROM sessions ORDER BY id DESC LIMIT 10');
+    const totals = await queryOne('SELECT COALESCE(SUM(correct),0) as correct, COALESCE(SUM(total),0) as total FROM category_stats');
+    res.json({ stats, sessions, totals });
+  } catch (err) {
+    console.error('Progress error:', err);
+    res.status(500).json({ error: 'Database error' });
   }
-
-  saveDb();
-  res.json({ ok: true });
 });
 
-app.get('/api/dashboard', (req, res) => {
-  const stats = queryAll('SELECT * FROM category_stats');
-  const sessions = queryAll('SELECT * FROM sessions ORDER BY id DESC LIMIT 30');
-  const totals = queryOne('SELECT COALESCE(SUM(correct),0) as correct, COALESCE(SUM(total),0) as total FROM category_stats');
-  const sessionCount = queryOne('SELECT COUNT(*) as count FROM sessions');
-  // Daily aggregates for progress chart
-  const daily = queryAll(`
-    SELECT date, SUM(correct) as correct, SUM(total) as total
-    FROM sessions GROUP BY date ORDER BY date DESC LIMIT 14
-  `);
-  res.json({ stats, sessions, totals, sessionCount: sessionCount?.count || 0, daily: daily.reverse() });
+app.post('/api/session', async (req, res) => {
+  try {
+    const { mode, total, correct, details } = req.body;
+    const date = new Date().toISOString().split('T')[0];
+
+    await pool.query(
+      'INSERT INTO sessions (date, mode, total, correct, details) VALUES ($1, $2, $3, $4, $5)',
+      [date, mode, total, correct, JSON.stringify(details)]
+    );
+
+    if (details && Array.isArray(details)) {
+      for (const d of details) {
+        const correctVal = d.correct ? 1 : 0;
+        await pool.query(`
+          INSERT INTO category_stats (category, correct, total)
+          VALUES ($1, $2, 1)
+          ON CONFLICT (category) DO UPDATE SET
+            correct = category_stats.correct + $3,
+            total = category_stats.total + 1
+        `, [d.category, correctVal, correctVal]);
+      }
+    }
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Session save error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+app.get('/api/dashboard', async (req, res) => {
+  try {
+    const stats = await queryAll('SELECT * FROM category_stats');
+    const sessions = await queryAll('SELECT * FROM sessions ORDER BY id DESC LIMIT 30');
+    const totals = await queryOne('SELECT COALESCE(SUM(correct),0) as correct, COALESCE(SUM(total),0) as total FROM category_stats');
+    const sessionCount = await queryOne('SELECT COUNT(*) as count FROM sessions');
+    const daily = await queryAll(`
+      SELECT date, SUM(correct) as correct, SUM(total) as total
+      FROM sessions GROUP BY date ORDER BY date DESC LIMIT 14
+    `);
+    res.json({ stats, sessions, totals, sessionCount: parseInt(sessionCount?.count) || 0, daily: daily.reverse() });
+  } catch (err) {
+    console.error('Dashboard error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 app.get('/api/dashboard/advice', async (req, res) => {
@@ -142,8 +133,8 @@ app.get('/api/dashboard/advice', async (req, res) => {
     return res.json({ message: "Configurez la cle API Anthropic pour obtenir des conseils." });
   }
   try {
-    const stats = queryAll('SELECT * FROM category_stats');
-    const recentSessions = queryAll('SELECT * FROM sessions ORDER BY id DESC LIMIT 5');
+    const stats = await queryAll('SELECT * FROM category_stats');
+    const recentSessions = await queryAll('SELECT * FROM sessions ORDER BY id DESC LIMIT 5');
     const recentDetails = recentSessions.map(s => {
       let details = [];
       try { details = JSON.parse(s.details || '[]'); } catch {}
@@ -177,11 +168,15 @@ Donne-moi:
   }
 });
 
-app.post('/api/reset', (req, res) => {
-  db.run('DELETE FROM sessions');
-  db.run('DELETE FROM category_stats');
-  saveDb();
-  res.json({ ok: true });
+app.post('/api/reset', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM sessions');
+    await pool.query('DELETE FROM category_stats');
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Reset error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 app.post('/api/tutor', async (req, res) => {
