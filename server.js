@@ -26,12 +26,14 @@ let db;
 async function initDb() {
   const SQL = await initSqlJs();
 
-  // Load existing db file if it exists
+  // Load existing db file if it exists — NEVER overwrite existing data
   if (fs.existsSync(dbPath)) {
     const buffer = fs.readFileSync(dbPath);
     db = new SQL.Database(buffer);
+    console.log('Loaded existing database from', dbPath);
   } else {
     db = new SQL.Database();
+    console.log('Created new database');
   }
 
   db.run(`

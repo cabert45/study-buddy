@@ -8,7 +8,11 @@
     "build": "vite build",
     "preview": "vite preview",
     "start": "node server.js",
-    "dev:server": "node server.js"
+    "dev:server": "node server.js",
+    "db:backup": "node scripts/backup-db.js",
+    "predeploy": "node scripts/backup-db.js",
+    "deploy": "npm run db:backup && npm run build",
+    "//WARNING": "NEVER run any command that resets or force-drops the database. Always run npm run db:backup BEFORE any database changes."
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
