@@ -2,26 +2,27 @@ import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
 
 const mathModes = [
-  { id: 'mixed', label: '🚀 Pratique ciblée', desc: 'Mix de tes exercices', priority: true, recommended: true },
-  { id: 'calcul', label: '🔢 Calcul', desc: 'Addition et soustraction', priority: true },
-  { id: 'terme', label: '🔍 Terme manquant', desc: 'Trouve le nombre mystère', priority: true },
-  { id: 'multi_step', label: '🧩 Problèmes à étapes', desc: 'Zoo, château, poissons', priority: false },
-  { id: 'relational', label: '🔗 De plus / de moins', desc: 'Comparaisons en chaîne', priority: false },
-  { id: 'compare', label: '⚖️ Compare', desc: 'Plus grand, plus petit ou égal?', priority: false },
-  { id: 'pair_impair', label: '🎯 Pair / Impair', desc: 'Nombres pairs et impairs', priority: false },
-  { id: 'mental', label: '🧠 Calcul mental', desc: '+9, −9, +10, −10, table du 10', priority: false },
-  { id: 'statistique', label: '📊 Statistique', desc: 'Diagrammes, pictogrammes, tableaux', priority: false },
+  { id: 'mixed', label: '🚀 Pratique ciblée', desc: 'Mix de tous tes exercices' },
+  { id: 'calcul', label: '🔢 Calcul', desc: 'Addition et soustraction' },
+  { id: 'terme', label: '🔍 Terme manquant', desc: 'Trouve le nombre mystère' },
+  { id: 'multi_step', label: '🧩 Problèmes', desc: 'Problèmes à étapes' },
+  { id: 'relational', label: '🔗 De plus/moins', desc: 'Comparaisons' },
+  { id: 'compare', label: '⚖️ Compare', desc: '>, < ou =' },
+  { id: 'pair_impair', label: '🎯 Pair/Impair', desc: 'Nombres pairs et impairs' },
+  { id: 'mental', label: '🧠 Mental', desc: '+9, −9, +10, −10' },
+  { id: 'statistique', label: '📊 Statistique', desc: 'Diagrammes et tableaux' },
 ];
 
 const frenchModes = [
-  { id: 'francais_mix', label: '📝 Français - Mix', desc: 'Grammaire, verbes, adjectifs', priority: true, recommended: true },
-  { id: 'determinant', label: '📌 Déterminants', desc: 'le, la, un, une, mon, ses...', priority: false },
-  { id: 'verbes', label: '✏️ Verbes utiles', desc: 'être, avoir, aimer, aller, dire, faire', priority: false },
-  { id: 'adjectif', label: '🎨 Adjectifs', desc: 'Accord, lettres muettes, familles de mots', priority: false },
+  { id: 'francais_mix', label: '📝 Mix Français', desc: 'Grammaire, verbes, adjectifs' },
+  { id: 'determinant', label: '📌 Déterminants', desc: 'le, la, un, une, mon...' },
+  { id: 'verbes', label: '✏️ Verbes', desc: 'être, avoir, aller, faire...' },
+  { id: 'adjectif', label: '🎨 Adjectifs', desc: 'Accord et familles de mots' },
 ];
 
-export default function Menu({ onStartPractice, onStartTutor, onOpenDashboard }) {
+export default function Menu({ onStartPractice, onStartTutor, onStartAquarium, onOpenDashboard }) {
   const [stats, setStats] = useState(null);
+  const [tab, setTab] = useState('math');
 
   useEffect(() => {
     getProgress().then(setStats).catch(() => {});
@@ -30,139 +31,123 @@ export default function Menu({ onStartPractice, onStartTutor, onOpenDashboard })
   const totalCorrect = stats?.totals?.correct || 0;
   const totalQuestions = stats?.totals?.total || 0;
   const pct = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+  const sessionCount = stats?.sessions?.length || 0;
+
+  const modes = tab === 'math' ? mathModes : frenchModes;
 
   return (
-    <div className="max-w-md mx-auto px-4 pt-6">
-      {/* Stars background effect */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
-        {Array.from({ length: 30 }, (_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full bg-white"
-            style={{
-              width: Math.random() * 3 + 1 + 'px',
-              height: Math.random() * 3 + 1 + 'px',
-              top: Math.random() * 100 + '%',
-              left: Math.random() * 100 + '%',
-              opacity: Math.random() * 0.7 + 0.3,
-              animation: `twinkle ${Math.random() * 3 + 2}s ease-in-out infinite`,
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="relative" style={{ zIndex: 1 }}>
-        {/* Header */}
-        <div className="text-center mb-6">
-          <div className="text-5xl mb-2">🚀</div>
-          <h1 className="text-3xl font-extrabold text-star">Study Buddy</h1>
-          <p className="text-lg font-semibold text-purple-300 mt-1">Tu es capable Ryan! 💪</p>
-          {totalQuestions > 0 && (
-            <div className="mt-3 bg-white/10 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white/10">
-              <div className="flex justify-between text-sm font-semibold text-purple-200">
-                <span>⭐ {totalCorrect}/{totalQuestions}</span>
-                <span>{pct}%</span>
-              </div>
-              <div className="w-full bg-white/20 rounded-full h-3 mt-1">
-                <div
-                  className="h-3 rounded-full transition-all"
-                  style={{
-                    width: `${pct}%`,
-                    background: 'linear-gradient(90deg, #6c5ce7, #e84393)',
-                  }}
-                />
-              </div>
-            </div>
-          )}
+    <div className="max-w-lg mx-auto px-4 pt-4 pb-8">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">🚀</span>
+          <h1 className="text-xl font-extrabold text-white">Study Buddy</h1>
         </div>
-
-        {/* Math modes */}
-        <h3 className="text-sm font-bold text-purple-400 uppercase tracking-wider mt-2 mb-1">🔢 Mathématiques</h3>
-        <div className="space-y-3">
-          {mathModes.map((mode) => (
-            <button
-              key={mode.id}
-              onClick={() => onStartPractice(mode.id)}
-              className={`w-full text-left rounded-2xl p-4 shadow-lg transition-all active:scale-[0.98] ${
-                mode.recommended
-                  ? 'bg-gradient-to-r from-cosmic/30 to-rocket/20 border-2 border-star/40 backdrop-blur-sm'
-                  : mode.priority
-                  ? 'bg-white/10 backdrop-blur-sm border border-cosmic/30'
-                  : 'bg-white/5 backdrop-blur-sm border border-white/10'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-lg font-bold text-white">{mode.label}</div>
-                  <div className="text-sm text-purple-300">{mode.desc}</div>
-                </div>
-                {mode.recommended && (
-                  <span className="text-xs font-bold bg-star text-space px-2 py-1 rounded-full">
-                    RECOMMANDE
-                  </span>
-                )}
-                {mode.priority && !mode.recommended && (
-                  <span className="text-xs font-bold bg-rocket text-white px-2 py-1 rounded-full">
-                    PRIORITE
-                  </span>
-                )}
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* French modes */}
-        <h3 className="text-sm font-bold text-purple-400 uppercase tracking-wider mt-6 mb-1">📚 Français</h3>
-        <div className="space-y-3">
-          {frenchModes.map((mode) => (
-            <button
-              key={mode.id}
-              onClick={() => onStartPractice(mode.id)}
-              className={`w-full text-left rounded-2xl p-4 shadow-lg transition-all active:scale-[0.98] ${
-                mode.recommended
-                  ? 'bg-gradient-to-r from-green-900/30 to-emerald-800/20 border-2 border-green-400/40 backdrop-blur-sm'
-                  : 'bg-white/5 backdrop-blur-sm border border-white/10'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-lg font-bold text-white">{mode.label}</div>
-                  <div className="text-sm text-purple-300">{mode.desc}</div>
-                </div>
-                {mode.recommended && (
-                  <span className="text-xs font-bold bg-green-500 text-white px-2 py-1 rounded-full">
-                    RECOMMANDE
-                  </span>
-                )}
-              </div>
-            </button>
-          ))}
-
-          {/* Tutor mode */}
-          <button
-            onClick={onStartTutor}
-            className="w-full text-left rounded-2xl p-4 shadow-lg bg-white/10 backdrop-blur-sm border border-purple-400/30"
-          >
-            <div className="text-lg font-bold text-white">👨‍🚀 Mode Tuteur</div>
-            <div className="text-sm text-purple-300">Apprends avec ton tuteur IA</div>
-          </button>
-        </div>
-
-        {/* Dashboard link */}
         <button
           onClick={onOpenDashboard}
-          className="w-full mt-6 text-center text-sm text-purple-400 font-semibold py-3"
+          className="text-xs font-bold text-purple-300 bg-white/10 px-3 py-1.5 rounded-full border border-white/10"
         >
-          📊 Tableau de bord parent
+          📊 Dashboard
         </button>
       </div>
 
-      <style>{`
-        @keyframes twinkle {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 1; }
-        }
-      `}</style>
+      {/* Welcome banner */}
+      <div className="rounded-2xl p-5 mb-4 border border-white/10 relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, rgba(108,92,231,0.3) 0%, rgba(232,67,147,0.2) 100%)' }}>
+        <h2 className="text-2xl font-extrabold text-white mb-1">Bonjour Ryan!</h2>
+        <p className="text-sm text-purple-200">
+          {pct >= 70 ? "Tu es en feu! Continue ton excellent travail! 🔥" :
+           pct >= 50 ? "Tu progresses bien! Continue! 💪" :
+           totalQuestions > 0 ? "Chaque exercice te rend plus fort! 🚀" :
+           "Prêt pour t'entraîner? C'est parti! 🌟"}
+        </p>
+        {/* Decorative elements */}
+        <div className="absolute top-2 right-4 text-4xl opacity-20">🏰</div>
+        <div className="absolute bottom-1 right-16 text-3xl opacity-15">⭐</div>
+      </div>
+
+      {/* Stats cards */}
+      {totalQuestions > 0 && (
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/10">
+            <div className="text-2xl font-extrabold text-white">{totalQuestions}</div>
+            <div className="text-[10px] font-bold text-purple-400 uppercase">Questions</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/10">
+            <div className="text-2xl font-extrabold text-green-400">{pct}%</div>
+            <div className="text-[10px] font-bold text-purple-400 uppercase">Score</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/10">
+            <div className="text-2xl font-extrabold text-star">{sessionCount}</div>
+            <div className="text-[10px] font-bold text-purple-400 uppercase">Sessions</div>
+          </div>
+        </div>
+      )}
+
+      {/* Subject tabs */}
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={() => setTab('math')}
+          className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all ${
+            tab === 'math'
+              ? 'bg-cosmic text-white shadow-lg'
+              : 'bg-white/5 text-purple-400 border border-white/10'
+          }`}
+        >
+          🔢 Mathématiques
+        </button>
+        <button
+          onClick={() => setTab('french')}
+          className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all ${
+            tab === 'french'
+              ? 'bg-green-600 text-white shadow-lg'
+              : 'bg-white/5 text-purple-400 border border-white/10'
+          }`}
+        >
+          📚 Français
+        </button>
+      </div>
+
+      {/* Mode grid */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        {modes.map((mode, i) => {
+          const isFirst = i === 0;
+          return (
+            <button
+              key={mode.id}
+              onClick={() => onStartPractice(mode.id)}
+              className={`text-left rounded-xl p-3.5 transition-all active:scale-[0.97] ${
+                isFirst
+                  ? tab === 'math'
+                    ? 'col-span-2 bg-gradient-to-r from-cosmic/40 to-rocket/30 border-2 border-star/40'
+                    : 'col-span-2 bg-gradient-to-r from-green-800/40 to-emerald-700/30 border-2 border-green-400/40'
+                  : 'bg-white/8 border border-white/10 hover:bg-white/12'
+              }`}
+            >
+              <div className="text-base font-bold text-white">{mode.label}</div>
+              <div className="text-xs text-purple-300 mt-0.5">{mode.desc}</div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Special modes row */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <button
+          onClick={onStartTutor}
+          className="text-left rounded-xl p-3.5 bg-white/8 border border-purple-400/30 hover:bg-white/12 transition-all active:scale-[0.97]"
+        >
+          <div className="text-base font-bold text-white">👨‍🚀 Tuteur IA</div>
+          <div className="text-xs text-purple-300 mt-0.5">Apprends avec ton tuteur</div>
+        </button>
+        <button
+          onClick={onStartAquarium}
+          className="text-left rounded-xl p-3.5 bg-white/8 border border-cyan-400/30 hover:bg-white/12 transition-all active:scale-[0.97]"
+        >
+          <div className="text-base font-bold text-white">🐟 Aquarium</div>
+          <div className="text-xs text-cyan-300 mt-0.5">Trouve les bons résultats!</div>
+        </button>
+      </div>
     </div>
   );
 }

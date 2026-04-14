@@ -15,6 +15,7 @@ import { speak } from '../utils/speech';
 import TensOnes from './TensOnes';
 import CountingBoxes from './CountingBoxes';
 import InteractiveTenFrames from './InteractiveTenFrames';
+import { getVideosForCategory } from '../data/videoLinks';
 
 const TOTAL_QUESTIONS = 8;
 
@@ -215,8 +216,8 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.text}
         </p>
 
-        {/* Listen button + scratch pad toggle */}
-        <div className="flex gap-4 mb-4">
+        {/* Listen button + scratch pad + video help */}
+        <div className="flex flex-wrap gap-3 mb-4">
           <button
             onClick={() => speak(question.text)}
             className="text-sm text-purple-300 font-semibold"
@@ -229,6 +230,17 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
               className="text-sm text-star font-semibold"
             >
               {showScratchPad ? '📝 Fermer les boîtes' : '📝 Mes boîtes de travail'}
+            </button>
+          )}
+          {getVideosForCategory(question.category).length > 0 && (
+            <button
+              onClick={() => {
+                const videos = getVideosForCategory(question.category);
+                window.open(videos[0].url, '_blank');
+              }}
+              className="text-sm text-green-300 font-semibold"
+            >
+              📺 Vidéo d'aide
             </button>
           )}
         </div>

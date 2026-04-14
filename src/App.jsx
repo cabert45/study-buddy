@@ -4,6 +4,7 @@ import PracticeSession from './components/PracticeSession';
 import TutorSession from './components/TutorSession';
 import Results from './components/Results';
 import ParentDashboard from './components/ParentDashboard';
+import AquariumGame from './components/AquariumGame';
 
 export default function App() {
   const [screen, setScreen] = useState('menu');
@@ -17,6 +18,10 @@ export default function App() {
 
   function startTutor() {
     setScreen('tutor');
+  }
+
+  function startAquarium() {
+    setScreen('aquarium');
   }
 
   function finishSession(results) {
@@ -40,6 +45,7 @@ export default function App() {
         <Menu
           onStartPractice={startPractice}
           onStartTutor={startTutor}
+          onStartAquarium={startAquarium}
           onOpenDashboard={openDashboard}
         />
       )}
@@ -58,6 +64,12 @@ export default function App() {
           results={sessionResults}
           onHome={goHome}
           onRetry={() => startPractice(mode)}
+        />
+      )}
+      {screen === 'aquarium' && (
+        <AquariumGame
+          onHome={goHome}
+          onFinish={finishSession}
         />
       )}
       {screen === 'dashboard' && (
