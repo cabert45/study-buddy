@@ -118,7 +118,7 @@ export default function MemoryGame({ onHome, onFinish }) {
   if (gameOver) {
     const stars = attempts <= 8 ? 5 : attempts <= 12 ? 4 : attempts <= 16 ? 3 : attempts <= 20 ? 2 : 1;
     return (
-      <div className="max-w-md mx-auto px-4 pt-6 text-center">
+      <div className="max-w-3xl mx-auto px-4 pt-6 text-center">
         <div className="text-5xl mb-4">🎴</div>
         <h2 className="text-2xl font-extrabold text-white mb-2">Toutes les paires trouvées!</h2>
         <div className="bg-white/10 rounded-2xl p-6 mb-4 border border-white/10">
@@ -152,7 +152,7 @@ export default function MemoryGame({ onHome, onFinish }) {
   }
 
   return (
-    <div className="max-w-md mx-auto px-4 pt-4">
+    <div className="max-w-3xl mx-auto px-4 pt-4">
       <div className="flex items-center justify-between mb-3">
         <button onClick={onHome} className="text-purple-400 font-bold text-sm">← Menu</button>
         <div className="text-sm font-bold text-pink-300">🎴 Mémoire</div>

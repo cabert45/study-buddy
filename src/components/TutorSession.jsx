@@ -88,7 +88,7 @@ Explique-lui pourquoi sa réponse est incorrecte et guide-le vers la bonne répo
   }
 
   return (
-    <div className="max-w-md mx-auto px-4 pt-4">
+    <div className="max-w-3xl mx-auto px-4 pt-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <button onClick={onHome} className="text-purple-400 font-bold text-sm">← Menu</button>

@@ -24,7 +24,7 @@ export default function Results({ results, onHome, onRetry }) {
   }, []);
 
   return (
-    <div className="max-w-md mx-auto px-4 pt-6">
+    <div className="max-w-3xl mx-auto px-4 pt-6">
       {/* Score header */}
       <div className="text-center bg-white rounded-2xl shadow-sm p-6 mb-4 border-2 border-s1">
         <div className="text-6xl mb-3">{reaction.emoji}</div>

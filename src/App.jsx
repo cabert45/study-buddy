@@ -65,7 +65,7 @@ export default function App() {
   return (
     <div className="min-h-screen pb-8">
       {screen === 'profile' && (
-        <div className="max-w-md mx-auto px-4 pt-16 text-center">
+        <div className="max-w-3xl mx-auto px-4 pt-16 text-center">
           <div className="text-5xl mb-4">🌋</div>
           <h1 className="font-heading text-3xl font-extrabold text-stone mb-1">Study Buddy</h1>
           <p className="text-s4 font-semibold mb-8">Qui es-tu?</p>

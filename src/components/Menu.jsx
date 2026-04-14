@@ -78,7 +78,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
   const grid = modes.filter(m => !m.featured);
 
   return (
-    <div className="relative z-[1] max-w-[500px] mx-auto px-4 pt-4 pb-12">
+    <div className="relative z-[1] max-w-3xl mx-auto px-4 pt-4 pb-12">
       {/* Top bar */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2.5">

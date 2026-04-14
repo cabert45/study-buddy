@@ -188,7 +188,7 @@ export default function ParentDashboard({ onHome }) {
 
   if (loading) {
     return (
-      <div className="max-w-md mx-auto px-4 pt-10 text-center">
+      <div className="max-w-3xl mx-auto px-4 pt-10 text-center">
         <div className="text-4xl mb-4 animate-pulse">📊</div>
         <p className="text-lg font-semibold text-purple-300">Chargement...</p>
       </div>
@@ -197,7 +197,7 @@ export default function ParentDashboard({ onHome }) {
 
   if (!data) {
     return (
-      <div className="max-w-md mx-auto px-4 pt-10 text-center">
+      <div className="max-w-3xl mx-auto px-4 pt-10 text-center">
         <button onClick={onHome} className="text-purple-400 font-bold text-sm mb-6">← Menu</button>
         <p className="text-purple-300">Erreur de chargement</p>
       </div>
@@ -208,7 +208,7 @@ export default function ParentDashboard({ onHome }) {
   const overallPct = totals.total > 0 ? Math.round((totals.correct / totals.total) * 100) : 0;
 
   return (
-    <div className="max-w-md mx-auto px-4 pt-6 pb-8">
+    <div className="max-w-3xl mx-auto px-4 pt-6 pb-8">
       <div className="flex items-center justify-between mb-4">
         <button onClick={onHome} className="text-purple-400 font-bold text-sm">← Menu</button>
         <h2 className="font-bold text-purple-200">📊 Tableau de bord</h2>

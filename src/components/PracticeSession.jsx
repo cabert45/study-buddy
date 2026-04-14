@@ -91,7 +91,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
 
   if (!question) {
     return (
-      <div className="max-w-md mx-auto px-4 pt-10 text-center">
+      <div className="max-w-3xl mx-auto px-4 pt-10 text-center">
         <div className="text-4xl mb-4 animate-bounce">🌋</div>
         <p className="text-lg font-semibold text-s4">Chargement...</p>
       </div>
@@ -176,7 +176,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
   const progress = Math.min(((currentIndex + 1) / questions.length) * 100, 100);
 
   return (
-    <div className="max-w-md mx-auto px-4 pt-4">
+    <div className="max-w-3xl mx-auto px-4 pt-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">

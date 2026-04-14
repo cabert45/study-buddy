@@ -115,7 +115,7 @@ export default function SpeedGame({ onHome, onFinish }) {
   if (gameOver) {
     const pct = total > 0 ? Math.round((score / total) * 100) : 0;
     return (
-      <div className="max-w-md mx-auto px-4 pt-6 text-center">
+      <div className="max-w-3xl mx-auto px-4 pt-6 text-center">
         <div className="text-5xl mb-4">⏱️</div>
         <h2 className="text-2xl font-extrabold text-white mb-2">Temps écoulé!</h2>
         <div className="bg-white/10 rounded-2xl p-6 mb-4 border border-white/10">
@@ -158,10 +158,10 @@ export default function SpeedGame({ onHome, onFinish }) {
   const timerColor = timeLeft > 20 ? '#00b894' : timeLeft > 10 ? '#fdcb6e' : '#e84393';
 
   return (
-    <div className="max-w-md mx-auto px-4 pt-4">
+    <div className="max-w-3xl mx-auto px-4 pt-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <button onClick={onHome} className="text-purple-400 font-bold text-sm">← Menu</button>
+        <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
         <div className="text-sm font-bold text-rocket">⚡ Course</div>
         <div className="text-lg font-extrabold text-white">{score}</div>
       </div>
