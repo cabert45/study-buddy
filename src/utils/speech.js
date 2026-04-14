@@ -1,4 +1,6 @@
 let speechEnabled = true;
+let cachedVoice = null;
+let voicesLoaded = false;
 
 export function setSpeechEnabled(enabled) {
   speechEnabled = enabled;
@@ -8,65 +10,86 @@ export function isSpeechEnabled() {
   return speechEnabled;
 }
 
-// Preferred French voices (best quality first)
-const preferredVoices = [
-  'Google français',        // Chrome's built-in French (best quality)
-  'Microsoft Claude',       // Windows French voices
-  'Microsoft Paul',
-  'Microsoft Hortense',
-  'Microsoft Julie',
-  'Thomas',                 // macOS French
-  'Amelie',                 // macOS Canadian French
-  'Marie',
-];
+// Quality ranking for French voices
+function voiceScore(voice) {
+  const name = voice.name.toLowerCase();
+  const lang = voice.lang.toLowerCase();
 
-function getBestFrenchVoice() {
-  const voices = window.speechSynthesis.getVoices();
+  // Google voices are highest quality in Chrome
+  if (name.includes('google') && lang.startsWith('fr')) return 100;
 
-  // First try preferred voices by name
-  for (const pref of preferredVoices) {
-    const match = voices.find(v =>
-      v.name.toLowerCase().includes(pref.toLowerCase()) && v.lang.startsWith('fr')
-    );
-    if (match) return match;
-  }
+  // Microsoft natural/neural voices (Windows 11)
+  if (name.includes('natural') && lang.startsWith('fr')) return 90;
+  if (name.includes('denise') && lang.startsWith('fr')) return 85;
+  if (name.includes('sylvie') && lang.startsWith('fr')) return 85;
 
-  // Then try any voice with fr-CA (Canadian French — closest to Québec)
-  const frCA = voices.find(v => v.lang === 'fr-CA');
-  if (frCA) return frCA;
+  // Canadian French preferred for Québec
+  if (lang === 'fr-ca') return 80;
 
-  // Then fr-FR
-  const frFR = voices.find(v => v.lang === 'fr-FR');
-  if (frFR) return frFR;
+  // macOS voices
+  if (name.includes('amelie')) return 78; // Canadian French on Mac
+  if (name.includes('thomas')) return 75;
+  if (name.includes('marie')) return 72;
+
+  // Microsoft standard voices
+  if (name.includes('hortense') && lang.startsWith('fr')) return 70;
+  if (name.includes('paul') && lang.startsWith('fr')) return 68;
+  if (name.includes('claude') && lang.startsWith('fr')) return 68;
+  if (name.includes('julie') && lang.startsWith('fr')) return 68;
 
   // Any French voice
-  const anyFr = voices.find(v => v.lang.startsWith('fr'));
-  if (anyFr) return anyFr;
+  if (lang === 'fr-fr') return 50;
+  if (lang.startsWith('fr')) return 40;
 
-  return null;
+  return 0;
 }
 
-// Preload voices (Chrome loads them async)
-if (window.speechSynthesis) {
-  window.speechSynthesis.getVoices();
+function loadBestVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length === 0) return null;
+
+  const frenchVoices = voices.filter(v => v.lang.startsWith('fr'));
+  if (frenchVoices.length === 0) return null;
+
+  // Sort by quality score, pick best
+  frenchVoices.sort((a, b) => voiceScore(b) - voiceScore(a));
+  cachedVoice = frenchVoices[0];
+  voicesLoaded = true;
+
+  console.log('Selected French voice:', cachedVoice.name, cachedVoice.lang,
+    `(score: ${voiceScore(cachedVoice)}, out of ${frenchVoices.length} French voices)`);
+
+  return cachedVoice;
+}
+
+// Preload voices — Chrome loads them async
+if (typeof window !== 'undefined' && window.speechSynthesis) {
+  loadBestVoice();
   window.speechSynthesis.onvoiceschanged = () => {
-    window.speechSynthesis.getVoices();
+    loadBestVoice();
   };
+}
+
+function getVoice() {
+  if (cachedVoice) return cachedVoice;
+  return loadBestVoice();
 }
 
 export function speak(text) {
   if (!speechEnabled || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'fr-CA'; // Canadian French for Québec
-  u.rate = 0.85;
 
-  const voice = getBestFrenchVoice();
+  const voice = getVoice();
   if (voice) {
     u.voice = voice;
-    u.lang = voice.lang; // match the voice's language
+    u.lang = voice.lang;
+  } else {
+    u.lang = 'fr-FR';
   }
 
+  u.rate = 0.85;
+  u.pitch = 1.0;
   window.speechSynthesis.speak(u);
 }
 
@@ -75,14 +98,16 @@ export function speakSlow(text) {
   if (!speechEnabled || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'fr-CA';
-  u.rate = 0.65; // slower for spelling
 
-  const voice = getBestFrenchVoice();
+  const voice = getVoice();
   if (voice) {
     u.voice = voice;
     u.lang = voice.lang;
+  } else {
+    u.lang = 'fr-FR';
   }
 
+  u.rate = 0.6;
+  u.pitch = 1.0;
   window.speechSynthesis.speak(u);
 }

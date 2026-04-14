@@ -296,20 +296,20 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
 
         {/* Word problem: operation identification step */}
         {isWordProblem && operationAnswer === null && !showResult && (
-          <div className="mb-4 p-4 bg-star/10 rounded-xl border border-star/20">
-            <p className="text-sm font-bold text-star mb-3">
+          <div className="mb-4 p-4 bg-orange-50 rounded-xl border-2 border-orange-200">
+            <p className="text-sm font-bold text-fox-d mb-3">
               {question.operationQuestion}
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => handleOperationChoice('addition')}
-                className="flex-1 py-3 rounded-xl font-bold text-lg bg-cosmic/30 text-purple-200 border border-cosmic/40 active:bg-cosmic/50"
+                className="flex-1 py-3 rounded-xl font-bold text-lg bg-blue-50 text-blue-700 border-2 border-blue-200 active:bg-blue-100"
               >
                 Addition (+)
               </button>
               <button
                 onClick={() => handleOperationChoice('soustraction')}
-                className="flex-1 py-3 rounded-xl font-bold text-lg bg-rocket/20 text-pink-200 border border-rocket/30 active:bg-rocket/40"
+                className="flex-1 py-3 rounded-xl font-bold text-lg bg-red-50 text-red-700 border-2 border-red-200 active:bg-red-100"
               >
                 Soustraction (−)
               </button>
@@ -320,7 +320,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
         {/* Operation feedback */}
         {operationPhase && (
           <div className={`mb-4 p-3 rounded-xl text-center font-bold ${
-            operationCorrect ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'
+            operationCorrect ? 'bg-green-50 text-green-700 border-2 border-green-200' : 'bg-red-50 text-red-600 border-2 border-red-200'
           }`}>
             {operationCorrect ? '✅ Bonne operation!' : `❌ C'est une ${question.correctOperation}!`}
           </div>
@@ -330,13 +330,13 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
         {question.hint && !showHint && !showResult && (
           <button
             onClick={() => setShowHint(true)}
-            className="text-sm text-star font-semibold mb-3 block"
+            className="text-sm text-fox font-semibold mb-3 block"
           >
             💡 Indice
           </button>
         )}
         {showHint && !showResult && (
-          <div className="bg-star/10 rounded-xl p-3 mb-4 text-sm font-semibold text-star border border-star/20">
+          <div className="bg-orange-50 rounded-xl p-3 mb-4 text-sm font-semibold text-fox-d border-2 border-orange-200">
             💡 {question.hint}
           </div>
         )}
@@ -387,14 +387,14 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
                   La reponse est {question.correct}
                 </p>
                 {question.steps && (
-                  <div className="text-sm text-red-300/80 space-y-1 mt-2">
+                  <div className="text-sm text-red-600 space-y-1 mt-2">
                     {question.steps.map((step, i) => (
                       <p key={i} className="font-semibold">{step.label}: {step.text}</p>
                     ))}
                   </div>
                 )}
                 {question.explanation && !question.steps && (
-                  <p className="text-sm text-red-300/80 font-semibold mt-1">{question.explanation}</p>
+                  <p className="text-sm text-red-600 font-semibold mt-1">{question.explanation}</p>
                 )}
                 {question.visual && (
                   <>
