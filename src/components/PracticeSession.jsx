@@ -6,6 +6,7 @@ import { generateRelational } from '../generators/relational';
 import { generateMental } from '../generators/mental';
 import { generateCompare } from '../generators/compare';
 import { generatePairImpair } from '../generators/pairImpair';
+import { generateStatistique } from '../generators/statistique';
 import { saveSession } from '../utils/storage';
 import { speak } from '../utils/speech';
 import TensOnes from './TensOnes';
@@ -23,17 +24,19 @@ function getGenerator(mode) {
     case 'mental': return generateMental;
     case 'compare': return generateCompare;
     case 'pair_impair': return generatePairImpair;
+    case 'statistique': return generateStatistique;
     case 'mixed':
     default:
       return () => {
         const r = Math.random();
-        if (r < 0.25) return generateCalcul();
-        if (r < 0.45) return generateTerme();
-        if (r < 0.60) return generateWordProblem();
-        if (r < 0.72) return generateRelational();
-        if (r < 0.82) return generateCompare();
-        if (r < 0.92) return generatePairImpair();
-        return generateMental();
+        if (r < 0.20) return generateCalcul();
+        if (r < 0.35) return generateTerme();
+        if (r < 0.50) return generateWordProblem();
+        if (r < 0.60) return generateRelational();
+        if (r < 0.70) return generateCompare();
+        if (r < 0.78) return generatePairImpair();
+        if (r < 0.88) return generateMental();
+        return generateStatistique();
       };
   }
 }
@@ -188,6 +191,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'mental' && '🧠 Calcul mental'}
           {question.category === 'compare' && '⚖️ Compare'}
           {question.category === 'pair_impair' && '🎯 Pair / Impair'}
+          {question.category === 'statistique' && '📊 Statistique'}
         </div>
 
         {/* Question text */}

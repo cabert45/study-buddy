@@ -9,7 +9,8 @@ const modes = [
   { id: 'relational', label: '🔗 De plus / de moins', desc: 'Comparaisons en chaîne', priority: false },
   { id: 'compare', label: '⚖️ Compare', desc: 'Plus grand, plus petit ou égal?', priority: false },
   { id: 'pair_impair', label: '🎯 Pair / Impair', desc: 'Nombres pairs et impairs', priority: false },
-  { id: 'mental', label: '🧠 Calcul mental', desc: 'Vite, vite!', priority: false },
+  { id: 'mental', label: '🧠 Calcul mental', desc: '+9, −9, +10, −10, table du 10', priority: false },
+  { id: 'statistique', label: '📊 Statistique', desc: 'Diagrammes, pictogrammes, tableaux', priority: false },
 ];
 
 export default function Menu({ onStartPractice, onStartTutor, onOpenDashboard }) {

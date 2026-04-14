@@ -161,6 +161,103 @@ const templates = [
       correct: total,
     };
   },
+  // Irrelevant information — must ignore extra data
+  () => {
+    const n1 = pickName();
+    const roses = rand(10, 30);
+    const roses2 = rand(10, 30);
+    const marguerites = rand(20, 40);
+    if (roses + roses2 > 99) return null;
+    const correct = roses + roses2;
+    return {
+      text: `Le jardinier coupe ${roses} roses pour la princesse Delphine, ${roses2} roses pour la princesse Carla et ${marguerites} marguerites pour la princesse Chloé. Combien de roses le jardinier a-t-il coupées?`,
+      steps: [
+        { label: 'Attention', text: `Les marguerites ne comptent pas! On demande les ROSES.` },
+        { label: 'Calcul', text: `${roses} + ${roses2} = ${correct}` },
+      ],
+      operationQuestion: 'Quelle opération faut-il faire?',
+      correctOperation: 'addition',
+      correct,
+    };
+  },
+  // Multi-step subtraction — boulangère pattern
+  () => {
+    const total = rand(50, 90);
+    const eat1 = rand(10, 25);
+    const eat2 = rand(10, total - eat1 - 5);
+    if (total - eat1 - eat2 < 1) return null;
+    const correct = total - eat1 - eat2;
+    return {
+      text: `La boulangère a préparé ${total} petits pains. Les chevaliers en mangent ${eat1} pour déjeuner. Les jardiniers en mangent ${eat2} pour dîner. Combien de petits pains reste-t-il pour le souper?`,
+      steps: [
+        { label: 'Étape 1', text: `${total} − ${eat1} = ${total - eat1}` },
+        { label: 'Étape 2', text: `${total - eat1} − ${eat2} = ${correct}` },
+      ],
+      operationQuestion: 'Quelle est la première opération?',
+      correctOperation: 'soustraction',
+      correct,
+    };
+  },
+  // Grouping in dizaines — forgeron pattern
+  () => {
+    const perMonth = rand(25, 45);
+    const months = 2;
+    const total = perMonth * months;
+    const dizaines = Math.floor(total / 10);
+    return {
+      text: `Le forgeron fabrique ${perMonth} épées par mois. Il vend ses épées en paquets de 10. Combien de paquets de 10 peut-il vendre après ${months} mois?`,
+      steps: [
+        { label: 'Étape 1', text: `${perMonth} + ${perMonth} = ${total} épées` },
+        { label: 'Étape 2', text: `${total} ÷ 10 = ${dizaines} paquets (${total % 10} épées restantes)` },
+      ],
+      operationQuestion: 'Que faut-il calculer en premier?',
+      correctOperation: 'addition',
+      correct: dizaines,
+    };
+  },
+  // Compare two people — is X right? (Zack et Quentin pattern)
+  () => {
+    const n1 = pickName();
+    const n2 = pickName([n1]);
+    const a1 = rand(3, 10);
+    const a2 = rand(3, 10);
+    const b1 = rand(3, 10);
+    const b2 = rand(3, 10);
+    const total1 = a1 + a2;
+    const total2 = b1 + b2;
+    if (total1 > 99 || total2 > 99 || total1 === total2) return null;
+    const correct = Math.max(total1, total2);
+    const winner = total1 > total2 ? n1 : n2;
+    return {
+      text: `${n1} trouve ${a1} cailloux le matin et ${a2} l'après-midi. ${n2} trouve ${b1} cailloux le matin et ${b2} l'après-midi. ${winner} dit qu'il a trouvé le plus. Combien a ${winner}?`,
+      steps: [
+        { label: n1, text: `${a1} + ${a2} = ${total1}` },
+        { label: n2, text: `${b1} + ${b2} = ${total2}` },
+        { label: 'Réponse', text: `${winner} a ${correct} cailloux` },
+      ],
+      operationQuestion: 'Que faut-il faire en premier?',
+      correctOperation: 'addition',
+      correct,
+    };
+  },
+  // Chart + calculation — total hours then subtract
+  () => {
+    const target = 45;
+    const days = [rand(5, 12), rand(5, 12), rand(2, 6), rand(5, 12), rand(5, 10)];
+    const done = days.reduce((a, b) => a + b, 0);
+    const remaining = target - done;
+    if (remaining < 1 || remaining > 30) return null;
+    return {
+      text: `Le roi demande ${target} heures d'entraînement. Le chevalier a fait: lundi ${days[0]}h, mardi ${days[1]}h, mercredi ${days[2]}h, jeudi ${days[3]}h, vendredi ${days[4]}h. Combien d'heures reste-t-il?`,
+      steps: [
+        { label: 'Total fait', text: `${days.join(' + ')} = ${done}` },
+        { label: 'Reste', text: `${target} − ${done} = ${remaining}` },
+      ],
+      operationQuestion: 'Que faut-il calculer en premier?',
+      correctOperation: 'addition',
+      correct: remaining,
+    };
+  },
   // Points game (from exam: Daphnée et Chloé, jeu de poches)
   () => {
     const n1 = pickName();

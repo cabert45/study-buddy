@@ -50,6 +50,26 @@ const strategies = [
     const a = rand(20, 90);
     return { text: `${a} − 10 = ?`, correct: a - 10, strategy: '−10' };
   },
+  // +9 (add 10, subtract 1)
+  () => {
+    const a = rand(3, 80);
+    return { text: `${a} + 9 = ?`, correct: a + 9, strategy: '+9 (pense +10 −1)' };
+  },
+  // -9 (subtract 10, add 1)
+  () => {
+    const a = rand(15, 90);
+    return { text: `${a} − 9 = ?`, correct: a - 9, strategy: '−9 (pense −10 +1)' };
+  },
+  // +9 word problem style
+  () => {
+    const a = rand(5, 85);
+    return { text: `9 + ${a} = ?`, correct: 9 + a, strategy: '+9 (pense 10 + ${a} − 1)' };
+  },
+  // table du 10 (complements)
+  () => {
+    const a = rand(1, 9);
+    return { text: `${a} + ? = 10`, correct: 10 - a, strategy: 'table du 10' };
+  },
   // doubles
   () => {
     const a = rand(5, 45);

@@ -9,6 +9,7 @@ const categoryLabels = {
   compare: '⚖️ Compare',
   pair_impair: '🎯 Pair / Impair',
   mental: '🧠 Calcul mental',
+  statistique: '📊 Statistique',
 };
 
 function ProgressChart({ daily }) {
