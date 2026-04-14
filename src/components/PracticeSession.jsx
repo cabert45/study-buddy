@@ -14,7 +14,7 @@ import { generatePemdas } from '../generators/pemdas';
 import { generateConjugaison } from '../generators/conjugaison';
 import { generateDictee } from '../generators/dictee';
 import { saveSession } from '../utils/storage';
-import { speak } from '../utils/speech';
+import { speak, speakSlow } from '../utils/speech';
 import TensOnes from './TensOnes';
 import CountingBoxes from './CountingBoxes';
 import InteractiveTenFrames from './InteractiveTenFrames';
@@ -100,9 +100,9 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
 
   useEffect(() => {
     if (question) {
-      // For dictée, speak the word to spell instead of the instruction text
+      // For dictée, speak the word slowly and clearly
       if (question.spokenWord) {
-        speak(question.spokenWord);
+        speakSlow(question.spokenWord);
       } else {
         speak(question.text);
       }
@@ -246,7 +246,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
         {/* Listen button + scratch pad + video help */}
         <div className="flex flex-wrap gap-3 mb-4">
           <button
-            onClick={() => speak(question.spokenWord || question.text)}
+            onClick={() => question.spokenWord ? speakSlow(question.spokenWord) : speak(question.text)}
             className="text-sm text-s4 font-semibold hover:text-lava"
           >
             🔊 {question.spokenWord ? 'Réécouter le mot' : 'Ecouter'}
