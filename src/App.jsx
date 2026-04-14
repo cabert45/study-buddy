@@ -69,6 +69,9 @@ export default function App() {
           <div className="text-5xl mb-4">🌋</div>
           <h1 className="font-heading text-3xl font-extrabold text-stone mb-1">Study Buddy</h1>
           <p className="text-s4 font-semibold mb-8">Qui es-tu?</p>
+          {window.__selectedVoice && (
+            <p className="text-[10px] text-s3 mb-4">Voix: {window.__selectedVoice}</p>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <button onClick={() => selectProfile('ryan')}
               className="bg-white border-2 border-s1 rounded-2xl p-6 hover:scale-105 hover:border-fox hover:shadow-lg transition-all active:scale-95">

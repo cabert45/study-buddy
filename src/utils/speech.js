@@ -59,6 +59,10 @@ function loadBestVoice() {
   console.log('Selected French voice:', cachedVoice.name, cachedVoice.lang,
     `(score: ${voiceScore(cachedVoice)}, out of ${frenchVoices.length} French voices)`);
 
+  // Store for debug display
+  window.__selectedVoice = `${cachedVoice.name} (${cachedVoice.lang}) - score: ${voiceScore(cachedVoice)}`;
+  window.__allFrenchVoices = frenchVoices.map(v => `${v.name} [${v.lang}] score:${voiceScore(v)}`).join(', ');
+
   return cachedVoice;
 }
 
