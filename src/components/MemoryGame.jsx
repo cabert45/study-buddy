@@ -56,9 +56,9 @@ function generatePairs() {
   return shuffle(cards);
 }
 
-const cardColors = ['from-blue-500/30 to-blue-600/20', 'from-purple-500/30 to-purple-600/20',
-  'from-pink-500/30 to-pink-600/20', 'from-green-500/30 to-green-600/20',
-  'from-cyan-500/30 to-cyan-600/20', 'from-orange-500/30 to-orange-600/20'];
+const cardColors = ['from-blue-100 to-blue-200', 'from-orange-100 to-orange-200',
+  'from-pink-100 to-pink-200', 'from-green-100 to-green-200',
+  'from-cyan-100 to-cyan-200', 'from-amber-100 to-amber-200'];
 
 export default function MemoryGame({ onHome, onFinish }) {
   const [cards, setCards] = useState([]);
@@ -120,15 +120,15 @@ export default function MemoryGame({ onHome, onFinish }) {
     return (
       <div className="max-w-3xl mx-auto px-4 pt-6 text-center">
         <div className="text-5xl mb-4">🎴</div>
-        <h2 className="text-2xl font-extrabold text-white mb-2">Toutes les paires trouvées!</h2>
-        <div className="bg-white/10 rounded-2xl p-6 mb-4 border border-white/10">
+        <h2 className="text-2xl font-extrabold text-stone mb-2">Toutes les paires trouvées!</h2>
+        <div className="bg-white rounded-2xl p-6 mb-4 border-2 border-s1">
           <div className="text-3xl mb-2">
             {Array.from({ length: 5 }, (_, i) => (
               <span key={i}>{i < stars ? '⭐' : '☆'}</span>
             ))}
           </div>
-          <div className="text-lg font-bold text-white">{attempts} essais</div>
-          <div className="text-sm text-purple-300">
+          <div className="text-lg font-bold text-stone">{attempts} essais</div>
+          <div className="text-sm text-s4">
             {stars >= 4 ? 'Excellente mémoire!' : stars >= 3 ? 'Bien joué!' : 'Continue à pratiquer!'}
           </div>
         </div>
@@ -139,11 +139,11 @@ export default function MemoryGame({ onHome, onFinish }) {
               correct: Math.max(1, 6 - Math.floor(attempts / 3)), total: 6, mode: 'memory', streak: 0,
             });
           }} className="w-full py-3 rounded-xl font-bold text-white"
-            style={{ background: 'linear-gradient(90deg, #e84393, #6c5ce7)' }}>
+            style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
             Résultats 🏆
           </button>
           <button onClick={onHome}
-            className="w-full py-3 rounded-xl font-bold text-purple-300 bg-white/10">
+            className="w-full py-3 rounded-xl font-bold text-s4 bg-white border-2 border-s2">
             ← Menu
           </button>
         </div>
@@ -154,20 +154,20 @@ export default function MemoryGame({ onHome, onFinish }) {
   return (
     <div className="max-w-3xl mx-auto px-4 pt-4">
       <div className="flex items-center justify-between mb-3">
-        <button onClick={onHome} className="text-purple-400 font-bold text-sm">← Menu</button>
-        <div className="text-sm font-bold text-pink-300">🎴 Mémoire</div>
-        <div className="text-sm text-purple-400">Essais: {attempts}</div>
+        <button onClick={onHome} className="text-s4 font-bold text-sm">← Menu</button>
+        <div className="text-sm font-bold text-fox">🎴 Mémoire</div>
+        <div className="text-sm text-s4">Essais: {attempts}</div>
       </div>
 
       {showAll && (
-        <div className="text-center mb-3 text-sm font-bold text-star animate-pulse">
+        <div className="text-center mb-3 text-sm font-bold text-fox animate-pulse">
           👀 Mémorise les cartes!
         </div>
       )}
 
       {/* Pairs found counter */}
       <div className="text-center mb-3">
-        <span className="text-sm font-bold text-purple-300">
+        <span className="text-sm font-bold text-s4">
           Paires: {matched.size / 2} / {cards.length / 2}
         </span>
       </div>
@@ -185,16 +185,16 @@ export default function MemoryGame({ onHome, onFinish }) {
               onClick={() => flipCard(idx)}
               className={`rounded-xl transition-all duration-300 flex items-center justify-center ${
                 isMatched
-                  ? 'bg-green-500/20 border-2 border-green-400/50 scale-95'
+                  ? 'bg-green-50 border-2 border-green-500 scale-95'
                   : isFlipped
-                    ? `bg-gradient-to-br ${cardColors[colorIdx]} border-2 border-white/30`
-                    : 'bg-white/10 border-2 border-white/15 hover:bg-white/15 active:scale-95'
+                    ? `bg-gradient-to-br ${cardColors[colorIdx]} border-2 border-s2`
+                    : 'bg-white border-2 border-s1 hover:border-lava active:scale-95'
               }`}
               style={{ height: 80 }}
             >
               {isFlipped ? (
                 <span className={`font-extrabold ${card.type === 'expr' ? 'text-base' : 'text-xl'} ${
-                  isMatched ? 'text-green-300' : 'text-white'
+                  isMatched ? 'text-green-700' : 'text-stone'
                 }`}>
                   {card.display}
                 </span>

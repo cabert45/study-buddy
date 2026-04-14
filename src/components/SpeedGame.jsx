@@ -117,22 +117,22 @@ export default function SpeedGame({ onHome, onFinish }) {
     return (
       <div className="max-w-3xl mx-auto px-4 pt-6 text-center">
         <div className="text-5xl mb-4">⏱️</div>
-        <h2 className="text-2xl font-extrabold text-white mb-2">Temps écoulé!</h2>
-        <div className="bg-white/10 rounded-2xl p-6 mb-4 border border-white/10">
-          <div className="text-4xl font-extrabold text-star mb-1">{score}</div>
-          <div className="text-sm text-purple-300">bonnes réponses en {GAME_DURATION}s</div>
+        <h2 className="text-2xl font-extrabold text-stone mb-2">Temps écoulé!</h2>
+        <div className="bg-white rounded-2xl p-6 mb-4 border-2 border-s1">
+          <div className="text-4xl font-extrabold text-fox mb-1">{score}</div>
+          <div className="text-sm text-s4">bonnes réponses en {GAME_DURATION}s</div>
           <div className="flex justify-around mt-4">
             <div>
-              <div className="text-xl font-bold text-white">{total}</div>
-              <div className="text-xs text-purple-400">Total</div>
+              <div className="text-xl font-bold text-stone">{total}</div>
+              <div className="text-xs text-s4">Total</div>
             </div>
             <div>
-              <div className="text-xl font-bold text-green-400">{pct}%</div>
-              <div className="text-xs text-purple-400">Précision</div>
+              <div className="text-xl font-bold text-green-600">{pct}%</div>
+              <div className="text-xs text-s4">Précision</div>
             </div>
             <div>
-              <div className="text-xl font-bold text-star">{bestStreak}🔥</div>
-              <div className="text-xs text-purple-400">Série</div>
+              <div className="text-xl font-bold text-fox">{bestStreak}🔥</div>
+              <div className="text-xs text-s4">Série</div>
             </div>
           </div>
         </div>
@@ -140,11 +140,11 @@ export default function SpeedGame({ onHome, onFinish }) {
           <button onClick={() => {
             onFinish({ results, correct: score, total, mode: 'speed', streak: bestStreak });
           }} className="w-full py-3 rounded-xl font-bold text-white"
-            style={{ background: 'linear-gradient(90deg, #e84393, #6c5ce7)' }}>
+            style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
             Voir les résultats 🏆
           </button>
           <button onClick={onHome}
-            className="w-full py-3 rounded-xl font-bold text-purple-300 bg-white/10">
+            className="w-full py-3 rounded-xl font-bold text-s4 bg-white border-2 border-s2">
             ← Menu
           </button>
         </div>
@@ -162,12 +162,12 @@ export default function SpeedGame({ onHome, onFinish }) {
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
-        <div className="text-sm font-bold text-rocket">⚡ Course</div>
-        <div className="text-lg font-extrabold text-white">{score}</div>
+        <div className="text-sm font-bold text-lava">⚡ Course</div>
+        <div className="text-lg font-extrabold text-stone">{score}</div>
       </div>
 
       {/* Timer bar */}
-      <div className="w-full bg-white/10 rounded-full h-3 mb-4 overflow-hidden">
+      <div className="w-full bg-s1 rounded-full h-3 mb-4 overflow-hidden">
         <div className="h-3 rounded-full transition-all duration-1000"
           style={{ width: `${timerPct}%`, background: timerColor }} />
       </div>
@@ -175,16 +175,16 @@ export default function SpeedGame({ onHome, onFinish }) {
       {/* Time + streak */}
       <div className="flex justify-between mb-4">
         <div className="text-2xl font-extrabold" style={{ color: timerColor }}>{timeLeft}s</div>
-        {streak >= 2 && <div className="text-lg font-bold text-star">🔥 {streak}</div>}
+        {streak >= 2 && <div className="text-lg font-bold text-fox">🔥 {streak}</div>}
       </div>
 
       {/* Question */}
       <div className={`rounded-2xl p-8 mb-4 text-center border-2 transition-all duration-200 ${
-        flash === 'correct' ? 'bg-green-500/20 border-green-400' :
-        flash === 'wrong' ? 'bg-red-500/20 border-red-400' :
-        'bg-white/10 border-white/10'
+        flash === 'correct' ? 'bg-green-50 border-green-500' :
+        flash === 'wrong' ? 'bg-red-50 border-red-400' :
+        'bg-white border-s1'
       }`}>
-        <div className="text-4xl font-extrabold text-white">
+        <div className="text-4xl font-extrabold text-stone">
           {question.text} = ?
         </div>
       </div>
@@ -193,8 +193,8 @@ export default function SpeedGame({ onHome, onFinish }) {
       <div className="grid grid-cols-2 gap-3">
         {options.map((opt, i) => (
           <button key={i} onClick={() => handleAnswer(opt)}
-            className="py-5 rounded-xl font-extrabold text-2xl text-white bg-white/10 border-2 border-white/20
-              active:scale-95 active:bg-white/20 transition-all"
+            className="py-5 rounded-xl font-extrabold text-2xl text-stone bg-white border-2 border-s2
+              hover:border-lava hover:text-lava active:scale-95 transition-all"
           >
             {opt}
           </button>
