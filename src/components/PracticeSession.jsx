@@ -45,15 +45,23 @@ function getGenerator(mode) {
       };
     case 'mixed':
     default:
+      // Weighted by Ryan's exam weaknesses:
+      // 1/8 on carrying → calcul 30%
+      // 0/5 on relational chains → relational 20%
+      // 3/12 on situation problems → word problems 20%
+      // 0.5/3.5 on pair/impair big numbers → pair_impair 10%
+      // terme manquant 9.5/20 → terme 10%
+      // mental math strong → mental 5%
+      // rest → compare 3%, statistique 2%
       return () => {
         const r = Math.random();
-        if (r < 0.20) return generateCalcul();
-        if (r < 0.35) return generateTerme();
-        if (r < 0.50) return generateWordProblem();
-        if (r < 0.60) return generateRelational();
-        if (r < 0.70) return generateCompare();
-        if (r < 0.78) return generatePairImpair();
-        if (r < 0.88) return generateMental();
+        if (r < 0.30) return generateCalcul();
+        if (r < 0.50) return generateRelational();
+        if (r < 0.70) return generateWordProblem();
+        if (r < 0.80) return generatePairImpair();
+        if (r < 0.90) return generateTerme();
+        if (r < 0.95) return generateMental();
+        if (r < 0.98) return generateCompare();
         return generateStatistique();
       };
   }

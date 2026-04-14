@@ -118,6 +118,66 @@ const templates = [
       explanation: `${n2}: ${base} + ${diff1} = ${n2Amount}. ${n3}: ${n2Amount} + ${diff2} = ${n3Amount}`,
     };
   },
+  // 4-person chain — exact exam pattern (Noa/Justin/Rémi/Olivia)
+  // Ryan scored 0/5 on this — needs heavy practice
+  () => {
+    const n1 = pick(names);
+    const n2 = pick(names, [n1]);
+    const n3 = pick(names, [n1, n2]);
+    const n4 = pick(names, [n1, n2, n3]);
+    const item = pick(itemsList);
+    const base = rand(8, 20);
+    const d1 = rand(1, 3);
+    const d2 = rand(1, 3);
+    const d3 = rand(1, 3);
+    const ops = [Math.random() < 0.5, Math.random() < 0.5, Math.random() < 0.5]; // true=plus, false=moins
+
+    const v2 = ops[0] ? base + d1 : base - d1;
+    const v3 = ops[1] ? v2 + d2 : v2 - d2;
+    const v4 = ops[2] ? v3 + d3 : v3 - d3;
+
+    if (v2 < 1 || v3 < 1 || v4 < 1 || v4 > 50) return null;
+
+    // Ask for a random person in the chain
+    const askIdx = rand(1, 3);
+    const askName = [n2, n3, n4][askIdx - 1];
+    const correct = [v2, v3, v4][askIdx - 1];
+    const trap = base; // common error: ignoring chain
+
+    const r1 = ops[0] ? 'de plus' : 'de moins';
+    const r2 = ops[1] ? 'de plus' : 'de moins';
+    const r3 = ops[2] ? 'de plus' : 'de moins';
+
+    return {
+      text: `${n1} a ${base} ${item}. ${n2} en a ${d1} ${r1} que ${n1}. ${n3} en a ${d2} ${r2} que ${n2}. ${n4} en a ${d3} ${r3} que ${n3}. Combien ${askName} a-t-il de ${item}?`,
+      correct,
+      trap,
+      base,
+      relation: 'chaîne 4 personnes',
+      explanation: `${n1}: ${base}. ${n2}: ${base} ${ops[0] ? '+' : '−'} ${d1} = ${v2}. ${n3}: ${v2} ${ops[1] ? '+' : '−'} ${d2} = ${v3}. ${n4}: ${v3} ${ops[2] ? '+' : '−'} ${d3} = ${v4}. ${askName} = ${correct}`,
+    };
+  },
+  // "De moins" confusion — Ryan's specific error pattern
+  // He adds when he should subtract and vice versa
+  () => {
+    const n1 = pick(names);
+    const n2 = pick(names, [n1]);
+    const item = pick(itemsList);
+    const base = rand(20, 50);
+    const diff = rand(3, 10);
+    const correct = base - diff;
+    if (correct < 1) return null;
+    const trap = base + diff; // the wrong-direction answer
+
+    return {
+      text: `${n1} a ${base} ${item}. ${n2} en a ${diff} de moins que ${n1}. Combien ${n2} a-t-il de ${item}?`,
+      correct,
+      trap,
+      base,
+      relation: 'de moins',
+      explanation: `${diff} DE MOINS que ${base} → on soustrait: ${base} − ${diff} = ${correct}. Attention: "de moins" = on enlève!`,
+    };
+  },
 ];
 
 export function generateRelational() {

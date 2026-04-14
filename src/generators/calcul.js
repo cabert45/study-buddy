@@ -93,8 +93,9 @@ function generateSubtraction(forceBorrow) {
 }
 
 export function generateCalcul() {
-  // 60% forced carry/borrow, 40% normal
-  const forceHard = Math.random() < 0.6;
+  // 85% forced carry/borrow — Ryan scored 1/8 on this
+  // Teacher wrote "À pratiquer" — he needs heavy drill on exchanges
+  const forceHard = Math.random() < 0.85;
   if (Math.random() < 0.5) {
     return generateAddition(forceHard);
   } else {
