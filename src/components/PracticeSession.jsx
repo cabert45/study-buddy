@@ -10,6 +10,8 @@ import { generateStatistique } from '../generators/statistique';
 import { generateDeterminant } from '../generators/determinant';
 import { generateVerbes } from '../generators/verbes';
 import { generateAdjectif } from '../generators/adjectif';
+import { generatePemdas } from '../generators/pemdas';
+import { generateConjugaison } from '../generators/conjugaison';
 import { saveSession } from '../utils/storage';
 import { speak } from '../utils/speech';
 import TensOnes from './TensOnes';
@@ -32,6 +34,8 @@ function getGenerator(mode) {
     case 'determinant': return generateDeterminant;
     case 'verbes': return generateVerbes;
     case 'adjectif': return generateAdjectif;
+    case 'pemdas': return generatePemdas;
+    case 'conjugaison': return generateConjugaison;
     case 'francais_mix':
       return () => {
         const r = Math.random();
@@ -209,6 +213,8 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'determinant' && '📌 Déterminant'}
           {question.category === 'verbes' && '✏️ Verbes'}
           {question.category === 'adjectif' && '🎨 Adjectif'}
+          {question.category === 'pemdas' && '🧮 PEMDAS'}
+          {question.category === 'conjugaison' && '✏️ Conjugaison'}
         </div>
 
         {/* Question text */}

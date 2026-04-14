@@ -13,6 +13,11 @@ const categoryLabels = {
   determinant: '📌 Déterminants',
   verbes: '✏️ Verbes',
   adjectif: '🎨 Adjectifs',
+  pemdas: '🧮 PEMDAS',
+  conjugaison: '✏️ Conjugaison',
+  aquarium: '🐟 Aquarium',
+  speed: '⚡ Course',
+  memory: '🎴 Mémoire',
 };
 
 function ProgressChart({ daily }) {
