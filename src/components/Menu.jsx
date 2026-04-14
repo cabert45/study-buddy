@@ -11,6 +11,7 @@ const icons = {
   pair_impair: { bg: '#fce8ec', color: '#c74a60', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="6.5" cy="9" r="4.5" stroke="currentColor" strokeWidth="1.4"/><circle cx="11.5" cy="9" r="4.5" stroke="currentColor" strokeWidth="1.4"/></svg> },
   mental: { bg: '#eef0f4', color: '#5c6378', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.4"/><path d="M9 4.5V9L12 12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
   statistique: { bg: '#e8f5ea', color: '#2d7a3a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="11" width="3" height="4.5" rx=".5" fill="currentColor"/><rect x="7.5" y="7.5" width="3" height="8" rx=".5" fill="currentColor"/><rect x="12" y="4" width="3" height="11.5" rx=".5" fill="currentColor"/></svg> },
+  dictee: { bg: '#fce8ec', color: '#c74a60', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 3C6 3 4 5 4 7C4 9 6 10 6 12H12C12 10 14 9 14 7C14 5 12 3 9 3Z" stroke="currentColor" strokeWidth="1.4"/><path d="M7 14H11" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M8 16H10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
   determinant: { bg: '#e8eef8', color: '#3a5bc7', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="3" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.4"/><text x="9" y="13" textAnchor="middle" fontSize="10" fontWeight="700" fill="currentColor">A</text></svg> },
   verbes: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 14L7 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M7 4L14 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M10 4V14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
   adjectif: { bg: '#fef0e4', color: '#b85d1a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6" r="3" stroke="currentColor" strokeWidth="1.4"/><path d="M4 16C4 12.7 6.2 10.5 9 10.5C11.8 10.5 14 12.7 14 16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
@@ -32,6 +33,7 @@ const ryanMathModes = [
 
 const ryanFrenchModes = [
   { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs', featured: true },
+  { id: 'dictee', label: 'Dictée', desc: 'Écoute et choisis la bonne orthographe' },
   { id: 'determinant', label: 'Déterminants', desc: 'le, la, un, une, mon...' },
   { id: 'verbes', label: 'Verbes', desc: 'être, avoir, aller, faire...' },
   { id: 'adjectif', label: 'Adjectifs', desc: 'Accord et familles de mots' },

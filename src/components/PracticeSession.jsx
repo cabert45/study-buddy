@@ -12,6 +12,7 @@ import { generateVerbes } from '../generators/verbes';
 import { generateAdjectif } from '../generators/adjectif';
 import { generatePemdas } from '../generators/pemdas';
 import { generateConjugaison } from '../generators/conjugaison';
+import { generateDictee } from '../generators/dictee';
 import { saveSession } from '../utils/storage';
 import { speak } from '../utils/speech';
 import TensOnes from './TensOnes';
@@ -36,12 +37,18 @@ function getGenerator(mode) {
     case 'adjectif': return generateAdjectif;
     case 'pemdas': return generatePemdas;
     case 'conjugaison': return generateConjugaison;
+    case 'dictee': return generateDictee;
     case 'francais_mix':
+      // Weighted by Ryan's French exam results:
+      // Dictée 3/10 → 35%, Adjective agreement 1/4 → 25%,
+      // Déterminants → 15%, Verbes → 15%, Dictée bonus → 10%
       return () => {
         const r = Math.random();
-        if (r < 0.35) return generateDeterminant();
-        if (r < 0.65) return generateVerbes();
-        return generateAdjectif();
+        if (r < 0.35) return generateDictee();
+        if (r < 0.60) return generateAdjectif();
+        if (r < 0.75) return generateDeterminant();
+        if (r < 0.90) return generateVerbes();
+        return generateDictee();
       };
     case 'mixed':
     default:
@@ -93,7 +100,12 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
 
   useEffect(() => {
     if (question) {
-      speak(question.text);
+      // For dictée, speak the word to spell instead of the instruction text
+      if (question.spokenWord) {
+        speak(question.spokenWord);
+      } else {
+        speak(question.text);
+      }
     }
   }, [question]);
 
@@ -223,6 +235,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'adjectif' && '🎨 Adjectif'}
           {question.category === 'pemdas' && '🧮 PEMDAS'}
           {question.category === 'conjugaison' && '✏️ Conjugaison'}
+          {question.category === 'dictee' && '🎧 Dictée'}
         </div>
 
         {/* Question text */}
@@ -233,10 +246,10 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
         {/* Listen button + scratch pad + video help */}
         <div className="flex flex-wrap gap-3 mb-4">
           <button
-            onClick={() => speak(question.text)}
+            onClick={() => speak(question.spokenWord || question.text)}
             className="text-sm text-s4 font-semibold hover:text-lava"
           >
-            🔊 Ecouter
+            🔊 {question.spokenWord ? 'Réécouter le mot' : 'Ecouter'}
           </button>
           {!showResult && (
             <button

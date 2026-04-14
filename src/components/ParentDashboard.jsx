@@ -15,6 +15,7 @@ const categoryLabels = {
   adjectif: '🎨 Adjectifs',
   pemdas: '🧮 PEMDAS',
   conjugaison: '✏️ Conjugaison',
+  dictee: '🎧 Dictée',
   aquarium: '🐟 Aquarium',
   speed: '⚡ Course',
   memory: '🎴 Mémoire',
