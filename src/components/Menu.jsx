@@ -20,7 +20,7 @@ const frenchModes = [
   { id: 'adjectif', label: '🎨 Adjectifs', desc: 'Accord et familles de mots' },
 ];
 
-export default function Menu({ onStartPractice, onStartTutor, onStartAquarium, onOpenDashboard }) {
+export default function Menu({ onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onOpenDashboard }) {
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
 
@@ -131,21 +131,38 @@ export default function Menu({ onStartPractice, onStartTutor, onStartAquarium, o
         })}
       </div>
 
-      {/* Special modes row */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        <button
-          onClick={onStartTutor}
-          className="text-left rounded-xl p-3.5 bg-white/8 border border-purple-400/30 hover:bg-white/12 transition-all active:scale-[0.97]"
-        >
-          <div className="text-base font-bold text-white">👨‍🚀 Tuteur IA</div>
-          <div className="text-xs text-purple-300 mt-0.5">Apprends avec ton tuteur</div>
-        </button>
+      {/* AI Tutor */}
+      <button
+        onClick={onStartTutor}
+        className="w-full text-left rounded-xl p-3.5 mb-4 bg-white/8 border border-purple-400/30 hover:bg-white/12 transition-all active:scale-[0.97]"
+      >
+        <div className="text-base font-bold text-white">👨‍🚀 Tuteur IA</div>
+        <div className="text-xs text-purple-300 mt-0.5">Apprends avec ton tuteur intelligent</div>
+      </button>
+
+      {/* Games section */}
+      <h3 className="text-sm font-bold text-purple-400 uppercase tracking-wider mb-2">🎮 Jeux</h3>
+      <div className="grid grid-cols-3 gap-2 mb-4">
         <button
           onClick={onStartAquarium}
-          className="text-left rounded-xl p-3.5 bg-white/8 border border-cyan-400/30 hover:bg-white/12 transition-all active:scale-[0.97]"
+          className="rounded-xl p-3 text-center bg-cyan-500/15 border border-cyan-400/25 hover:bg-cyan-500/25 transition-all active:scale-95"
         >
-          <div className="text-base font-bold text-white">🐟 Aquarium</div>
-          <div className="text-xs text-cyan-300 mt-0.5">Trouve les bons résultats!</div>
+          <div className="text-2xl mb-1">🐟</div>
+          <div className="text-xs font-bold text-cyan-200">Aquarium</div>
+        </button>
+        <button
+          onClick={onStartSpeed}
+          className="rounded-xl p-3 text-center bg-orange-500/15 border border-orange-400/25 hover:bg-orange-500/25 transition-all active:scale-95"
+        >
+          <div className="text-2xl mb-1">⚡</div>
+          <div className="text-xs font-bold text-orange-200">Course</div>
+        </button>
+        <button
+          onClick={onStartMemory}
+          className="rounded-xl p-3 text-center bg-pink-500/15 border border-pink-400/25 hover:bg-pink-500/25 transition-all active:scale-95"
+        >
+          <div className="text-2xl mb-1">🎴</div>
+          <div className="text-xs font-bold text-pink-200">Mémoire</div>
         </button>
       </div>
     </div>

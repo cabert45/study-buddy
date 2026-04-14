@@ -5,6 +5,8 @@ import TutorSession from './components/TutorSession';
 import Results from './components/Results';
 import ParentDashboard from './components/ParentDashboard';
 import AquariumGame from './components/AquariumGame';
+import SpeedGame from './components/SpeedGame';
+import MemoryGame from './components/MemoryGame';
 
 export default function App() {
   const [screen, setScreen] = useState('menu');
@@ -22,6 +24,14 @@ export default function App() {
 
   function startAquarium() {
     setScreen('aquarium');
+  }
+
+  function startSpeed() {
+    setScreen('speed');
+  }
+
+  function startMemory() {
+    setScreen('memory');
   }
 
   function finishSession(results) {
@@ -46,6 +56,8 @@ export default function App() {
           onStartPractice={startPractice}
           onStartTutor={startTutor}
           onStartAquarium={startAquarium}
+          onStartSpeed={startSpeed}
+          onStartMemory={startMemory}
           onOpenDashboard={openDashboard}
         />
       )}
@@ -67,10 +79,13 @@ export default function App() {
         />
       )}
       {screen === 'aquarium' && (
-        <AquariumGame
-          onHome={goHome}
-          onFinish={finishSession}
-        />
+        <AquariumGame onHome={goHome} onFinish={finishSession} />
+      )}
+      {screen === 'speed' && (
+        <SpeedGame onHome={goHome} onFinish={finishSession} />
+      )}
+      {screen === 'memory' && (
+        <MemoryGame onHome={goHome} onFinish={finishSession} />
       )}
       {screen === 'dashboard' && (
         <ParentDashboard onHome={goHome} />
