@@ -10,6 +10,9 @@ const categoryLabels = {
   pair_impair: '🎯 Pair / Impair',
   mental: '🧠 Calcul mental',
   statistique: '📊 Statistique',
+  determinant: '📌 Déterminants',
+  verbes: '✏️ Verbes',
+  adjectif: '🎨 Adjectifs',
 };
 
 function ProgressChart({ daily }) {

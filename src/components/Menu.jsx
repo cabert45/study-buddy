@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
 
-const modes = [
+const mathModes = [
   { id: 'mixed', label: '🚀 Pratique ciblée', desc: 'Mix de tes exercices', priority: true, recommended: true },
   { id: 'calcul', label: '🔢 Calcul', desc: 'Addition et soustraction', priority: true },
   { id: 'terme', label: '🔍 Terme manquant', desc: 'Trouve le nombre mystère', priority: true },
@@ -11,6 +11,13 @@ const modes = [
   { id: 'pair_impair', label: '🎯 Pair / Impair', desc: 'Nombres pairs et impairs', priority: false },
   { id: 'mental', label: '🧠 Calcul mental', desc: '+9, −9, +10, −10, table du 10', priority: false },
   { id: 'statistique', label: '📊 Statistique', desc: 'Diagrammes, pictogrammes, tableaux', priority: false },
+];
+
+const frenchModes = [
+  { id: 'francais_mix', label: '📝 Français - Mix', desc: 'Grammaire, verbes, adjectifs', priority: true, recommended: true },
+  { id: 'determinant', label: '📌 Déterminants', desc: 'le, la, un, une, mon, ses...', priority: false },
+  { id: 'verbes', label: '✏️ Verbes utiles', desc: 'être, avoir, aimer, aller, dire, faire', priority: false },
+  { id: 'adjectif', label: '🎨 Adjectifs', desc: 'Accord, lettres muettes, familles de mots', priority: false },
 ];
 
 export default function Menu({ onStartPractice, onStartTutor, onOpenDashboard }) {
@@ -69,9 +76,10 @@ export default function Menu({ onStartPractice, onStartTutor, onOpenDashboard })
           )}
         </div>
 
-        {/* Practice modes */}
+        {/* Math modes */}
+        <h3 className="text-sm font-bold text-purple-400 uppercase tracking-wider mt-2 mb-1">🔢 Mathématiques</h3>
         <div className="space-y-3">
-          {modes.map((mode) => (
+          {mathModes.map((mode) => (
             <button
               key={mode.id}
               onClick={() => onStartPractice(mode.id)}
@@ -96,6 +104,34 @@ export default function Menu({ onStartPractice, onStartTutor, onOpenDashboard })
                 {mode.priority && !mode.recommended && (
                   <span className="text-xs font-bold bg-rocket text-white px-2 py-1 rounded-full">
                     PRIORITE
+                  </span>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* French modes */}
+        <h3 className="text-sm font-bold text-purple-400 uppercase tracking-wider mt-6 mb-1">📚 Français</h3>
+        <div className="space-y-3">
+          {frenchModes.map((mode) => (
+            <button
+              key={mode.id}
+              onClick={() => onStartPractice(mode.id)}
+              className={`w-full text-left rounded-2xl p-4 shadow-lg transition-all active:scale-[0.98] ${
+                mode.recommended
+                  ? 'bg-gradient-to-r from-green-900/30 to-emerald-800/20 border-2 border-green-400/40 backdrop-blur-sm'
+                  : 'bg-white/5 backdrop-blur-sm border border-white/10'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-lg font-bold text-white">{mode.label}</div>
+                  <div className="text-sm text-purple-300">{mode.desc}</div>
+                </div>
+                {mode.recommended && (
+                  <span className="text-xs font-bold bg-green-500 text-white px-2 py-1 rounded-full">
+                    RECOMMANDE
                   </span>
                 )}
               </div>
