@@ -1,23 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
 
+// SVG icons for modules — clean, no emojis
+const icons = {
+  calcul: { bg: '#fef0e4', color: '#c74a15', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="14" rx="1" stroke="currentColor" strokeWidth="1.4"/><rect x="10" y="5" width="6" height="11" rx="1" stroke="currentColor" strokeWidth="1.4"/><line x1="4" y1="9" x2="6" y2="9" stroke="currentColor" strokeWidth="1.4"/><line x1="5" y1="8" x2="5" y2="10" stroke="currentColor" strokeWidth="1.4"/></svg> },
+  terme: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.4"/><text x="9" y="13" textAnchor="middle" fontSize="11" fontWeight="700" fill="currentColor">?</text></svg> },
+  multi_step: { bg: '#e6f5f0', color: '#0f766e', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><rect x="10" y="2" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><rect x="6" y="10" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/></svg> },
+  relational: { bg: '#e8eef8', color: '#3a5bc7', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 13L9 4L14 13" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/><line x1="6" y1="9.5" x2="12" y2="9.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
+  compare: { bg: '#fef5e4', color: '#b85d1a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 14L9 4L15 14H3Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/><line x1="7" y1="11" x2="11" y2="11" stroke="currentColor" strokeWidth="1.4"/></svg> },
+  pair_impair: { bg: '#fce8ec', color: '#c74a60', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="6.5" cy="9" r="4.5" stroke="currentColor" strokeWidth="1.4"/><circle cx="11.5" cy="9" r="4.5" stroke="currentColor" strokeWidth="1.4"/></svg> },
+  mental: { bg: '#eef0f4', color: '#5c6378', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.4"/><path d="M9 4.5V9L12 12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
+  statistique: { bg: '#e8f5ea', color: '#2d7a3a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="11" width="3" height="4.5" rx=".5" fill="currentColor"/><rect x="7.5" y="7.5" width="3" height="8" rx=".5" fill="currentColor"/><rect x="12" y="4" width="3" height="11.5" rx=".5" fill="currentColor"/></svg> },
+  determinant: { bg: '#e8eef8', color: '#3a5bc7', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="3" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.4"/><text x="9" y="13" textAnchor="middle" fontSize="10" fontWeight="700" fill="currentColor">A</text></svg> },
+  verbes: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 14L7 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M7 4L14 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M10 4V14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
+  adjectif: { bg: '#fef0e4', color: '#b85d1a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6" r="3" stroke="currentColor" strokeWidth="1.4"/><path d="M4 16C4 12.7 6.2 10.5 9 10.5C11.8 10.5 14 12.7 14 16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
+  pemdas: { bg: '#fef0e4', color: '#c74a15', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="9" y="13" textAnchor="middle" fontSize="12" fontWeight="800" fill="currentColor">()</text></svg> },
+  conjugaison: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 5H15M3 9H12M3 13H9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
+};
+
 const ryanMathModes = [
   { id: 'mixed', label: 'Pratique ciblée', desc: 'Mix de tous tes exercices', featured: true },
-  { id: 'calcul', label: 'Calcul', desc: 'Addition et soustraction', icon: '🔢', badge: 'Priorité' },
-  { id: 'terme', label: 'Terme manquant', desc: 'Trouve le nombre mystère', icon: '🔍', badge: 'Priorité' },
-  { id: 'multi_step', label: 'Problèmes', desc: 'Problèmes à étapes', icon: '🧩', badge: 'À travailler' },
-  { id: 'relational', label: 'De plus / moins', desc: 'Comparaisons', icon: '🔗' },
-  { id: 'compare', label: 'Compare', desc: '>, < ou =', icon: '⚖️' },
-  { id: 'pair_impair', label: 'Pair / Impair', desc: 'Nombres pairs et impairs', icon: '🎯' },
-  { id: 'mental', label: 'Mental', desc: 'Calcul rapide', icon: '🧠' },
-  { id: 'statistique', label: 'Statistique', desc: 'Diagrammes et tableaux', icon: '📊' },
+  { id: 'calcul', label: 'Calcul', desc: 'Addition et soustraction', badge: 'Priorité' },
+  { id: 'terme', label: 'Terme manquant', desc: 'Trouve le nombre mystère', badge: 'Priorité' },
+  { id: 'multi_step', label: 'Problèmes', desc: 'Problèmes à étapes', badge: 'À travailler' },
+  { id: 'relational', label: 'De plus / moins', desc: 'Comparaisons' },
+  { id: 'compare', label: 'Compare', desc: '>, < ou =' },
+  { id: 'pair_impair', label: 'Pair / Impair', desc: 'Nombres pairs et impairs' },
+  { id: 'mental', label: 'Mental', desc: 'Calcul rapide' },
+  { id: 'statistique', label: 'Statistique', desc: 'Diagrammes et tableaux' },
 ];
 
 const ryanFrenchModes = [
   { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs', featured: true },
-  { id: 'determinant', label: 'Déterminants', desc: 'le, la, un, une, mon...', icon: '📌' },
-  { id: 'verbes', label: 'Verbes', desc: 'être, avoir, aller, faire...', icon: '✏️' },
-  { id: 'adjectif', label: 'Adjectifs', desc: 'Accord et familles de mots', icon: '🎨' },
+  { id: 'determinant', label: 'Déterminants', desc: 'le, la, un, une, mon...' },
+  { id: 'verbes', label: 'Verbes', desc: 'être, avoir, aller, faire...' },
+  { id: 'adjectif', label: 'Adjectifs', desc: 'Accord et familles de mots' },
 ];
 
 const caylaMathModes = [
@@ -160,7 +177,12 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
                 mode.badge === 'Priorité' ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600'
               }`}>{mode.badge}</span>
             )}
-            <div className="text-2xl mb-2">{mode.icon}</div>
+            {icons[mode.id] && (
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-2"
+                style={{ background: icons[mode.id].bg, color: icons[mode.id].color }}>
+                {icons[mode.id].svg}
+              </div>
+            )}
             <div className="font-heading text-base font-bold text-stone leading-tight">{mode.label}</div>
             <div className="text-xs font-semibold text-s4 mt-0.5">{mode.desc}</div>
           </button>
@@ -183,21 +205,27 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
       )}
 
       {/* Games */}
-      <div className="font-heading text-base font-bold text-s4 mb-3">🎮 Jeux</div>
+      <div className="font-heading text-base font-bold text-s4 mb-3">Jeux</div>
       <div className="grid grid-cols-3 gap-2.5 mb-6">
         <button onClick={onStartAquarium}
-          className="bg-white border-2 border-s1 rounded-2xl p-3 text-center transition-all hover:border-fox hover:-translate-y-0.5 active:scale-95">
-          <div className="text-2xl mb-1">🐟</div>
+          className="bg-white border-2 border-s1 rounded-2xl p-4 text-center transition-all hover:border-fox hover:-translate-y-0.5 active:scale-95">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2" style={{ background: '#e6f5f0', color: '#0f766e' }}>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 9C2 5 5 3 9 3C13 3 16 5 16 9C16 13 13 15 9 15C5 15 2 13 2 9Z" stroke="currentColor" strokeWidth="1.4"/><circle cx="7" cy="8" r="1" fill="currentColor"/><path d="M11 7Q13 9 11 11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
+          </div>
           <div className="text-xs font-bold text-s6">Aquarium</div>
         </button>
         <button onClick={onStartSpeed}
-          className="bg-white border-2 border-s1 rounded-2xl p-3 text-center transition-all hover:border-fox hover:-translate-y-0.5 active:scale-95">
-          <div className="text-2xl mb-1">⚡</div>
+          className="bg-white border-2 border-s1 rounded-2xl p-4 text-center transition-all hover:border-fox hover:-translate-y-0.5 active:scale-95">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2" style={{ background: '#fef0e4', color: '#c74a15' }}>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M10 2L4 10H9L8 16L14 8H9L10 2Z" fill="currentColor"/></svg>
+          </div>
           <div className="text-xs font-bold text-s6">Course</div>
         </button>
         <button onClick={onStartMemory}
-          className="bg-white border-2 border-s1 rounded-2xl p-3 text-center transition-all hover:border-fox hover:-translate-y-0.5 active:scale-95">
-          <div className="text-2xl mb-1">🎴</div>
+          className="bg-white border-2 border-s1 rounded-2xl p-4 text-center transition-all hover:border-fox hover:-translate-y-0.5 active:scale-95">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2" style={{ background: '#f0ecfb', color: '#6d28d9' }}>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="8" rx="1" stroke="currentColor" strokeWidth="1.4"/><rect x="10" y="2" width="6" height="8" rx="1" stroke="currentColor" strokeWidth="1.4"/><path d="M5 6L5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M13 6L13 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
+          </div>
           <div className="text-xs font-bold text-s6">Mémoire</div>
         </button>
       </div>
