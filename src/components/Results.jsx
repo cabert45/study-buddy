@@ -2,10 +2,10 @@ import React from 'react';
 import { speak } from '../utils/speech';
 
 function getReaction(pct) {
-  if (pct >= 90) return { emoji: '🏆', text: 'Champion Ryan!' };
-  if (pct >= 70) return { emoji: '⭐', text: 'Bravo Ryan!' };
+  if (pct >= 90) return { emoji: '🏆', text: 'Champion!' };
+  if (pct >= 70) return { emoji: '⭐', text: 'Bravo!' };
   if (pct >= 50) return { emoji: '💪', text: 'Tu progresses!' };
-  return { emoji: '🚀', text: 'Continue, tu vas y arriver!' };
+  return { emoji: '🌋', text: 'Continue, tu vas y arriver!' };
 }
 
 export default function Results({ results, onHome, onRetry }) {
@@ -26,13 +26,13 @@ export default function Results({ results, onHome, onRetry }) {
   return (
     <div className="max-w-md mx-auto px-4 pt-6">
       {/* Score header */}
-      <div className="text-center bg-white/10 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-4 border border-white/10">
+      <div className="text-center bg-white rounded-2xl shadow-sm p-6 mb-4 border-2 border-s1">
         <div className="text-6xl mb-3">{reaction.emoji}</div>
-        <h2 className="text-2xl font-extrabold text-star mb-2">{reaction.text}</h2>
-        <div className="text-4xl font-extrabold text-white">
+        <h2 className="font-heading text-2xl font-extrabold text-lava mb-2">{reaction.text}</h2>
+        <div className="font-heading text-4xl font-extrabold text-stone">
           {correct} / {total}
         </div>
-        <div className="text-lg text-purple-300 font-semibold">{pct}%</div>
+        <div className="text-lg text-s4 font-bold">{pct}%</div>
 
         {/* Stars */}
         <div className="mt-3 text-3xl">
@@ -42,23 +42,23 @@ export default function Results({ results, onHome, onRetry }) {
         </div>
 
         {streak >= 3 && (
-          <div className="mt-2 text-star font-bold">
-            🌟 Meilleure serie: {streak}!
+          <div className="mt-2 text-fox font-bold">
+            🔥 Meilleure serie: {streak}!
           </div>
         )}
       </div>
 
-      {/* Wrong answers review (max 3-4) */}
+      {/* Wrong answers review */}
       {wrongAnswers.length > 0 && (
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl shadow-sm p-4 mb-4 border border-white/10">
-          <h3 className="font-bold text-purple-200 mb-3">📝 A revoir:</h3>
+        <div className="bg-white rounded-2xl shadow-sm p-4 mb-4 border-2 border-s1">
+          <h3 className="font-heading font-bold text-stone mb-3">📝 A revoir:</h3>
           <div className="space-y-3">
             {wrongAnswers.map((item, i) => (
-              <div key={i} className="bg-red-500/10 rounded-xl p-3 border-l-4 border-red-400/50">
-                <p className="font-semibold text-white text-sm">{item.question}</p>
+              <div key={i} className="bg-red-50 rounded-xl p-3 border-l-4 border-red-400">
+                <p className="font-semibold text-stone text-sm">{item.question}</p>
                 <div className="flex gap-4 mt-1 text-sm">
-                  <span className="text-red-300">Ta reponse: {item.userAnswer}</span>
-                  <span className="text-green-300 font-bold">Bonne reponse: {item.correctAnswer}</span>
+                  <span className="text-red-500">Ta reponse: {item.userAnswer}</span>
+                  <span className="text-green-600 font-bold">Bonne reponse: {item.correctAnswer}</span>
                 </div>
               </div>
             ))}
@@ -71,13 +71,13 @@ export default function Results({ results, onHome, onRetry }) {
         <button
           onClick={onRetry}
           className="w-full py-4 rounded-xl font-bold text-lg text-white"
-          style={{ background: 'linear-gradient(90deg, #6c5ce7, #e84393)' }}
+          style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}
         >
           🔄 Encore une session!
         </button>
         <button
           onClick={onHome}
-          className="w-full py-4 rounded-xl font-bold text-lg text-purple-300 bg-white/10"
+          className="w-full py-4 rounded-xl font-bold text-lg text-s6 bg-white border-2 border-s2"
         >
           ← Menu
         </button>

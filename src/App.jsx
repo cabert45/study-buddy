@@ -63,25 +63,24 @@ export default function App() {
   }
 
   return (
-    <div className={`min-h-screen pb-8 ${profile === 'cayla' ? 'cayla-theme' : ''}`}>
+    <div className="min-h-screen pb-8">
       {screen === 'profile' && (
         <div className="max-w-md mx-auto px-4 pt-16 text-center">
-          <h1 className="text-3xl font-extrabold text-white mb-2">🚀 Study Buddy</h1>
-          <p className="text-purple-300 mb-8">Qui es-tu?</p>
+          <div className="text-5xl mb-4">🌋</div>
+          <h1 className="font-heading text-3xl font-extrabold text-stone mb-1">Study Buddy</h1>
+          <p className="text-s4 font-semibold mb-8">Qui es-tu?</p>
           <div className="grid grid-cols-2 gap-4">
             <button onClick={() => selectProfile('ryan')}
-              className="rounded-2xl p-6 bg-gradient-to-br from-cosmic/40 to-rocket/30 border-2 border-cosmic/50
-                hover:scale-105 transition-all active:scale-95">
+              className="bg-white border-2 border-s1 rounded-2xl p-6 hover:scale-105 hover:border-fox hover:shadow-lg transition-all active:scale-95">
               <div className="text-5xl mb-3">🧑‍🚀</div>
-              <div className="text-xl font-extrabold text-white">Ryan</div>
-              <div className="text-xs text-purple-300 mt-1">2e année</div>
+              <div className="font-heading text-xl font-extrabold text-stone">Ryan</div>
+              <div className="text-xs font-bold text-s4 mt-1">2e année</div>
             </button>
             <button onClick={() => selectProfile('cayla')}
-              className="rounded-2xl p-6 border-2 hover:scale-105 transition-all active:scale-95"
-              style={{ background: 'linear-gradient(135deg, rgba(255,107,107,0.3), rgba(255,217,61,0.2))', borderColor: 'rgba(255,107,107,0.5)' }}>
+              className="bg-white border-2 border-s1 rounded-2xl p-6 hover:scale-105 hover:border-pink-400 hover:shadow-lg transition-all active:scale-95">
               <div className="text-5xl mb-3">🌟</div>
-              <div className="text-xl font-extrabold text-white">Cayla</div>
-              <div className="text-xs text-pink-300 mt-1">6e année</div>
+              <div className="font-heading text-xl font-extrabold text-stone">Cayla</div>
+              <div className="text-xs font-bold text-s4 mt-1">6e année</div>
             </button>
           </div>
         </div>

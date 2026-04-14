@@ -92,8 +92,8 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
   if (!question) {
     return (
       <div className="max-w-md mx-auto px-4 pt-10 text-center">
-        <div className="text-4xl mb-4 animate-bounce">🚀</div>
-        <p className="text-lg font-semibold text-purple-300">Decollage en cours...</p>
+        <div className="text-4xl mb-4 animate-bounce">🌋</div>
+        <p className="text-lg font-semibold text-s4">Chargement...</p>
       </div>
     );
   }
@@ -179,29 +179,29 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
     <div className="max-w-md mx-auto px-4 pt-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <button onClick={onHome} className="text-purple-400 font-bold text-sm">
+        <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">
           ← Menu
         </button>
-        <div className="text-sm font-bold text-purple-300">
+        <div className="text-sm font-bold text-s4">
           {currentIndex + 1} / {questions.length}
         </div>
         {streak >= 2 && (
-          <div className="text-sm font-bold text-star">🌟 {streak}</div>
+          <div className="text-sm font-bold text-fox">🌟 {streak}</div>
         )}
       </div>
 
       {/* Progress bar */}
-      <div className="w-full bg-white/10 rounded-full h-2 mb-6">
+      <div className="w-full bg-s1 rounded-full h-2 mb-6">
         <div
           className="h-2 rounded-full transition-all duration-300"
-          style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #6c5ce7, #e84393)' }}
+          style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}
         />
       </div>
 
       {/* Question card */}
-      <div className="bg-white/10 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-cosmic">
+      <div className="bg-white rounded-2xl shadow-sm p-6 border-2 border-s1 border-l-4 border-l-lava">
         {/* Category badge */}
-        <div className="text-xs font-bold text-star uppercase mb-2">
+        <div className="text-xs font-bold text-fox-d uppercase mb-2">
           {question.category === 'calcul' && '🔢 Calcul'}
           {question.category === 'terme' && '🔍 Terme manquant'}
           {question.category === 'multi_step' && '🧩 Probleme a etapes'}
@@ -218,7 +218,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
         </div>
 
         {/* Question text */}
-        <p className="text-xl font-bold text-white leading-relaxed mb-4">
+        <p className="text-xl font-heading font-bold text-stone leading-relaxed mb-4">
           {question.text}
         </p>
 
@@ -226,14 +226,14 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
         <div className="flex flex-wrap gap-3 mb-4">
           <button
             onClick={() => speak(question.text)}
-            className="text-sm text-purple-300 font-semibold"
+            className="text-sm text-s4 font-semibold hover:text-lava"
           >
             🔊 Ecouter
           </button>
           {!showResult && (
             <button
               onClick={() => setShowScratchPad((v) => !v)}
-              className="text-sm text-star font-semibold"
+              className="text-sm text-fox font-semibold"
             >
               {showScratchPad ? '📝 Fermer les boîtes' : '📝 Mes boîtes de travail'}
             </button>
@@ -244,7 +244,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
                 const videos = getVideosForCategory(question.category);
                 window.open(videos[0].url, '_blank');
               }}
-              className="text-sm text-green-300 font-semibold"
+              className="text-sm text-ok font-semibold"
             >
               📺 Vidéo d'aide
             </button>
@@ -315,14 +315,14 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
         {(!isWordProblem || operationAnswer !== null) && !operationPhase && (
           <div className={`grid gap-3 mt-4 ${question.isCompare || question.options.length === 3 ? 'grid-cols-3' : question.options.length === 2 ? 'grid-cols-2' : 'grid-cols-2'}`}>
             {question.options.map((opt, i) => {
-              let btnClass = 'bg-white/10 border-2 border-white/20 text-white hover:border-cosmic';
+              let btnClass = 'bg-white border-2 border-s2 text-stone hover:border-fox';
               if (showResult) {
                 if (opt === question.correct) {
-                  btnClass = 'bg-green-500/20 border-2 border-green-400 text-green-300';
+                  btnClass = 'bg-green-50 border-2 border-green-500 text-green-700';
                 } else if (opt === selected && opt !== question.correct) {
-                  btnClass = 'bg-red-500/20 border-2 border-red-400 text-red-300';
+                  btnClass = 'bg-red-50 border-2 border-red-400 text-red-600';
                 } else {
-                  btnClass = 'bg-white/5 border-2 border-white/10 text-white/30';
+                  btnClass = 'bg-gray-50 border-2 border-gray-200 text-gray-400';
                 }
               }
               // Display label: use optionLabels if present (pair/impair), otherwise the value
@@ -346,14 +346,14 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
         {showResult && (
           <div className="mt-4">
             {selected === question.correct ? (
-              <div className="text-center p-3 bg-green-500/10 rounded-xl border border-green-500/20">
+              <div className="text-center p-3 bg-green-50 rounded-xl border-2 border-green-200">
                 <div className="text-2xl">✅</div>
-                <p className="font-bold text-green-300">Bravo! 🌟</p>
+                <p className="font-bold text-green-700">Bravo! 🌟</p>
               </div>
             ) : (
-              <div className="p-3 bg-red-500/10 rounded-xl border border-red-500/20">
+              <div className="p-3 bg-red-50 rounded-xl border-2 border-red-200">
                 <div className="text-center text-2xl mb-2">❌</div>
-                <p className="font-bold text-red-300 text-center mb-2">
+                <p className="font-bold text-red-600 text-center mb-2">
                   La reponse est {question.correct}
                 </p>
                 {question.steps && (
@@ -378,7 +378,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
             <button
               onClick={handleNext}
               className="w-full mt-4 py-4 rounded-xl font-bold text-lg text-white"
-              style={{ background: 'linear-gradient(90deg, #6c5ce7, #e84393)' }}
+              style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}
             >
               {currentIndex + 1 >= questions.length ? 'Voir mes resultats 🏆' : 'Suivant →'}
             </button>

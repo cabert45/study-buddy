@@ -6,13 +6,43 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+:root {
+  --cream: #fefaf6;
+  --peach: #fdf0e5;
+  --sand: #f5dece;
+  --lava: #c74a15;
+  --lava-l: #e8622a;
+  --fox: #e2762b;
+  --fox-d: #b85a1a;
+  --fox-belly: #fde8cc;
+  --stone: #2c2017;
+  --s6: #5c4a3a;
+  --s4: #9a8878;
+  --s3: #b8a898;
+  --s2: #d6ccc0;
+  --s1: #ebe4db;
+}
+
 body {
-  font-family: 'Nunito', system-ui, sans-serif;
-  background: linear-gradient(180deg, #0c0c24 0%, #1a1a3e 50%, #2d1b69 100%);
+  font-family: 'Quicksand', system-ui, sans-serif;
+  background: var(--cream);
   min-height: 100vh;
   margin: 0;
   -webkit-font-smoothing: antialiased;
-  color: #f0f0ff;
+  color: var(--stone);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at 25% 0%, #f5dcc818, transparent 50%),
+              radial-gradient(ellipse at 75% 100%, #f0d0b010, transparent 50%);
+  pointer-events: none;
+}
+
+h1, h2, h3, .heading {
+  font-family: 'Baloo 2', cursive;
 }
 
 button {

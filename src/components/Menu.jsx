@@ -2,31 +2,58 @@ import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
 
 const ryanMathModes = [
-  { id: 'mixed', label: '🚀 Pratique ciblée', desc: 'Mix de tous tes exercices' },
-  { id: 'calcul', label: '🔢 Calcul', desc: 'Addition et soustraction' },
-  { id: 'terme', label: '🔍 Terme manquant', desc: 'Trouve le nombre mystère' },
-  { id: 'multi_step', label: '🧩 Problèmes', desc: 'Problèmes à étapes' },
-  { id: 'relational', label: '🔗 De plus/moins', desc: 'Comparaisons' },
-  { id: 'compare', label: '⚖️ Compare', desc: '>, < ou =' },
-  { id: 'pair_impair', label: '🎯 Pair/Impair', desc: 'Nombres pairs et impairs' },
-  { id: 'mental', label: '🧠 Mental', desc: '+9, −9, +10, −10' },
-  { id: 'statistique', label: '📊 Statistique', desc: 'Diagrammes et tableaux' },
+  { id: 'mixed', label: 'Pratique ciblée', desc: 'Mix de tous tes exercices', featured: true },
+  { id: 'calcul', label: 'Calcul', desc: 'Addition et soustraction', icon: '🔢', badge: 'Priorité' },
+  { id: 'terme', label: 'Terme manquant', desc: 'Trouve le nombre mystère', icon: '🔍', badge: 'Priorité' },
+  { id: 'multi_step', label: 'Problèmes', desc: 'Problèmes à étapes', icon: '🧩', badge: 'À travailler' },
+  { id: 'relational', label: 'De plus / moins', desc: 'Comparaisons', icon: '🔗' },
+  { id: 'compare', label: 'Compare', desc: '>, < ou =', icon: '⚖️' },
+  { id: 'pair_impair', label: 'Pair / Impair', desc: 'Nombres pairs et impairs', icon: '🎯' },
+  { id: 'mental', label: 'Mental', desc: 'Calcul rapide', icon: '🧠' },
+  { id: 'statistique', label: 'Statistique', desc: 'Diagrammes et tableaux', icon: '📊' },
 ];
 
 const ryanFrenchModes = [
-  { id: 'francais_mix', label: '📝 Mix Français', desc: 'Grammaire, verbes, adjectifs' },
-  { id: 'determinant', label: '📌 Déterminants', desc: 'le, la, un, une, mon...' },
-  { id: 'verbes', label: '✏️ Verbes', desc: 'être, avoir, aller, faire...' },
-  { id: 'adjectif', label: '🎨 Adjectifs', desc: 'Accord et familles de mots' },
+  { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs', featured: true },
+  { id: 'determinant', label: 'Déterminants', desc: 'le, la, un, une, mon...', icon: '📌' },
+  { id: 'verbes', label: 'Verbes', desc: 'être, avoir, aller, faire...', icon: '✏️' },
+  { id: 'adjectif', label: 'Adjectifs', desc: 'Accord et familles de mots', icon: '🎨' },
 ];
 
 const caylaMathModes = [
-  { id: 'pemdas', label: '🧮 PEMDAS', desc: 'Ordre des opérations' },
+  { id: 'pemdas', label: 'PEMDAS', desc: 'Ordre des opérations', featured: true },
 ];
 
 const caylaFrenchModes = [
-  { id: 'conjugaison', label: '✏️ Conjugaison', desc: 'Verbes et temps' },
+  { id: 'conjugaison', label: 'Conjugaison', desc: 'Verbes et temps', featured: true },
 ];
+
+function FoxMascot() {
+  return (
+    <svg className="fox-svg" viewBox="0 0 130 160" width="120" height="150" fill="none" style={{ animation: 'bounce 3s ease-in-out infinite' }}>
+      <g style={{ transformOrigin: '25px 45px', animation: 'tailwag 1.5s ease-in-out infinite' }}>
+        <path d="M25 110Q5 95 10 75Q15 60 30 70Q20 80 28 95Z" fill="#e2762b"/>
+        <path d="M10 75Q13 65 22 68Q15 73 18 82Z" fill="white" opacity=".7"/>
+      </g>
+      <ellipse cx="65" cy="115" rx="32" ry="28" fill="#e2762b"/>
+      <ellipse cx="65" cy="120" rx="22" ry="20" fill="#fde8cc"/>
+      <rect x="48" y="128" width="10" height="22" rx="5" fill="#e2762b"/>
+      <rect x="72" y="128" width="10" height="22" rx="5" fill="#e2762b"/>
+      <ellipse cx="53" cy="150" rx="7" ry="3.5" fill="#2c2017"/>
+      <ellipse cx="77" cy="150" rx="7" ry="3.5" fill="#2c2017"/>
+      <ellipse cx="65" cy="72" rx="28" ry="24" fill="#e2762b"/>
+      <ellipse cx="65" cy="76" rx="20" ry="16" fill="#fde8cc"/>
+      <path d="M40 60L35 35L52 52Z" fill="#e2762b"/><path d="M42 57L38 40L50 52Z" fill="#ffc68a"/>
+      <path d="M90 60L95 35L78 52Z" fill="#e2762b"/><path d="M88 57L92 40L80 52Z" fill="#ffc68a"/>
+      <ellipse cx="55" cy="68" rx="4.5" ry="5" fill="#2c2017"/><ellipse cx="56.5" cy="66.5" rx="1.5" ry="1.8" fill="white"/>
+      <ellipse cx="75" cy="68" rx="4.5" ry="5" fill="#2c2017"/><ellipse cx="76.5" cy="66.5" rx="1.5" ry="1.8" fill="white"/>
+      <ellipse cx="65" cy="78" rx="3.5" ry="2.5" fill="#2c2017"/>
+      <path d="M62 81Q65 85 68 81" stroke="#2c2017" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+      <ellipse cx="48" cy="76" rx="5" ry="3" fill="#f4a84a" opacity=".35"/>
+      <ellipse cx="82" cy="76" rx="5" ry="3" fill="#f4a84a" opacity=".35"/>
+    </svg>
+  );
+}
 
 export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onOpenDashboard, onSwitchProfile }) {
   const [stats, setStats] = useState(null);
@@ -42,152 +69,164 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
   const sessionCount = stats?.sessions?.length || 0;
 
   const isRyan = profile === 'ryan';
-  const isCayla = profile === 'cayla';
-
+  const name = isRyan ? 'Ryan' : 'Cayla';
+  const grade = isRyan ? '2e année' : '6e année';
   const mathModes = isRyan ? ryanMathModes : caylaMathModes;
   const frenchModes = isRyan ? ryanFrenchModes : caylaFrenchModes;
   const modes = tab === 'math' ? mathModes : frenchModes;
-
-  const name = isRyan ? 'Ryan' : 'Cayla';
-  const grade = isRyan ? '2e année' : '6e année';
-
-  // Dandy's World colors for Cayla
-  const accentGrad = isCayla
-    ? 'from-pink-500/40 to-yellow-400/30'
-    : 'from-cosmic/40 to-rocket/30';
-  const accentBorder = isCayla ? 'border-pink-400/40' : 'border-star/40';
-  const tabActiveColor = isCayla
-    ? { math: 'bg-pink-500', french: 'bg-yellow-500' }
-    : { math: 'bg-cosmic', french: 'bg-green-600' };
+  const featured = modes.find(m => m.featured);
+  const grid = modes.filter(m => !m.featured);
 
   return (
-    <div className="max-w-lg mx-auto px-4 pt-4 pb-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">{isCayla ? '🌟' : '🚀'}</span>
-          <h1 className="text-xl font-extrabold text-white">Study Buddy</h1>
+    <div className="relative z-[1] max-w-[500px] mx-auto px-4 pt-4 pb-12">
+      {/* Top bar */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2.5">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm"
+            style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a)' }}>
+            <span className="text-white text-lg">🌋</span>
+          </div>
+          <span className="font-heading text-2xl font-extrabold text-stone tracking-tight">Study Buddy</span>
         </div>
         <div className="flex gap-2">
           <button onClick={onOpenDashboard}
-            className="text-xs font-bold text-purple-300 bg-white/10 px-3 py-1.5 rounded-full border border-white/10">
+            className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all flex items-center gap-1.5">
             📊
           </button>
           <button onClick={onSwitchProfile}
-            className="text-xs font-bold text-purple-300 bg-white/10 px-3 py-1.5 rounded-full border border-white/10">
+            className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all">
             👤 {name}
           </button>
         </div>
       </div>
 
-      {/* Welcome banner */}
-      <div className={`rounded-2xl p-5 mb-4 border relative overflow-hidden ${isCayla ? 'border-pink-400/20' : 'border-white/10'}`}
-        style={{ background: isCayla
-          ? 'linear-gradient(135deg, rgba(255,107,107,0.25) 0%, rgba(255,217,61,0.15) 50%, rgba(255,107,253,0.2) 100%)'
-          : 'linear-gradient(135deg, rgba(108,92,231,0.3) 0%, rgba(232,67,147,0.2) 100%)'
-        }}>
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-extrabold text-white mb-1">Bonjour {name}!</h2>
-            <p className="text-xs font-bold text-purple-300 bg-white/10 px-2 py-0.5 rounded-full inline-block mb-2">{grade}</p>
-            <p className="text-sm text-purple-200">
-              {pct >= 70 ? "Tu es en feu! Continue! 🔥" :
-               totalQuestions > 0 ? "Chaque exercice te rend plus fort! 💪" :
-               "C'est parti! 🌟"}
-            </p>
-          </div>
-          <div className="text-5xl opacity-30">{isCayla ? '🎀' : '🏰'}</div>
+      {/* Greeting banner with fox */}
+      <div className="rounded-3xl mb-4 overflow-hidden flex items-end min-h-[165px]"
+        style={{ background: 'linear-gradient(135deg, #fff5ee, #ffe8d6 50%, #ffd8be)' }}>
+        <div className="flex-1 p-6 z-[1]">
+          <div className="font-heading text-sm font-bold text-fox-d mb-0.5 tracking-wide">Bienvenue</div>
+          <h1 className="font-heading text-3xl font-extrabold text-stone leading-tight mb-1">Bonjour {name}!</h1>
+          <p className="text-sm font-semibold text-s4">
+            {pct >= 70 ? "Tu es en feu! Continue! 🔥" :
+             totalQuestions > 0 ? "Continue, tu progresses! 💪" :
+             "Prêt pour t'entraîner? Allons-y!"}
+          </p>
+        </div>
+        <div className="flex-shrink-0 mr-2 z-[1]">
+          <FoxMascot />
         </div>
       </div>
 
-      {/* Stats cards */}
-      {totalQuestions > 0 && (
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className={`backdrop-blur-sm rounded-xl p-3 text-center border ${isCayla ? 'bg-pink-500/10 border-pink-400/15' : 'bg-white/10 border-white/10'}`}>
-            <div className="text-2xl font-extrabold text-white">{totalQuestions}</div>
-            <div className="text-[10px] font-bold text-purple-400 uppercase">Questions</div>
-          </div>
-          <div className={`backdrop-blur-sm rounded-xl p-3 text-center border ${isCayla ? 'bg-yellow-500/10 border-yellow-400/15' : 'bg-white/10 border-white/10'}`}>
-            <div className="text-2xl font-extrabold text-green-400">{pct}%</div>
-            <div className="text-[10px] font-bold text-purple-400 uppercase">Score</div>
-          </div>
-          <div className={`backdrop-blur-sm rounded-xl p-3 text-center border ${isCayla ? 'bg-pink-500/10 border-pink-400/15' : 'bg-white/10 border-white/10'}`}>
-            <div className="text-2xl font-extrabold text-star">{sessionCount}</div>
-            <div className="text-[10px] font-bold text-purple-400 uppercase">Sessions</div>
-          </div>
-        </div>
-      )}
-
-      {/* Subject tabs */}
-      <div className="flex gap-2 mb-4">
+      {/* Tabs */}
+      <div className="flex gap-2 mb-4 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
         <button onClick={() => setTab('math')}
-          className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all ${
-            tab === 'math' ? `${tabActiveColor.math} text-white shadow-lg` : 'bg-white/5 text-purple-400 border border-white/10'
+          className={`flex-shrink-0 rounded-xl px-4 py-2.5 text-sm font-bold transition-all ${
+            tab === 'math' ? 'bg-stone text-white' : 'bg-white border-2 border-s2 text-s6 hover:border-lava hover:text-lava'
           }`}>
-          🔢 Math
+          Mathématiques
         </button>
         <button onClick={() => setTab('french')}
-          className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all ${
-            tab === 'french' ? `${tabActiveColor.french} text-white shadow-lg` : 'bg-white/5 text-purple-400 border border-white/10'
+          className={`flex-shrink-0 rounded-xl px-4 py-2.5 text-sm font-bold transition-all ${
+            tab === 'french' ? 'bg-stone text-white' : 'bg-white border-2 border-s2 text-s6 hover:border-lava hover:text-lava'
           }`}>
-          📚 Français
+          Français
         </button>
       </div>
 
-      {/* Mode grid */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        {modes.map((mode, i) => {
-          const isFirst = i === 0;
-          return (
-            <button key={mode.id} onClick={() => onStartPractice(mode.id)}
-              className={`text-left rounded-xl p-3.5 transition-all active:scale-[0.97] ${
-                isFirst
-                  ? `col-span-2 bg-gradient-to-r ${accentGrad} border-2 ${accentBorder}`
-                  : isCayla
-                    ? 'bg-pink-500/8 border border-pink-400/15 hover:bg-pink-500/15'
-                    : 'bg-white/8 border border-white/10 hover:bg-white/12'
-              }`}>
-              <div className="text-base font-bold text-white">{mode.label}</div>
-              <div className="text-xs text-purple-300 mt-0.5">{mode.desc}</div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* AI Tutor (Ryan only for now) */}
-      {isRyan && (
-        <button onClick={onStartTutor}
-          className="w-full text-left rounded-xl p-3.5 mb-4 bg-white/8 border border-purple-400/30 hover:bg-white/12 transition-all active:scale-[0.97]">
-          <div className="text-base font-bold text-white">👨‍🚀 Tuteur IA</div>
-          <div className="text-xs text-purple-300 mt-0.5">Apprends avec ton tuteur intelligent</div>
+      {/* Featured mode */}
+      {featured && (
+        <button onClick={() => onStartPractice(featured.id)}
+          className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+          style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a)', boxShadow: '0 5px 22px rgba(199,74,21,0.15)' }}>
+          <div className="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-lg">⭐</span>
+          </div>
+          <div className="text-left flex-1">
+            <div className="font-heading text-xl font-extrabold text-white leading-tight">{featured.label}</div>
+            <div className="text-sm font-semibold text-white/70">{featured.desc}</div>
+          </div>
+          <span className="text-white/40 text-xl font-extrabold">›</span>
         </button>
       )}
 
-      {/* Games section */}
-      <h3 className="text-sm font-bold text-purple-400 uppercase tracking-wider mb-2">🎮 Jeux</h3>
-      <div className="grid grid-cols-3 gap-2 mb-4">
+      {/* Module grid */}
+      <div className="grid grid-cols-2 gap-2.5 mb-6">
+        {grid.map(mode => (
+          <button key={mode.id} onClick={() => onStartPractice(mode.id)}
+            className="bg-white border-2 border-s1 rounded-2xl p-4 text-left transition-all
+              hover:border-fox hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97] relative">
+            {mode.badge && (
+              <span className={`absolute top-2.5 right-2.5 text-[10px] font-bold px-2 py-0.5 rounded-lg ${
+                mode.badge === 'Priorité' ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600'
+              }`}>{mode.badge}</span>
+            )}
+            <div className="text-2xl mb-2">{mode.icon}</div>
+            <div className="font-heading text-base font-bold text-stone leading-tight">{mode.label}</div>
+            <div className="text-xs font-semibold text-s4 mt-0.5">{mode.desc}</div>
+          </button>
+        ))}
+      </div>
+
+      {/* AI Tutor */}
+      {isRyan && (
+        <button onClick={onStartTutor}
+          className="w-full flex items-center gap-4 bg-white border-2 border-s1 rounded-2xl p-4 mb-6 transition-all hover:border-info hover:shadow-md">
+          <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm"
+            style={{ background: 'linear-gradient(135deg, #3a5bc7, #5b4ad4)' }}>
+            <span className="text-white text-lg">👨‍🚀</span>
+          </div>
+          <div className="text-left">
+            <div className="font-heading text-lg font-bold text-stone leading-tight">Tuteur personnel</div>
+            <div className="text-xs font-semibold text-s4">Apprends pas à pas avec ton professeur</div>
+          </div>
+        </button>
+      )}
+
+      {/* Games */}
+      <div className="font-heading text-base font-bold text-s4 mb-3">🎮 Jeux</div>
+      <div className="grid grid-cols-3 gap-2.5 mb-6">
         <button onClick={onStartAquarium}
-          className={`rounded-xl p-3 text-center transition-all active:scale-95 ${
-            isCayla ? 'bg-pink-500/15 border border-pink-400/25 hover:bg-pink-500/25' : 'bg-cyan-500/15 border border-cyan-400/25 hover:bg-cyan-500/25'
-          }`}>
+          className="bg-white border-2 border-s1 rounded-2xl p-3 text-center transition-all hover:border-fox hover:-translate-y-0.5 active:scale-95">
           <div className="text-2xl mb-1">🐟</div>
-          <div className="text-xs font-bold text-cyan-200">Aquarium</div>
+          <div className="text-xs font-bold text-s6">Aquarium</div>
         </button>
         <button onClick={onStartSpeed}
-          className={`rounded-xl p-3 text-center transition-all active:scale-95 ${
-            isCayla ? 'bg-yellow-500/15 border border-yellow-400/25 hover:bg-yellow-500/25' : 'bg-orange-500/15 border border-orange-400/25 hover:bg-orange-500/25'
-          }`}>
+          className="bg-white border-2 border-s1 rounded-2xl p-3 text-center transition-all hover:border-fox hover:-translate-y-0.5 active:scale-95">
           <div className="text-2xl mb-1">⚡</div>
-          <div className="text-xs font-bold text-orange-200">Course</div>
+          <div className="text-xs font-bold text-s6">Course</div>
         </button>
         <button onClick={onStartMemory}
-          className={`rounded-xl p-3 text-center transition-all active:scale-95 ${
-            isCayla ? 'bg-pink-500/15 border border-pink-400/25 hover:bg-pink-500/25' : 'bg-pink-500/15 border border-pink-400/25 hover:bg-pink-500/25'
-          }`}>
+          className="bg-white border-2 border-s1 rounded-2xl p-3 text-center transition-all hover:border-fox hover:-translate-y-0.5 active:scale-95">
           <div className="text-2xl mb-1">🎴</div>
-          <div className="text-xs font-bold text-pink-200">Mémoire</div>
+          <div className="text-xs font-bold text-s6">Mémoire</div>
         </button>
       </div>
+
+      {/* Stats */}
+      {totalQuestions > 0 && (
+        <>
+          <div className="font-heading text-base font-bold text-s4 mb-3">Progrès</div>
+          <div className="grid grid-cols-3 gap-2.5 mb-4">
+            <div className="bg-white border-2 border-s1 rounded-xl p-3 text-center">
+              <div className="font-heading text-3xl font-extrabold text-ok">{pct}%</div>
+              <div className="text-[10px] font-bold text-s4 uppercase tracking-wide">Score</div>
+            </div>
+            <div className="bg-white border-2 border-s1 rounded-xl p-3 text-center">
+              <div className="font-heading text-3xl font-extrabold text-lava">{totalQuestions}</div>
+              <div className="text-[10px] font-bold text-s4 uppercase tracking-wide">Questions</div>
+            </div>
+            <div className="bg-white border-2 border-s1 rounded-xl p-3 text-center">
+              <div className="font-heading text-3xl font-extrabold text-fox">{sessionCount}</div>
+              <div className="text-[10px] font-bold text-s4 uppercase tracking-wide">Sessions</div>
+            </div>
+          </div>
+        </>
+      )}
+
+      <style>{`
+        @keyframes tailwag { 0%,100%{transform:rotate(-5deg)} 50%{transform:rotate(15deg)} }
+        @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+      `}</style>
     </div>
   );
 }
