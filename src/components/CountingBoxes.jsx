@@ -27,7 +27,7 @@ function TenFrame({ filled, color = 'bg-red-500', crossedOut = 0 }) {
   });
 
   return (
-    <div className="inline-grid grid-cols-5 gap-0.5 bg-white/5 rounded-lg p-1 border border-white/10">
+    <div className="inline-grid grid-cols-5 gap-0.5 bg-white rounded-lg p-1 border-2 border-s2">
       {cells}
     </div>
   );
@@ -60,8 +60,8 @@ export default function CountingBoxes({ a, b, op, showExchange }) {
     }
 
     return (
-      <div className="bg-white/5 rounded-xl p-4 mt-3 border border-white/10">
-        <div className="text-xs font-bold text-purple-300 mb-2">Boîtes à compter</div>
+      <div className="bg-orange-50 rounded-xl p-4 mt-3 border-2 border-s1">
+        <div className="text-xs font-bold text-fox-d mb-2">Boîtes à compter</div>
         <div className="flex flex-col gap-3">
           <div>
             <span className="text-xs text-red-400 font-bold">{a} (rouge)</span>
@@ -72,7 +72,7 @@ export default function CountingBoxes({ a, b, op, showExchange }) {
             <div className="flex flex-wrap gap-2 mt-1">{blueFrames}</div>
           </div>
           {showExchange && (a % 10) + (b % 10) >= 10 && (
-            <div className="text-xs text-star font-bold bg-star/10 rounded-lg p-2 border border-star/20">
+            <div className="text-xs text-fox-d font-bold bg-orange-50 rounded-lg p-2 border-2 border-orange-200">
               💡 Les unites font {(a % 10) + (b % 10)} → echange 10 unites contre 1 dizaine!
             </div>
           )}
@@ -97,18 +97,18 @@ export default function CountingBoxes({ a, b, op, showExchange }) {
   }
 
   return (
-    <div className="bg-white/5 rounded-xl p-4 mt-3 border border-white/10">
-      <div className="text-xs font-bold text-purple-300 mb-2">Boîtes à compter</div>
+    <div className="bg-orange-50 rounded-xl p-4 mt-3 border-2 border-s1">
+      <div className="text-xs font-bold text-fox-d mb-2">Boîtes à compter</div>
       <div>
         <span className="text-xs text-red-400 font-bold">{a} - on barre {b}</span>
         <div className="flex flex-wrap gap-2 mt-1">{frames}</div>
       </div>
       {showExchange && (a % 10) < (b % 10) && (
-        <div className="mt-2 text-xs text-star font-bold bg-star/10 rounded-lg p-2 border border-star/20">
+        <div className="mt-2 text-xs text-fox-d font-bold bg-orange-50 rounded-lg p-2 border-2 border-orange-200">
           💡 Pas assez d'unites! Echange 1 dizaine contre 10 unites.
         </div>
       )}
-      <div className="mt-2 text-sm font-bold text-green-400">
+      <div className="mt-2 text-sm font-bold text-green-700">
         Il reste {a - b} points = la reponse!
       </div>
     </div>

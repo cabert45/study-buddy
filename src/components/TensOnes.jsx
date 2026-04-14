@@ -9,7 +9,7 @@ function NumberVisual({ value, label }) {
 
   return (
     <div className="flex flex-col items-center gap-1">
-      <div className="text-sm font-bold text-purple-200">{label} = {value}</div>
+      <div className="text-sm font-bold text-stone">{label} = {value}</div>
       <div className="flex items-end gap-2">
         {/* Tens bars - red like the textbook */}
         <div className="flex gap-1">
@@ -32,7 +32,7 @@ function NumberVisual({ value, label }) {
           ))}
         </div>
       </div>
-      <div className="text-xs text-purple-400">
+      <div className="text-xs text-s4 font-semibold">
         {tens} dizaine{tens !== 1 ? 's' : ''}, {ones} unite{ones !== 1 ? 's' : ''}
       </div>
     </div>
@@ -41,10 +41,10 @@ function NumberVisual({ value, label }) {
 
 export default function TensOnes({ a, b, op }) {
   return (
-    <div className="bg-white/5 rounded-xl p-4 mt-3 border border-white/10">
+    <div className="bg-orange-50 rounded-xl p-4 mt-3 border-2 border-s1">
       <div className="flex justify-around items-end">
         <NumberVisual value={a} label={String(a)} />
-        <div className="text-2xl font-bold text-purple-400 mb-4">{op}</div>
+        <div className="text-2xl font-bold text-stone mb-4">{op}</div>
         <NumberVisual value={b} label={String(b)} />
       </div>
     </div>

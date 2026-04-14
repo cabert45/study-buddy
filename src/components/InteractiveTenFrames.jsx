@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 
 function TenFrameGrid({ cells, onToggle, color = 'bg-red-500' }) {
   return (
-    <div className="inline-grid grid-cols-5 gap-0.5 bg-white/5 rounded-lg p-1 border border-white/10">
+    <div className="inline-grid grid-cols-5 gap-0.5 bg-white rounded-lg p-1 border-2 border-s2">
       {cells.map((filled, i) => (
         <button
           key={i}
@@ -59,10 +59,10 @@ export default function InteractiveTenFrames({ onClose }) {
   const totalCrossed = grids.flat().filter((c) => c === 'cross').length;
 
   return (
-    <div className="bg-white/5 rounded-xl p-4 mt-3 border border-white/10">
+    <div className="bg-orange-50 rounded-xl p-4 mt-3 border-2 border-s1">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-bold text-purple-300">📝 Boîtes de travail</span>
-        <button onClick={onClose} className="text-xs text-purple-400 font-semibold">Fermer ✕</button>
+        <span className="text-xs font-bold text-fox-d">📝 Boîtes de travail</span>
+        <button onClick={onClose} className="text-xs text-s4 font-semibold">Fermer ✕</button>
       </div>
 
       {/* Mode toggle */}
@@ -72,7 +72,7 @@ export default function InteractiveTenFrames({ onClose }) {
           className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
             mode === 'dot'
               ? 'bg-red-500/30 text-red-300 border border-red-500/40'
-              : 'bg-white/5 text-purple-400 border border-white/10'
+              : 'bg-white text-s4 border-2 border-s2'
           }`}
         >
           ● Ajouter un point
@@ -82,7 +82,7 @@ export default function InteractiveTenFrames({ onClose }) {
           className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
             mode === 'cross'
               ? 'bg-orange-500/30 text-orange-300 border border-orange-500/40'
-              : 'bg-white/5 text-purple-400 border border-white/10'
+              : 'bg-white text-s4 border-2 border-s2'
           }`}
         >
           ✕ Barrer
@@ -112,7 +112,7 @@ export default function InteractiveTenFrames({ onClose }) {
 
       <button
         onClick={clearAll}
-        className="w-full mt-2 py-2 rounded-lg text-xs font-semibold text-purple-400 bg-white/5 border border-white/10"
+        className="w-full mt-2 py-2 rounded-lg text-xs font-semibold text-s4 bg-white border-2 border-s2"
       >
         🗑️ Effacer tout
       </button>
