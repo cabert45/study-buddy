@@ -16,6 +16,8 @@ const categoryLabels = {
   pemdas: '🧮 PEMDAS',
   conjugaison: '✏️ Conjugaison',
   dictee: '🎧 Dictée',
+  on_ont: 'ON / ONT',
+  groupe_nom: 'Groupe du nom',
   aquarium: '🐟 Aquarium',
   speed: '⚡ Course',
   memory: '🎴 Mémoire',

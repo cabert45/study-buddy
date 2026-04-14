@@ -16,6 +16,8 @@ const icons = {
   verbes: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 14L7 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M7 4L14 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M10 4V14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
   adjectif: { bg: '#fef0e4', color: '#b85d1a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6" r="3" stroke="currentColor" strokeWidth="1.4"/><path d="M4 16C4 12.7 6.2 10.5 9 10.5C11.8 10.5 14 12.7 14 16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
   pemdas: { bg: '#fef0e4', color: '#c74a15', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="9" y="13" textAnchor="middle" fontSize="12" fontWeight="800" fill="currentColor">()</text></svg> },
+  on_ont: { bg: '#fef5e4', color: '#b85d1a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="3" y="11" fontSize="7" fontWeight="700" fill="currentColor">ON</text><text x="10" y="11" fontSize="7" fontWeight="700" fill="currentColor">T</text></svg> },
+  groupe_nom: { bg: '#e6f5f0', color: '#0f766e', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="6" width="14" height="6" rx="2" stroke="currentColor" strokeWidth="1.4"/><line x1="7" y1="6" x2="7" y2="12" stroke="currentColor" strokeWidth="1" strokeDasharray="2 1"/><line x1="12" y1="6" x2="12" y2="12" stroke="currentColor" strokeWidth="1" strokeDasharray="2 1"/></svg> },
   conjugaison: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 5H15M3 9H12M3 13H9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
 };
 
@@ -37,6 +39,8 @@ const ryanFrenchModes = [
   { id: 'determinant', label: 'Déterminants', desc: 'le, la, un, une, mon...' },
   { id: 'verbes', label: 'Verbes', desc: 'être, avoir, aller, faire...' },
   { id: 'adjectif', label: 'Adjectifs', desc: 'Accord et familles de mots' },
+  { id: 'on_ont', label: 'ON / ONT', desc: 'Pronom ou verbe avoir?' },
+  { id: 'groupe_nom', label: 'Groupe du nom', desc: 'GN: nom seul, dét+nom, dét+nom+adj' },
 ];
 
 const caylaMathModes = [

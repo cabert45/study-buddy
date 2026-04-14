@@ -13,6 +13,8 @@ import { generateAdjectif } from '../generators/adjectif';
 import { generatePemdas } from '../generators/pemdas';
 import { generateConjugaison } from '../generators/conjugaison';
 import { generateDictee } from '../generators/dictee';
+import { generateOnOnt } from '../generators/onOnt';
+import { generateGroupeNom } from '../generators/groupeNom';
 import { saveSession } from '../utils/storage';
 import { speak, speakSlow } from '../utils/speech';
 import TensOnes from './TensOnes';
@@ -38,17 +40,22 @@ function getGenerator(mode) {
     case 'pemdas': return generatePemdas;
     case 'conjugaison': return generateConjugaison;
     case 'dictee': return generateDictee;
+    case 'on_ont': return generateOnOnt;
+    case 'groupe_nom': return generateGroupeNom;
     case 'francais_mix':
       // Weighted by Ryan's French exam results:
-      // Dictée 3/10 → 35%, Adjective agreement 1/4 → 25%,
-      // Déterminants → 15%, Verbes → 15%, Dictée bonus → 10%
+      // Adjective accord 8/20 → 25%, Dictée 3/10 → 20%,
+      // GN 9.5/17 → 15%, ON/ONT 7/14 → 15%,
+      // Déterminants → 10%, Verbes → 10%, Familles/lettres muettes → 5%
       return () => {
         const r = Math.random();
-        if (r < 0.35) return generateDictee();
-        if (r < 0.60) return generateAdjectif();
-        if (r < 0.75) return generateDeterminant();
-        if (r < 0.90) return generateVerbes();
-        return generateDictee();
+        if (r < 0.25) return generateAdjectif();
+        if (r < 0.45) return generateDictee();
+        if (r < 0.60) return generateGroupeNom();
+        if (r < 0.75) return generateOnOnt();
+        if (r < 0.85) return generateDeterminant();
+        if (r < 0.95) return generateVerbes();
+        return generateAdjectif();
       };
     case 'mixed':
     default:
@@ -236,6 +243,8 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'pemdas' && '🧮 PEMDAS'}
           {question.category === 'conjugaison' && '✏️ Conjugaison'}
           {question.category === 'dictee' && '🎧 Dictée'}
+          {question.category === 'on_ont' && 'ON / ONT'}
+          {question.category === 'groupe_nom' && 'Groupe du nom'}
         </div>
 
         {/* Question text */}
