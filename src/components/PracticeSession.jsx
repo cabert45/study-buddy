@@ -15,8 +15,7 @@ import { generateConjugaison } from '../generators/conjugaison';
 import { generateDictee } from '../generators/dictee';
 import { generateOnOnt } from '../generators/onOnt';
 import { generateGroupeNom } from '../generators/groupeNom';
-import { generateDicteeSemaine, setCurrentWeek } from '../generators/dicteeSemaine';
-import { dicteeWeeks } from '../data/dicteeWeekly';
+import { generateDicteeSemaine, generateDicteeCumulative, setCurrentWeek } from '../generators/dicteeSemaine';
 import { saveSession } from '../utils/storage';
 import { speak, speakSlow } from '../utils/speech';
 import TensOnes from './TensOnes';
@@ -47,6 +46,9 @@ function getGenerator(mode) {
     case 'dictee_semaine': return generateDicteeSemaine;
     case 'dictee_s1': setCurrentWeek('theme6_s1'); return generateDicteeSemaine;
     case 'dictee_s2': setCurrentWeek('theme6_s2'); return generateDicteeSemaine;
+    case 'dictee_s3': setCurrentWeek('theme6_s3'); return generateDicteeSemaine;
+    case 'dictee_s4': setCurrentWeek('theme6_s4'); return generateDicteeSemaine;
+    case 'dictee_revision': return generateDicteeCumulative;
     case 'francais_mix':
       // Weighted by Ryan's French exam results:
       // Adjective accord 8/20 → 25%, Dictée 3/10 → 20%,
