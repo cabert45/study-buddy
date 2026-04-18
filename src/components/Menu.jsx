@@ -84,7 +84,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onOpenDashboard, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onOpenDashboard, onSwitchProfile, darkMode, onToggleDark }) {
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
 
@@ -158,7 +158,23 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
         </div>
       </div>
 
-      {/* Tasks button — always visible at top */}
+      {/* Coach button — the BIG one */}
+      {onStartCoach && (
+        <button onClick={onStartCoach}
+          className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+          style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a 50%, #fdcb6e)', boxShadow: '0 6px 24px rgba(199,74,21,0.25)' }}>
+          <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-2xl">🎯</span>
+          </div>
+          <div className="text-left flex-1">
+            <div className="font-heading text-xl font-extrabold text-white leading-tight">Mon Coach</div>
+            <div className="text-xs font-semibold text-white/85">Suis le plan, ne réfléchis pas — juste GO!</div>
+          </div>
+          <span className="text-white/60 text-2xl font-extrabold">›</span>
+        </button>
+      )}
+
+      {/* Tasks button */}
       {onStartChores && (
         <button onClick={onStartChores}
           className="w-full rounded-2xl p-4 mb-4 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
