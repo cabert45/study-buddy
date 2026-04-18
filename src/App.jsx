@@ -7,6 +7,7 @@ import ParentDashboard from './components/ParentDashboard';
 import AquariumGame from './components/AquariumGame';
 import SpeedGame from './components/SpeedGame';
 import MemoryGame from './components/MemoryGame';
+import Timer from './components/Timer';
 
 export default function App() {
   const [screen, setScreen] = useState('profile');
@@ -39,6 +40,10 @@ export default function App() {
 
   function startMemory() {
     setScreen('memory');
+  }
+
+  function startTimer() {
+    setScreen('timer');
   }
 
   function finishSession(results) {
@@ -97,6 +102,7 @@ export default function App() {
           onStartAquarium={startAquarium}
           onStartSpeed={startSpeed}
           onStartMemory={startMemory}
+          onStartTimer={startTimer}
           onOpenDashboard={openDashboard}
           onSwitchProfile={switchProfile}
           darkMode={darkMode}
@@ -128,6 +134,9 @@ export default function App() {
       )}
       {screen === 'memory' && (
         <MemoryGame onHome={goHome} onFinish={finishSession} />
+      )}
+      {screen === 'timer' && (
+        <Timer onHome={goHome} />
       )}
       {screen === 'dashboard' && (
         <ParentDashboard onHome={goHome} />

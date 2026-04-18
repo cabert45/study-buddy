@@ -84,7 +84,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onOpenDashboard, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onOpenDashboard, onSwitchProfile, darkMode, onToggleDark }) {
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
 
@@ -118,6 +118,12 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
           <span className="font-heading text-2xl font-extrabold text-stone tracking-tight">Study Buddy</span>
         </div>
         <div className="flex gap-2">
+          {onStartTimer && (
+            <button onClick={onStartTimer}
+              className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all">
+              ⏱️
+            </button>
+          )}
           {onToggleDark && (
             <button onClick={onToggleDark}
               className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all">
