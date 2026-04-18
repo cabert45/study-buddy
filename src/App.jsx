@@ -130,6 +130,17 @@ export default function App() {
           results={sessionResults}
           onHome={goHome}
           onRetry={() => startPractice(mode)}
+          onContinueFocused={(weakCategory) => {
+            // Switch to weak category mode if we recognize it, else retry same
+            const validModes = ['calcul', 'terme', 'multi_step', 'relational', 'compare',
+              'pair_impair', 'mental', 'statistique', 'determinant', 'verbes', 'adjectif',
+              'pemdas', 'conjugaison', 'dictee', 'on_ont', 'groupe_nom', 'passe_compose'];
+            if (weakCategory && validModes.includes(weakCategory)) {
+              startPractice(weakCategory);
+            } else {
+              startPractice(mode);
+            }
+          }}
         />
       )}
       {screen === 'aquarium' && (
