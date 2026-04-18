@@ -24,7 +24,7 @@ import CountingBoxes from './CountingBoxes';
 import InteractiveTenFrames from './InteractiveTenFrames';
 import { getVideosForCategory } from '../data/videoLinks';
 
-const TOTAL_QUESTIONS = 10;
+const TOTAL_QUESTIONS = 15;
 
 function getGenerator(mode) {
   switch (mode) {
