@@ -34,11 +34,13 @@ const ryanMathModes = [
 ];
 
 const ryanFrenchModes = [
-  { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs', featured: true },
+  { id: 'dictee_s1', label: '🎧 Dictée mardi', desc: 'Verbes en -er (semaine 1)', featured: true, special: true },
+  { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs' },
   { id: 'dictee', label: 'Dictée', desc: 'Écoute et choisis la bonne orthographe' },
   { id: 'determinant', label: 'Déterminants', desc: 'le, la, un, une, mon...' },
   { id: 'verbes', label: 'Verbes', desc: 'être, avoir, aller, faire...' },
   { id: 'adjectif', label: 'Adjectifs', desc: 'Accord et familles de mots' },
+  { id: 'dictee_s2', label: '🎧 Dictée semaine 2', desc: 'Mots en p- (futur)' },
   { id: 'on_ont', label: 'ON / ONT', desc: 'Pronom ou verbe avoir?' },
   { id: 'groupe_nom', label: 'Groupe du nom', desc: 'GN: nom seul, dét+nom, dét+nom+adj' },
 ];
@@ -78,7 +80,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onOpenDashboard, onSwitchProfile }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onOpenDashboard, onSwitchProfile, darkMode, onToggleDark }) {
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
 
@@ -112,6 +114,12 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
           <span className="font-heading text-2xl font-extrabold text-stone tracking-tight">Study Buddy</span>
         </div>
         <div className="flex gap-2">
+          {onToggleDark && (
+            <button onClick={onToggleDark}
+              className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all">
+              {darkMode ? '☀️' : '🌙'}
+            </button>
+          )}
           <button onClick={onOpenDashboard}
             className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all flex items-center gap-1.5">
             📊

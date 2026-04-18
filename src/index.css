@@ -53,3 +53,68 @@ button {
 button:active {
   transform: scale(0.97);
 }
+
+/* Dark mode overrides */
+.dark-mode {
+  --cream: #1a1a2e;
+  --stone: #e8e0d8;
+  --s6: #c4b8a8;
+  --s4: #9a8e80;
+  --s3: #6a6058;
+  --s2: #3a3530;
+  --s1: #2a2520;
+}
+
+.dark-mode body,
+.dark-mode {
+  background: #1a1a2e;
+  color: #e8e0d8;
+}
+
+.dark-mode .bg-white {
+  background: #252540 !important;
+}
+
+.dark-mode .bg-cream {
+  background: #1e1e35 !important;
+}
+
+.dark-mode .bg-orange-50 {
+  background: #2a2520 !important;
+}
+
+.dark-mode .bg-green-50 {
+  background: #1a2a1e !important;
+}
+
+.dark-mode .bg-red-50 {
+  background: #2a1a1a !important;
+}
+
+.dark-mode .bg-blue-50 {
+  background: #1a1a2a !important;
+}
+
+.dark-mode .border-s1 {
+  border-color: #3a3530 !important;
+}
+
+.dark-mode .border-s2 {
+  border-color: #4a4540 !important;
+}
+
+.dark-mode .text-stone {
+  color: #e8e0d8 !important;
+}
+
+.dark-mode .text-s4 {
+  color: #9a8e80 !important;
+}
+
+.dark-mode .text-s6 {
+  color: #c4b8a8 !important;
+}
+
+.dark-mode .text-fox-d {
+  color: #e8a050 !important;
+}

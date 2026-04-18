@@ -13,6 +13,7 @@ export default function App() {
   const [mode, setMode] = useState(null);
   const [sessionResults, setSessionResults] = useState(null);
   const [profile, setProfile] = useState(null); // 'ryan' or 'cayla'
+  const [darkMode, setDarkMode] = useState(false);
 
   function selectProfile(p) {
     setProfile(p);
@@ -63,7 +64,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen pb-8">
+    <div className={`min-h-screen pb-8 ${darkMode ? 'dark-mode' : ''}`}>
       {screen === 'profile' && (
         <div className="max-w-3xl mx-auto px-4 pt-16 text-center">
           <div className="text-5xl mb-4">🌋</div>
@@ -98,6 +99,8 @@ export default function App() {
           onStartMemory={startMemory}
           onOpenDashboard={openDashboard}
           onSwitchProfile={switchProfile}
+          darkMode={darkMode}
+          onToggleDark={() => setDarkMode(d => !d)}
         />
       )}
       {screen === 'practice' && (

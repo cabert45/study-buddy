@@ -18,6 +18,7 @@ const categoryLabels = {
   dictee: '🎧 Dictée',
   on_ont: 'ON / ONT',
   groupe_nom: 'Groupe du nom',
+  dictee_semaine: '🎧 Dictée semaine',
   aquarium: '🐟 Aquarium',
   speed: '⚡ Course',
   memory: '🎴 Mémoire',
