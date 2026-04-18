@@ -73,41 +73,48 @@ function buildPlan() {
   const plan = [];
 
   if (day === 6) {
-    // SATURDAY
+    // SATURDAY — HEAVY DAY, dimanche est léger
     const soccerMin = 16 * 60 + 30;
     const minutesUntilSoccer = soccerMin - minutesNow;
+    const isAfterSoccer = minutesNow > soccerMin + 60; // after ~5:30pm
 
-    if (minutesUntilSoccer > 90) {
-      // Lots of time
-      plan.push({ type: 'chore', label: 'Ramasser tes vêtements + chambre rapide', mins: 20, icon: '🧸' });
+    if (isAfterSoccer) {
+      // Post-soccer (evening) — study + finish chores
+      plan.push({ type: 'chore', label: 'Reste des tâches (chambre + salon)', mins: 25, icon: '🧹' });
+      plan.push({ type: 'break', label: 'Pause + collation', mins: 10, icon: '🍎' });
+      plan.push({ type: 'app', mode: 'dictee_s1', label: 'Dictée mardi (verbes -er)', mins: 15, icon: '🎧' });
+      plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+      plan.push({ type: 'app', mode: 'passe_compose', label: 'Passé composé (test vendredi)', mins: 15, icon: '📝' });
+      plan.push({ type: 'message', label: 'Bravo! Tu as fait beaucoup aujourd\'hui!', mins: 1, icon: '🌙' });
+    } else if (minutesUntilSoccer > 90) {
+      // Lots of time pre-soccer — pack it
+      plan.push({ type: 'chore', label: 'Ramasser vêtements + chambre', mins: 20, icon: '🧸' });
       plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
       plan.push({ type: 'chore', label: 'Plier vêtements + ranger', mins: 20, icon: '👔' });
       plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-      plan.push({ type: 'chore', label: 'Salon + entrée', mins: 15, icon: '🛋️' });
-      plan.push({ type: 'app', mode: 'dictee_s1', label: 'Dictée mardi (vite!)', mins: 10, icon: '🎧' });
+      plan.push({ type: 'chore', label: 'Salon + entrée + balayer', mins: 20, icon: '🛋️' });
+      plan.push({ type: 'app', mode: 'dictee_s1', label: 'Dictée mardi (10 min)', mins: 10, icon: '🎧' });
+      plan.push({ type: 'message', label: 'Prépare-toi pour le soccer!', mins: 1, icon: '⚽' });
     } else if (minutesUntilSoccer > 50) {
-      // Medium time
-      plan.push({ type: 'chore', label: 'Ranger chambre (vite!)', mins: 20, icon: '🧸' });
+      // Medium pre-soccer — chores priority
+      plan.push({ type: 'chore', label: 'Chambre (rapide!)', mins: 20, icon: '🧸' });
       plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
       plan.push({ type: 'chore', label: 'Plier vêtements', mins: 15, icon: '👔' });
-      plan.push({ type: 'app', mode: 'dictee_s1', label: 'Dictée mardi', mins: 10, icon: '🎧' });
+      plan.push({ type: 'app', mode: 'dictee_s1', label: 'Dictée (rapide)', mins: 10, icon: '🎧' });
+      plan.push({ type: 'message', label: 'Reste à faire ce soir après soccer!', mins: 1, icon: '⚽' });
     } else if (minutesUntilSoccer > 20) {
-      // Tight
-      plan.push({ type: 'chore', label: 'Ranger chambre — 15 min seulement!', mins: 15, icon: '🧸' });
-      plan.push({ type: 'break', label: 'Préparer pour soccer', mins: 10, icon: '⚽' });
+      // Tight pre-soccer
+      plan.push({ type: 'chore', label: 'Chambre — 15 min seulement!', mins: 15, icon: '🧸' });
+      plan.push({ type: 'message', label: 'Prépare-toi pour le soccer! Reste à faire ce soir.', mins: 5, icon: '⚽' });
     } else {
-      // Soccer time soon
-      plan.push({ type: 'message', label: 'Prépare-toi pour le soccer!', mins: 10, icon: '⚽' });
+      plan.push({ type: 'message', label: 'Prépare-toi pour le soccer!', mins: 5, icon: '⚽' });
     }
   } else if (day === 0) {
-    // SUNDAY — bigger study day for the week
-    plan.push({ type: 'chore', label: 'Ranger ta chambre', mins: 20, icon: '🧸' });
-    plan.push({ type: 'break', label: 'Pause', mins: 10, icon: '☕' });
-    plan.push({ type: 'app', mode: 'dictee_s1', label: 'Dictée mardi (verbes -er)', mins: 15, icon: '🎧' });
+    // SUNDAY — LIGHT day (Saturday was heavy)
+    plan.push({ type: 'app', mode: 'dictee_s1', label: 'Dictée mardi — révision', mins: 15, icon: '🎧' });
     plan.push({ type: 'break', label: 'Pause', mins: 10, icon: '☕' });
     plan.push({ type: 'app', mode: 'passe_compose', label: 'Passé composé (test vendredi)', mins: 15, icon: '📝' });
-    plan.push({ type: 'break', label: 'Pause', mins: 10, icon: '☕' });
-    plan.push({ type: 'app', mode: 'mixed', label: 'Math mixte', mins: 15, icon: '🔢' });
+    plan.push({ type: 'message', label: 'C\'est tout pour aujourd\'hui! Profite de ta journée!', mins: 1, icon: '🌳' });
   } else if (day === 1) {
     // MONDAY — last prep for Tuesday dictée
     plan.push({ type: 'app', mode: 'dictee_s1', label: 'DERNIÈRE révision dictée!', mins: 20, icon: '🎧' });
