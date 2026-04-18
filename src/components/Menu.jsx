@@ -35,6 +35,7 @@ const ryanMathModes = [
 
 const ryanFrenchModes = [
   { id: 'dictee_s1', label: '🎧 Dictée mardi', desc: 'Verbes en -er (semaine 1)', featured: true, special: true },
+  { id: 'passe_compose', label: '📝 Test vendredi', desc: 'Passé composé verbes -er + finir', special: true },
   { id: 'dictee_revision', label: '🔄 Révision dictées', desc: 'Toutes les semaines mélangées' },
   { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs' },
   { id: 'dictee', label: 'Dictée', desc: 'Écoute et choisis la bonne orthographe' },
