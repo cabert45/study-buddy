@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { getDashboard } from '../utils/storage';
 
 // The Coach decides what Ryan does and when.
 // Given the time of day, soccer schedule, and what's coming up this week,
@@ -58,8 +59,21 @@ function format(secs) {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-// Build a smart plan based on current time + soccer
-function buildPlan() {
+// Identify weakest category from stats
+function findWeakest(stats, type = null) {
+  if (!stats || stats.length === 0) return null;
+  const frenchCats = ['adjectif', 'dictee', 'dictee_semaine', 'on_ont', 'groupe_nom', 'determinant', 'verbes', 'passe_compose'];
+  const mathCats = ['calcul', 'terme', 'multi_step', 'relational', 'pair_impair', 'compare', 'mental', 'statistique'];
+  const filter = type === 'french' ? frenchCats : type === 'math' ? mathCats : null;
+
+  const filtered = stats.filter(s => s.total >= 3 && (!filter || filter.includes(s.category)));
+  if (filtered.length === 0) return null;
+  filtered.sort((a, b) => (a.correct / a.total) - (b.correct / b.total));
+  return filtered[0];
+}
+
+// Build a smart plan based on current time + soccer + dashboard data
+function buildPlan(dashboardData) {
   const now = new Date();
   const day = now.getDay(); // 0=Sun, 6=Sat
   const hour = now.getHours();
@@ -71,6 +85,13 @@ function buildPlan() {
   // Weekday afternoons: dictée + homework prep
 
   const plan = [];
+
+  // Identify Ryan's weakest French and math from real data
+  const stats = dashboardData?.stats || [];
+  const weakestFrench = findWeakest(stats, 'french');
+  const weakestMath = findWeakest(stats, 'math');
+  const weakFrenchMode = weakestFrench?.category || 'adjectif';
+  const weakMathMode = weakestMath?.category || 'calcul';
 
   if (day === 6) {
     // SATURDAY — HEAVY DAY, dimanche est léger
@@ -85,6 +106,7 @@ function buildPlan() {
       plan.push({ type: 'app', mode: 'dictee_s1', label: 'Dictée mardi (verbes -er)', mins: 15, icon: '🎧' });
       plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
       plan.push({ type: 'app', mode: 'passe_compose', label: 'Passé composé (test vendredi)', mins: 15, icon: '📝' });
+      plan.push({ type: 'app', mode: weakFrenchMode, label: `Point faible: ${weakFrenchMode}`, mins: 10, icon: '🎯' });
       plan.push({ type: 'message', label: 'Bravo! Tu as fait beaucoup aujourd\'hui!', mins: 1, icon: '🌙' });
     } else if (minutesUntilSoccer > 90) {
       // Lots of time pre-soccer — pack it
@@ -149,7 +171,8 @@ function dayLabel() {
 }
 
 export default function Coach({ onHome, onStartPractice }) {
-  const [plan] = useState(buildPlan);
+  const [plan, setPlan] = useState([]);
+  const [planReady, setPlanReady] = useState(false);
   const [stepIdx, setStepIdx] = useState(0);
   const [remaining, setRemaining] = useState(0);
   const [running, setRunning] = useState(false);
@@ -160,16 +183,32 @@ export default function Coach({ onHome, onStartPractice }) {
 
   const currentStep = plan[stepIdx];
 
+  // Load dashboard data and build adaptive plan
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      let dashData = null;
+      try {
+        dashData = await getDashboard();
+      } catch {}
+      if (cancelled) return;
+      const built = buildPlan(dashData);
+      setPlan(built);
+      setPlanReady(true);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   // Greet on first load
   useEffect(() => {
-    if (!greetedRef.current && plan.length > 0) {
+    if (!greetedRef.current && planReady && plan.length > 0) {
       greetedRef.current = true;
       const total = plan.reduce((s, p) => s + p.mins, 0);
       setTimeout(() => {
         speak(`Salut Ryan! On va travailler ensemble. ${plan.length} étapes, environ ${total} minutes. C'est parti!`);
       }, 500);
     }
-  }, [plan]);
+  }, [plan, planReady]);
 
   // Initialize timer for current step
   useEffect(() => {
