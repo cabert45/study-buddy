@@ -84,7 +84,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onOpenDashboard, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onOpenDashboard, onSwitchProfile, darkMode, onToggleDark }) {
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
 
@@ -157,6 +157,22 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
           <FoxMascot />
         </div>
       </div>
+
+      {/* Tasks button — always visible at top */}
+      {onStartChores && (
+        <button onClick={onStartChores}
+          className="w-full rounded-2xl p-4 mb-4 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+          style={{ background: 'linear-gradient(135deg, #2d7a3a, #4ca65b)', boxShadow: '0 5px 22px rgba(45,122,58,0.15)' }}>
+          <div className="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-lg">📋</span>
+          </div>
+          <div className="text-left flex-1">
+            <div className="font-heading text-lg font-extrabold text-white leading-tight">Mes tâches du jour</div>
+            <div className="text-xs font-semibold text-white/80">Coche tes tâches une par une</div>
+          </div>
+          <span className="text-white/40 text-xl font-extrabold">›</span>
+        </button>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-2 mb-4 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
