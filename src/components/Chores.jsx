@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const defaultChores = [
+const ryanChores = [
   { id: 1, label: 'Ramasser tes vêtements par terre', mins: 5, icon: '👕' },
   { id: 2, label: 'Trouver les vêtements sales (panier)', mins: 5, icon: '🧺' },
   { id: 3, label: 'Ranger ta chambre (jouets, livres)', mins: 15, icon: '🧸' },
@@ -11,6 +11,26 @@ const defaultChores = [
   { id: 8, label: 'Ranger le salon', mins: 10, icon: '🛋️' },
   { id: 9, label: 'Balayer le salon', mins: 5, icon: '🧹' },
 ];
+
+// Cayla's day — laundry-heavy, smart sequence
+// Start loads early so they can run while doing other chores
+const caylaChores = [
+  { id: 1, label: 'LAVER: Mettre les draps au lavage', mins: 5, icon: '🛏️' },
+  { id: 2, label: 'Trouver tes sous-vêtements et chemises blanches d\'uniforme', mins: 5, icon: '🧦' },
+  { id: 3, label: 'Faire ton lit (le temps que les draps lavent)', mins: 5, icon: '🛌' },
+  { id: 4, label: 'Vider et essuyer ton bureau (enlève les objets inutiles)', mins: 15, icon: '🪑' },
+  { id: 5, label: 'Balayer le plancher de ta chambre', mins: 10, icon: '🧹' },
+  { id: 6, label: 'SÉCHEUSE: Mettre les draps à sécher', mins: 5, icon: '🛏️' },
+  { id: 7, label: 'LAVER: Sous-vêtements + chemises blanches d\'uniforme', mins: 5, icon: '👕' },
+  { id: 8, label: 'Sortir les paniers sous ton lit, balayer dessous, organiser', mins: 20, icon: '📦' },
+  { id: 9, label: 'Plier les vêtements sur la sécheuse', mins: 15, icon: '👔' },
+  { id: 10, label: 'Ranger les vêtements pliés dans tes tiroirs', mins: 10, icon: '🗄️' },
+  { id: 11, label: 'LAVER: Ta veste rouge (toute seule!)', mins: 5, icon: '🧥' },
+  { id: 12, label: 'LAVER: Vêtements de couleur (sans blanc, sans sous-vêtements)', mins: 5, icon: '🌈' },
+  { id: 13, label: 'Lire 30 minutes', mins: 30, icon: '📚' },
+];
+
+const demoChores = ryanChores; // Same as Ryan for demo
 
 function format(secs) {
   const m = Math.floor(secs / 60);
@@ -65,8 +85,9 @@ function speak(text) {
 
 const breakOptions = [5, 10, 15];
 
-export default function Chores({ onHome }) {
-  const [chores, setChores] = useState(defaultChores.map(c => ({ ...c, done: false, timeWorked: 0 })));
+export default function Chores({ onHome, profile }) {
+  const choreList = profile === 'cayla' ? caylaChores : profile === 'demo' ? demoChores : ryanChores;
+  const [chores, setChores] = useState(choreList.map(c => ({ ...c, done: false, timeWorked: 0 })));
   const [activeId, setActiveId] = useState(null);
   const [remaining, setRemaining] = useState(0);
   const [running, setRunning] = useState(false);
@@ -181,7 +202,7 @@ export default function Chores({ onHome }) {
 
   function resetAll() {
     if (!confirm('Tout recommencer? (les tâches faites seront décochées)')) return;
-    setChores(defaultChores.map(c => ({ ...c, done: false, timeWorked: 0 })));
+    setChores(choreList.map(c => ({ ...c, done: false, timeWorked: 0 })));
     setActiveId(null);
     setRunning(false);
     setRemaining(0);

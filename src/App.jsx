@@ -209,7 +209,7 @@ export default function App() {
         <Timer onHome={goHome} />
       )}
       {screen === 'chores' && (
-        <Chores onHome={goHome} />
+        <Chores onHome={goHome} profile={profile} />
       )}
       {screen === 'coach' && (
         <Coach onHome={goHome} onStartPractice={startPractice} />
