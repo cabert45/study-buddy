@@ -6,51 +6,52 @@ const presentation = {
   date: 'Mercredi 6 mai 2026',
   videoUrl: 'https://www.youtube.com/results?search_query=la+fourmi+documentaire+enfants',
   videoLabel: '🎥 Regarde une vidéo sur la fourmi',
+  // Sections suivent l'ordre EXACT de la feuille de la maîtresse
   sections: [
     {
-      label: 'Introduction',
+      label: '1. Introduction',
       hint: 'Salue tes amis',
       text: "Bonjour! Aujourd'hui, je vais vous parler d'un insecte super fort: la fourmi.",
     },
     {
-      label: 'Description',
-      hint: 'Combien de pattes? Quelles parties?',
+      label: '2. Description / Classement',
+      hint: 'À quelle famille? Combien de pattes? Quelles parties?',
       text: "La fourmi fait partie de la famille des insectes. Elle a six pattes et son corps est divisé en trois parties: la tête, le thorax et l'abdomen.",
     },
     {
-      label: 'Où elle vit',
-      hint: 'Sa maison s\'appelle...',
-      text: "La fourmi vit en colonie dans une maison qu'on appelle une fourmilière.",
+      label: '3. Mode de vie',
+      hint: 'Comment elle vit? Sa maison? Les rôles?',
+      text: "La fourmi vit en colonie dans une maison qu'on appelle une fourmilière. Dans la fourmilière, il y a différents rôles: la reine pond les œufs — jusqu'à mille par jour! Les ouvrières construisent et cherchent de la nourriture. Les soldats défendent la colonie.",
     },
     {
-      label: 'Les rôles',
-      hint: 'La reine, les ouvrières, les soldats',
-      text: "Dans la fourmilière, il y a différents rôles: la reine pond les œufs — jusqu'à mille œufs par jour! Les ouvrières construisent et cherchent de la nourriture. Les soldats défendent la colonie.",
+      label: '4. Où on peut la trouver',
+      hint: 'Dans quels endroits?',
+      text: "On peut trouver des fourmis presque partout dans le monde! Elles vivent sous la terre, sous les roches, dans les arbres et même dans nos jardins. Elles n'aiment pas seulement les endroits très froids comme l'Antarctique.",
     },
     {
-      label: 'Les antennes',
-      hint: 'À quoi servent ses antennes?',
-      text: "Avec ses antennes, la fourmi peut communiquer, chercher de la nourriture et retrouver son chemin.",
+      label: '5. Équipement pour observer',
+      hint: 'Avec quoi tu peux les regarder?',
+      text: "Pour observer les fourmis, j'utilise une loupe pour les voir de plus près, un petit pot en verre avec des trous pour les attraper sans les blesser, et un carnet pour dessiner ce que je vois.",
     },
     {
-      label: 'Le saviez-vous?',
-      hint: 'Combien de fois son poids?',
+      label: '6. Les prédateurs',
+      hint: 'Qui mange les fourmis?',
+      text: "Les fourmis ont plusieurs prédateurs: la chauve-souris, le pic-bois et l'araignée. Le pic-bois adore manger les fourmis avec sa longue langue!",
+    },
+    {
+      label: '7. Utile ou nuisible?',
+      hint: 'Est-ce que la fourmi est utile? Pourquoi?',
+      text: "La fourmi est un insecte UTILE. Pourquoi? Parce qu'elle nettoie la nature en mangeant les insectes morts, elle aère le sol comme un petit jardinier, et elle aide les plantes à pousser.",
+    },
+    {
+      label: '8. Le saviez-vous?',
+      hint: 'Quelque chose de surprenant',
       text: "Le saviez-vous? La fourmi peut transporter 25 fois son poids! C'est comme si moi, je transportais une voiture sur mon dos!",
     },
     {
-      label: 'Les prédateurs',
-      hint: 'Qui mange les fourmis?',
-      text: "Ses prédateurs sont la chauve-souris, le pic-bois et l'araignée.",
-    },
-    {
-      label: 'Utile ou nuisible?',
-      hint: 'Est-ce que la fourmi est utile?',
-      text: "La fourmi est un insecte utile parce qu'elle nettoie la nature et aide les plantes.",
-    },
-    {
-      label: 'Conclusion',
+      label: '9. Conclusion',
       hint: 'Remercie et invite les questions',
-      text: "Merci! Avez-vous des questions?",
+      text: "Merci de m'avoir écouté! Avez-vous des questions?",
     },
   ],
   criteria: [
