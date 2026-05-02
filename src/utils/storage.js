@@ -1,26 +1,35 @@
 const API_BASE = '/api';
 
+// Profile is stored in localStorage, set when user picks profile
+function getProfile() {
+  return localStorage.getItem('sb_profile') || 'ryan';
+}
+
+export function setProfile(profile) {
+  localStorage.setItem('sb_profile', profile);
+}
+
 export async function saveSession(mode, total, correct, details) {
   const res = await fetch(`${API_BASE}/session`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ mode, total, correct, details }),
+    body: JSON.stringify({ mode, total, correct, details, profile: getProfile() }),
   });
   return res.json();
 }
 
 export async function getProgress() {
-  const res = await fetch(`${API_BASE}/progress`);
+  const res = await fetch(`${API_BASE}/progress?profile=${getProfile()}`);
   return res.json();
 }
 
 export async function getDashboard() {
-  const res = await fetch(`${API_BASE}/dashboard`);
+  const res = await fetch(`${API_BASE}/dashboard?profile=${getProfile()}`);
   return res.json();
 }
 
 export async function getAdvice() {
-  const res = await fetch(`${API_BASE}/dashboard/advice`);
+  const res = await fetch(`${API_BASE}/dashboard/advice?profile=${getProfile()}`);
   return res.json();
 }
 
@@ -28,6 +37,7 @@ export async function resetData() {
   const res = await fetch(`${API_BASE}/reset`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ profile: getProfile() }),
   });
   return res.json();
 }

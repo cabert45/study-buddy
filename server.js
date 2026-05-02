@@ -45,6 +45,27 @@ async function initDb() {
         value TEXT
       )
     `);
+
+    // --- Migrations: add profile column for multi-user support ---
+    await client.query(`ALTER TABLE sessions ADD COLUMN IF NOT EXISTS profile TEXT NOT NULL DEFAULT 'ryan'`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_sessions_profile ON sessions(profile, id DESC)`);
+
+    // category_stats: rebuild with composite key (profile, category)
+    const colCheck = await client.query(`
+      SELECT column_name FROM information_schema.columns
+      WHERE table_name='category_stats' AND column_name='profile'
+    `);
+    if (colCheck.rows.length === 0) {
+      await client.query(`ALTER TABLE category_stats ADD COLUMN profile TEXT NOT NULL DEFAULT 'ryan'`);
+      // Drop old single-column PK and create composite PK
+      try {
+        await client.query(`ALTER TABLE category_stats DROP CONSTRAINT IF EXISTS category_stats_pkey`);
+        await client.query(`ALTER TABLE category_stats ADD PRIMARY KEY (profile, category)`);
+      } catch (e) {
+        console.log('PK migration note:', e.message);
+      }
+    }
+
     console.log('Database tables ready');
   } finally {
     client.release();
@@ -71,9 +92,10 @@ if (process.env.ANTHROPIC_API_KEY) {
 
 app.get('/api/progress', async (req, res) => {
   try {
-    const stats = await queryAll('SELECT * FROM category_stats');
-    const sessions = await queryAll('SELECT * FROM sessions ORDER BY id DESC LIMIT 10');
-    const totals = await queryOne('SELECT COALESCE(SUM(correct),0) as correct, COALESCE(SUM(total),0) as total FROM category_stats');
+    const profile = req.query.profile || 'ryan';
+    const stats = await queryAll('SELECT * FROM category_stats WHERE profile = $1', [profile]);
+    const sessions = await queryAll('SELECT * FROM sessions WHERE profile = $1 ORDER BY id DESC LIMIT 10', [profile]);
+    const totals = await queryOne('SELECT COALESCE(SUM(correct),0) as correct, COALESCE(SUM(total),0) as total FROM category_stats WHERE profile = $1', [profile]);
     res.json({ stats, sessions, totals });
   } catch (err) {
     console.error('Progress error:', err);
@@ -83,24 +105,25 @@ app.get('/api/progress', async (req, res) => {
 
 app.post('/api/session', async (req, res) => {
   try {
-    const { mode, total, correct, details } = req.body;
+    const { mode, total, correct, details, profile } = req.body;
+    const profileId = profile || 'ryan';
     const date = new Date().toISOString().split('T')[0];
 
     await pool.query(
-      'INSERT INTO sessions (date, mode, total, correct, details) VALUES ($1, $2, $3, $4, $5)',
-      [date, mode, total, correct, JSON.stringify(details)]
+      'INSERT INTO sessions (date, mode, total, correct, details, profile) VALUES ($1, $2, $3, $4, $5, $6)',
+      [date, mode, total, correct, JSON.stringify(details), profileId]
     );
 
     if (details && Array.isArray(details)) {
       for (const d of details) {
         const correctVal = d.correct ? 1 : 0;
         await pool.query(`
-          INSERT INTO category_stats (category, correct, total)
-          VALUES ($1, $2, 1)
-          ON CONFLICT (category) DO UPDATE SET
-            correct = category_stats.correct + $3,
+          INSERT INTO category_stats (profile, category, correct, total)
+          VALUES ($1, $2, $3, 1)
+          ON CONFLICT (profile, category) DO UPDATE SET
+            correct = category_stats.correct + $4,
             total = category_stats.total + 1
-        `, [d.category, correctVal, correctVal]);
+        `, [profileId, d.category, correctVal, correctVal]);
       }
     }
 
@@ -113,14 +136,15 @@ app.post('/api/session', async (req, res) => {
 
 app.get('/api/dashboard', async (req, res) => {
   try {
-    const stats = await queryAll('SELECT * FROM category_stats');
-    const sessions = await queryAll('SELECT * FROM sessions ORDER BY id DESC LIMIT 30');
-    const totals = await queryOne('SELECT COALESCE(SUM(correct),0) as correct, COALESCE(SUM(total),0) as total FROM category_stats');
-    const sessionCount = await queryOne('SELECT COUNT(*) as count FROM sessions');
+    const profile = req.query.profile || 'ryan';
+    const stats = await queryAll('SELECT * FROM category_stats WHERE profile = $1', [profile]);
+    const sessions = await queryAll('SELECT * FROM sessions WHERE profile = $1 ORDER BY id DESC LIMIT 30', [profile]);
+    const totals = await queryOne('SELECT COALESCE(SUM(correct),0) as correct, COALESCE(SUM(total),0) as total FROM category_stats WHERE profile = $1', [profile]);
+    const sessionCount = await queryOne('SELECT COUNT(*) as count FROM sessions WHERE profile = $1', [profile]);
     const daily = await queryAll(`
       SELECT date, SUM(correct) as correct, SUM(total) as total
-      FROM sessions GROUP BY date ORDER BY date DESC LIMIT 14
-    `);
+      FROM sessions WHERE profile = $1 GROUP BY date ORDER BY date DESC LIMIT 14
+    `, [profile]);
     res.json({ stats, sessions, totals, sessionCount: parseInt(sessionCount?.count) || 0, daily: daily.reverse() });
   } catch (err) {
     console.error('Dashboard error:', err);
@@ -133,8 +157,9 @@ app.get('/api/dashboard/advice', async (req, res) => {
     return res.json({ message: "Configurez la cle API Anthropic pour obtenir des conseils." });
   }
   try {
-    const stats = await queryAll('SELECT * FROM category_stats');
-    const recentSessions = await queryAll('SELECT * FROM sessions ORDER BY id DESC LIMIT 5');
+    const profile = req.query.profile || 'ryan';
+    const stats = await queryAll('SELECT * FROM category_stats WHERE profile = $1', [profile]);
+    const recentSessions = await queryAll('SELECT * FROM sessions WHERE profile = $1 ORDER BY id DESC LIMIT 5', [profile]);
     const recentDetails = recentSessions.map(s => {
       let details = [];
       try { details = JSON.parse(s.details || '[]'); } catch {}
@@ -170,8 +195,9 @@ Donne-moi:
 
 app.post('/api/reset', async (req, res) => {
   try {
-    await pool.query('DELETE FROM sessions');
-    await pool.query('DELETE FROM category_stats');
+    const profile = req.body?.profile || 'ryan';
+    await pool.query('DELETE FROM sessions WHERE profile = $1', [profile]);
+    await pool.query('DELETE FROM category_stats WHERE profile = $1', [profile]);
     res.json({ ok: true });
   } catch (err) {
     console.error('Reset error:', err);

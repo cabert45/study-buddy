@@ -107,11 +107,13 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
   const pct = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
   const sessionCount = stats?.sessions?.length || 0;
 
-  const isRyan = profile === 'ryan';
-  const name = isRyan ? 'Ryan' : 'Cayla';
-  const grade = isRyan ? '2e année' : '6e année';
-  const mathModes = isRyan ? ryanMathModes : caylaMathModes;
-  const frenchModes = isRyan ? ryanFrenchModes : caylaFrenchModes;
+  const isCayla = profile === 'cayla';
+  const isDemo = profile === 'demo';
+  const isRyan = profile === 'ryan' || isDemo; // demo gets Ryan's 2e année content
+  const name = isDemo ? 'Mon ami' : profile === 'ryan' ? 'Ryan' : 'Cayla';
+  const grade = isCayla ? '6e année' : '2e année';
+  const mathModes = isCayla ? caylaMathModes : ryanMathModes;
+  const frenchModes = isCayla ? caylaFrenchModes : ryanFrenchModes;
   const modes = tab === 'math' ? mathModes : frenchModes;
   const featured = modes.find(m => m.featured);
   const grid = modes.filter(m => !m.featured);
@@ -185,7 +187,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
       )}
 
       {/* Coach button — the BIG one */}
-      {onStartCoach && (
+      {onStartCoach && !isDemo && (
         <button onClick={onStartCoach}
           className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a 50%, #fdcb6e)', boxShadow: '0 6px 24px rgba(199,74,21,0.25)' }}>
@@ -201,7 +203,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
       )}
 
       {/* Tasks button */}
-      {onStartChores && (
+      {onStartChores && !isDemo && (
         <button onClick={onStartChores}
           className="w-full rounded-2xl p-4 mb-4 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #2d7a3a, #4ca65b)', boxShadow: '0 5px 22px rgba(45,122,58,0.15)' }}>

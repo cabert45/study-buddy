@@ -10,6 +10,7 @@ import MemoryGame from './components/MemoryGame';
 import Timer from './components/Timer';
 import Chores from './components/Chores';
 import Coach from './components/Coach';
+import { setProfile as persistProfile } from './utils/storage';
 import Presentation from './components/Presentation';
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
 
   function selectProfile(p) {
     setProfile(p);
+    persistProfile(p);
     setScreen('menu');
   }
 
@@ -93,7 +95,7 @@ export default function App() {
           {window.__selectedVoice && (
             <p className="text-[10px] text-s3 mb-4">Voix: {window.__selectedVoice}</p>
           )}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <button onClick={() => selectProfile('ryan')}
               className="bg-white border-2 border-s1 rounded-2xl p-6 hover:scale-105 hover:border-fox hover:shadow-lg transition-all active:scale-95">
               <div className="text-5xl mb-3">🧑‍🚀</div>
@@ -105,6 +107,14 @@ export default function App() {
               <div className="text-5xl mb-3">🌟</div>
               <div className="font-heading text-xl font-extrabold text-stone">Cayla</div>
               <div className="text-xs font-bold text-s4 mt-1">6e année</div>
+            </button>
+            <button onClick={() => selectProfile('demo')}
+              className="border-2 border-s1 rounded-2xl p-6 hover:scale-105 hover:border-blue-400 hover:shadow-lg transition-all active:scale-95 col-span-2 md:col-span-1"
+              style={{ background: 'linear-gradient(135deg, #fff, #fef0e4)' }}>
+              <div className="text-5xl mb-3">👋</div>
+              <div className="font-heading text-xl font-extrabold text-stone">Mes amis</div>
+              <div className="text-xs font-bold text-s4 mt-1">Castiel · Rivant · Alexis</div>
+              <div className="text-[10px] font-bold text-fox-d mt-1 uppercase tracking-wide">Démo · 2e année</div>
             </button>
           </div>
         </div>
