@@ -1,36 +1,35 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { speak as ttsSpeak } from '../utils/speech';
 
 const ryanChores = [
-  { id: 1, label: 'Ramasser tes vêtements par terre', mins: 5, icon: '👕' },
-  { id: 2, label: 'Trouver les vêtements sales (panier)', mins: 5, icon: '🧺' },
-  { id: 3, label: 'Ranger ta chambre (jouets, livres)', mins: 15, icon: '🧸' },
-  { id: 4, label: 'Balayer ta chambre', mins: 5, icon: '🧹' },
-  { id: 5, label: 'Plier tes vêtements (sécheuse)', mins: 15, icon: '👔' },
-  { id: 6, label: 'Ranger tes vêtements pliés', mins: 10, icon: '🗄️' },
-  { id: 7, label: 'Ranger les souliers — entrée', mins: 5, icon: '👟' },
-  { id: 8, label: 'Ranger le salon', mins: 10, icon: '🛋️' },
-  { id: 9, label: 'Balayer le salon', mins: 5, icon: '🧹' },
+  { id: 1, fr: 'Ramasser tes vêtements par terre', en: 'Pick up your clothes off the floor', mins: 5, icon: '👕' },
+  { id: 2, fr: 'Trouver les vêtements sales (panier)', en: 'Find dirty clothes (laundry basket)', mins: 5, icon: '🧺' },
+  { id: 3, fr: 'Ranger ta chambre (jouets, livres)', en: 'Tidy your room (toys, books)', mins: 15, icon: '🧸' },
+  { id: 4, fr: 'Balayer ta chambre', en: 'Sweep your room', mins: 5, icon: '🧹' },
+  { id: 5, fr: 'Plier tes vêtements (sécheuse)', en: 'Fold your clothes (from dryer)', mins: 15, icon: '👔' },
+  { id: 6, fr: 'Ranger tes vêtements pliés', en: 'Put folded clothes in drawers', mins: 10, icon: '🗄️' },
+  { id: 7, fr: 'Ranger les souliers — entrée', en: 'Tidy shoes at the entrance', mins: 5, icon: '👟' },
+  { id: 8, fr: 'Ranger le salon', en: 'Tidy the living room', mins: 10, icon: '🛋️' },
+  { id: 9, fr: 'Balayer le salon', en: 'Sweep the living room', mins: 5, icon: '🧹' },
 ];
 
-// Cayla's day — laundry-heavy, smart sequence
-// Start loads early so they can run while doing other chores
 const caylaChores = [
-  { id: 1, label: 'LAVER: Mettre les draps au lavage', mins: 5, icon: '🛏️' },
-  { id: 2, label: 'Trouver tes sous-vêtements et chemises blanches d\'uniforme', mins: 5, icon: '🧦' },
-  { id: 3, label: 'Faire ton lit (le temps que les draps lavent)', mins: 5, icon: '🛌' },
-  { id: 4, label: 'Vider et essuyer ton bureau (enlève les objets inutiles)', mins: 15, icon: '🪑' },
-  { id: 5, label: 'Balayer le plancher de ta chambre', mins: 10, icon: '🧹' },
-  { id: 6, label: 'SÉCHEUSE: Mettre les draps à sécher', mins: 5, icon: '🛏️' },
-  { id: 7, label: 'LAVER: Sous-vêtements + chemises blanches d\'uniforme', mins: 5, icon: '👕' },
-  { id: 8, label: 'Sortir les paniers sous ton lit, balayer dessous, organiser', mins: 20, icon: '📦' },
-  { id: 9, label: 'Plier les vêtements sur la sécheuse', mins: 15, icon: '👔' },
-  { id: 10, label: 'Ranger les vêtements pliés dans tes tiroirs', mins: 10, icon: '🗄️' },
-  { id: 11, label: 'LAVER: Ta veste rouge (toute seule!)', mins: 5, icon: '🧥' },
-  { id: 12, label: 'LAVER: Vêtements de couleur (sans blanc, sans sous-vêtements)', mins: 5, icon: '🌈' },
-  { id: 13, label: 'Lire 30 minutes', mins: 30, icon: '📚' },
+  { id: 1, fr: 'LAVER: Mettre les draps au lavage', en: 'WASH: Put bedsheets in washer', mins: 5, icon: '🛏️' },
+  { id: 2, fr: 'Trouver tes sous-vêtements et chemises blanches d\'uniforme', en: 'Find your underwear and white uniform shirts', mins: 5, icon: '🧦' },
+  { id: 3, fr: 'Faire ton lit (le temps que les draps lavent)', en: 'Make your bed (while sheets wash)', mins: 5, icon: '🛌' },
+  { id: 4, fr: 'Vider et essuyer ton bureau (enlève les objets inutiles)', en: 'Clear and wipe your desk (remove unnecessary stuff)', mins: 15, icon: '🪑' },
+  { id: 5, fr: 'Balayer le plancher de ta chambre', en: 'Sweep your bedroom floor', mins: 10, icon: '🧹' },
+  { id: 6, fr: 'SÉCHEUSE: Mettre les draps à sécher', en: 'DRYER: Move sheets to dryer', mins: 5, icon: '🛏️' },
+  { id: 7, fr: 'LAVER: Sous-vêtements + chemises blanches d\'uniforme', en: 'WASH: Underwear + white uniform shirts', mins: 5, icon: '👕' },
+  { id: 8, fr: 'Sortir les paniers sous ton lit, balayer dessous, organiser', en: 'Pull out baskets under your bed, sweep, organize them', mins: 20, icon: '📦' },
+  { id: 9, fr: 'Plier les vêtements sur la sécheuse', en: 'Fold the clothes on top of the dryer', mins: 15, icon: '👔' },
+  { id: 10, fr: 'Ranger les vêtements pliés dans tes tiroirs', en: 'Put folded clothes away in your drawers', mins: 10, icon: '🗄️' },
+  { id: 11, fr: 'LAVER: Ta veste rouge (toute seule!)', en: 'WASH: Your red jacket (by itself!)', mins: 5, icon: '🧥' },
+  { id: 12, fr: 'LAVER: Vêtements de couleur (sans blanc, sans sous-vêtements)', en: 'WASH: Colored clothes (no whites, no underwear)', mins: 5, icon: '🌈' },
+  { id: 13, fr: 'Lire 30 minutes', en: 'Read for 30 minutes', mins: 30, icon: '📚' },
 ];
 
-const demoChores = ryanChores; // Same as Ryan for demo
+const demoChores = ryanChores;
 
 function format(secs) {
   const m = Math.floor(secs / 60);
@@ -74,13 +73,8 @@ function playBeep() {
   } catch {}
 }
 
-function speak(text) {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'fr-FR';
-  u.rate = 0.9;
-  window.speechSynthesis.speak(u);
+function speak(text, lang = 'fr') {
+  ttsSpeak(text, lang);
 }
 
 const breakOptions = [5, 10, 15];
@@ -88,6 +82,7 @@ const breakOptions = [5, 10, 15];
 export default function Chores({ onHome, profile }) {
   const choreList = profile === 'cayla' ? caylaChores : profile === 'demo' ? demoChores : ryanChores;
   const [chores, setChores] = useState(choreList.map(c => ({ ...c, done: false, timeWorked: 0 })));
+  const [lang, setLang] = useState(() => localStorage.getItem('sb_chores_lang') || 'fr');
   const [activeId, setActiveId] = useState(null);
   const [remaining, setRemaining] = useState(0);
   const [running, setRunning] = useState(false);
@@ -98,6 +93,83 @@ export default function Chores({ onHome, profile }) {
   const [totalWorkSecs, setTotalWorkSecs] = useState(0);
   const [totalBreakSecs, setTotalBreakSecs] = useState(0);
   const intervalRef = useRef(null);
+
+  // Translations
+  const t = lang === 'en' ? {
+    title: 'My tasks',
+    reset: 'Reset',
+    done: 'Done',
+    work: 'Work',
+    breaks: 'Breaks',
+    needBreak: 'Need a break?',
+    minLeft: (m) => `Still ${m} min of tasks left`,
+    timeUp: '⏰ Time\'s up! Continue or mark "Done"',
+    pause: '⏸ Pause',
+    resume: '▶ Resume',
+    extend: '+ 2 min',
+    doneBtn: '✓ Done!',
+    inProgress: 'In progress',
+    onBreakLabel: 'Break',
+    breakDesc: 'Take a rest! Back to work soon.',
+    skipBreak: '⏭ Resume now',
+    pickTask: '👇 Pick a task and click ▶ Go',
+    breakStart: (m) => `${m} minute break. Take a rest!`,
+    breakEnd: 'BREAK OVER! Back to work!',
+    started: (label, m) => `Now: ${label}. You have ${m} minutes. Go!`,
+    twoMinWarn: (label) => `2 minutes left for ${label}`,
+    thirtySecWarn: '30 seconds!',
+    finished: (label) => `${label} — Time's up! Are you done?`,
+    bravo: 'Great job!',
+    extending: '+ 2 minutes. Keep going!',
+    allDone: 'All done!',
+    allDoneSub: 'Great job! You can play now!',
+    tasks: 'Tasks',
+    restart: '🔄 Start again',
+    menu: '← Menu',
+    confirmReset: 'Reset all tasks? (done tasks will be unchecked)',
+  } : {
+    title: 'Mes tâches',
+    reset: 'Reset',
+    done: 'Faites',
+    work: 'Travail',
+    breaks: 'Pauses',
+    needBreak: 'Besoin d\'une pause?',
+    minLeft: (m) => `Encore ${m} min de tâches à faire`,
+    timeUp: '⏰ Temps écoulé! Continue ou marque "Fait"',
+    pause: '⏸ Pause',
+    resume: '▶ Reprendre',
+    extend: '+ 2 min',
+    doneBtn: '✓ Fait!',
+    inProgress: 'En cours',
+    onBreakLabel: 'Pause',
+    breakDesc: 'Repose-toi! Retour au travail bientôt.',
+    skipBreak: '⏭ Reprendre maintenant',
+    pickTask: '👇 Choisis une tâche et clique ▶ Go',
+    breakStart: (m) => `Pause de ${m} minutes. Repose-toi!`,
+    breakEnd: 'PAUSE TERMINÉE! Retour au travail!',
+    started: (label, m) => `Maintenant: ${label}. Tu as ${m} minutes. Go!`,
+    twoMinWarn: (label) => `Il te reste 2 minutes pour ${label}`,
+    thirtySecWarn: '30 secondes!',
+    finished: (label) => `${label} — Temps écoulé! As-tu fini?`,
+    bravo: 'Bravo!',
+    extending: '+ 2 minutes. Continue!',
+    allDone: 'Tout est fait!',
+    allDoneSub: 'Bravo! Tu peux jouer maintenant!',
+    tasks: 'Tâches',
+    restart: '🔄 Recommencer',
+    menu: '← Menu',
+    confirmReset: 'Tout recommencer? (les tâches faites seront décochées)',
+  };
+
+  function labelOf(chore) {
+    return lang === 'en' ? chore.en : chore.fr;
+  }
+
+  function toggleLang() {
+    const next = lang === 'fr' ? 'en' : 'fr';
+    setLang(next);
+    localStorage.setItem('sb_chores_lang', next);
+  }
 
   const doneCount = chores.filter(c => c.done).length;
   const remainingMins = chores.filter(c => !c.done).reduce((sum, c) => sum + c.mins, 0);
@@ -114,19 +186,19 @@ export default function Chores({ onHome, profile }) {
             setWarned2min(true);
             const chore = chores.find(c => c.id === activeId);
             playBeep();
-            speak(`Il te reste 2 minutes pour ${chore?.label || 'cette tâche'}`);
+            speak(t.twoMinWarn(labelOf(chore) || ''), lang);
           }
           if (next === 30 && !warned30s) {
             setWarned30s(true);
             playBeep();
-            speak('30 secondes!');
+            speak(t.thirtySecWarn, lang);
           }
           if (next <= 0) {
             clearInterval(intervalRef.current);
             setRunning(false);
             const chore = chores.find(c => c.id === activeId);
             playDing();
-            speak(`${chore?.label || 'Tâche'} — Temps écoulé! As-tu fini?`);
+            speak(t.finished(labelOf(chore) || ''), lang);
             return 0;
           }
           return next;
@@ -146,7 +218,7 @@ export default function Chores({ onHome, profile }) {
             clearInterval(intervalRef.current);
             setOnBreak(false);
             playDing();
-            speak('Pause terminée! Retour au travail!');
+            speak(t.breakEnd, lang);
             return 0;
           }
           return b - 1;
@@ -165,7 +237,7 @@ export default function Chores({ onHome, profile }) {
     setWarned2min(false);
     setWarned30s(false);
     setRunning(true);
-    speak(`Commence: ${chore.label}. Tu as ${chore.mins} minutes.`);
+    speak(t.started(labelOf(chore), chore.mins), lang);
   }
 
   function continueWorking() {
@@ -182,13 +254,13 @@ export default function Chores({ onHome, profile }) {
     setRunning(false);
     setOnBreak(true);
     setBreakRemaining(mins * 60);
-    speak(`Pause de ${mins} minutes. Repose-toi!`);
+    speak(t.breakStart(mins), lang);
   }
 
   function endBreakEarly() {
     setOnBreak(false);
     setBreakRemaining(0);
-    speak('Retour au travail!');
+    speak(lang === 'en' ? 'Back to work!' : 'Retour au travail!', lang);
   }
 
   function toggleDone(id) {
@@ -201,7 +273,7 @@ export default function Chores({ onHome, profile }) {
   }
 
   function resetAll() {
-    if (!confirm('Tout recommencer? (les tâches faites seront décochées)')) return;
+    if (!confirm(t.confirmReset)) return;
     setChores(choreList.map(c => ({ ...c, done: false, timeWorked: 0 })));
     setActiveId(null);
     setRunning(false);
@@ -218,8 +290,8 @@ export default function Chores({ onHome, profile }) {
     return (
       <div className="max-w-3xl mx-auto px-4 pt-12 text-center">
         <div className="text-7xl mb-4 animate-bounce">🏆</div>
-        <h2 className="font-heading text-4xl font-extrabold text-ok mb-2">Tout est fait!</h2>
-        <p className="text-stone font-semibold mb-6 text-lg">Bravo Ryan! Tu peux jouer dehors maintenant! 🌳⚽</p>
+        <h2 className="font-heading text-4xl font-extrabold text-ok mb-2">{t.allDone}</h2>
+        <p className="text-stone font-semibold mb-6 text-lg">{t.allDoneSub}</p>
         <div className="bg-white rounded-2xl p-6 mb-4 border-2 border-s1">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
@@ -253,38 +325,44 @@ export default function Chores({ onHome, profile }) {
     <div className="max-w-3xl mx-auto px-4 pt-4 pb-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
-        <h2 className="font-heading font-bold text-stone">📋 Mes tâches</h2>
-        <button onClick={resetAll} className="text-xs text-s4 font-bold hover:text-lava">🔄 Reset</button>
+        <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">{t.menu}</button>
+        <h2 className="font-heading font-bold text-stone">{t.title}</h2>
+        <div className="flex items-center gap-2">
+          <button onClick={toggleLang}
+            className="text-xs font-bold text-s4 hover:text-lava bg-white border-2 border-s2 rounded-lg px-2 py-1">
+            {lang === 'fr' ? 'EN' : 'FR'}
+          </button>
+          <button onClick={resetAll} className="text-xs text-s4 font-bold hover:text-lava">↺</button>
+        </div>
       </div>
 
       {/* Day stats */}
       <div className="grid grid-cols-3 gap-2 mb-4">
         <div className="bg-white rounded-xl p-2 text-center border-2 border-s1">
           <div className="font-heading text-lg font-extrabold text-stone">{doneCount}/{chores.length}</div>
-          <div className="text-[10px] font-bold text-s4 uppercase">Faites</div>
+          <div className="text-[10px] font-bold text-s4 uppercase">{t.done}</div>
         </div>
         <div className="bg-white rounded-xl p-2 text-center border-2 border-s1">
           <div className="font-heading text-lg font-extrabold text-ok">{Math.round(totalWorkSecs / 60)}m</div>
-          <div className="text-[10px] font-bold text-s4 uppercase">Travail</div>
+          <div className="text-[10px] font-bold text-s4 uppercase">{t.work}</div>
         </div>
         <div className="bg-white rounded-xl p-2 text-center border-2 border-s1">
           <div className="font-heading text-lg font-extrabold text-fox">{Math.round(totalBreakSecs / 60)}m</div>
-          <div className="text-[10px] font-bold text-s4 uppercase">Pauses</div>
+          <div className="text-[10px] font-bold text-s4 uppercase">{t.breaks}</div>
         </div>
       </div>
 
-      {/* On break — full screen ish */}
+      {/* On break */}
       {onBreak && (
         <div className="bg-white rounded-2xl p-6 mb-4 border-2 border-fox sticky top-2 z-10 shadow-lg text-center">
           <div className="text-5xl mb-2">☕</div>
-          <div className="text-xs font-bold text-fox-d uppercase tracking-wide">Pause</div>
+          <div className="text-xs font-bold text-fox-d uppercase tracking-wide">{t.onBreakLabel}</div>
           <div className="font-heading text-5xl font-extrabold text-fox my-2">{format(breakRemaining)}</div>
-          <p className="text-sm text-s4 font-semibold mb-3">Repose-toi! Retour au travail bientôt.</p>
+          <p className="text-sm text-s4 font-semibold mb-3">{t.breakDesc}</p>
           <button onClick={endBreakEarly}
             className="px-6 py-2 rounded-lg font-bold text-white text-sm"
             style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
-            ⏭ Reprendre maintenant
+            {t.skipBreak}
           </button>
         </div>
       )}
@@ -296,8 +374,8 @@ export default function Chores({ onHome, profile }) {
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <span className="text-2xl">{activeChore.icon}</span>
               <div className="min-w-0">
-                <div className="text-xs font-bold text-fox-d uppercase">En cours</div>
-                <div className="font-heading font-bold text-stone text-sm truncate">{activeChore.label}</div>
+                <div className="text-xs font-bold text-fox-d uppercase">{t.inProgress}</div>
+                <div className="font-heading font-bold text-stone text-sm truncate">{labelOf(activeChore)}</div>
               </div>
             </div>
             <div className="font-heading text-3xl font-extrabold flex-shrink-0"
@@ -307,31 +385,31 @@ export default function Chores({ onHome, profile }) {
           </div>
 
           {remaining === 0 && (
-            <p className="text-xs text-red-600 font-bold mb-2 text-center">⏰ Temps écoulé! Continue ou marque "Fait"</p>
+            <p className="text-xs text-red-600 font-bold mb-2 text-center">{t.timeUp}</p>
           )}
 
           <div className="flex gap-2">
             {running ? (
               <button onClick={() => setRunning(false)}
                 className="flex-1 py-2 rounded-lg font-bold text-white text-sm bg-yellow-600">
-                ⏸ Pause
+                {t.pause}
               </button>
             ) : (
               <button onClick={continueWorking}
                 className="flex-1 py-2 rounded-lg font-bold text-white text-sm"
                 style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
-                {remaining === 0 ? '+ 2 min' : '▶ Reprendre'}
+                {remaining === 0 ? t.extend : t.resume}
               </button>
             )}
             <button onClick={() => toggleDone(activeChore.id)}
               className="flex-1 py-2 rounded-lg font-bold text-white text-sm bg-ok">
-              ✓ Fait!
+              {t.doneBtn}
             </button>
           </div>
 
           {/* Break options */}
           <div className="mt-2 pt-2 border-t border-s1">
-            <div className="text-[10px] font-bold text-s4 uppercase mb-1.5 text-center">Besoin d'une pause?</div>
+            <div className="text-[10px] font-bold text-s4 uppercase mb-1.5 text-center">{t.needBreak}</div>
             <div className="grid grid-cols-3 gap-2">
               {breakOptions.map((m) => (
                 <button key={m} onClick={() => takeBreak(m)}
@@ -347,7 +425,7 @@ export default function Chores({ onHome, profile }) {
       {/* No active chore — show start prompt */}
       {!activeChore && !onBreak && doneCount < chores.length && (
         <div className="bg-orange-50 rounded-2xl p-3 mb-4 border-2 border-orange-200 text-center">
-          <p className="text-sm font-bold text-fox-d">👇 Choisis une tâche et clique ▶ Go</p>
+          <p className="text-sm font-bold text-fox-d">{t.pickTask}</p>
         </div>
       )}
 
@@ -370,7 +448,7 @@ export default function Chores({ onHome, profile }) {
               <span className="text-2xl flex-shrink-0">{chore.icon}</span>
               <div className="flex-1 min-w-0">
                 <div className={`font-heading font-bold text-sm ${chore.done ? 'line-through text-s4' : 'text-stone'}`}>
-                  {chore.label}
+                  {labelOf(chore)}
                 </div>
                 <div className="text-xs text-s4 font-semibold">⏱ {chore.mins} min</div>
               </div>
@@ -392,7 +470,7 @@ export default function Chores({ onHome, profile }) {
 
       {!onBreak && remainingMins > 0 && (
         <p className="text-center text-xs text-s4 font-semibold mt-4">
-          ⏱ Encore {remainingMins} min de tâches à faire
+          ⏱ {t.minLeft(remainingMins)}
         </p>
       )}
     </div>

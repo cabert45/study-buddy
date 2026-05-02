@@ -91,18 +91,32 @@ function cleanForSpeech(text) {
     .trim();
 }
 
-export function speak(text) {
+function getEnglishVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+  // Prefer Google English, then any en-US/en-GB
+  const google = voices.find(v => v.name.toLowerCase().includes('google') && v.lang.startsWith('en'));
+  if (google) return google;
+  const enUS = voices.find(v => v.lang === 'en-US');
+  if (enUS) return enUS;
+  const enGB = voices.find(v => v.lang === 'en-GB');
+  if (enGB) return enGB;
+  const anyEn = voices.find(v => v.lang.startsWith('en'));
+  return anyEn || null;
+}
+
+export function speak(text, lang = 'fr') {
   if (!speechEnabled || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const cleaned = cleanForSpeech(text);
   const u = new SpeechSynthesisUtterance(cleaned);
 
-  const voice = getVoice();
+  const voice = lang === 'en' ? getEnglishVoice() : getVoice();
   if (voice) {
     u.voice = voice;
     u.lang = voice.lang;
   } else {
-    u.lang = 'fr-FR';
+    u.lang = lang === 'en' ? 'en-US' : 'fr-FR';
   }
 
   u.rate = 0.85;
