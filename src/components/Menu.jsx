@@ -37,18 +37,18 @@ const ryanMathModes = [
 
 const ryanFrenchModes = [
   { id: 'dictee_s3', label: '🎧 Dictée mardi', desc: 'Le son "o" — o, au, eau (semaine 3)', featured: true, special: true },
+  { id: 'dictee_revision', label: '🔄 Révision TOUTES dictées', desc: 'Préparer la dictée cumulative 1-4!', special: true },
   { id: 'apostrophe', label: '✏️ Apostrophe (TEST 8 mai)', desc: "le/la → l', je → j'", special: true },
   { id: 'm_devant_bmp', label: 'M devant B,M,P (TEST 8 mai)', desc: 'campagne, jambe, important...', special: true },
   { id: 'passe_compose', label: '📝 Passé composé', desc: 'Verbes -er + finir' },
-  { id: 'dictee_revision', label: '🔄 Révision dictées', desc: 'Toutes les semaines mélangées' },
+  { id: 'dictee_s1', label: '🎧 Semaine 1 — verbes -er', desc: 'aller, arriver, pincer, réviser...' },
+  { id: 'dictee_s2', label: '🎧 Semaine 2 — mots en p', desc: 'paire, parce que, partout, prendre...' },
+  { id: 'dictee_s3', label: '🎧 Semaine 3 — son o', desc: 'aujourd\'hui, autre, motoneige, peau...' },
+  { id: 'dictee_s4', label: '🎧 Semaine 4 — n devient m', desc: 'campagne, compote, printemps, tomber...' },
   { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs' },
-  { id: 'dictee', label: 'Dictée', desc: 'Écoute et choisis la bonne orthographe' },
   { id: 'determinant', label: 'Déterminants', desc: 'le, la, un, une, mon...' },
   { id: 'verbes', label: 'Verbes', desc: 'être, avoir, aller, faire...' },
   { id: 'adjectif', label: 'Adjectifs', desc: 'Accord et familles de mots' },
-  { id: 'dictee_s4', label: '🎧 Dictée semaine 4 (futur)', desc: 'n devient m devant b/p' },
-  { id: 'dictee_s1', label: '🎧 Dictée semaine 1 (passé)', desc: 'Verbes en -er — révision' },
-  { id: 'dictee_s2', label: '🎧 Dictée semaine 2 (passé)', desc: 'Mots en p- — révision' },
   { id: 'on_ont', label: 'ON / ONT', desc: 'Pronom ou verbe avoir?' },
   { id: 'groupe_nom', label: 'Groupe du nom', desc: 'GN: nom seul, dét+nom, dét+nom+adj' },
 ];
