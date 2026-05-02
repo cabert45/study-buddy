@@ -52,7 +52,7 @@ function generateSpellingQuestion() {
   return {
     category: 'm_devant_bmp',
     type: 'spelling',
-    text: `Quelle est la bonne orthographe?`,
+    text: `Écris bien le mot que tu entends`,
     spokenWord: word,
     correct: word,
     options: shuffle([...options].slice(0, 4)),
@@ -74,7 +74,8 @@ function generateFillBlankQuestion() {
   return {
     category: 'm_devant_bmp',
     type: 'fill_blank',
-    text: `Complète: "${display}" — N ou M?`,
+    text: `Dans "${display}" — N ou M?`,
+    spokenWord: `Quelle lettre manque dans le mot ${word}? N ou M?`,
     correct: 'M',
     options: ['M', 'N'],
     explanation: `Devant ${match[2].toUpperCase()} → on met M! Le mot s'écrit "${word}".`,
@@ -83,13 +84,13 @@ function generateFillBlankQuestion() {
 
 function generateRuleQuestion() {
   const questions = [
-    { sentence: 'On met M (au lieu de N) devant quelles lettres?', correct: 'B, M, P', wrongs: ['A, E, I', 'T, D, S', 'B, T, P'] },
-    { sentence: 'Quelle est la bonne orthographe: "ja_be"?', correct: 'jambe', wrongs: ['janbe', 'jamb', 'janb'] },
-    { sentence: 'Quelle est la bonne orthographe: "te_pête"?', correct: 'tempête', wrongs: ['tenpête', 'tempete', 'tampête'] },
-    { sentence: 'Quelle est la bonne orthographe: "i_possible"?', correct: 'impossible', wrongs: ['inpossible', 'imposible', 'impasible'] },
-    { sentence: 'Quelle est la bonne orthographe: "no_bre"?', correct: 'nombre', wrongs: ['nonbre', 'nomber', 'nombr'] },
-    { sentence: 'Quelle est la bonne orthographe: "ca_pagne"?', correct: 'campagne', wrongs: ['canpagne', 'campagn', 'compagne'] },
-    { sentence: 'Quelle est la bonne orthographe: "co_pter"?', correct: 'compter', wrongs: ['conpter', 'compter', 'campter'].filter((v, i, a) => a.indexOf(v) === i) },
+    { sentence: 'On met M (au lieu de N) devant quelles lettres?', spoken: 'On met M au lieu de N devant quelles lettres?', correct: 'B, M, P', wrongs: ['A, E, I', 'T, D, S', 'B, T, P'] },
+    { sentence: 'Choisis la bonne orthographe pour "jambe"', spoken: 'Quelle est la bonne orthographe du mot jambe?', correct: 'jambe', wrongs: ['janbe', 'jamb', 'janb'] },
+    { sentence: 'Choisis la bonne orthographe pour "tempête"', spoken: 'Quelle est la bonne orthographe du mot tempête?', correct: 'tempête', wrongs: ['tenpête', 'tempete', 'tampête'] },
+    { sentence: 'Choisis la bonne orthographe pour "impossible"', spoken: 'Quelle est la bonne orthographe du mot impossible?', correct: 'impossible', wrongs: ['inpossible', 'imposible', 'impasible'] },
+    { sentence: 'Choisis la bonne orthographe pour "nombre"', spoken: 'Quelle est la bonne orthographe du mot nombre?', correct: 'nombre', wrongs: ['nonbre', 'nomber', 'nombr'] },
+    { sentence: 'Choisis la bonne orthographe pour "campagne"', spoken: 'Quelle est la bonne orthographe du mot campagne?', correct: 'campagne', wrongs: ['canpagne', 'campagn', 'compagne'] },
+    { sentence: 'Choisis la bonne orthographe pour "compter"', spoken: 'Quelle est la bonne orthographe du mot compter?', correct: 'compter', wrongs: ['conpter', 'compter', 'campter'].filter((v, i, a) => a.indexOf(v) === i) },
   ];
   const q = questions[Math.floor(Math.random() * questions.length)];
   const wrongs = q.wrongs.filter(w => w !== q.correct).slice(0, 3);
@@ -99,6 +100,7 @@ function generateRuleQuestion() {
     category: 'm_devant_bmp',
     type: 'rule',
     text: q.sentence,
+    spokenWord: q.spoken,
     correct: q.correct,
     options: shuffle([q.correct, ...wrongs].slice(0, 4)),
     explanation: `${q.correct} — la règle: m devant b, m, p.`,

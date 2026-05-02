@@ -134,6 +134,44 @@ app.post('/api/session', async (req, res) => {
   }
 });
 
+// Leaderboard — compare all profiles
+app.get('/api/leaderboard', async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() - 7);
+    const weekStartStr = weekStart.toISOString().split('T')[0];
+
+    const allTime = await queryAll(`
+      SELECT profile,
+        COALESCE(SUM(total), 0) as total_questions,
+        COALESCE(SUM(correct), 0) as total_correct,
+        COUNT(*) as session_count,
+        MAX(id) as last_id
+      FROM sessions GROUP BY profile
+    `);
+
+    const todayStats = await queryAll(`
+      SELECT profile,
+        COALESCE(SUM(total), 0) as today_questions,
+        COALESCE(SUM(correct), 0) as today_correct
+      FROM sessions WHERE date = $1 GROUP BY profile
+    `, [today]);
+
+    const weekStats = await queryAll(`
+      SELECT profile,
+        COALESCE(SUM(total), 0) as week_questions,
+        COALESCE(SUM(correct), 0) as week_correct
+      FROM sessions WHERE date >= $1 GROUP BY profile
+    `, [weekStartStr]);
+
+    res.json({ allTime, today: todayStats, week: weekStats });
+  } catch (err) {
+    console.error('Leaderboard error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
 app.get('/api/dashboard', async (req, res) => {
   try {
     const profile = req.query.profile || 'ryan';
