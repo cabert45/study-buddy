@@ -39,11 +39,11 @@ const ryanMathModes = [
 
 const ryanFrenchModes = [
   { id: 'dictee_s3', label: '🎧 Dictée mardi', desc: 'Le son "o" — o, au, eau (semaine 3)', featured: true, special: true },
-  { id: 'dictees_group', label: '🎧 Dictées', desc: 'Toutes les semaines (1, 2, 3, 4, révision)', isGroup: true, special: true },
-  { id: 'accord_etre', label: '🎯 Accord après ÊTRE (TEST 8 mai)', desc: 'EXACT exercices du test!', special: true },
-  { id: 'apostrophe', label: '✏️ Apostrophe (TEST 8 mai)', desc: "le/la → l', je → j'", special: true },
-  { id: 'm_devant_bmp', label: 'M devant B,M,P (TEST 8 mai)', desc: 'campagne, jambe, important...', special: true },
-  { id: 'passe_compose', label: '📝 Passé composé', desc: 'Verbes -er + finir' },
+  { id: 'dictees_group', label: 'Dictées', desc: 'Toutes les semaines (1, 2, 3, 4, révision)', isGroup: true, special: true },
+  { id: 'accord_etre', label: 'Accord après ÊTRE', desc: 'TEST vendredi 8 mai — exact exercices', special: true },
+  { id: 'apostrophe', label: 'Apostrophe', desc: "TEST vendredi — le/la → l', je → j'", special: true },
+  { id: 'm_devant_bmp', label: 'M devant B, M, P', desc: 'TEST vendredi — campagne, jambe, important', special: true },
+  { id: 'passe_compose', label: 'Passé composé', desc: 'Verbes -er + finir' },
   { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs' },
   { id: 'determinant', label: 'Déterminants', desc: 'le, la, un, une, mon...' },
   { id: 'verbes', label: 'Verbes', desc: 'être, avoir, aller, faire...' },
@@ -53,7 +53,7 @@ const ryanFrenchModes = [
 ];
 
 const dicteeWeeksList = [
-  { id: 'dictee_revision', label: '🔄 Révision TOUTES dictées', desc: 'Préparer la dictée cumulative 1-4!', highlight: true },
+  { id: 'dictee_revision', label: 'Révision TOUTES dictées', desc: 'Préparer la dictée cumulative 1-4', highlight: true },
   { id: 'dictee_s3', label: 'Semaine 3 — son o', desc: "aujourd'hui, autre, motoneige, peau...", current: true },
   { id: 'dictee_s1', label: 'Semaine 1 — verbes -er', desc: 'aller, arriver, pincer, réviser...' },
   { id: 'dictee_s2', label: 'Semaine 2 — mots en p', desc: 'paire, parce que, partout, prendre...' },

@@ -244,27 +244,27 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
       <div className="bg-white rounded-2xl shadow-sm p-6 border-2 border-s1 border-l-4 border-l-lava">
         {/* Category badge */}
         <div className="text-xs font-bold text-fox-d uppercase mb-2">
-          {question.category === 'calcul' && '🔢 Calcul'}
-          {question.category === 'terme' && '🔍 Terme manquant'}
-          {question.category === 'multi_step' && '🧩 Probleme a etapes'}
-          {question.category === 'relational' && '🔗 De plus / de moins'}
-          {question.category === 'mental' && '🧠 Calcul mental'}
-          {question.category === 'compare' && '⚖️ Compare'}
-          {question.category === 'pair_impair' && '🎯 Pair / Impair'}
-          {question.category === 'statistique' && '📊 Statistique'}
-          {question.category === 'determinant' && '📌 Déterminant'}
-          {question.category === 'verbes' && '✏️ Verbes'}
-          {question.category === 'adjectif' && '🎨 Adjectif'}
-          {question.category === 'pemdas' && '🧮 PEMDAS'}
-          {question.category === 'conjugaison' && '✏️ Conjugaison'}
-          {question.category === 'dictee' && '🎧 Dictée'}
+          {question.category === 'calcul' && 'Calcul'}
+          {question.category === 'terme' && 'Terme manquant'}
+          {question.category === 'multi_step' && 'Problème à étapes'}
+          {question.category === 'relational' && 'De plus / de moins'}
+          {question.category === 'mental' && 'Calcul mental'}
+          {question.category === 'compare' && 'Compare'}
+          {question.category === 'pair_impair' && 'Pair / Impair'}
+          {question.category === 'statistique' && 'Statistique'}
+          {question.category === 'determinant' && 'Déterminant'}
+          {question.category === 'verbes' && 'Verbes'}
+          {question.category === 'adjectif' && 'Adjectif'}
+          {question.category === 'pemdas' && 'PEMDAS'}
+          {question.category === 'conjugaison' && 'Conjugaison'}
+          {question.category === 'dictee' && 'Dictée'}
           {question.category === 'on_ont' && 'ON / ONT'}
           {question.category === 'groupe_nom' && 'Groupe du nom'}
-          {question.category === 'dictee_semaine' && `🎧 Dictée — ${question.weekName || 'Cette semaine'}`}
-          {question.category === 'passe_compose' && '📝 Passé composé'}
-          {question.category === 'apostrophe' && '✏️ L\'apostrophe'}
+          {question.category === 'dictee_semaine' && `Dictée — ${question.weekName || 'Cette semaine'}`}
+          {question.category === 'passe_compose' && 'Passé composé'}
+          {question.category === 'apostrophe' && "L'apostrophe"}
           {question.category === 'm_devant_bmp' && 'M devant B, M, P'}
-          {question.category === 'accord_etre' && '🎯 Accord adjectif après ÊTRE'}
+          {question.category === 'accord_etre' && 'Accord adjectif après ÊTRE'}
         </div>
 
         {/* Question text */}
