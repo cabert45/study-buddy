@@ -19,6 +19,7 @@ import { generateDicteeSemaine, generateDicteeCumulative, setCurrentWeek } from 
 import { generatePasseCompose } from '../generators/passeCompose';
 import { generateApostrophe } from '../generators/apostrophe';
 import { generateMDevantBmp } from '../generators/mDevantBmp';
+import { generateAccordEtre } from '../generators/accordEtre';
 import { saveSession } from '../utils/storage';
 import { speak, speakSlow } from '../utils/speech';
 import TensOnes from './TensOnes';
@@ -55,6 +56,7 @@ function getGenerator(mode) {
     case 'passe_compose': return generatePasseCompose;
     case 'apostrophe': return generateApostrophe;
     case 'm_devant_bmp': return generateMDevantBmp;
+    case 'accord_etre': return generateAccordEtre;
     case 'francais_mix':
       // Weighted by Ryan's French exam results:
       // Adjective accord 8/20 → 25%, Dictée 3/10 → 20%,
@@ -262,6 +264,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'passe_compose' && '📝 Passé composé'}
           {question.category === 'apostrophe' && '✏️ L\'apostrophe'}
           {question.category === 'm_devant_bmp' && 'M devant B, M, P'}
+          {question.category === 'accord_etre' && '🎯 Accord adjectif après ÊTRE'}
         </div>
 
         {/* Question text */}

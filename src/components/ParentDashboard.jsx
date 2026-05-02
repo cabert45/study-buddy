@@ -21,6 +21,7 @@ const categoryLabels = {
   dictee_semaine: '🎧 Dictée semaine',
   apostrophe: "✏️ L'apostrophe",
   m_devant_bmp: 'M devant B, M, P',
+  accord_etre: '🎯 Accord après être',
   passe_compose: '📝 Passé composé',
   aquarium: '🐟 Aquarium',
   speed: '⚡ Course',

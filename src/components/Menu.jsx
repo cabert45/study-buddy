@@ -16,6 +16,7 @@ const icons = {
   verbes: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 14L7 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M7 4L14 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M10 4V14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
   adjectif: { bg: '#fef0e4', color: '#b85d1a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6" r="3" stroke="currentColor" strokeWidth="1.4"/><path d="M4 16C4 12.7 6.2 10.5 9 10.5C11.8 10.5 14 12.7 14 16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
   pemdas: { bg: '#fef0e4', color: '#c74a15', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="9" y="13" textAnchor="middle" fontSize="12" fontWeight="800" fill="currentColor">()</text></svg> },
+  accord_etre: { bg: '#fef0e4', color: '#c74a15', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="currentColor" strokeWidth="1.4"/><circle cx="9" cy="9" r="3" fill="currentColor"/></svg> },
   dictees_group: { bg: '#fce8ec', color: '#c74a60', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 3C6 3 4 5 4 7C4 9 6 10 6 12H12C12 10 14 9 14 7C14 5 12 3 9 3Z" stroke="currentColor" strokeWidth="1.4"/><path d="M7 14H11" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M8 16H10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
   apostrophe: { bg: '#fce8ec', color: '#c74a60', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="9" y="13" textAnchor="middle" fontSize="14" fontWeight="800" fill="currentColor">'</text></svg> },
   m_devant_bmp: { bg: '#e6f5f0', color: '#0f766e', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="9" y="12" textAnchor="middle" fontSize="9" fontWeight="800" fill="currentColor">m+b</text></svg> },
@@ -39,6 +40,7 @@ const ryanMathModes = [
 const ryanFrenchModes = [
   { id: 'dictee_s3', label: '🎧 Dictée mardi', desc: 'Le son "o" — o, au, eau (semaine 3)', featured: true, special: true },
   { id: 'dictees_group', label: '🎧 Dictées', desc: 'Toutes les semaines (1, 2, 3, 4, révision)', isGroup: true, special: true },
+  { id: 'accord_etre', label: '🎯 Accord après ÊTRE (TEST 8 mai)', desc: 'EXACT exercices du test!', special: true },
   { id: 'apostrophe', label: '✏️ Apostrophe (TEST 8 mai)', desc: "le/la → l', je → j'", special: true },
   { id: 'm_devant_bmp', label: 'M devant B,M,P (TEST 8 mai)', desc: 'campagne, jambe, important...', special: true },
   { id: 'passe_compose', label: '📝 Passé composé', desc: 'Verbes -er + finir' },
