@@ -13,6 +13,7 @@ import Coach from './components/Coach';
 import { setProfile as persistProfile } from './utils/storage';
 import InstallPrompt from './components/InstallPrompt';
 import OwnerLock, { isOwnerUnlocked, lockOwner } from './components/OwnerLock';
+import NotificationsPanel from './components/Notifications';
 import Presentation from './components/Presentation';
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [showLock, setShowLock] = useState(false);
   const [unlockedTick, setUnlockedTick] = useState(0); // forces re-render after unlock
+  const [showNotifs, setShowNotifs] = useState(false);
 
   function selectProfile(p) {
     setProfile(p);
@@ -150,6 +152,8 @@ export default function App() {
           onCancel={() => setShowLock(false)}
         />
       )}
+
+      {showNotifs && <NotificationsPanel onClose={() => setShowNotifs(false)} />}
       {screen === 'menu' && (
         <Menu
           profile={profile}
@@ -163,6 +167,7 @@ export default function App() {
           onStartCoach={startCoach}
           onStartPresentation={startPresentation}
           onOpenDashboard={openDashboard}
+          onOpenNotifications={() => setShowNotifs(true)}
           onSwitchProfile={switchProfile}
           darkMode={darkMode}
           onToggleDark={() => setDarkMode(d => !d)}

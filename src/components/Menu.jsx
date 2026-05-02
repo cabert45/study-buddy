@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
+import { NotificationBell } from './Notifications';
 
 // SVG icons for modules — clean, no emojis
 const icons = {
@@ -95,7 +96,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onOpenDashboard, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onOpenDashboard, onOpenNotifications, onSwitchProfile, darkMode, onToggleDark }) {
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
   const [dicteesOpen, setDicteesOpen] = useState(false);
@@ -144,6 +145,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
               {darkMode ? '☀️' : '🌙'}
             </button>
           )}
+          {onOpenNotifications && <NotificationBell onClick={onOpenNotifications} />}
           <button onClick={onOpenDashboard}
             className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all flex items-center gap-1.5">
             📊

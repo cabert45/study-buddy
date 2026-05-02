@@ -13,23 +13,52 @@ const ryanChores = [
   { id: 9, fr: 'Balayer le salon', en: 'Sweep the living room', mins: 5, icon: '🧹' },
 ];
 
-const caylaChores = [
-  { id: 1, fr: 'LAVER: Mettre les draps au lavage', en: 'WASH: Put bedsheets in washer', mins: 5, icon: '🛏️' },
-  { id: 2, fr: 'Trouver tes sous-vêtements et chemises blanches d\'uniforme', en: 'Find your underwear and white uniform shirts', mins: 5, icon: '🧦' },
-  { id: 3, fr: 'Faire ton lit (le temps que les draps lavent)', en: 'Make your bed (while sheets wash)', mins: 5, icon: '🛌' },
-  { id: 4, fr: 'Vider et essuyer ton bureau (enlève les objets inutiles)', en: 'Clear and wipe your desk (remove unnecessary stuff)', mins: 15, icon: '🪑' },
-  { id: 5, fr: 'Balayer le plancher de ta chambre', en: 'Sweep your bedroom floor', mins: 10, icon: '🧹' },
-  { id: 6, fr: 'SÉCHEUSE: Mettre les draps à sécher', en: 'DRYER: Move sheets to dryer', mins: 5, icon: '🛏️' },
-  { id: 7, fr: 'LAVER: Sous-vêtements + chemises blanches d\'uniforme', en: 'WASH: Underwear + white uniform shirts', mins: 5, icon: '👕' },
-  { id: 8, fr: 'Sortir les paniers sous ton lit, balayer dessous, organiser', en: 'Pull out baskets under your bed, sweep, organize them', mins: 20, icon: '📦' },
-  { id: 9, fr: 'Plier les vêtements sur la sécheuse', en: 'Fold the clothes on top of the dryer', mins: 15, icon: '👔' },
-  { id: 10, fr: 'Ranger les vêtements pliés dans tes tiroirs', en: 'Put folded clothes away in your drawers', mins: 10, icon: '🗄️' },
-  { id: 11, fr: 'LAVER: Ta veste rouge (toute seule!)', en: 'WASH: Your red jacket (by itself!)', mins: 5, icon: '🧥' },
-  { id: 12, fr: 'LAVER: Vêtements de couleur (sans blanc, sans sous-vêtements)', en: 'WASH: Colored clothes (no whites, no underwear)', mins: 5, icon: '🌈' },
-  { id: 13, fr: 'Lire 30 minutes', en: 'Read for 30 minutes', mins: 30, icon: '📚' },
-];
+// Cayla's tasks per day. Add more days as needed.
+const caylaPlans = {
+  today: [
+    { id: 1, fr: 'LAVER: Mettre les draps au lavage', en: 'WASH: Put bedsheets in washer', mins: 5, icon: '🛏️' },
+    { id: 2, fr: 'Trouver tes sous-vêtements et chemises blanches d\'uniforme', en: 'Find your underwear and white uniform shirts', mins: 5, icon: '🧦' },
+    { id: 3, fr: 'Faire ton lit (le temps que les draps lavent)', en: 'Make your bed (while sheets wash)', mins: 5, icon: '🛌' },
+    { id: 4, fr: 'Vider et essuyer ton bureau (enlève les objets inutiles)', en: 'Clear and wipe your desk (remove unnecessary stuff)', mins: 15, icon: '🪑' },
+    { id: 5, fr: 'Balayer le plancher de ta chambre', en: 'Sweep your bedroom floor', mins: 10, icon: '🧹' },
+    { id: 6, fr: 'SÉCHEUSE: Mettre les draps à sécher', en: 'DRYER: Move sheets to dryer', mins: 5, icon: '🛏️' },
+    { id: 7, fr: 'LAVER: Sous-vêtements + chemises blanches d\'uniforme', en: 'WASH: Underwear + white uniform shirts', mins: 5, icon: '👕' },
+    { id: 8, fr: 'Sortir les paniers sous ton lit, balayer dessous, organiser', en: 'Pull out baskets under your bed, sweep, organize them', mins: 20, icon: '📦' },
+    { id: 9, fr: 'Plier les vêtements sur la sécheuse', en: 'Fold the clothes on top of the dryer', mins: 15, icon: '👔' },
+    { id: 10, fr: 'Ranger les vêtements pliés dans tes tiroirs', en: 'Put folded clothes away in your drawers', mins: 10, icon: '🗄️' },
+    { id: 11, fr: 'LAVER: Ta veste rouge (toute seule!)', en: 'WASH: Your red jacket (by itself!)', mins: 5, icon: '🧥' },
+    { id: 12, fr: 'LAVER: Vêtements de couleur (sans blanc, sans sous-vêtements)', en: 'WASH: Colored clothes (no whites, no underwear)', mins: 5, icon: '🌈' },
+    { id: 13, fr: 'Lire 30 minutes', en: 'Read for 30 minutes', mins: 30, icon: '📚' },
+  ],
+  tomorrow: [
+    { id: 1, fr: 'Faire ton lit avec les draps propres', en: 'Make your bed with clean sheets', mins: 5, icon: '🛏️' },
+    { id: 2, fr: 'Préparer ton sac d\'école pour lundi', en: 'Prepare your school bag for Monday', mins: 10, icon: '🎒' },
+    { id: 3, fr: 'Préparer ton uniforme propre pour lundi', en: 'Prepare your clean uniform for Monday', mins: 5, icon: '👔' },
+    { id: 4, fr: 'Vérifier ton agenda — devoirs pour la semaine', en: 'Check your agenda — homework for the week', mins: 10, icon: '📓' },
+    { id: 5, fr: 'Lire 30 minutes', en: 'Read for 30 minutes', mins: 30, icon: '📚' },
+  ],
+};
 
-const demoChores = ryanChores;
+// Default ryan plan keyed by 'today'
+const ryanPlans = { today: ryanChores };
+const demoPlans = { today: ryanChores };
+
+function todayDate() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function tomorrowDate() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().split('T')[0];
+}
+
+function dateLabel(iso) {
+  const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+  const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  const d = new Date(iso + 'T00:00:00');
+  return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+}
 
 function format(secs) {
   const m = Math.floor(secs / 60);
@@ -80,9 +109,57 @@ function speak(text, lang = 'fr') {
 const breakOptions = [5, 10, 15];
 
 export default function Chores({ onHome, profile }) {
-  const choreList = profile === 'cayla' ? caylaChores : profile === 'demo' ? demoChores : ryanChores;
-  const [chores, setChores] = useState(choreList.map(c => ({ ...c, done: false, timeWorked: 0 })));
-  const [lang, setLang] = useState(() => localStorage.getItem('sb_chores_lang') || 'fr');
+  const plans = profile === 'cayla' ? caylaPlans : profile === 'demo' ? demoPlans : ryanPlans;
+  const [day, setDay] = useState('today'); // 'today' or 'tomorrow'
+  const [lang, setLang] = useState(() => localStorage.getItem(`sb_chores_lang_${profile}`) || 'fr');
+
+  // Get the right plan for the chosen day
+  const choreList = plans[day] || plans.today;
+  const dateIso = day === 'today' ? todayDate() : tomorrowDate();
+  const storageKey = `sb_chores_${profile}_${dateIso}`;
+
+  // Load saved state for this date+profile, or fresh
+  const [chores, setChores] = useState(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Merge with current chore list (keep done/timeWorked from saved)
+        return choreList.map(c => {
+          const s = parsed.find(p => p.id === c.id);
+          return s ? { ...c, done: s.done, timeWorked: s.timeWorked || 0 } : { ...c, done: false, timeWorked: 0 };
+        });
+      }
+    } catch {}
+    return choreList.map(c => ({ ...c, done: false, timeWorked: 0 }));
+  });
+
+  // Save chore state whenever it changes
+  useEffect(() => {
+    try {
+      const minimal = chores.map(c => ({ id: c.id, done: c.done, timeWorked: c.timeWorked }));
+      localStorage.setItem(storageKey, JSON.stringify(minimal));
+    } catch {}
+  }, [chores, storageKey]);
+
+  // Reload chores when day changes
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      const list = plans[day] || plans.today;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setChores(list.map(c => {
+          const s = parsed.find(p => p.id === c.id);
+          return s ? { ...c, done: s.done, timeWorked: s.timeWorked || 0 } : { ...c, done: false, timeWorked: 0 };
+        }));
+      } else {
+        setChores(list.map(c => ({ ...c, done: false, timeWorked: 0 })));
+      }
+    } catch {
+      setChores((plans[day] || plans.today).map(c => ({ ...c, done: false, timeWorked: 0 })));
+    }
+  }, [day, profile]);
   const [activeId, setActiveId] = useState(null);
   const [remaining, setRemaining] = useState(0);
   const [running, setRunning] = useState(false);
@@ -168,7 +245,7 @@ export default function Chores({ onHome, profile }) {
   function toggleLang() {
     const next = lang === 'fr' ? 'en' : 'fr';
     setLang(next);
-    localStorage.setItem('sb_chores_lang', next);
+    localStorage.setItem(`sb_chores_lang_${profile}`, next);
   }
 
   const doneCount = chores.filter(c => c.done).length;
@@ -282,6 +359,7 @@ export default function Chores({ onHome, profile }) {
     setBreakRemaining(0);
     setTotalWorkSecs(0);
     setTotalBreakSecs(0);
+    try { localStorage.removeItem(storageKey); } catch {}
   }
 
   const activeChore = chores.find(c => c.id === activeId);
@@ -324,7 +402,7 @@ export default function Chores({ onHome, profile }) {
   return (
     <div className="max-w-3xl mx-auto px-4 pt-4 pb-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-2">
         <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">{t.menu}</button>
         <h2 className="font-heading font-bold text-stone">{t.title}</h2>
         <div className="flex items-center gap-2">
@@ -335,6 +413,31 @@ export default function Chores({ onHome, profile }) {
           <button onClick={resetAll} className="text-xs text-s4 font-bold hover:text-lava">↺</button>
         </div>
       </div>
+
+      {/* Date + day tabs */}
+      <div className="text-center mb-3">
+        <p className="text-xs font-bold text-fox-d uppercase tracking-wide">
+          {dateLabel(dateIso)}
+        </p>
+      </div>
+
+      {/* Today / Tomorrow toggle (only if tomorrow plan exists) */}
+      {plans.tomorrow && (
+        <div className="flex gap-2 mb-4">
+          <button onClick={() => setDay('today')}
+            className={`flex-1 py-2 rounded-xl font-bold text-sm transition-all ${
+              day === 'today' ? 'bg-stone text-white' : 'bg-white border-2 border-s2 text-s6'
+            }`}>
+            {lang === 'en' ? 'Today' : "Aujourd'hui"}
+          </button>
+          <button onClick={() => setDay('tomorrow')}
+            className={`flex-1 py-2 rounded-xl font-bold text-sm transition-all ${
+              day === 'tomorrow' ? 'bg-stone text-white' : 'bg-white border-2 border-s2 text-s6'
+            }`}>
+            {lang === 'en' ? 'Tomorrow' : 'Demain'}
+          </button>
+        </div>
+      )}
 
       {/* Day stats */}
       <div className="grid grid-cols-3 gap-2 mb-4">
