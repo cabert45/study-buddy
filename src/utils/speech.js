@@ -79,10 +79,23 @@ function getVoice() {
   return loadBestVoice();
 }
 
+// Clean text for speech — strip underscores, repeated punctuation, brackets
+function cleanForSpeech(text) {
+  if (!text) return '';
+  return String(text)
+    .replace(/_+/g, ' ... ')           // underscores → pause
+    .replace(/\(([^)]+)\)/g, ', $1, ') // (gris) → ", gris,"
+    .replace(/→/g, ' devient ')        // arrows
+    .replace(/[★⭐🌟🎯🎧📝✏️🔢🧠🔍🧩🔗⚖️🎴🐟⚡📊👨‍🚀👋🌋🏰🐜📌🎨🧮]/g, '') // emojis
+    .replace(/\s+/g, ' ')              // collapse whitespace
+    .trim();
+}
+
 export function speak(text) {
   if (!speechEnabled || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
+  const cleaned = cleanForSpeech(text);
+  const u = new SpeechSynthesisUtterance(cleaned);
 
   const voice = getVoice();
   if (voice) {
@@ -101,7 +114,8 @@ export function speak(text) {
 export function speakSlow(text) {
   if (!speechEnabled || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
+  const cleaned = cleanForSpeech(text);
+  const u = new SpeechSynthesisUtterance(cleaned);
 
   const voice = getVoice();
   if (voice) {
