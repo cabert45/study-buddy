@@ -16,6 +16,7 @@ const icons = {
   verbes: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 14L7 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M7 4L14 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M10 4V14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
   adjectif: { bg: '#fef0e4', color: '#b85d1a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6" r="3" stroke="currentColor" strokeWidth="1.4"/><path d="M4 16C4 12.7 6.2 10.5 9 10.5C11.8 10.5 14 12.7 14 16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
   pemdas: { bg: '#fef0e4', color: '#c74a15', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="9" y="13" textAnchor="middle" fontSize="12" fontWeight="800" fill="currentColor">()</text></svg> },
+  dictees_group: { bg: '#fce8ec', color: '#c74a60', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 3C6 3 4 5 4 7C4 9 6 10 6 12H12C12 10 14 9 14 7C14 5 12 3 9 3Z" stroke="currentColor" strokeWidth="1.4"/><path d="M7 14H11" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M8 16H10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
   apostrophe: { bg: '#fce8ec', color: '#c74a60', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="9" y="13" textAnchor="middle" fontSize="14" fontWeight="800" fill="currentColor">'</text></svg> },
   m_devant_bmp: { bg: '#e6f5f0', color: '#0f766e', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="9" y="12" textAnchor="middle" fontSize="9" fontWeight="800" fill="currentColor">m+b</text></svg> },
   on_ont: { bg: '#fef5e4', color: '#b85d1a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="3" y="11" fontSize="7" fontWeight="700" fill="currentColor">ON</text><text x="10" y="11" fontSize="7" fontWeight="700" fill="currentColor">T</text></svg> },
@@ -37,20 +38,24 @@ const ryanMathModes = [
 
 const ryanFrenchModes = [
   { id: 'dictee_s3', label: '🎧 Dictée mardi', desc: 'Le son "o" — o, au, eau (semaine 3)', featured: true, special: true },
-  { id: 'dictee_revision', label: '🔄 Révision TOUTES dictées', desc: 'Préparer la dictée cumulative 1-4!', special: true },
+  { id: 'dictees_group', label: '🎧 Dictées', desc: 'Toutes les semaines (1, 2, 3, 4, révision)', isGroup: true, special: true },
   { id: 'apostrophe', label: '✏️ Apostrophe (TEST 8 mai)', desc: "le/la → l', je → j'", special: true },
   { id: 'm_devant_bmp', label: 'M devant B,M,P (TEST 8 mai)', desc: 'campagne, jambe, important...', special: true },
   { id: 'passe_compose', label: '📝 Passé composé', desc: 'Verbes -er + finir' },
-  { id: 'dictee_s1', label: '🎧 Semaine 1 — verbes -er', desc: 'aller, arriver, pincer, réviser...' },
-  { id: 'dictee_s2', label: '🎧 Semaine 2 — mots en p', desc: 'paire, parce que, partout, prendre...' },
-  { id: 'dictee_s3', label: '🎧 Semaine 3 — son o', desc: 'aujourd\'hui, autre, motoneige, peau...' },
-  { id: 'dictee_s4', label: '🎧 Semaine 4 — n devient m', desc: 'campagne, compote, printemps, tomber...' },
   { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs' },
   { id: 'determinant', label: 'Déterminants', desc: 'le, la, un, une, mon...' },
   { id: 'verbes', label: 'Verbes', desc: 'être, avoir, aller, faire...' },
   { id: 'adjectif', label: 'Adjectifs', desc: 'Accord et familles de mots' },
   { id: 'on_ont', label: 'ON / ONT', desc: 'Pronom ou verbe avoir?' },
   { id: 'groupe_nom', label: 'Groupe du nom', desc: 'GN: nom seul, dét+nom, dét+nom+adj' },
+];
+
+const dicteeWeeksList = [
+  { id: 'dictee_revision', label: '🔄 Révision TOUTES dictées', desc: 'Préparer la dictée cumulative 1-4!', highlight: true },
+  { id: 'dictee_s3', label: 'Semaine 3 — son o', desc: "aujourd'hui, autre, motoneige, peau...", current: true },
+  { id: 'dictee_s1', label: 'Semaine 1 — verbes -er', desc: 'aller, arriver, pincer, réviser...' },
+  { id: 'dictee_s2', label: 'Semaine 2 — mots en p', desc: 'paire, parce que, partout, prendre...' },
+  { id: 'dictee_s4', label: 'Semaine 4 — n devient m', desc: 'campagne, compote, printemps, tomber...' },
 ];
 
 const caylaMathModes = [
@@ -91,6 +96,7 @@ function FoxMascot() {
 export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onOpenDashboard, onSwitchProfile, darkMode, onToggleDark }) {
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
+  const [dicteesOpen, setDicteesOpen] = useState(false);
 
   useEffect(() => {
     getProgress().then(setStats).catch(() => {});
@@ -245,7 +251,8 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
       {/* Module grid */}
       <div className="grid grid-cols-2 gap-2.5 mb-6">
         {grid.map(mode => (
-          <button key={mode.id} onClick={() => onStartPractice(mode.id)}
+          <button key={mode.id}
+            onClick={() => mode.isGroup ? setDicteesOpen(true) : onStartPractice(mode.id)}
             className="bg-white border-2 border-s1 rounded-2xl p-4 text-left transition-all
               hover:border-fox hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97] relative">
             {mode.badge && (
@@ -264,6 +271,45 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
           </button>
         ))}
       </div>
+
+      {/* Dictées sub-menu modal */}
+      {dicteesOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4"
+          onClick={() => setDicteesOpen(false)}>
+          <div onClick={(e) => e.stopPropagation()}
+            className="bg-cream rounded-2xl p-5 max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl border-2 border-s1">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-heading text-xl font-extrabold text-stone">🎧 Dictées</h3>
+              <button onClick={() => setDicteesOpen(false)}
+                className="w-9 h-9 rounded-full bg-white border-2 border-s2 text-s4 font-bold hover:border-lava hover:text-lava">
+                ✕
+              </button>
+            </div>
+            <div className="space-y-2">
+              {dicteeWeeksList.map((d) => (
+                <button key={d.id}
+                  onClick={() => { setDicteesOpen(false); onStartPractice(d.id); }}
+                  className={`w-full text-left rounded-2xl p-4 border-2 transition-all hover:-translate-y-0.5 active:scale-[0.98] ${
+                    d.highlight ? 'bg-orange-50 border-lava' :
+                    d.current ? 'bg-white border-fox shadow-sm' :
+                    'bg-white border-s1 hover:border-fox'
+                  }`}>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <div className="font-heading font-bold text-stone text-base flex items-center gap-2">
+                        {d.label}
+                        {d.current && <span className="text-[10px] font-bold bg-fox text-white px-2 py-0.5 rounded-full">CETTE SEMAINE</span>}
+                      </div>
+                      <div className="text-xs text-s4 font-semibold mt-0.5">{d.desc}</div>
+                    </div>
+                    <span className="text-s4 text-xl font-bold">›</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* AI Tutor */}
       {isRyan && (
