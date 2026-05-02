@@ -11,6 +11,7 @@ import Timer from './components/Timer';
 import Chores from './components/Chores';
 import Coach from './components/Coach';
 import { setProfile as persistProfile } from './utils/storage';
+import InstallPrompt from './components/InstallPrompt';
 import Presentation from './components/Presentation';
 
 export default function App() {
@@ -87,6 +88,7 @@ export default function App() {
 
   return (
     <div className={`min-h-screen pb-8 ${darkMode ? 'dark-mode' : ''}`}>
+      <InstallPrompt />
       {screen === 'profile' && (
         <div className="max-w-3xl mx-auto px-4 pt-16 text-center">
           <div className="text-5xl mb-4">🌋</div>
