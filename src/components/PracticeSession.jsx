@@ -53,6 +53,9 @@ function getGenerator(mode) {
     case 'dictee_s2': setCurrentWeek('theme6_s2'); return generateDicteeSemaine;
     case 'dictee_s3': setCurrentWeek('theme6_s3'); return generateDicteeSemaine;
     case 'dictee_s4': setCurrentWeek('theme6_s4'); return generateDicteeSemaine;
+    case 'cayla_t6_s1': setCurrentWeek('cayla_t6_s1'); return generateDicteeSemaine;
+    case 'cayla_t6_s2': setCurrentWeek('cayla_t6_s2'); return generateDicteeSemaine;
+    case 'cayla_t6_s3': setCurrentWeek('cayla_t6_s3'); return generateDicteeSemaine;
     case 'dictee_revision': return generateDicteeCumulative;
     case 'passe_compose': return generatePasseCompose;
     case 'apostrophe': return generateApostrophe;

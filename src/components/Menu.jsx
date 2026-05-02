@@ -66,7 +66,14 @@ const caylaMathModes = [
 ];
 
 const caylaFrenchModes = [
-  { id: 'conjugaison', label: 'Conjugaison', desc: 'Verbes et temps', featured: true },
+  { id: 'cayla_dictees_group', label: 'Dictées de la semaine', desc: 'Mots du test de mardi (T6)', isGroup: true, featured: true },
+  { id: 'conjugaison', label: 'Conjugaison', desc: 'Verbes et temps' },
+];
+
+const caylaDicteeWeeksList = [
+  { id: 'cayla_t6_s1', label: 'Semaine 1 — son [eur]', desc: 'acteur, danseur, vendeur, courageux...', current: true },
+  { id: 'cayla_t6_s2', label: 'Semaine 2 — verbes en -ER', desc: 'conserver, demeurer, déranger...' },
+  { id: 'cayla_t6_s3', label: 'Semaine 3 — finales BLE/LE/ME', desc: 'agréable, marmite, vaste...' },
 ];
 
 function FoxMascot() {
@@ -292,7 +299,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
               </button>
             </div>
             <div className="space-y-2">
-              {dicteeWeeksList.map((d) => (
+              {(isCayla ? caylaDicteeWeeksList : dicteeWeeksList).map((d) => (
                 <button key={d.id}
                   onClick={() => { setDicteesOpen(false); onStartPractice(d.id); }}
                   className={`w-full text-left rounded-2xl p-4 border-2 transition-all hover:-translate-y-0.5 active:scale-[0.98] ${
