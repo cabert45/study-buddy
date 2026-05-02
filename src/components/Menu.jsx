@@ -16,6 +16,8 @@ const icons = {
   verbes: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 14L7 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M7 4L14 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M10 4V14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
   adjectif: { bg: '#fef0e4', color: '#b85d1a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6" r="3" stroke="currentColor" strokeWidth="1.4"/><path d="M4 16C4 12.7 6.2 10.5 9 10.5C11.8 10.5 14 12.7 14 16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
   pemdas: { bg: '#fef0e4', color: '#c74a15', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="9" y="13" textAnchor="middle" fontSize="12" fontWeight="800" fill="currentColor">()</text></svg> },
+  apostrophe: { bg: '#fce8ec', color: '#c74a60', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="9" y="13" textAnchor="middle" fontSize="14" fontWeight="800" fill="currentColor">'</text></svg> },
+  m_devant_bmp: { bg: '#e6f5f0', color: '#0f766e', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="9" y="12" textAnchor="middle" fontSize="9" fontWeight="800" fill="currentColor">m+b</text></svg> },
   on_ont: { bg: '#fef5e4', color: '#b85d1a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="3" y="11" fontSize="7" fontWeight="700" fill="currentColor">ON</text><text x="10" y="11" fontSize="7" fontWeight="700" fill="currentColor">T</text></svg> },
   groupe_nom: { bg: '#e6f5f0', color: '#0f766e', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="6" width="14" height="6" rx="2" stroke="currentColor" strokeWidth="1.4"/><line x1="7" y1="6" x2="7" y2="12" stroke="currentColor" strokeWidth="1" strokeDasharray="2 1"/><line x1="12" y1="6" x2="12" y2="12" stroke="currentColor" strokeWidth="1" strokeDasharray="2 1"/></svg> },
   conjugaison: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 5H15M3 9H12M3 13H9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
@@ -35,7 +37,9 @@ const ryanMathModes = [
 
 const ryanFrenchModes = [
   { id: 'dictee_s1', label: '🎧 Dictée mardi', desc: 'Verbes en -er (semaine 1)', featured: true, special: true },
-  { id: 'passe_compose', label: '📝 Test vendredi', desc: 'Passé composé verbes -er + finir', special: true },
+  { id: 'apostrophe', label: '✏️ Apostrophe (TEST 8 mai)', desc: "le/la → l', je → j'", special: true },
+  { id: 'm_devant_bmp', label: 'M devant B,M,P (TEST 8 mai)', desc: 'campagne, jambe, important...', special: true },
+  { id: 'passe_compose', label: '📝 Passé composé', desc: 'Verbes -er + finir' },
   { id: 'dictee_revision', label: '🔄 Révision dictées', desc: 'Toutes les semaines mélangées' },
   { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs' },
   { id: 'dictee', label: 'Dictée', desc: 'Écoute et choisis la bonne orthographe' },
@@ -84,7 +88,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onOpenDashboard, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onOpenDashboard, onSwitchProfile, darkMode, onToggleDark }) {
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
 
@@ -157,6 +161,22 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
           <FoxMascot />
         </div>
       </div>
+
+      {/* Presentation orale — TOP PRIORITY this week */}
+      {onStartPresentation && profile === 'ryan' && (
+        <button onClick={onStartPresentation}
+          className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+          style={{ background: 'linear-gradient(135deg, #b85d1a, #e2762b 50%, #fdcb6e)', boxShadow: '0 6px 24px rgba(184,93,26,0.25)' }}>
+          <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-2xl">🎤</span>
+          </div>
+          <div className="text-left flex-1">
+            <div className="font-heading text-xl font-extrabold text-white leading-tight">Présentation: La fourmi</div>
+            <div className="text-xs font-semibold text-white/85">Mercredi 6 mai — pratique avec moi!</div>
+          </div>
+          <span className="text-white/60 text-2xl font-extrabold">›</span>
+        </button>
+      )}
 
       {/* Coach button — the BIG one */}
       {onStartCoach && (

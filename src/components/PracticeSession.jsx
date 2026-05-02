@@ -17,6 +17,8 @@ import { generateOnOnt } from '../generators/onOnt';
 import { generateGroupeNom } from '../generators/groupeNom';
 import { generateDicteeSemaine, generateDicteeCumulative, setCurrentWeek } from '../generators/dicteeSemaine';
 import { generatePasseCompose } from '../generators/passeCompose';
+import { generateApostrophe } from '../generators/apostrophe';
+import { generateMDevantBmp } from '../generators/mDevantBmp';
 import { saveSession } from '../utils/storage';
 import { speak, speakSlow } from '../utils/speech';
 import TensOnes from './TensOnes';
@@ -51,6 +53,8 @@ function getGenerator(mode) {
     case 'dictee_s4': setCurrentWeek('theme6_s4'); return generateDicteeSemaine;
     case 'dictee_revision': return generateDicteeCumulative;
     case 'passe_compose': return generatePasseCompose;
+    case 'apostrophe': return generateApostrophe;
+    case 'm_devant_bmp': return generateMDevantBmp;
     case 'francais_mix':
       // Weighted by Ryan's French exam results:
       // Adjective accord 8/20 → 25%, Dictée 3/10 → 20%,
@@ -256,6 +260,8 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'groupe_nom' && 'Groupe du nom'}
           {question.category === 'dictee_semaine' && `🎧 Dictée — ${question.weekName || 'Cette semaine'}`}
           {question.category === 'passe_compose' && '📝 Passé composé'}
+          {question.category === 'apostrophe' && '✏️ L\'apostrophe'}
+          {question.category === 'm_devant_bmp' && 'M devant B, M, P'}
         </div>
 
         {/* Question text */}

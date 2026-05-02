@@ -10,6 +10,7 @@ import MemoryGame from './components/MemoryGame';
 import Timer from './components/Timer';
 import Chores from './components/Chores';
 import Coach from './components/Coach';
+import Presentation from './components/Presentation';
 
 export default function App() {
   const [screen, setScreen] = useState('profile');
@@ -54,6 +55,10 @@ export default function App() {
 
   function startCoach() {
     setScreen('coach');
+  }
+
+  function startPresentation() {
+    setScreen('presentation');
   }
 
   function finishSession(results) {
@@ -115,6 +120,7 @@ export default function App() {
           onStartTimer={startTimer}
           onStartChores={startChores}
           onStartCoach={startCoach}
+          onStartPresentation={startPresentation}
           onOpenDashboard={openDashboard}
           onSwitchProfile={switchProfile}
           darkMode={darkMode}
@@ -166,6 +172,9 @@ export default function App() {
       )}
       {screen === 'coach' && (
         <Coach onHome={goHome} onStartPractice={startPractice} />
+      )}
+      {screen === 'presentation' && (
+        <Presentation onHome={goHome} />
       )}
       {screen === 'dashboard' && (
         <ParentDashboard onHome={goHome} />
