@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getNotifications, getUnreadCount, markAllRead, deleteNotification, clearAll } from '../utils/notifications';
+import { Bell, X, Inbox } from 'lucide-react';
 
 function timeAgo(iso) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -31,8 +32,8 @@ export function NotificationBell({ onClick }) {
 
   return (
     <button onClick={onClick}
-      className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all relative">
-      🔔
+      className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all relative">
+      <Bell size={18} />
       {unread > 0 && (
         <span className="absolute -top-1 -right-1 bg-lava text-white text-[10px] font-extrabold rounded-full w-5 h-5 flex items-center justify-center">
           {unread > 9 ? '9+' : unread}
@@ -58,7 +59,7 @@ export default function NotificationsPanel({ onClose }) {
       <div onClick={(e) => e.stopPropagation()}
         className="bg-cream rounded-2xl p-5 max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl border-2 border-s1">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-heading text-xl font-extrabold text-stone">🔔 Notifications</h3>
+          <h3 className="font-heading text-xl font-extrabold text-stone flex items-center gap-2"><Bell size={20} />Notifications</h3>
           <div className="flex items-center gap-2">
             {notifications.length > 0 && (
               <button onClick={() => { if (confirm('Tout effacer?')) clearAll(); }}
@@ -75,7 +76,7 @@ export default function NotificationsPanel({ onClose }) {
 
         {notifications.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-5xl mb-3">📭</div>
+            <Inbox className="mx-auto text-s3 mb-3" size={48} />
             <p className="text-s4 font-semibold">Pas de notifications.</p>
             <p className="text-xs text-s4 font-semibold mt-1">Quand Ryan ou Cayla termine une session, elle apparaîtra ici.</p>
           </div>

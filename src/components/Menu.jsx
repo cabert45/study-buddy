@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
 import { NotificationBell } from './Notifications';
+import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, Fish, Zap, Layers, GraduationCap, ChevronRight } from 'lucide-react';
 
 // SVG icons for modules — clean, no emojis
 const icons = {
@@ -133,41 +134,41 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
       {/* Top bar */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm"
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm text-white"
             style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a)' }}>
-            <span className="text-white text-lg">🌋</span>
+            <Sparkles size={20} />
           </div>
           <span className="font-heading text-2xl font-extrabold text-stone tracking-tight">Study Buddy</span>
         </div>
         <div className="flex gap-2">
           {onStartTimer && (
             <button onClick={onStartTimer}
-              className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all">
-              ⏱️
+              className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all">
+              <Clock size={18} />
             </button>
           )}
           {onToggleDark && (
             <button onClick={onToggleDark}
-              className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all">
-              {darkMode ? '☀️' : '🌙'}
+              className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all">
+              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
           )}
           {onOpenFamily && !isDemo && (
             <button onClick={onOpenFamily}
-              className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all">
-              👨‍👩‍👧
+              className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all">
+              <Users size={18} />
             </button>
           )}
           {onOpenStudyReminder && (
             <button onClick={onOpenStudyReminder}
-              className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all">
-              📚
+              className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all">
+              <BookOpen size={18} />
             </button>
           )}
           {onOpenNotifications && <NotificationBell onClick={onOpenNotifications} />}
           <button onClick={onOpenDashboard}
-            className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all flex items-center gap-1.5">
-            📊
+            className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all">
+            <BarChart3 size={18} />
           </button>
           <button onClick={onSwitchProfile}
             className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all">
@@ -198,14 +199,14 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
         <button onClick={onStartPresentation}
           className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #b85d1a, #e2762b 50%, #fdcb6e)', boxShadow: '0 6px 24px rgba(184,93,26,0.25)' }}>
-          <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-2xl">🎤</span>
+          <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white">
+            <Mic2 size={26} />
           </div>
           <div className="text-left flex-1">
             <div className="font-heading text-xl font-extrabold text-white leading-tight">Présentation: La fourmi</div>
             <div className="text-xs font-semibold text-white/85">Mercredi 6 mai — pratique avec moi!</div>
           </div>
-          <span className="text-white/60 text-2xl font-extrabold">›</span>
+          <ChevronRight className="text-white/60" size={24} strokeWidth={3} />
         </button>
       )}
 
@@ -214,14 +215,14 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
         <button onClick={onStartJournal}
           className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #e84393, #fbc2eb)', boxShadow: '0 6px 24px rgba(232,67,147,0.25)' }}>
-          <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-2xl">📔</span>
+          <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white">
+            <BookMarked size={26} />
           </div>
           <div className="text-left flex-1">
             <div className="font-heading text-xl font-extrabold text-white leading-tight">Mon journal</div>
             <div className="text-xs font-semibold text-white/85">Gratitude, défis, motivation</div>
           </div>
-          <span className="text-white/60 text-2xl font-extrabold">›</span>
+          <ChevronRight className="text-white/60" size={24} strokeWidth={3} />
         </button>
       )}
 
@@ -230,14 +231,14 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
         <button onClick={onStartCoach}
           className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a 50%, #fdcb6e)', boxShadow: '0 6px 24px rgba(199,74,21,0.25)' }}>
-          <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-2xl">🎯</span>
+          <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white">
+            <Target size={26} />
           </div>
           <div className="text-left flex-1">
             <div className="font-heading text-xl font-extrabold text-white leading-tight">Mon Coach</div>
             <div className="text-xs font-semibold text-white/85">Suis le plan, ne réfléchis pas — juste GO!</div>
           </div>
-          <span className="text-white/60 text-2xl font-extrabold">›</span>
+          <ChevronRight className="text-white/60" size={24} strokeWidth={3} />
         </button>
       )}
 
@@ -246,14 +247,14 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
         <button onClick={onStartChores}
           className="w-full rounded-2xl p-4 mb-4 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #2d7a3a, #4ca65b)', boxShadow: '0 5px 22px rgba(45,122,58,0.15)' }}>
-          <div className="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-lg">📋</span>
+          <div className="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white">
+            <ListTodo size={22} />
           </div>
           <div className="text-left flex-1">
             <div className="font-heading text-lg font-extrabold text-white leading-tight">Mes tâches du jour</div>
             <div className="text-xs font-semibold text-white/80">Coche tes tâches une par une</div>
           </div>
-          <span className="text-white/40 text-xl font-extrabold">›</span>
+          <ChevronRight className="text-white/40" size={20} strokeWidth={3} />
         </button>
       )}
 
@@ -278,14 +279,14 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
         <button onClick={() => featured.isGroup ? setDicteesOpen(true) : onStartPractice(featured.id)}
           className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a)', boxShadow: '0 5px 22px rgba(199,74,21,0.15)' }}>
-          <div className="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-lg">⭐</span>
+          <div className="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white">
+            <Sparkles size={22} />
           </div>
           <div className="text-left flex-1">
             <div className="font-heading text-xl font-extrabold text-white leading-tight">{featured.label}</div>
             <div className="text-sm font-semibold text-white/70">{featured.desc}</div>
           </div>
-          <span className="text-white/40 text-xl font-extrabold">›</span>
+          <ChevronRight className="text-white/40" size={20} strokeWidth={3} />
         </button>
       )}
 
@@ -376,9 +377,9 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
       {isRyan && (
         <button onClick={onStartTutor}
           className="w-full flex items-center gap-4 bg-white border-2 border-s1 rounded-2xl p-4 mb-6 transition-all hover:border-info hover:shadow-md">
-          <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm"
+          <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm text-white"
             style={{ background: 'linear-gradient(135deg, #3a5bc7, #5b4ad4)' }}>
-            <span className="text-white text-lg">👨‍🚀</span>
+            <GraduationCap size={22} />
           </div>
           <div className="text-left">
             <div className="font-heading text-lg font-bold text-stone leading-tight">Tuteur personnel</div>
@@ -393,21 +394,21 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
         <button onClick={onStartAquarium}
           className="bg-white border-2 border-s1 rounded-2xl p-4 text-center transition-all hover:border-fox hover:-translate-y-0.5 active:scale-95">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2" style={{ background: '#e6f5f0', color: '#0f766e' }}>
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 9C2 5 5 3 9 3C13 3 16 5 16 9C16 13 13 15 9 15C5 15 2 13 2 9Z" stroke="currentColor" strokeWidth="1.4"/><circle cx="7" cy="8" r="1" fill="currentColor"/><path d="M11 7Q13 9 11 11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
+            <Fish size={20} />
           </div>
           <div className="text-xs font-bold text-s6">Aquarium</div>
         </button>
         <button onClick={onStartSpeed}
           className="bg-white border-2 border-s1 rounded-2xl p-4 text-center transition-all hover:border-fox hover:-translate-y-0.5 active:scale-95">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2" style={{ background: '#fef0e4', color: '#c74a15' }}>
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M10 2L4 10H9L8 16L14 8H9L10 2Z" fill="currentColor"/></svg>
+            <Zap size={20} />
           </div>
           <div className="text-xs font-bold text-s6">Course</div>
         </button>
         <button onClick={onStartMemory}
           className="bg-white border-2 border-s1 rounded-2xl p-4 text-center transition-all hover:border-fox hover:-translate-y-0.5 active:scale-95">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2" style={{ background: '#f0ecfb', color: '#6d28d9' }}>
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="8" rx="1" stroke="currentColor" strokeWidth="1.4"/><rect x="10" y="2" width="6" height="8" rx="1" stroke="currentColor" strokeWidth="1.4"/><path d="M5 6L5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M13 6L13 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
+            <Layers size={20} />
           </div>
           <div className="text-xs font-bold text-s6">Mémoire</div>
         </button>
