@@ -6,6 +6,51 @@ import { notifySessionResult } from '../utils/notifications';
 
 // Sentence templates by word — shows the word in context
 const sentenceContexts = {
+  // ===== RYAN — THEME 6 =====
+  // Semaine 1 — verbes en -er
+  'aller': "Je vais _____ à l'école.",
+  'arriver': "Tu vas _____ en retard!",
+  'pincer': "Le crabe peut me _____.",
+  'réviser': "Je dois _____ pour la dictée.",
+  'amuser': "On va s'_____ au parc.",
+  'passer': "Tu peux me _____ le sel?",
+  'rester': "Je veux _____ ici.",
+  'trouver': "Aide-moi à _____ mon livre.",
+  'appeler': "Maman va m'_____.",
+  'penser': "Je vais _____ à toi.",
+  // Semaine 2 — mots en p
+  'paire': "J'ai une _____ de souliers.",
+  'parce que': "Je dors _____ je suis fatigué.",
+  'partout': "Mes jouets sont _____.",
+  'prendre': "Je vais _____ une pomme.",
+  'par': "Le voleur est entré _____ la fenêtre.",
+  "parce qu'": "Je ris _____ il est drôle.",
+  'patate': "Mon plat préféré: la _____.",
+  'propre': "Ma chambre est _____.",
+  'parasol': "Sous le _____, on a de l'ombre.",
+  'parent': "Mon _____ travaille fort.",
+  'pépin': "Il y a un _____ dans ma pomme.",
+  // Semaine 3 — son o (o, au, eau)
+  "aujourd'hui": "_____, c'est samedi!",
+  'autre': "Veux-tu _____ chose?",
+  'motoneige': "L'hiver, on fait de la _____.",
+  'peau': "Ma _____ est douce.",
+  'auto': "Papa conduit son _____.",
+  'chameau': "Le _____ vit dans le désert.",
+  'nouveau': "J'ai un _____ jeu!",
+  'tableau': "La maîtresse écrit au _____.",
+  'autour': "Les enfants courent _____ de l'arbre.",
+  'moto': "Il roule sur sa grosse _____.",
+  'nouvelle': "Maman a une _____ robe.",
+  // Semaine 4 — n devient m devant b/m/p
+  'campagne': "Mes grands-parents vivent à la _____.",
+  'compote': "J'aime la _____ de pommes.",
+  'printemps': "Au _____, les fleurs poussent.",
+  'tomber': "Attention de ne pas _____.",
+  'compost': "On met les épluchures dans le _____.",
+  'concombre': "Le _____ est vert et long.",
+  'temps': "Quel _____ fait-il aujourd'hui?",
+  'trombone': "Le _____ est un instrument de musique.",
   // Cayla S1 — eur/eux/euil
   'acteur': "L'_____ joue dans des films.",
   'actrice': "L'_____ a gagné un prix.",
