@@ -253,7 +253,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
 
       {/* Featured mode */}
       {featured && (
-        <button onClick={() => onStartPractice(featured.id)}
+        <button onClick={() => featured.isGroup ? setDicteesOpen(true) : onStartPractice(featured.id)}
           className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a)', boxShadow: '0 5px 22px rgba(199,74,21,0.15)' }}>
           <div className="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center flex-shrink-0">
