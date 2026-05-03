@@ -134,6 +134,72 @@ app.post('/api/session', async (req, res) => {
   }
 });
 
+// Family overview — all profiles at once
+app.get('/api/family', async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const weekAgoStr = weekAgo.toISOString().split('T')[0];
+
+    const profiles = ['ryan', 'cayla', 'demo'];
+    const result = {};
+
+    for (const p of profiles) {
+      const totals = await queryOne('SELECT COALESCE(SUM(correct),0) as correct, COALESCE(SUM(total),0) as total FROM category_stats WHERE profile = $1', [p]);
+      const today = await queryOne('SELECT COALESCE(SUM(total),0) as total, COALESCE(SUM(correct),0) as correct FROM sessions WHERE profile = $1 AND date = (SELECT to_char(NOW() AT TIME ZONE \'America/Toronto\', \'YYYY-MM-DD\'))', [p]);
+      const week = await queryOne('SELECT COALESCE(SUM(total),0) as total, COALESCE(SUM(correct),0) as correct FROM sessions WHERE profile = $1 AND date >= $2', [p, weekAgoStr]);
+      const sessions = await queryAll('SELECT date, mode, total, correct FROM sessions WHERE profile = $1 ORDER BY id DESC LIMIT 5', [p]);
+      const stats = await queryAll('SELECT * FROM category_stats WHERE profile = $1', [p]);
+
+      // Find weakest category
+      const weak = stats.filter(s => s.total >= 3).sort((a, b) => (a.correct/a.total) - (b.correct/b.total))[0];
+
+      result[p] = {
+        totalQuestions: parseInt(totals.total) || 0,
+        totalCorrect: parseInt(totals.correct) || 0,
+        todayQuestions: parseInt(today.total) || 0,
+        todayCorrect: parseInt(today.correct) || 0,
+        weekQuestions: parseInt(week.total) || 0,
+        weekCorrect: parseInt(week.correct) || 0,
+        recentSessions: sessions,
+        weakestCategory: weak ? { category: weak.category, pct: Math.round((weak.correct/weak.total)*100) } : null,
+      };
+    }
+
+    res.json(result);
+  } catch (err) {
+    console.error('Family overview error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// AI-generated sentence variation for dictée
+app.post('/api/dictee/sentence', async (req, res) => {
+  if (!anthropic) return res.json({ sentence: null });
+  try {
+    const { word, grade } = req.body;
+    const ageDesc = grade === '6' ? '11 ans (6e année)' : '7 ans (2e année)';
+    const response = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 80,
+      system: `Tu crées des phrases courtes en français pour enfants de ${ageDesc} au Québec.
+La phrase doit contenir le mot demandé et avoir du sens.
+Maximum 10 mots. Retourne UNIQUEMENT la phrase, pas d'explication.
+Remplace le mot par "_____" dans ta réponse.`,
+      messages: [{
+        role: 'user',
+        content: `Crée une phrase qui utilise le mot "${word}". Format: phrase avec _____ à la place du mot.`,
+      }],
+    });
+    const text = response.content[0]?.text?.trim() || '';
+    res.json({ sentence: text });
+  } catch (err) {
+    console.error('AI sentence error:', err);
+    res.json({ sentence: null });
+  }
+});
+
 // Leaderboard — compare all profiles
 app.get('/api/leaderboard', async (req, res) => {
   try {

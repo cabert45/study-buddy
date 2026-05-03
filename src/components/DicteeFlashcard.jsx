@@ -3,6 +3,7 @@ import { speak, speakSlow } from '../utils/speech';
 import { saveSession } from '../utils/storage';
 import { dicteeWeeks } from '../data/dicteeWeekly';
 import { notifySessionResult } from '../utils/notifications';
+import { buildSmartQueue, recordAnswer, getWeekSummary } from '../utils/wordMastery';
 
 // Sentence templates by word — shows the word in context
 const sentenceContexts = {
@@ -157,9 +158,11 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
   const week = dicteeWeeks[weekKey];
   if (!week) return null;
 
-  // Round-based: do all words, then re-do the missed ones, until none missed
+  const profile = localStorage.getItem('sb_profile') || 'ryan';
+
+  // Smart queue: prioritize struggling/new words, demote mastered ones
   const [round, setRound] = useState(1);
-  const [queue, setQueue] = useState(() => shuffle(week.words));
+  const [queue, setQueue] = useState(() => buildSmartQueue(profile, weekKey, week.words));
   const [missedThisRound, setMissedThisRound] = useState([]);
   const [idx, setIdx] = useState(0);
   const [typed, setTyped] = useState('');
@@ -167,6 +170,7 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
   const [revealed, setRevealed] = useState(false);
   const [allDone, setAllDone] = useState(false);
   const [stats, setStats] = useState({ correct: 0, total: 0 });
+  const [summary, setSummary] = useState(() => getWeekSummary(profile, weekKey, week.words));
   const inputRef = useRef(null);
 
   const word = queue[idx];
@@ -210,6 +214,9 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
     if (showResult) return nextWord();
     const isCorrect = typed.trim().toLowerCase() === word.correct.toLowerCase();
     setStats(s => ({ correct: s.correct + (isCorrect ? 1 : 0), total: s.total + 1 }));
+    // Record into spaced-repetition memory
+    recordAnswer(profile, weekKey, word.correct, isCorrect);
+    setSummary(getWeekSummary(profile, weekKey, week.words));
     if (!isCorrect) {
       setMissedThisRound(prev => [...prev, word]);
     }
@@ -266,6 +273,25 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
         <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
         <h2 className="font-heading font-bold text-stone text-sm">{week.name}</h2>
         <div className="text-xs font-bold text-s4">Tour {round} · {idx + 1}/{queue.length}</div>
+      </div>
+
+      {/* Mastery progress */}
+      <div className="bg-white rounded-xl p-3 mb-3 border-2 border-s1">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs font-bold text-s4 uppercase tracking-wide">Maîtrise des mots</p>
+          <p className="text-xs font-bold text-stone">{summary.mastered}/{summary.total}</p>
+        </div>
+        <div className="w-full bg-s1 rounded-full h-3 overflow-hidden flex">
+          <div className="h-3" style={{ width: `${(summary.mastered / summary.total) * 100}%`, background: '#2d7a3a' }} />
+          <div className="h-3" style={{ width: `${(summary.practicing / summary.total) * 100}%`, background: '#fdcb6e' }} />
+          <div className="h-3" style={{ width: `${(summary.learning / summary.total) * 100}%`, background: '#e8622a' }} />
+        </div>
+        <div className="flex gap-3 mt-2 text-[10px] font-bold text-s4">
+          <span><span className="inline-block w-2 h-2 rounded-full bg-green-700 mr-1" />Maîtrisés: {summary.mastered}</span>
+          <span><span className="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-1" />Bons: {summary.practicing}</span>
+          <span><span className="inline-block w-2 h-2 rounded-full bg-orange-500 mr-1" />Difficiles: {summary.learning}</span>
+          <span><span className="inline-block w-2 h-2 rounded-full bg-gray-300 mr-1" />Nouveaux: {summary.new}</span>
+        </div>
       </div>
 
       {/* Rule reminder */}
