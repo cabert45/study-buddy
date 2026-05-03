@@ -16,6 +16,7 @@ import OwnerLock, { isOwnerUnlocked, lockOwner } from './components/OwnerLock';
 import NotificationsPanel from './components/Notifications';
 import DicteeFlashcard from './components/DicteeFlashcard';
 import StudyReminderSettings from './components/StudyReminderSettings';
+import FamilyOverview from './components/FamilyOverview';
 import { autoResume } from './utils/studyReminder';
 import Presentation from './components/Presentation';
 
@@ -30,6 +31,7 @@ export default function App() {
   const [showNotifs, setShowNotifs] = useState(false);
   const [showStudyReminder, setShowStudyReminder] = useState(false);
   const [flashcardWeek, setFlashcardWeek] = useState(null);
+  const [showFamily, setShowFamily] = useState(false);
 
   // Auto-resume study reminders on app load
   React.useEffect(() => { autoResume(); }, []);
@@ -170,6 +172,7 @@ export default function App() {
           onFinish={() => setFlashcardWeek(null)}
         />
       )}
+      {showFamily && <FamilyOverview onClose={() => setShowFamily(false)} />}
       {screen === 'menu' && (
         <Menu
           profile={profile}
@@ -186,6 +189,7 @@ export default function App() {
           onOpenNotifications={() => setShowNotifs(true)}
           onOpenStudyReminder={() => setShowStudyReminder(true)}
           onStartFlashcard={(weekKey) => setFlashcardWeek(weekKey)}
+          onOpenFamily={() => setShowFamily(true)}
           onSwitchProfile={switchProfile}
           darkMode={darkMode}
           onToggleDark={() => setDarkMode(d => !d)}

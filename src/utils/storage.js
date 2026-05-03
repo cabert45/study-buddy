@@ -42,6 +42,20 @@ export async function resetData() {
   return res.json();
 }
 
+export async function generateAISentence(word, grade) {
+  try {
+    const res = await fetch(`${API_BASE}/dictee/sentence`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ word, grade }),
+    });
+    const data = await res.json();
+    return data.sentence;
+  } catch {
+    return null;
+  }
+}
+
 export async function askTutor(prompt) {
   const res = await fetch(`${API_BASE}/tutor`, {
     method: 'POST',

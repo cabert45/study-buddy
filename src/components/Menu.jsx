@@ -103,7 +103,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onSwitchProfile, darkMode, onToggleDark }) {
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
   const [dicteesOpen, setDicteesOpen] = useState(false);
@@ -150,6 +150,12 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
             <button onClick={onToggleDark}
               className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all">
               {darkMode ? '☀️' : '🌙'}
+            </button>
+          )}
+          {onOpenFamily && !isDemo && (
+            <button onClick={onOpenFamily}
+              className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all">
+              👨‍👩‍👧
             </button>
           )}
           {onOpenStudyReminder && (

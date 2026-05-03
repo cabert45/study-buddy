@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { speak, speakSlow } from '../utils/speech';
-import { saveSession } from '../utils/storage';
+import { saveSession, generateAISentence } from '../utils/storage';
 import { dicteeWeeks } from '../data/dicteeWeekly';
 import { notifySessionResult } from '../utils/notifications';
 import { buildSmartQueue, recordAnswer, getWeekSummary } from '../utils/wordMastery';
@@ -171,7 +171,21 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
   const [allDone, setAllDone] = useState(false);
   const [stats, setStats] = useState({ correct: 0, total: 0 });
   const [summary, setSummary] = useState(() => getWeekSummary(profile, weekKey, week.words));
+  const [aiSentence, setAiSentence] = useState(null);
+  const [loadingSentence, setLoadingSentence] = useState(false);
   const inputRef = useRef(null);
+
+  // Reset AI sentence when word changes
+  useEffect(() => { setAiSentence(null); }, [idx, round]);
+
+  async function getNewSentence() {
+    if (!word) return;
+    setLoadingSentence(true);
+    const grade = profile === 'cayla' ? '6' : '2';
+    const s = await generateAISentence(word.correct, grade);
+    if (s) setAiSentence(s);
+    setLoadingSentence(false);
+  }
 
   const word = queue[idx];
 
@@ -206,7 +220,8 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
 
   if (!word) return null;
 
-  const sentence = sentenceContexts[word.correct] || `Écris le mot que tu entends.`;
+  const baseSentence = sentenceContexts[word.correct] || `Écris le mot que tu entends.`;
+  const sentence = aiSentence || baseSentence;
   const sentenceWithBlank = sentence.replace('_____', '______');
 
   function handleSubmit(e) {
@@ -305,10 +320,16 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
         <p className="text-xs font-bold text-fox-d uppercase tracking-wide mb-2">Écoute et écris le mot</p>
         <p className="text-base font-semibold text-stone leading-relaxed mb-3">{sentenceWithBlank}</p>
 
-        <button onClick={() => speakSlow(word.correct)}
-          className="text-sm text-fox-d font-bold mb-4 hover:text-lava">
-          🔊 Réécouter le mot
-        </button>
+        <div className="flex flex-wrap gap-3 mb-4">
+          <button onClick={() => speakSlow(word.correct)}
+            className="text-sm text-fox-d font-bold hover:text-lava">
+            🔊 Réécouter le mot
+          </button>
+          <button onClick={getNewSentence} disabled={loadingSentence}
+            className="text-sm text-info font-bold hover:text-lava disabled:opacity-50">
+            {loadingSentence ? '⏳ Génération...' : '🤖 Nouvelle phrase'}
+          </button>
+        </div>
 
         {/* Input */}
         <form onSubmit={handleSubmit}>
