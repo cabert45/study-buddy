@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Pencil, Save, RotateCcw, Trash2, Plus, ArrowUp, ArrowDown, Volume2 } from 'lucide-react';
 
-const presentation = {
+const STORAGE_KEY = 'sb_presentation_ryan';
+
+const defaultPresentation = {
   title: 'La fourmi',
   subtitle: 'Des petites bêtes pas si bêtes',
   date: 'Mercredi 6 mai 2026',
@@ -171,12 +174,29 @@ function Section({ section, idx }) {
   );
 }
 
+function loadPresentation() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {}
+  return defaultPresentation;
+}
+
+function savePresentation(p) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch {}
+}
+
 export default function Presentation({ onHome }) {
   const [showAll, setShowAll] = useState(false);
   const [practiceMode, setPracticeMode] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [running, setRunning] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [draft, setDraft] = useState(() => loadPresentation());
   const intervalRef = useRef(null);
+
+  // Active presentation (saved version, or draft if editing)
+  const presentation = draft;
 
   useEffect(() => {
     if (running) {
@@ -184,6 +204,55 @@ export default function Presentation({ onHome }) {
     }
     return () => clearInterval(intervalRef.current);
   }, [running]);
+
+  function saveAndExit() {
+    savePresentation(draft);
+    setEditMode(false);
+  }
+
+  function cancelEdit() {
+    setDraft(loadPresentation());
+    setEditMode(false);
+  }
+
+  function resetToDefault() {
+    if (!confirm('Tout remettre à la version originale?')) return;
+    setDraft({ ...defaultPresentation, sections: [...defaultPresentation.sections] });
+  }
+
+  function updateSection(idx, field, value) {
+    setDraft(p => {
+      const sections = [...p.sections];
+      sections[idx] = { ...sections[idx], [field]: value };
+      return { ...p, sections };
+    });
+  }
+
+  function deleteSection(idx) {
+    if (!confirm('Supprimer cette section?')) return;
+    setDraft(p => ({ ...p, sections: p.sections.filter((_, i) => i !== idx) }));
+  }
+
+  function moveSection(idx, dir) {
+    setDraft(p => {
+      const sections = [...p.sections];
+      const newIdx = idx + dir;
+      if (newIdx < 0 || newIdx >= sections.length) return p;
+      [sections[idx], sections[newIdx]] = [sections[newIdx], sections[idx]];
+      return { ...p, sections };
+    });
+  }
+
+  function addSection() {
+    setDraft(p => ({
+      ...p,
+      sections: [...p.sections, { label: `${p.sections.length + 1}. Nouvelle section`, hint: '', text: '' }],
+    }));
+  }
+
+  function updateMeta(field, value) {
+    setDraft(p => ({ ...p, [field]: value }));
+  }
 
   function startPractice() {
     setPracticeMode(true);
@@ -210,15 +279,55 @@ export default function Presentation({ onHome }) {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
-        <h2 className="font-heading font-bold text-stone">🎤 Présentation</h2>
-        <div className="w-12" />
+        <h2 className="font-heading font-bold text-stone">Présentation</h2>
+        <div className="flex gap-2">
+          {editMode ? (
+            <>
+              <button onClick={resetToDefault}
+                className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all"
+                title="Remettre à zéro">
+                <RotateCcw size={16} />
+              </button>
+              <button onClick={cancelEdit}
+                className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-xs font-bold text-s6 hover:border-lava hover:text-lava transition-all">
+                Annuler
+              </button>
+              <button onClick={saveAndExit}
+                className="rounded-xl px-3 py-2 text-xs font-bold text-white flex items-center gap-1.5"
+                style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
+                <Save size={14} /> Enregistrer
+              </button>
+            </>
+          ) : (
+            <button onClick={() => setEditMode(true)}
+              className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-xs font-bold text-s6 hover:border-lava hover:text-lava transition-all flex items-center gap-1.5">
+              <Pencil size={14} /> Modifier
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Title card */}
+      {/* Title card — editable */}
       <div className="bg-white rounded-2xl p-5 mb-4 border-2 border-s1 text-center">
-        <div className="text-xs font-bold text-fox-d uppercase tracking-wide mb-1">{presentation.subtitle}</div>
-        <h1 className="font-heading text-3xl font-extrabold text-stone mb-1">🐜 {presentation.title}</h1>
-        <div className="text-sm text-s4 font-semibold">📅 {presentation.date}</div>
+        {editMode ? (
+          <>
+            <input value={presentation.subtitle} onChange={(e) => updateMeta('subtitle', e.target.value)}
+              placeholder="Sous-titre"
+              className="w-full text-center text-xs font-bold text-fox-d uppercase tracking-wide mb-2 bg-cream rounded-lg p-2 border-2 border-s2 focus:outline-none focus:border-lava" />
+            <input value={presentation.title} onChange={(e) => updateMeta('title', e.target.value)}
+              placeholder="Titre"
+              className="w-full text-center font-heading text-2xl font-extrabold text-stone mb-2 bg-cream rounded-lg p-2 border-2 border-s2 focus:outline-none focus:border-lava" />
+            <input value={presentation.date} onChange={(e) => updateMeta('date', e.target.value)}
+              placeholder="Date"
+              className="w-full text-center text-sm text-s4 font-semibold bg-cream rounded-lg p-2 border-2 border-s2 focus:outline-none focus:border-lava" />
+          </>
+        ) : (
+          <>
+            <div className="text-xs font-bold text-fox-d uppercase tracking-wide mb-1">{presentation.subtitle}</div>
+            <h1 className="font-heading text-3xl font-extrabold text-stone mb-1">{presentation.title}</h1>
+            <div className="text-sm text-s4 font-semibold">{presentation.date}</div>
+          </>
+        )}
       </div>
 
       {/* Video button — first */}
@@ -285,6 +394,44 @@ export default function Presentation({ onHome }) {
           <button onClick={() => speak(fullText)}
             className="text-sm text-fox-d font-bold hover:text-lava">
             🔊 Écouter tout le texte
+          </button>
+        </div>
+      ) : editMode ? (
+        <div className="mb-4 space-y-3">
+          {presentation.sections.map((s, i) => (
+            <div key={i} className="bg-white rounded-2xl p-3 border-2 border-s1">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center font-heading font-bold text-fox-d text-sm flex-shrink-0">
+                  {i + 1}
+                </div>
+                <input value={s.label} onChange={(e) => updateSection(i, 'label', e.target.value)}
+                  placeholder="Titre de la section"
+                  className="flex-1 px-2 py-1.5 rounded-lg border-2 border-s2 text-stone font-bold text-sm focus:outline-none focus:border-lava" />
+                <button onClick={() => moveSection(i, -1)} disabled={i === 0}
+                  className="text-s4 hover:text-lava disabled:opacity-20 p-1">
+                  <ArrowUp size={14} />
+                </button>
+                <button onClick={() => moveSection(i, 1)} disabled={i === presentation.sections.length - 1}
+                  className="text-s4 hover:text-lava disabled:opacity-20 p-1">
+                  <ArrowDown size={14} />
+                </button>
+                <button onClick={() => deleteSection(i)}
+                  className="text-red-500 hover:text-red-700 p-1">
+                  <Trash2 size={14} />
+                </button>
+              </div>
+              <input value={s.hint} onChange={(e) => updateSection(i, 'hint', e.target.value)}
+                placeholder="Indice (court)"
+                className="w-full px-2 py-1.5 mb-2 rounded-lg border-2 border-s2 text-s4 italic text-xs focus:outline-none focus:border-lava" />
+              <textarea value={s.text} onChange={(e) => updateSection(i, 'text', e.target.value)}
+                placeholder="Texte de la présentation..."
+                rows={3}
+                className="w-full px-2 py-2 rounded-lg border-2 border-s2 text-stone text-sm focus:outline-none focus:border-lava" />
+            </div>
+          ))}
+          <button onClick={addSection}
+            className="w-full py-3 rounded-2xl border-2 border-dashed border-s3 text-s4 font-bold hover:border-lava hover:text-lava flex items-center justify-center gap-2">
+            <Plus size={18} /> Ajouter une section
           </button>
         </div>
       ) : (
