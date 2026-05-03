@@ -103,7 +103,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onOpenDashboard, onOpenNotifications, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onSwitchProfile, darkMode, onToggleDark }) {
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
   const [dicteesOpen, setDicteesOpen] = useState(false);
@@ -150,6 +150,12 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
             <button onClick={onToggleDark}
               className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all">
               {darkMode ? '☀️' : '🌙'}
+            </button>
+          )}
+          {onOpenStudyReminder && (
+            <button onClick={onOpenStudyReminder}
+              className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all">
+              📚
             </button>
           )}
           {onOpenNotifications && <NotificationBell onClick={onOpenNotifications} />}
@@ -298,16 +304,24 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
                 ✕
               </button>
             </div>
+            {/* Mode picker */}
+            <div className="bg-orange-50 rounded-xl p-3 mb-3 border-2 border-orange-200">
+              <p className="text-xs font-bold text-fox-d mb-2 text-center">Choisis un mode pour chaque semaine:</p>
+              <div className="flex gap-2 text-xs justify-center">
+                <span className="px-2 py-1 bg-white rounded-full font-bold">▶ = Choix multiple</span>
+                <span className="px-2 py-1 bg-white rounded-full font-bold">🃏 = Flashcard (tape)</span>
+              </div>
+            </div>
+
             <div className="space-y-2">
               {(isCayla ? caylaDicteeWeeksList : dicteeWeeksList).map((d) => (
-                <button key={d.id}
-                  onClick={() => { setDicteesOpen(false); onStartPractice(d.id); }}
-                  className={`w-full text-left rounded-2xl p-4 border-2 transition-all hover:-translate-y-0.5 active:scale-[0.98] ${
+                <div key={d.id}
+                  className={`w-full text-left rounded-2xl p-3 border-2 ${
                     d.highlight ? 'bg-orange-50 border-lava' :
                     d.current ? 'bg-white border-fox shadow-sm' :
-                    'bg-white border-s1 hover:border-fox'
+                    'bg-white border-s1'
                   }`}>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 mb-2">
                     <div className="flex-1">
                       <div className="font-heading font-bold text-stone text-base flex items-center gap-2">
                         {d.label}
@@ -315,9 +329,21 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
                       </div>
                       <div className="text-xs text-s4 font-semibold mt-0.5">{d.desc}</div>
                     </div>
-                    <span className="text-s4 text-xl font-bold">›</span>
                   </div>
-                </button>
+                  <div className="flex gap-2">
+                    <button onClick={() => { setDicteesOpen(false); onStartPractice(d.id); }}
+                      className="flex-1 py-2 rounded-lg font-bold text-white text-sm"
+                      style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
+                      ▶ Choix multiple
+                    </button>
+                    {onStartFlashcard && d.id !== 'dictee_revision' && (
+                      <button onClick={() => { setDicteesOpen(false); onStartFlashcard(d.id); }}
+                        className="flex-1 py-2 rounded-lg font-bold text-fox-d text-sm bg-orange-50 border-2 border-orange-200 hover:border-fox">
+                        🃏 Flashcard
+                      </button>
+                    )}
+                  </div>
+                </div>
               ))}
             </div>
           </div>

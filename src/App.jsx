@@ -14,6 +14,9 @@ import { setProfile as persistProfile } from './utils/storage';
 import InstallPrompt from './components/InstallPrompt';
 import OwnerLock, { isOwnerUnlocked, lockOwner } from './components/OwnerLock';
 import NotificationsPanel from './components/Notifications';
+import DicteeFlashcard from './components/DicteeFlashcard';
+import StudyReminderSettings from './components/StudyReminderSettings';
+import { autoResume } from './utils/studyReminder';
 import Presentation from './components/Presentation';
 
 export default function App() {
@@ -25,6 +28,11 @@ export default function App() {
   const [showLock, setShowLock] = useState(false);
   const [unlockedTick, setUnlockedTick] = useState(0); // forces re-render after unlock
   const [showNotifs, setShowNotifs] = useState(false);
+  const [showStudyReminder, setShowStudyReminder] = useState(false);
+  const [flashcardWeek, setFlashcardWeek] = useState(null);
+
+  // Auto-resume study reminders on app load
+  React.useEffect(() => { autoResume(); }, []);
 
   function selectProfile(p) {
     setProfile(p);
@@ -154,6 +162,14 @@ export default function App() {
       )}
 
       {showNotifs && <NotificationsPanel onClose={() => setShowNotifs(false)} />}
+      {showStudyReminder && <StudyReminderSettings onClose={() => setShowStudyReminder(false)} profile={profile} />}
+      {flashcardWeek && (
+        <DicteeFlashcard
+          weekKey={flashcardWeek}
+          onHome={() => setFlashcardWeek(null)}
+          onFinish={() => setFlashcardWeek(null)}
+        />
+      )}
       {screen === 'menu' && (
         <Menu
           profile={profile}
@@ -168,6 +184,8 @@ export default function App() {
           onStartPresentation={startPresentation}
           onOpenDashboard={openDashboard}
           onOpenNotifications={() => setShowNotifs(true)}
+          onOpenStudyReminder={() => setShowStudyReminder(true)}
+          onStartFlashcard={(weekKey) => setFlashcardWeek(weekKey)}
           onSwitchProfile={switchProfile}
           darkMode={darkMode}
           onToggleDark={() => setDarkMode(d => !d)}
