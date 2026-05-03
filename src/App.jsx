@@ -17,6 +17,7 @@ import NotificationsPanel from './components/Notifications';
 import DicteeFlashcard from './components/DicteeFlashcard';
 import StudyReminderSettings from './components/StudyReminderSettings';
 import FamilyOverview from './components/FamilyOverview';
+import Journal from './components/Journal';
 import { autoResume } from './utils/studyReminder';
 import Presentation from './components/Presentation';
 
@@ -73,6 +74,10 @@ export default function App() {
 
   function startCoach() {
     setScreen('coach');
+  }
+
+  function startJournal() {
+    setScreen('journal');
   }
 
   function startPresentation() {
@@ -173,6 +178,7 @@ export default function App() {
         />
       )}
       {showFamily && <FamilyOverview onClose={() => setShowFamily(false)} />}
+      {screen === 'journal' && <Journal onHome={goHome} profile={profile} />}
       {screen === 'menu' && (
         <Menu
           profile={profile}
@@ -190,6 +196,7 @@ export default function App() {
           onOpenStudyReminder={() => setShowStudyReminder(true)}
           onStartFlashcard={(weekKey) => setFlashcardWeek(weekKey)}
           onOpenFamily={() => setShowFamily(true)}
+          onStartJournal={startJournal}
           onSwitchProfile={switchProfile}
           darkMode={darkMode}
           onToggleDark={() => setDarkMode(d => !d)}

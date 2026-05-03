@@ -103,7 +103,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onStartJournal, onSwitchProfile, darkMode, onToggleDark }) {
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
   const [dicteesOpen, setDicteesOpen] = useState(false);
@@ -204,6 +204,22 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
           <div className="text-left flex-1">
             <div className="font-heading text-xl font-extrabold text-white leading-tight">Présentation: La fourmi</div>
             <div className="text-xs font-semibold text-white/85">Mercredi 6 mai — pratique avec moi!</div>
+          </div>
+          <span className="text-white/60 text-2xl font-extrabold">›</span>
+        </button>
+      )}
+
+      {/* Cayla's Journal — featured pink card */}
+      {isCayla && onStartJournal && (
+        <button onClick={onStartJournal}
+          className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+          style={{ background: 'linear-gradient(135deg, #e84393, #fbc2eb)', boxShadow: '0 6px 24px rgba(232,67,147,0.25)' }}>
+          <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-2xl">📔</span>
+          </div>
+          <div className="text-left flex-1">
+            <div className="font-heading text-xl font-extrabold text-white leading-tight">Mon journal</div>
+            <div className="text-xs font-semibold text-white/85">Gratitude, défis, motivation</div>
           </div>
           <span className="text-white/60 text-2xl font-extrabold">›</span>
         </button>
