@@ -19,6 +19,8 @@ import StudyReminderSettings from './components/StudyReminderSettings';
 import FamilyOverview from './components/FamilyOverview';
 import Journal from './components/Journal';
 import { autoResume } from './utils/studyReminder';
+import { addNotification } from './utils/notifications';
+import { getUnseenForProfile, markSeen } from './data/whatsNew';
 import Presentation from './components/Presentation';
 
 export default function App() {
@@ -41,6 +43,17 @@ export default function App() {
     setProfile(p);
     persistProfile(p);
     setScreen('menu');
+    // Fire "what's new" notifications for this profile
+    const unseen = getUnseenForProfile(p);
+    unseen.forEach(n => {
+      addNotification({
+        title: `🆕 ${n.title}`,
+        message: n.body,
+        type: 'info',
+        profile: p,
+      });
+      markSeen(n.id);
+    });
   }
 
   function startPractice(selectedMode) {

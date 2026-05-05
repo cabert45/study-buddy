@@ -17,6 +17,7 @@ import { generateOnOnt } from '../generators/onOnt';
 import { generateGroupeNom } from '../generators/groupeNom';
 import { generateDicteeSemaine, generateDicteeCumulative, setCurrentWeek } from '../generators/dicteeSemaine';
 import { generatePasseCompose } from '../generators/passeCompose';
+import { recordPemdasAnswer } from '../generators/pemdas';
 import { generateApostrophe } from '../generators/apostrophe';
 import { generateMDevantBmp } from '../generators/mDevantBmp';
 import { generateAccordEtre } from '../generators/accordEtre';
@@ -174,6 +175,11 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
       setStreak((s) => s + 1);
     } else {
       setStreak(0);
+    }
+
+    // Record per-category mastery for PEMDAS adaptive learning
+    if (question.category === 'pemdas' && question.pemdasCategory) {
+      recordPemdasAnswer(question.pemdasCategory, isCorrect);
     }
 
     setResults((prev) => [...prev, result]);
