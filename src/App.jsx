@@ -18,6 +18,7 @@ import DicteeFlashcard from './components/DicteeFlashcard';
 import StudyReminderSettings from './components/StudyReminderSettings';
 import FamilyOverview from './components/FamilyOverview';
 import Journal from './components/Journal';
+import ComposeMessage from './components/ComposeMessage';
 import { autoResume } from './utils/studyReminder';
 import { addNotification } from './utils/notifications';
 import { getUnseenForProfile, markSeen } from './data/whatsNew';
@@ -35,6 +36,7 @@ export default function App() {
   const [showStudyReminder, setShowStudyReminder] = useState(false);
   const [flashcardWeek, setFlashcardWeek] = useState(null);
   const [showFamily, setShowFamily] = useState(false);
+  const [showCompose, setShowCompose] = useState(false);
 
   // Auto-resume study reminders on app load
   React.useEffect(() => { autoResume(); }, []);
@@ -191,6 +193,7 @@ export default function App() {
         />
       )}
       {showFamily && <FamilyOverview onClose={() => setShowFamily(false)} />}
+      {showCompose && <ComposeMessage onClose={() => setShowCompose(false)} profile={profile} />}
       {screen === 'journal' && <Journal onHome={goHome} profile={profile} />}
       {screen === 'menu' && (
         <Menu
@@ -210,6 +213,7 @@ export default function App() {
           onStartFlashcard={(weekKey) => setFlashcardWeek(weekKey)}
           onOpenFamily={() => setShowFamily(true)}
           onStartJournal={startJournal}
+          onOpenCompose={() => setShowCompose(true)}
           onSwitchProfile={switchProfile}
           darkMode={darkMode}
           onToggleDark={() => setDarkMode(d => !d)}

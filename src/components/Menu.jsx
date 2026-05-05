@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
 import { NotificationBell } from './Notifications';
-import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, Fish, Zap, Layers, GraduationCap, ChevronRight } from 'lucide-react';
+import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, Fish, Zap, Layers, GraduationCap, ChevronRight, Send } from 'lucide-react';
 
 // SVG icons for modules — clean, no emojis
 const icons = {
@@ -104,7 +104,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onStartJournal, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onStartJournal, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
   const [dicteesOpen, setDicteesOpen] = useState(false);
@@ -151,6 +151,12 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
             <button onClick={onToggleDark}
               className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all">
               {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+          )}
+          {onOpenCompose && !isDemo && (
+            <button onClick={onOpenCompose}
+              className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all">
+              <Send size={18} />
             </button>
           )}
           {onOpenFamily && !isDemo && (
