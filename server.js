@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import pg from 'pg';
 import Anthropic from '@anthropic-ai/sdk';
+import webpush from 'web-push';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -43,6 +44,17 @@ async function initDb() {
       CREATE TABLE IF NOT EXISTS settings (
         key TEXT PRIMARY KEY,
         value TEXT
+      )
+    `);
+
+    // Push subscriptions
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS push_subscriptions (
+        id SERIAL PRIMARY KEY,
+        profile TEXT NOT NULL,
+        endpoint TEXT NOT NULL UNIQUE,
+        keys JSONB NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
       )
     `);
 
@@ -87,6 +99,80 @@ let anthropic = null;
 if (process.env.ANTHROPIC_API_KEY) {
   anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 }
+
+// --- Web Push setup (VAPID) ---
+const VAPID_PUBLIC = process.env.VAPID_PUBLIC_KEY || 'BCmP7UjMuEF6PihKVS71fj326YH6XOORXB5xtUhoctoMfsboJQs05s2UNq6R7AW4a3qDtm6CRE5SGcoEu8woIak';
+const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY || 'qMZ1lSnAZqeZ2GHoQGrgpymlH_ocKBVBLvsIKTPx-iQ';
+const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:cbernard@cleaneroffices.ca';
+
+if (VAPID_PUBLIC && VAPID_PRIVATE) {
+  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);
+}
+
+// --- Push Notification Routes ---
+app.get('/api/push/vapid-key', (req, res) => {
+  res.json({ key: VAPID_PUBLIC });
+});
+
+app.post('/api/push/subscribe', async (req, res) => {
+  try {
+    const { profile, subscription } = req.body;
+    if (!subscription || !subscription.endpoint) {
+      return res.status(400).json({ error: 'Invalid subscription' });
+    }
+    await pool.query(`
+      INSERT INTO push_subscriptions (profile, endpoint, keys)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (endpoint) DO UPDATE SET profile = $1, keys = $3
+    `, [profile || 'ryan', subscription.endpoint, JSON.stringify(subscription.keys)]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Subscribe error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/push/unsubscribe', async (req, res) => {
+  try {
+    const { endpoint } = req.body;
+    await pool.query('DELETE FROM push_subscriptions WHERE endpoint = $1', [endpoint]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/push/send', async (req, res) => {
+  try {
+    const { profile, title, body, url } = req.body;
+    const profileFilter = profile && profile !== 'all';
+    const subs = profileFilter
+      ? await queryAll('SELECT * FROM push_subscriptions WHERE profile = $1', [profile])
+      : await queryAll('SELECT * FROM push_subscriptions');
+
+    const payload = JSON.stringify({ title: title || 'Study Buddy', body: body || '', url: url || '/' });
+    let sent = 0, failed = 0;
+    for (const s of subs) {
+      try {
+        await webpush.sendNotification({
+          endpoint: s.endpoint,
+          keys: typeof s.keys === 'string' ? JSON.parse(s.keys) : s.keys,
+        }, payload);
+        sent++;
+      } catch (err) {
+        failed++;
+        // Drop dead subscriptions
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          await pool.query('DELETE FROM push_subscriptions WHERE endpoint = $1', [s.endpoint]);
+        }
+      }
+    }
+    res.json({ ok: true, sent, failed, total: subs.length });
+  } catch (err) {
+    console.error('Push send error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // --- API Routes ---
 
