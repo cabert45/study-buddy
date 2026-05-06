@@ -68,6 +68,7 @@ function ex1() {
     category: 'accord_etre',
     type: 'choix',
     text: q.phrase,
+    spokenWord: q.phrase.replace('___', '...'),
     correct: q.correct,
     options: shuffle(q.options),
     explanation: q.why,
@@ -80,6 +81,7 @@ function ex2() {
     category: 'accord_etre',
     type: 'accorde',
     text: `${q.phrase} (${q.baseAdj})`,
+    spokenWord: q.phrase.replace('___', '...'), // voice only says the sentence
     correct: q.correct,
     options: shuffle([q.correct, ...q.wrongs.slice(0, 3)]),
     explanation: q.why,
@@ -92,6 +94,7 @@ function ex3() {
     category: 'accord_etre',
     type: 'reecrit',
     text: `${q.original} → ${q.newSubj} ___`,
+    spokenWord: `${q.original} Maintenant: ${q.newSubj}...`,
     correct: q.correct,
     options: shuffle([q.correct, ...q.wrongs.slice(0, 3)]),
     explanation: q.why,
@@ -104,6 +107,7 @@ function ex4() {
     category: 'accord_etre',
     type: 'transforme',
     text: `Transforme: "${q.gn}" → "${q.subj} ___"`,
+    spokenWord: `Transforme ${q.gn}. ${q.subj}...`,
     correct: q.correct,
     options: shuffle([q.correct, ...q.wrongs.slice(0, 3)]),
     explanation: q.why,
@@ -115,7 +119,8 @@ function ex5() {
   return {
     category: 'accord_etre',
     type: 'joli_gentil',
-    text: `${q.phrase} (joli / jolie / jolies / jolis / gentil / gentille / gentils / gentilles)`,
+    text: q.phrase,
+    spokenWord: q.phrase.replace('___', '...'), // voice doesn't read option list
     correct: q.correct,
     options: shuffle([q.correct, ...q.wrongs.slice(0, 3)]),
     explanation: q.why,
