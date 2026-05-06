@@ -1,7 +1,7 @@
 // L'apostrophe generator — Friday May 8 test
+// EXACT preparation worksheet shared by another mom (Pomélo A.M. p.25)
 // Rule: le/la → l' devant voyelle (a, e, i, o, u) ou h muet
-// Also: je/me/te/se/ne/que → j'/m'/t'/s'/n'/qu' devant voyelle
-// Pomélo p.25
+// Plus: je/me/te/se/ne/que → j'/m'/t'/s'/n'/qu'
 
 function shuffle(arr) {
   const a = [...arr];
@@ -12,113 +12,164 @@ function shuffle(arr) {
   return a;
 }
 
-const startsWithVowelOrSilentH = (word) => {
-  const w = word.toLowerCase();
-  return /^[aeiouéèêëâàäîïôöûüh]/.test(w);
-};
+// === EXERCICE 1: Choisis entre « le » ou « l' » ===
+const ex1Words = [
+  { word: 'abricot', correct: "l'", why: "abricot commence par 'a' (voyelle) → l'abricot" },
+  { word: 'chien', correct: 'le', why: "chien commence par 'c' (consonne) → le chien" },
+  { word: 'école', correct: "l'", why: "école commence par 'é' (voyelle) → l'école" },
+  { word: 'arbre', correct: "l'", why: "arbre commence par 'a' (voyelle) → l'arbre" },
+  { word: 'ballon', correct: 'le', why: "ballon commence par 'b' (consonne) → le ballon" },
+  { word: 'éléphant', correct: "l'", why: "éléphant commence par 'é' (voyelle) → l'éléphant" },
+  { word: 'oiseau', correct: "l'", why: "oiseau commence par 'o' (voyelle) → l'oiseau" },
+  { word: 'livre', correct: 'le', why: "livre commence par 'l' (consonne) → le livre" },
+  { word: 'igloo', correct: "l'", why: "igloo commence par 'i' (voyelle) → l'igloo" },
+  { word: 'soleil', correct: 'le', why: "soleil commence par 's' (consonne) → le soleil" },
+  { word: 'avion', correct: "l'", why: "avion commence par 'a' (voyelle) → l'avion" },
+  { word: 'jardin', correct: 'le', why: "jardin commence par 'j' (consonne) → le jardin" },
+];
 
-// Word lists
-const masculineNouns = ['ami', 'arbre', 'oiseau', 'éléphant', 'hôpital', 'homme', 'enfant', 'autobus', 'orange', 'igloo', 'avion', 'écureuil', 'hôtel', 'oncle', 'ouvrier', 'âne', 'insecte', 'œuf'];
-const feminineNouns = ['école', 'amie', 'image', 'arme', 'oreille', 'heure', 'histoire', 'éponge', 'idée', 'odeur', 'eau', 'hirondelle', 'aiguille', 'auto', 'enveloppe'];
-const masculineConsonant = ['chien', 'livre', 'crayon', 'chevalier', 'roi', 'jardin', 'bus', 'château', 'sac', 'lit', 'pied', 'nez', 'visage', 'soulier'];
-const feminineConsonant = ['chaise', 'table', 'pomme', 'fleur', 'maison', 'porte', 'fenêtre', 'chambre', 'voiture', 'bouche', 'jambe', 'main', 'mère', 'sœur'];
+// === EXERCICE 2: Choisis entre « la » ou « l' » ===
+const ex2Words = [
+  { word: 'histoire', correct: "l'", why: "histoire commence par 'h' muet → l'histoire" },
+  { word: 'table', correct: 'la', why: "table commence par 't' (consonne) → la table" },
+  { word: 'orange', correct: "l'", why: "orange commence par 'o' (voyelle) → l'orange" },
+  { word: 'petite fille', correct: 'la', why: "petite commence par 'p' (consonne) → la petite fille" },
+  { word: 'amie', correct: "l'", why: "amie commence par 'a' (voyelle) → l'amie" },
+  { word: 'maison', correct: 'la', why: "maison commence par 'm' (consonne) → la maison" },
+  { word: 'école', correct: "l'", why: "école commence par 'é' (voyelle) → l'école" },
+  { word: 'pomme', correct: 'la', why: "pomme commence par 'p' (consonne) → la pomme" },
+  { word: 'idée', correct: "l'", why: "idée commence par 'i' (voyelle) → l'idée" },
+  { word: 'fleur', correct: 'la', why: "fleur commence par 'f' (consonne) → la fleur" },
+  { word: 'image', correct: "l'", why: "image commence par 'i' (voyelle) → l'image" },
+  { word: 'voiture', correct: 'la', why: "voiture commence par 'v' (consonne) → la voiture" },
+];
 
-// Verbs starting with vowel
-const vowelVerbs = ['ai', 'aime', 'aimes', 'écoute', 'écoutes', 'arrive', 'arrives', 'entend', 'entends', 'observe', 'observes', 'apprends', 'apprend', 'invite', 'invites', 'oublie', 'oublies'];
-const consonantVerbs = ['mange', 'manges', 'parle', 'parles', 'cours', 'court', 'sais', 'sait', 'fais', 'fait'];
+// === EXERCICE 3: Transforme avec une apostrophe ===
+const ex3Transformations = [
+  { from: 'Je aime', correct: "J'aime", wrongs: ['Je aime', 'Jaime', "J' aime"] },
+  { from: 'De or', correct: "D'or", wrongs: ['De or', 'Dor', "D' or"] },
+  { from: 'La orange', correct: "L'orange", wrongs: ['La orange', 'Lorange', "La' orange"] },
+  { from: 'Le ordinateur', correct: "L'ordinateur", wrongs: ['Le ordinateur', 'Lordinateur', "Le' ordinateur"] },
+  { from: 'Me amuse', correct: "M'amuse", wrongs: ['Me amuse', 'Mamuse', "M' amuse"] },
+  { from: 'Je arrive', correct: "J'arrive", wrongs: ['Je arrive', 'Jarrive', "J' arrive"] },
+  { from: 'La école', correct: "L'école", wrongs: ['La école', "L'ecole", 'Lecole'] },
+  { from: 'Le avion', correct: "L'avion", wrongs: ['Le avion', 'Lavion', "Le' avion"] },
+  { from: 'Te invite', correct: "T'invite", wrongs: ['Te invite', 'Tinvite', "T' invite"] },
+  { from: 'Ne aime pas', correct: "N'aime pas", wrongs: ['Ne aime pas', 'Naime pas', "N' aime pas"] },
+];
 
-function generateLeLaQuestion() {
-  // Mix of all noun types
-  const allNouns = [
-    ...masculineNouns.map(n => ({ noun: n, det: "l'", baseDet: 'le' })),
-    ...feminineNouns.map(n => ({ noun: n, det: "l'", baseDet: 'la' })),
-    ...masculineConsonant.map(n => ({ noun: n, det: 'le' })),
-    ...feminineConsonant.map(n => ({ noun: n, det: 'la' })),
-  ];
-  const item = allNouns[Math.floor(Math.random() * allNouns.length)];
+// === EXERCICE 4: Complète les phrases (élision) ===
+const ex4Sentences = [
+  { sentence: '___ chante dans ___ école', baseWords: ['le + oiseau', 'la + école'], correct: "L'oiseau chante dans l'école", short: "L'oiseau / l'école" },
+  { sentence: '___ mangé une pomme', baseWords: ['Je + ai'], correct: "J'ai mangé une pomme", short: "J'ai" },
+  { sentence: "C'est ___ de mon frère", baseWords: ['le + habit'], correct: "C'est l'habit de mon frère", short: "l'habit" },
+  { sentence: '___ est noire', baseWords: ['La + ombre'], correct: "L'ombre est noire", short: "L'ombre" },
+  { sentence: "___ est mon ami", baseWords: ["Le + enfant"], correct: "L'enfant est mon ami", short: "L'enfant" },
+];
 
+// === EXERCICE 5: Cherche l'erreur ===
+const ex5Errors = [
+  { wrong: 'Le avion vole haut.', correct: "L'avion vole haut.", error: 'Le → L' },
+  { wrong: 'La amie de Léa est gentille.', correct: "L'amie de Léa est gentille.", error: 'La → L' },
+  { wrong: 'Je ai faim.', correct: "J'ai faim.", error: 'Je → J' },
+  { wrong: 'La école est fermée.', correct: "L'école est fermée.", error: 'La → L' },
+  { wrong: 'Le orange est sucrée.', correct: "L'orange est sucrée.", error: 'Le → L' },
+  { wrong: 'Je adore les pommes.', correct: "J'adore les pommes.", error: 'Je → J' },
+  { wrong: 'La heure du dîner.', correct: "L'heure du dîner.", error: 'La → L (h muet)' },
+];
+
+// Word for general pronoun questions
+const startsWithVowelOrSilentH = (word) => /^[aeiouéèêëâàäîïôöûüh]/.test(word.toLowerCase());
+
+const pronounSentences = [
+  { sentence: 'Je ___ un chat.', verb: 'ai', correct: "J'", wrong: 'Je' },
+  { sentence: 'Tu ___ aimes le chocolat.', verb: 'aime', correct: "t'", wrong: 'te' },
+  { sentence: 'Il ne ___ pas content.', verb: 'est', correct: "n'est", wrong: 'ne est' },
+  { sentence: 'Je ___ écoute.', verb: 'écoute', correct: "j'", wrong: 'je' },
+];
+
+function ex1() {
+  const q = ex1Words[Math.floor(Math.random() * ex1Words.length)];
   return {
     category: 'apostrophe',
     type: 'le_la',
-    text: `Quel déterminant va avec "${item.noun}"?`,
-    correct: item.det,
-    options: shuffle(["l'", 'le', 'la', 'les']),
-    explanation: item.det === "l'"
-      ? `${item.noun} commence par une voyelle (ou h muet) → on utilise l' (apostrophe)`
-      : `${item.noun} commence par une consonne → on garde ${item.det}`,
+    text: `Choisis: ___ ${q.word}`,
+    correct: q.correct,
+    options: shuffle(["le", "l'"]),
+    explanation: q.why,
   };
 }
 
-function generatePronounQuestion() {
-  // je/j', me/m', te/t', se/s', ne/n', que/qu'
-  const pronouns = [
-    { full: 'je', short: "j'", verb: 'aime' },
-    { full: 'je', short: "j'", verb: 'écoute' },
-    { full: 'je', short: "j'", verb: 'arrive' },
-    { full: 'je', short: "j'", verb: 'observe' },
-    { full: 'je', short: 'je', verb: 'mange' },
-    { full: 'je', short: 'je', verb: 'parle' },
-    { full: 'me', short: "m'", verb: 'appelle' },
-    { full: 'me', short: "m'", verb: 'amuse' },
-    { full: 'me', short: 'me', verb: 'parle' },
-    { full: 'te', short: "t'", verb: 'aime' },
-    { full: 'te', short: "t'", verb: 'invite' },
-    { full: 'te', short: 'te', verb: 'donne' },
-    { full: 'se', short: "s'", verb: 'amuse' },
-    { full: 'se', short: "s'", verb: 'arrête' },
-    { full: 'se', short: 'se', verb: 'lave' },
-    { full: 'ne', short: "n'", verb: 'aime' },
-    { full: 'ne', short: "n'", verb: 'écoute' },
-    { full: 'ne', short: 'ne', verb: 'parle' },
-    { full: 'que', short: "qu'", verb: 'il' },
-    { full: 'que', short: "qu'", verb: 'elle' },
-    { full: 'que', short: 'que', verb: 'tu' },
-  ];
-  const p = pronouns[Math.floor(Math.random() * pronouns.length)];
-  const useApos = startsWithVowelOrSilentH(p.verb);
-  const correct = useApos ? p.short : p.full;
-  const wrong = useApos ? p.full : p.short;
+function ex2() {
+  const q = ex2Words[Math.floor(Math.random() * ex2Words.length)];
+  return {
+    category: 'apostrophe',
+    type: 'le_la',
+    text: `Choisis: ___ ${q.word}`,
+    correct: q.correct,
+    options: shuffle(["la", "l'"]),
+    explanation: q.why,
+  };
+}
 
+function ex3() {
+  const q = ex3Transformations[Math.floor(Math.random() * ex3Transformations.length)];
+  return {
+    category: 'apostrophe',
+    type: 'transform',
+    text: `Transforme avec une apostrophe: "${q.from}"`,
+    correct: q.correct,
+    options: shuffle([q.correct, ...q.wrongs.slice(0, 3)]),
+    explanation: `${q.from} → ${q.correct} (l'apostrophe remplace la voyelle)`,
+  };
+}
+
+function ex4() {
+  const q = ex4Sentences[Math.floor(Math.random() * ex4Sentences.length)];
+  // Pick what to ask
+  const baseHint = q.baseWords.join(', ');
+  const wrong1 = q.short.replace(/'/g, ' ');
+  const wrong2 = q.short.replace(/'/g, '');
+  return {
+    category: 'apostrophe',
+    type: 'elision',
+    text: `Complète avec l'élision: ${q.sentence} (${baseHint})`,
+    correct: q.short,
+    options: shuffle([q.short, wrong1, wrong2, q.short.replace("L'", "Le ").replace("l'", "le ")]).slice(0, 4),
+    explanation: q.correct,
+  };
+}
+
+function ex5() {
+  const q = ex5Errors[Math.floor(Math.random() * ex5Errors.length)];
+  return {
+    category: 'apostrophe',
+    type: 'find_error',
+    text: `Trouve la bonne phrase. Erreur: "${q.wrong}"`,
+    correct: q.correct,
+    options: shuffle([q.correct, q.wrong, q.wrong.replace(' ', ''), q.correct.replace("'", ' ')]).slice(0, 4),
+    explanation: `Erreur: ${q.error}. La phrase correcte: ${q.correct}`,
+  };
+}
+
+function pronoun() {
+  const q = pronounSentences[Math.floor(Math.random() * pronounSentences.length)];
   return {
     category: 'apostrophe',
     type: 'pronoun',
-    text: `Choisis: "___ ${p.verb}"`,
-    correct,
-    options: shuffle([correct, wrong, p.full, p.short].filter((v, i, a) => a.indexOf(v) === i).slice(0, 4)),
-    explanation: useApos
-      ? `"${p.verb}" commence par une voyelle → on met l'apostrophe: ${correct} ${p.verb}`
-      : `"${p.verb}" commence par une consonne → pas d'apostrophe: ${correct} ${p.verb}`,
-  };
-}
-
-function generateSentenceQuestion() {
-  // Pick a missing word in a sentence
-  const sentences = [
-    { sentence: '___ avion vole haut', correct: "L'", options: ['Le', "L'", 'La'] },
-    { sentence: '___ pomme est rouge', correct: 'La', options: ['Le', 'La', "L'"] },
-    { sentence: '___ enfant joue', correct: "L'", options: ['Le', 'La', "L'"] },
-    { sentence: '___ chien aboie', correct: 'Le', options: ['Le', "L'", 'La'] },
-    { sentence: 'Je ___ aime beaucoup', correct: "t'", options: ['te', "t'", "j'"] },
-    { sentence: 'Tu ___ amuses bien', correct: "t'", options: ['te', "t'", 'tu'] },
-    { sentence: 'Elle ___ écoute attentivement', correct: "n'", options: ['ne', "n'", 'pas'] },
-    { sentence: 'Je ___ mange une pomme', correct: 'me', options: ['me', "m'", "j'"] },
-    { sentence: '___ école est fermée', correct: "L'", options: ['Le', 'La', "L'"] },
-    { sentence: '___ heure du dîner', correct: "L'", options: ['Le', 'La', "L'"] },
-  ];
-  const q = sentences[Math.floor(Math.random() * sentences.length)];
-  return {
-    category: 'apostrophe',
-    type: 'sentence',
-    text: `Complète: "${q.sentence}"`,
+    text: q.sentence,
     correct: q.correct,
-    options: shuffle(q.options),
-    explanation: `La bonne réponse est: ${q.sentence.replace('___', q.correct)}`,
+    options: shuffle([q.correct, q.wrong, q.correct.replace("'", ''), q.wrong + "'"]).slice(0, 4),
+    explanation: `La bonne réponse est: ${q.correct}`,
   };
 }
 
 export function generateApostrophe() {
   const r = Math.random();
-  if (r < 0.45) return generateLeLaQuestion();
-  if (r < 0.80) return generatePronounQuestion();
-  return generateSentenceQuestion();
+  if (r < 0.20) return ex1();
+  if (r < 0.40) return ex2();
+  if (r < 0.60) return ex3();
+  if (r < 0.75) return ex4();
+  if (r < 0.90) return ex5();
+  return pronoun();
 }
