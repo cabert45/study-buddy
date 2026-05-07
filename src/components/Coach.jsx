@@ -152,14 +152,23 @@ function buildPlan(dashboardData) {
     plan.push({ type: 'break', label: 'Pause', mins: 10, icon: '☕' });
     plan.push({ type: 'app', mode: 'mixed', label: 'Math', mins: 15, icon: '🔢' });
   } else if (day === 4) {
-    // THURSDAY — heavy passé composé prep + English
-    plan.push({ type: 'app', mode: 'passe_compose', label: 'Passé composé INTENSIF', mins: 20, icon: '📝' });
-    plan.push({ type: 'break', label: 'Pause', mins: 10, icon: '☕' });
-    plan.push({ type: 'app', mode: 'passe_compose', label: 'Encore passé composé', mins: 15, icon: '📝' });
+    // THURSDAY — DERNIÈRE PRÉP pour les 5 tests de vendredi (May 8)
+    // Tests: 1) +/-9/10 mental, 2) accord après être, 3) apostrophe,
+    //        4) m devant b/m/p, 5) addition 3 chiffres sans échange
+    plan.push({ type: 'message', label: 'Demain = 5 tests! On se prépare ce soir 💪', mins: 1, icon: '🎯' });
+    plan.push({ type: 'app', mode: 'accord_etre', label: 'Test 1: Accord après ÊTRE', mins: 10, icon: '📝' });
+    plan.push({ type: 'app', mode: 'apostrophe', label: "Test 2: L'apostrophe", mins: 10, icon: '✏️' });
+    plan.push({ type: 'app', mode: 'm_devant_bmp', label: 'Test 3: M devant B,M,P', mins: 10, icon: '🔤' });
+    plan.push({ type: 'break', label: 'Pause rapide', mins: 5, icon: '☕' });
+    plan.push({ type: 'app', mode: 'mental', label: 'Test 4: Calcul rapide +/-9 +/-10', mins: 10, icon: '⚡' });
+    plan.push({ type: 'app', mode: 'calcul', label: 'Test 5: Additions 3 chiffres', mins: 10, icon: '🔢' });
+    plan.push({ type: 'message', label: 'Tu es prêt! Dors bien! 😴', mins: 1, icon: '🌙' });
   } else if (day === 5) {
-    // FRIDAY — test day! Quick warm-up
-    plan.push({ type: 'message', label: '🎯 TEST AUJOURD\'HUI: Passé composé!', mins: 1, icon: '🎯' });
-    plan.push({ type: 'app', mode: 'passe_compose', label: 'Échauffement (5 min)', mins: 5, icon: '📝' });
+    // FRIDAY — test day! Light warmup on each
+    plan.push({ type: 'message', label: '🎯 5 TESTS AUJOURD\'HUI! Bonne chance!', mins: 1, icon: '🍀' });
+    plan.push({ type: 'app', mode: 'mental', label: 'Échauffement: calcul rapide', mins: 5, icon: '⚡' });
+    plan.push({ type: 'app', mode: 'accord_etre', label: 'Échauffement: accord être', mins: 5, icon: '📝' });
+    plan.push({ type: 'app', mode: 'apostrophe', label: 'Échauffement: apostrophe', mins: 5, icon: '✏️' });
   }
 
   return plan;
