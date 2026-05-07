@@ -15,13 +15,17 @@ const correctWords = [
   // Devant B
   'campagne', 'compote', 'concombre', 'compost', 'tombe', 'tombée', 'rambardes', 'jambon', 'embarquer', 'jambe',
   'ambulance', 'membre', 'décembre', 'novembre', 'septembre', 'chambre', 'sombre', 'humble', 'ensemble',
+  'embarras', 'tambour', 'bombe', 'colombe', 'bambou', 'symbole', 'plombier', 'rembourser',
   // Devant M
   'pomme', 'gamme', 'femme', 'flamme', 'comme', 'commenter', 'gomme', 'somme', 'homme', 'emmener',
   'immense', 'immobile', 'communiquer', 'commander', 'recommencer',
+  'emmêler', 'emménager', 'sommet', 'commun', 'sommeil', 'pommier', 'communauté',
   // Devant P
   'temps', 'printemps', 'tempête', 'champion', 'champ', 'compter', 'compagnon', 'sympa', 'sympathique',
   'lampe', 'pompier', 'simple', 'campement', 'emporter', 'empire', 'emploi', 'important', 'imposer',
   'tomber', 'trompette', 'trombone',
+  'pompe', 'rampe', 'crampe', 'tampon', 'champignon', 'compagnie', 'comparer', 'complet',
+  'employer', 'empêcher', 'temple', 'simple', 'exemple', 'symbole', 'compote',
   // Exceptions (still need m before voyelle but not before b/m/p)
   'cinéma', 'antenne',
 ];

@@ -215,6 +215,162 @@ const templates = [
       correct: dizaines,
     };
   },
+  // === NEW TEMPLATES (May 7 2026 — teacher said Ryan failing math because of these) ===
+
+  // Garage cars problem
+  () => {
+    const total = rand(40, 90);
+    const sortis = rand(10, total - 10);
+    const correct = total - sortis;
+    return {
+      text: `Il y avait ${total} voitures dans le stationnement. ${sortis} sont sorties. Combien reste-t-il de voitures?`,
+      steps: [{ label: 'Étape 1', text: `${total} − ${sortis} = ${correct}` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'soustraction',
+      correct,
+    };
+  },
+  // Bibliothèque (library) problem
+  () => {
+    const livresOriginal = rand(30, 70);
+    const empruntes = rand(10, 25);
+    const rendus = rand(5, 20);
+    const correct = livresOriginal - empruntes + rendus;
+    if (correct < 0 || correct > 99) return null;
+    return {
+      text: `La bibliothèque a ${livresOriginal} livres. Les enfants empruntent ${empruntes} livres. Plus tard, ${rendus} livres sont rendus. Combien y a-t-il de livres maintenant?`,
+      steps: [
+        { label: 'Étape 1', text: `${livresOriginal} − ${empruntes} = ${livresOriginal - empruntes}` },
+        { label: 'Étape 2', text: `${livresOriginal - empruntes} + ${rendus} = ${correct}` },
+      ],
+      operationQuestion: 'Quelle est la première opération?',
+      correctOperation: 'soustraction',
+      correct,
+    };
+  },
+  // Pommes (apples) collection
+  () => {
+    const a = rand(15, 40);
+    const b = rand(15, 40);
+    const total = a + b;
+    if (total > 99) return null;
+    return {
+      text: `Maman a cueilli ${a} pommes rouges et ${b} pommes vertes. Combien de pommes a-t-elle cueilli en tout?`,
+      steps: [{ label: 'Calcul', text: `${a} + ${b} = ${total}` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'addition',
+      correct: total,
+    };
+  },
+  // Birthday cake — multi-step
+  () => {
+    const invites = rand(15, 30);
+    const cousinsExtra = rand(3, 8);
+    const total = invites + cousinsExtra;
+    if (total > 99) return null;
+    return {
+      text: `Ryan invite ${invites} amis à sa fête. Il invite aussi ${cousinsExtra} cousins. Combien de personnes seront à la fête en tout (avec Ryan)?`,
+      steps: [
+        { label: 'Étape 1', text: `${invites} + ${cousinsExtra} = ${total} invités` },
+        { label: 'Étape 2', text: `${total} + 1 (Ryan) = ${total + 1}` },
+      ],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'addition',
+      correct: total + 1,
+    };
+  },
+  // Bonbons + partage (sharing)
+  () => {
+    const bonbons = rand(20, 60);
+    const enfants = rand(2, 5);
+    const each = Math.floor(bonbons / enfants);
+    return {
+      text: `Maman a ${bonbons} bonbons. Elle veut les partager également entre ${enfants} enfants. Combien chaque enfant reçoit-il?`,
+      steps: [{ label: 'Calcul', text: `${bonbons} ÷ ${enfants} = ${each}` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'division',
+      correct: each,
+    };
+  },
+  // Argent / money
+  () => {
+    const argent = rand(50, 99);
+    const cout = rand(15, argent - 5);
+    const correct = argent - cout;
+    return {
+      text: `Olivia a ${argent}$ dans sa tirelire. Elle achète un jouet à ${cout}$. Combien d'argent lui reste-t-il?`,
+      steps: [{ label: 'Calcul', text: `${argent} − ${cout} = ${correct}` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'soustraction',
+      correct,
+    };
+  },
+  // Voyage / distance
+  () => {
+    const km1 = rand(15, 35);
+    const km2 = rand(15, 35);
+    const km3 = rand(10, 30);
+    const total = km1 + km2 + km3;
+    if (total > 99) return null;
+    return {
+      text: `Papa conduit ${km1} km, puis ${km2} km, puis encore ${km3} km. Combien de kilomètres a-t-il fait en tout?`,
+      steps: [{ label: 'Calcul', text: `${km1} + ${km2} + ${km3} = ${total}` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'addition',
+      correct: total,
+    };
+  },
+  // Animaux à la ferme
+  () => {
+    const poules = rand(15, 30);
+    const lapins = rand(10, 25);
+    const vaches = rand(5, 15);
+    const correct = poules + lapins + vaches;
+    if (correct > 99) return null;
+    return {
+      text: `À la ferme, il y a ${poules} poules, ${lapins} lapins et ${vaches} vaches. Combien d'animaux y a-t-il en tout?`,
+      steps: [{ label: 'Calcul', text: `${poules} + ${lapins} + ${vaches} = ${correct}` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'addition',
+      correct,
+    };
+  },
+  // Bouteilles eau
+  () => {
+    const totalBouteilles = rand(40, 90);
+    const bues = rand(10, 30);
+    const enPlus = rand(5, 15);
+    const correct = totalBouteilles - bues + enPlus;
+    if (correct > 99) return null;
+    return {
+      text: `Le club de soccer a ${totalBouteilles} bouteilles d'eau. Les joueurs en boivent ${bues}. L'entraîneur en achète ${enPlus} de plus. Combien de bouteilles y a-t-il maintenant?`,
+      steps: [
+        { label: 'Étape 1', text: `${totalBouteilles} − ${bues} = ${totalBouteilles - bues}` },
+        { label: 'Étape 2', text: `${totalBouteilles - bues} + ${enPlus} = ${correct}` },
+      ],
+      operationQuestion: 'Que faut-il faire en premier?',
+      correctOperation: 'soustraction',
+      correct,
+    };
+  },
+  // Pièces de monnaie
+  () => {
+    const pieces1 = rand(10, 30);
+    const pieces2 = rand(10, 30);
+    const perdu = rand(3, 10);
+    const correct = pieces1 + pieces2 - perdu;
+    if (correct < 0 || correct > 99) return null;
+    return {
+      text: `Léa a ${pieces1} pièces de monnaie. Sa grand-mère lui en donne ${pieces2}. Mais elle en perd ${perdu} au parc. Combien lui reste-t-il?`,
+      steps: [
+        { label: 'Étape 1', text: `${pieces1} + ${pieces2} = ${pieces1 + pieces2}` },
+        { label: 'Étape 2', text: `${pieces1 + pieces2} − ${perdu} = ${correct}` },
+      ],
+      operationQuestion: 'Quelle opération en premier?',
+      correctOperation: 'addition',
+      correct,
+    };
+  },
   // Compare two people — is X right? (Zack et Quentin pattern)
   () => {
     const n1 = pickName();

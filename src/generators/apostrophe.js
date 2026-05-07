@@ -26,6 +26,19 @@ const ex1Words = [
   { word: 'soleil', correct: 'le', why: "soleil commence par 's' (consonne) → le soleil" },
   { word: 'avion', correct: "l'", why: "avion commence par 'a' (voyelle) → l'avion" },
   { word: 'jardin', correct: 'le', why: "jardin commence par 'j' (consonne) → le jardin" },
+  // NEW
+  { word: 'éclair', correct: "l'", why: "éclair commence par 'é' (voyelle) → l'éclair" },
+  { word: 'tigre', correct: 'le', why: "tigre commence par 't' (consonne) → le tigre" },
+  { word: 'ours', correct: "l'", why: "ours commence par 'o' (voyelle) → l'ours" },
+  { word: 'pingouin', correct: 'le', why: "pingouin commence par 'p' (consonne) → le pingouin" },
+  { word: 'autobus', correct: "l'", why: "autobus commence par 'a' (voyelle) → l'autobus" },
+  { word: 'singe', correct: 'le', why: "singe commence par 's' (consonne) → le singe" },
+  { word: 'hôtel', correct: "l'", why: "hôtel commence par 'h' muet → l'hôtel" },
+  { word: 'monstre', correct: 'le', why: "monstre commence par 'm' (consonne) → le monstre" },
+  { word: 'écureuil', correct: "l'", why: "écureuil commence par 'é' (voyelle) → l'écureuil" },
+  { word: 'requin', correct: 'le', why: "requin commence par 'r' (consonne) → le requin" },
+  { word: 'œuf', correct: "l'", why: "œuf commence par 'œ' (voyelle) → l'œuf" },
+  { word: 'magicien', correct: 'le', why: "magicien commence par 'm' (consonne) → le magicien" },
 ];
 
 // === EXERCICE 2: Choisis entre « la » ou « l' » ===
@@ -42,6 +55,19 @@ const ex2Words = [
   { word: 'fleur', correct: 'la', why: "fleur commence par 'f' (consonne) → la fleur" },
   { word: 'image', correct: "l'", why: "image commence par 'i' (voyelle) → l'image" },
   { word: 'voiture', correct: 'la', why: "voiture commence par 'v' (consonne) → la voiture" },
+  // NEW
+  { word: 'araignée', correct: "l'", why: "araignée commence par 'a' (voyelle) → l'araignée" },
+  { word: 'lampe', correct: 'la', why: "lampe commence par 'l' (consonne) → la lampe" },
+  { word: 'éponge', correct: "l'", why: "éponge commence par 'é' (voyelle) → l'éponge" },
+  { word: 'banane', correct: 'la', why: "banane commence par 'b' (consonne) → la banane" },
+  { word: 'oreille', correct: "l'", why: "oreille commence par 'o' (voyelle) → l'oreille" },
+  { word: 'chambre', correct: 'la', why: "chambre commence par 'c' (consonne) → la chambre" },
+  { word: 'eau', correct: "l'", why: "eau commence par 'e' (voyelle) → l'eau" },
+  { word: 'porte', correct: 'la', why: "porte commence par 'p' (consonne) → la porte" },
+  { word: 'enveloppe', correct: "l'", why: "enveloppe commence par 'e' (voyelle) → l'enveloppe" },
+  { word: 'reine', correct: 'la', why: "reine commence par 'r' (consonne) → la reine" },
+  { word: 'odeur', correct: "l'", why: "odeur commence par 'o' (voyelle) → l'odeur" },
+  { word: 'sœur', correct: 'la', why: "sœur commence par 's' (consonne) → la sœur" },
 ];
 
 // === EXERCICE 3: Transforme avec une apostrophe ===

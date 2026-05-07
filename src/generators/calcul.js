@@ -92,9 +92,45 @@ function generateSubtraction(forceBorrow) {
   };
 }
 
+// 3-digit addition WITHOUT exchange (Friday May 8 test)
+function generate3DigitNoExchange() {
+  // Pick units, tens, hundreds for both numbers such that no column exceeds 9
+  let a, b;
+  do {
+    const u1 = rand(0, 4), u2 = rand(0, 4);
+    const t1 = rand(0, 4), t2 = rand(0, 4);
+    const h1 = rand(1, 4), h2 = rand(1, 4);
+    a = h1 * 100 + t1 * 10 + u1;
+    b = h2 * 100 + t2 * 10 + u2;
+  } while (a + b > 999);
+  const correct = a + b;
+
+  const options = new Set([correct]);
+  options.add(correct - 100);
+  options.add(correct + 10);
+  options.add(correct - 10);
+  while (options.size < 4) {
+    const fake = correct + rand(-9, 9);
+    if (fake !== correct && fake > 0) options.add(fake);
+  }
+
+  return {
+    category: 'calcul',
+    type: 'addition_3digit',
+    text: `${a} + ${b} = ?`,
+    a,
+    b,
+    correct,
+    options: shuffle([...options].slice(0, 4)),
+  };
+}
+
 export function generateCalcul() {
-  // 85% forced carry/borrow — Ryan scored 1/8 on this
-  // Teacher wrote "À pratiquer" — he needs heavy drill on exchanges
+  // 30% chance: 3-digit addition without exchange (Friday May 8 test prep)
+  if (Math.random() < 0.3) {
+    return generate3DigitNoExchange();
+  }
+  // Otherwise: 85% forced carry/borrow with 2-digit (Ryan's #1 weakness)
   const forceHard = Math.random() < 0.85;
   if (Math.random() < 0.5) {
     return generateAddition(forceHard);

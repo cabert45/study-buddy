@@ -12,13 +12,25 @@ function shuffle(arr) {
   return a;
 }
 
-// === EXERCICE 1: Choisis le bon adjectif (from the actual worksheet) ===
+// === EXERCICE 1: Choisis le bon adjectif (from the actual worksheet + new) ===
 const choixAdjectif = [
+  // From original worksheet
   { phrase: 'Le petit chat est ___', options: ['mignon', 'mignonne'], correct: 'mignon', why: 'chat = masculin singulier → mignon' },
   { phrase: 'Ma maman est ___', options: ['content', 'contente'], correct: 'contente', why: 'maman = féminin singulier → contente' },
   { phrase: 'Les pommes sont ___', options: ['rouge', 'rouges'], correct: 'rouges', why: 'pommes = féminin pluriel → rouges' },
   { phrase: 'Les élèves sont ___', options: ['calme', 'calmes'], correct: 'calmes', why: 'élèves = pluriel → calmes' },
   { phrase: 'La soupe est ___', options: ['chaud', 'chaude'], correct: 'chaude', why: 'soupe = féminin singulier → chaude' },
+  // NEW variations
+  { phrase: 'Le ciel est ___', options: ['bleu', 'bleue'], correct: 'bleu', why: 'ciel = masculin singulier → bleu' },
+  { phrase: 'La voiture est ___', options: ['rapide', 'rapides'], correct: 'rapide', why: 'voiture = féminin singulier → rapide (pas de s)' },
+  { phrase: 'Les fleurs sont ___', options: ['belle', 'belles'], correct: 'belles', why: 'fleurs = féminin pluriel → belles' },
+  { phrase: 'Le clown est ___', options: ['drôle', 'drôles'], correct: 'drôle', why: 'clown = masculin singulier → drôle' },
+  { phrase: 'Les enfants sont ___', options: ['sage', 'sages'], correct: 'sages', why: 'enfants = pluriel → sages' },
+  { phrase: "L'oiseau est ___", options: ['petit', 'petite'], correct: 'petit', why: 'oiseau = masculin singulier → petit' },
+  { phrase: 'La table est ___', options: ['rond', 'ronde'], correct: 'ronde', why: 'table = féminin singulier → ronde' },
+  { phrase: 'Mes amis sont ___', options: ['gentil', 'gentils'], correct: 'gentils', why: 'amis = masculin pluriel → gentils' },
+  { phrase: 'Les boutons sont ___', options: ['noir', 'noirs'], correct: 'noirs', why: 'boutons = masculin pluriel → noirs' },
+  { phrase: 'La lune est ___', options: ['brillant', 'brillante'], correct: 'brillante', why: 'lune = féminin singulier → brillante' },
 ];
 
 // === EXERCICE 2: Accorde l'adjectif entre parenthèses ===
