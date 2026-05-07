@@ -89,12 +89,17 @@ function generateFillBlankQuestion() {
 function generateRuleQuestion() {
   const questions = [
     { sentence: 'On met M (au lieu de N) devant quelles lettres?', spoken: 'On met M au lieu de N devant quelles lettres?', correct: 'B, M, P', wrongs: ['A, E, I', 'T, D, S', 'B, T, P'] },
-    { sentence: 'Choisis la bonne orthographe pour "jambe"', spoken: 'Quelle est la bonne orthographe du mot jambe?', correct: 'jambe', wrongs: ['janbe', 'jamb', 'janb'] },
-    { sentence: 'Choisis la bonne orthographe pour "tempête"', spoken: 'Quelle est la bonne orthographe du mot tempête?', correct: 'tempête', wrongs: ['tenpête', 'tempete', 'tampête'] },
-    { sentence: 'Choisis la bonne orthographe pour "impossible"', spoken: 'Quelle est la bonne orthographe du mot impossible?', correct: 'impossible', wrongs: ['inpossible', 'imposible', 'impasible'] },
-    { sentence: 'Choisis la bonne orthographe pour "nombre"', spoken: 'Quelle est la bonne orthographe du mot nombre?', correct: 'nombre', wrongs: ['nonbre', 'nomber', 'nombr'] },
-    { sentence: 'Choisis la bonne orthographe pour "campagne"', spoken: 'Quelle est la bonne orthographe du mot campagne?', correct: 'campagne', wrongs: ['canpagne', 'campagn', 'compagne'] },
-    { sentence: 'Choisis la bonne orthographe pour "compter"', spoken: 'Quelle est la bonne orthographe du mot compter?', correct: 'compter', wrongs: ['conpter', 'compter', 'campter'].filter((v, i, a) => a.indexOf(v) === i) },
+    // Sentence-context questions (DO NOT reveal the word)
+    { sentence: 'On porte la blessure sur la ___ (partie du corps).', spoken: 'On porte la blessure sur la partie du corps qui plie au milieu.', correct: 'jambe', wrongs: ['janbe', 'jamb', 'janb'] },
+    { sentence: 'Une grosse ___ de neige arrive en hiver.', spoken: 'Une grosse de neige arrive en hiver.', correct: 'tempête', wrongs: ['tenpête', 'tempete', 'tampête'] },
+    { sentence: "C'est ___ de soulever cette voiture toute seule.", spoken: "C'est de soulever cette voiture toute seule.", correct: 'impossible', wrongs: ['inpossible', 'imposible', 'impasible'] },
+    { sentence: 'Quel ___ de fenêtres y a-t-il dans ta maison?', spoken: 'Quel de fenêtres y a-t-il dans ta maison?', correct: 'nombre', wrongs: ['nonbre', 'nomber', 'nombr'] },
+    { sentence: 'Mes grands-parents vivent à la ___ , loin de la ville.', spoken: 'Mes grands-parents vivent à la, loin de la ville.', correct: 'campagne', wrongs: ['canpagne', 'campagn', 'compagne'] },
+    { sentence: 'Je sais ___ jusqu\'à 100 sans erreur.', spoken: "Je sais jusqu'à cent sans erreur.", correct: 'compter', wrongs: ['conpter', 'compter', 'campter'].filter((v, i, a) => a.indexOf(v) === i) },
+    { sentence: 'Quand j\'ai mal au ventre, je vais à l\'hôpital en ___ .', spoken: "Quand j'ai mal au ventre, je vais à l'hôpital en.", correct: 'ambulance', wrongs: ['anbulance', 'ammbulance', 'embulance'] },
+    { sentence: "Au ___ , la nature revient à la vie.", spoken: 'Au, la nature revient à la vie.', correct: 'printemps', wrongs: ['prin temps', 'printans', 'printanps'] },
+    { sentence: "Le ___ va éteindre le feu.", spoken: "Le va éteindre le feu.", correct: 'pompier', wrongs: ['ponpier', 'pompiere', 'pampier'] },
+    { sentence: "J'écris au ___ rouge sur le tableau.", spoken: "J'écris au rouge sur le tableau.", correct: 'tampon', wrongs: ['tanpon', 'tampom', 'tempon'] },
   ];
   const q = questions[Math.floor(Math.random() * questions.length)];
   const wrongs = q.wrongs.filter(w => w !== q.correct).slice(0, 3);
