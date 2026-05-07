@@ -12,6 +12,29 @@ function shuffle(arr) {
   return a;
 }
 
+// Track recently used questions to avoid repeats in same session
+const recentlyUsed = new Set();
+const MAX_RECENT = 30;
+
+function keyOf(item) {
+  return item.phrase || item.original || item.gn || item.correct || JSON.stringify(item);
+}
+
+function pickFresh(arr) {
+  let available = arr.filter(item => !recentlyUsed.has(keyOf(item)));
+  if (available.length === 0) {
+    recentlyUsed.clear();
+    available = arr;
+  }
+  const picked = available[Math.floor(Math.random() * available.length)];
+  recentlyUsed.add(keyOf(picked));
+  if (recentlyUsed.size > MAX_RECENT) {
+    const first = recentlyUsed.values().next().value;
+    recentlyUsed.delete(first);
+  }
+  return picked;
+}
+
 // === EXERCICE 1: Choisis le bon adjectif (from the actual worksheet + new) ===
 const choixAdjectif = [
   // From original worksheet
@@ -75,7 +98,7 @@ const choixJoliGentil = [
 ];
 
 function ex1() {
-  const q = choixAdjectif[Math.floor(Math.random() * choixAdjectif.length)];
+  const q = pickFresh(choixAdjectif);
   return {
     category: 'accord_etre',
     type: 'choix',
@@ -88,7 +111,7 @@ function ex1() {
 }
 
 function ex2() {
-  const q = accordeParenthese[Math.floor(Math.random() * accordeParenthese.length)];
+  const q = pickFresh(accordeParenthese);
   return {
     category: 'accord_etre',
     type: 'accorde',
@@ -101,7 +124,7 @@ function ex2() {
 }
 
 function ex3() {
-  const q = reecrirePhrase[Math.floor(Math.random() * reecrirePhrase.length)];
+  const q = pickFresh(reecrirePhrase);
   return {
     category: 'accord_etre',
     type: 'reecrit',
@@ -114,7 +137,7 @@ function ex3() {
 }
 
 function ex4() {
-  const q = transformeGN[Math.floor(Math.random() * transformeGN.length)];
+  const q = pickFresh(transformeGN);
   return {
     category: 'accord_etre',
     type: 'transforme',
@@ -127,7 +150,7 @@ function ex4() {
 }
 
 function ex5() {
-  const q = choixJoliGentil[Math.floor(Math.random() * choixJoliGentil.length)];
+  const q = pickFresh(choixJoliGentil);
   return {
     category: 'accord_etre',
     type: 'joli_gentil',

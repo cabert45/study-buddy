@@ -12,6 +12,20 @@ function shuffle(arr) {
   return a;
 }
 
+const recentlyUsed = new Set();
+const MAX_RECENT = 30;
+function keyOf(item) {
+  return item.word || item.from || item.sentence || item.wrong || item.verb || JSON.stringify(item);
+}
+function pickFresh(arr) {
+  let avail = arr.filter(it => !recentlyUsed.has(keyOf(it)));
+  if (avail.length === 0) { recentlyUsed.clear(); avail = arr; }
+  const picked = avail[Math.floor(Math.random() * avail.length)];
+  recentlyUsed.add(keyOf(picked));
+  if (recentlyUsed.size > MAX_RECENT) recentlyUsed.delete(recentlyUsed.values().next().value);
+  return picked;
+}
+
 // === EXERCICE 1: Choisis entre « le » ou « l' » ===
 const ex1Words = [
   { word: 'abricot', correct: "l'", why: "abricot commence par 'a' (voyelle) → l'abricot" },
@@ -115,7 +129,7 @@ const pronounSentences = [
 ];
 
 function ex1() {
-  const q = ex1Words[Math.floor(Math.random() * ex1Words.length)];
+  const q = pickFresh(ex1Words);
   return {
     category: 'apostrophe',
     type: 'le_la',
@@ -127,7 +141,7 @@ function ex1() {
 }
 
 function ex2() {
-  const q = ex2Words[Math.floor(Math.random() * ex2Words.length)];
+  const q = pickFresh(ex2Words);
   return {
     category: 'apostrophe',
     type: 'le_la',
@@ -139,7 +153,7 @@ function ex2() {
 }
 
 function ex3() {
-  const q = ex3Transformations[Math.floor(Math.random() * ex3Transformations.length)];
+  const q = pickFresh(ex3Transformations);
   return {
     category: 'apostrophe',
     type: 'transform',
@@ -151,7 +165,7 @@ function ex3() {
 }
 
 function ex4() {
-  const q = ex4Sentences[Math.floor(Math.random() * ex4Sentences.length)];
+  const q = pickFresh(ex4Sentences);
   // Pick what to ask
   const baseHint = q.baseWords.join(', ');
   const wrong1 = q.short.replace(/'/g, ' ');
@@ -167,7 +181,7 @@ function ex4() {
 }
 
 function ex5() {
-  const q = ex5Errors[Math.floor(Math.random() * ex5Errors.length)];
+  const q = pickFresh(ex5Errors);
   return {
     category: 'apostrophe',
     type: 'find_error',
@@ -179,7 +193,7 @@ function ex5() {
 }
 
 function pronoun() {
-  const q = pronounSentences[Math.floor(Math.random() * pronounSentences.length)];
+  const q = pickFresh(pronounSentences);
   return {
     category: 'apostrophe',
     type: 'pronoun',
