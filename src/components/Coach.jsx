@@ -103,10 +103,11 @@ function buildPlan(dashboardData) {
       // Post-soccer (evening) — study + finish chores
       plan.push({ type: 'chore', label: 'Reste des tâches (chambre + salon)', mins: 25, icon: '🧹' });
       plan.push({ type: 'break', label: 'Pause + collation', mins: 10, icon: '🍎' });
-      plan.push({ type: 'app', mode: 'dictee_s3', label: 'Dictée mardi (son o)', mins: 15, icon: '🎧' });
+      plan.push({ type: 'app', mode: 'statistique', label: 'Diagrammes (test raté vendredi)', mins: 12, icon: '📊' });
       plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-      plan.push({ type: 'app', mode: 'passe_compose', label: 'Passé composé (test vendredi)', mins: 15, icon: '📝' });
-      plan.push({ type: 'app', mode: weakFrenchMode, label: `Point faible: ${weakFrenchMode}`, mins: 10, icon: '🎯' });
+      plan.push({ type: 'app', mode: 'dictee_s3', label: 'Dictée mardi (son o)', mins: 12, icon: '🎧' });
+      plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+      plan.push({ type: 'app', mode: 'passe_compose', label: 'Passé composé', mins: 12, icon: '📝' });
       plan.push({ type: 'message', label: 'Bravo! Tu as fait beaucoup aujourd\'hui!', mins: 1, icon: '🌙' });
     } else if (minutesUntilSoccer > 90) {
       // Lots of time pre-soccer — pack it
@@ -133,9 +134,9 @@ function buildPlan(dashboardData) {
     }
   } else if (day === 0) {
     // SUNDAY — LIGHT day (Saturday was heavy)
-    plan.push({ type: 'app', mode: 'dictee_s3', label: 'Dictée mardi — révision (son o)', mins: 15, icon: '🎧' });
+    plan.push({ type: 'app', mode: 'statistique', label: 'Diagrammes (test raté — on retravaille)', mins: 15, icon: '📊' });
     plan.push({ type: 'break', label: 'Pause', mins: 10, icon: '☕' });
-    plan.push({ type: 'app', mode: 'passe_compose', label: 'Passé composé (test vendredi)', mins: 15, icon: '📝' });
+    plan.push({ type: 'app', mode: 'dictee_s3', label: 'Dictée mardi — révision (son o)', mins: 15, icon: '🎧' });
     plan.push({ type: 'message', label: 'C\'est tout pour aujourd\'hui! Profite de ta journée!', mins: 1, icon: '🌳' });
   } else if (day === 1) {
     // MONDAY — last prep for Tuesday dictée

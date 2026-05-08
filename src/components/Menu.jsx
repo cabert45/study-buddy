@@ -32,11 +32,11 @@ const ryanMathModes = [
   { id: 'calcul', label: 'Calcul', desc: 'Addition et soustraction', badge: 'Priorité' },
   { id: 'terme', label: 'Terme manquant', desc: 'Trouve le nombre mystère', badge: 'Priorité' },
   { id: 'multi_step', label: 'Problèmes', desc: 'Problèmes à étapes', badge: 'À travailler' },
+  { id: 'statistique', label: 'Diagrammes', desc: 'Légendes, fin de semaine, totaux', badge: 'Nouveau' },
   { id: 'relational', label: 'De plus / moins', desc: 'Comparaisons' },
   { id: 'compare', label: 'Compare', desc: '>, < ou =' },
   { id: 'pair_impair', label: 'Pair / Impair', desc: 'Nombres pairs et impairs' },
   { id: 'mental', label: 'Mental', desc: 'Calcul rapide' },
-  { id: 'statistique', label: 'Statistique', desc: 'Diagrammes et tableaux' },
 ];
 
 const ryanFrenchModes = [
@@ -199,22 +199,6 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
           <FoxMascot />
         </div>
       </div>
-
-      {/* Presentation orale — TOP PRIORITY this week */}
-      {onStartPresentation && profile === 'ryan' && (
-        <button onClick={onStartPresentation}
-          className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
-          style={{ background: 'linear-gradient(135deg, #b85d1a, #e2762b 50%, #fdcb6e)', boxShadow: '0 6px 24px rgba(184,93,26,0.25)' }}>
-          <div className="w-14 h-14 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white">
-            <Mic2 size={26} />
-          </div>
-          <div className="text-left flex-1">
-            <div className="font-heading text-xl font-extrabold text-white leading-tight">Présentation: La fourmi</div>
-            <div className="text-xs font-semibold text-white/85">Mercredi 6 mai — pratique avec moi!</div>
-          </div>
-          <ChevronRight className="text-white/60" size={24} strokeWidth={3} />
-        </button>
-      )}
 
       {/* Cayla's Journal — featured pink card */}
       {isCayla && onStartJournal && (
@@ -382,7 +366,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
       {/* AI Tutor */}
       {isRyan && (
         <button onClick={onStartTutor}
-          className="w-full flex items-center gap-4 bg-white border-2 border-s1 rounded-2xl p-4 mb-6 transition-all hover:border-info hover:shadow-md">
+          className="w-full flex items-center gap-4 bg-white border-2 border-s1 rounded-2xl p-4 mb-3 transition-all hover:border-info hover:shadow-md">
           <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm text-white"
             style={{ background: 'linear-gradient(135deg, #3a5bc7, #5b4ad4)' }}>
             <GraduationCap size={22} />
@@ -390,6 +374,21 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
           <div className="text-left">
             <div className="font-heading text-lg font-bold text-stone leading-tight">Tuteur personnel</div>
             <div className="text-xs font-semibold text-s4">Apprends pas à pas avec ton professeur</div>
+          </div>
+        </button>
+      )}
+
+      {/* Presentation tool — discreet, available for next presentation */}
+      {isRyan && onStartPresentation && (
+        <button onClick={onStartPresentation}
+          className="w-full flex items-center gap-4 bg-white border-2 border-s1 rounded-2xl p-4 mb-6 transition-all hover:border-fox hover:shadow-md">
+          <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm text-white"
+            style={{ background: 'linear-gradient(135deg, #b85d1a, #e2762b)' }}>
+            <Mic2 size={22} />
+          </div>
+          <div className="text-left">
+            <div className="font-heading text-lg font-bold text-stone leading-tight">Présentation orale</div>
+            <div className="text-xs font-semibold text-s4">Pratique pour ta prochaine présentation</div>
           </div>
         </button>
       )}

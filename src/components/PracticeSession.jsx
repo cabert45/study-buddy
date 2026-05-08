@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { generateCalcul } from '../generators/calcul';
 import { generateTerme } from '../generators/terme';
 import { generateWordProblem } from '../generators/wordProblem';
@@ -27,6 +27,7 @@ import { speak, speakSlow } from '../utils/speech';
 import TensOnes from './TensOnes';
 import CountingBoxes from './CountingBoxes';
 import InteractiveTenFrames from './InteractiveTenFrames';
+import { BarChart, Pictogram, DataTable } from './Diagramme';
 import { getVideosForCategory } from '../data/videoLinks';
 
 const TOTAL_QUESTIONS = 15;
@@ -80,23 +81,24 @@ function getGenerator(mode) {
     case 'mixed':
     default:
       // Weighted by Ryan's exam weaknesses:
-      // 1/8 on carrying → calcul 30%
-      // 0/5 on relational chains → relational 20%
-      // 3/12 on situation problems → word problems 20%
-      // 0.5/3.5 on pair/impair big numbers → pair_impair 10%
+      // diagrammes 1/7 + 4.33/14 (May 8) → statistique 15% (NEW priority)
+      // 1/8 on carrying → calcul 25%
+      // 0/5 on relational chains → relational 17%
+      // 3/12 on situation problems → word problems 17%
+      // 0.5/3.5 on pair/impair big numbers → pair_impair 8%
       // terme manquant 9.5/20 → terme 10%
       // mental math strong → mental 5%
-      // rest → compare 3%, statistique 2%
+      // rest → compare 3%
       return () => {
         const r = Math.random();
-        if (r < 0.30) return generateCalcul();
-        if (r < 0.50) return generateRelational();
-        if (r < 0.70) return generateWordProblem();
-        if (r < 0.80) return generatePairImpair();
-        if (r < 0.90) return generateTerme();
-        if (r < 0.95) return generateMental();
-        if (r < 0.98) return generateCompare();
-        return generateStatistique();
+        if (r < 0.15) return generateStatistique();
+        if (r < 0.40) return generateCalcul();
+        if (r < 0.57) return generateRelational();
+        if (r < 0.74) return generateWordProblem();
+        if (r < 0.82) return generatePairImpair();
+        if (r < 0.92) return generateTerme();
+        if (r < 0.97) return generateMental();
+        return generateCompare();
       };
   }
 }
@@ -114,6 +116,9 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
   const [operationAnswer, setOperationAnswer] = useState(null);
   const [operationCorrect, setOperationCorrect] = useState(null);
   const [showScratchPad, setShowScratchPad] = useState(false);
+  const [stepIdx, setStepIdx] = useState(0);
+  const [stepResults, setStepResults] = useState([]);
+  const [stepFeedback, setStepFeedback] = useState(null);
 
   const generate = useCallback(() => getGenerator(mode), [mode]);
 
@@ -146,6 +151,44 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
   }
 
   const isWordProblem = question.type === 'word_problem';
+  const hasSteps = isWordProblem && Array.isArray(question.stepCalcs) && question.stepCalcs.length > 0;
+
+  // Stable options per current step (4 numbers around the step's correct result)
+  const stepOptions = useMemo(() => {
+    if (!hasSteps || stepIdx >= question.stepCalcs.length) return [];
+    const target = question.stepCalcs[stepIdx].result;
+    const opts = new Set([target]);
+    while (opts.size < 4) {
+      const fake = target + Math.floor(Math.random() * 21) - 10;
+      if (fake > 0 && fake !== target && fake <= 200) opts.add(fake);
+    }
+    const arr = [...opts];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [question, stepIdx]);
+
+  function handleStepAnswer(value) {
+    if (stepFeedback !== null) return;
+    const calc = question.stepCalcs[stepIdx];
+    const isCorrect = value === calc.result;
+    const newResult = { ...calc, userAnswer: value, correct: isCorrect };
+    setStepResults((prev) => [...prev, newResult]);
+    setStepFeedback({ correct: isCorrect, picked: value });
+
+    setTimeout(() => {
+      setStepFeedback(null);
+      if (stepIdx + 1 >= question.stepCalcs.length) {
+        // Last step: this IS the final answer for the whole problem
+        handleAnswer(value);
+      } else {
+        setStepIdx((i) => i + 1);
+      }
+    }, 1400);
+  }
 
   function handleOperationChoice(op) {
     setOperationAnswer(op);
@@ -216,6 +259,9 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
     setOperationCorrect(null);
     setOperationPhase(false);
     setShowScratchPad(false);
+    setStepIdx(0);
+    setStepResults([]);
+    setStepFeedback(null);
   }
 
   function finishSession() {
@@ -263,7 +309,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'mental' && 'Calcul mental'}
           {question.category === 'compare' && 'Compare'}
           {question.category === 'pair_impair' && 'Pair / Impair'}
-          {question.category === 'statistique' && 'Statistique'}
+          {question.category === 'statistique' && 'Diagrammes & tableaux'}
           {question.category === 'determinant' && 'Déterminant'}
           {question.category === 'verbes' && 'Verbes'}
           {question.category === 'adjectif' && 'Adjectif'}
@@ -326,6 +372,31 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           </>
         )}
 
+        {/* Statistique visuals — bar chart, pictogram, data table */}
+        {question.category === 'statistique' && question.chartData && (question.type === 'bar_chart' || question.type === 'weekly_chart') && (
+          <BarChart data={question.chartData} title={question.chartTitle} unit={question.unit} />
+        )}
+        {question.category === 'statistique' && question.type === 'pictogram' && question.chartData && (
+          <Pictogram
+            data={question.chartData}
+            title={question.chartTitle}
+            legend={question.legend}
+            legendUnit={question.legendUnit}
+            symbol={question.symbol}
+          />
+        )}
+        {question.category === 'statistique' && (question.type === 'table' || question.type === 'comparison_table') && question.tableData && (
+          <DataTable
+            rows={question.tableData.rows}
+            cols={question.tableData.cols}
+            data={question.tableData.data}
+            hideRow={question.tableData.hideRow}
+            hideCol={question.tableData.hideCol}
+            rowTotals={question.tableData.rowTotals}
+            title={question.chartTitle}
+          />
+        )}
+
         {/* Word problem: operation identification step */}
         {isWordProblem && operationAnswer === null && !showResult && (
           <div className="mb-4 p-4 bg-orange-50 rounded-xl border-2 border-orange-200">
@@ -358,6 +429,63 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           </div>
         )}
 
+        {/* Démarche board — shows completed step calculations */}
+        {hasSteps && stepResults.length > 0 && !showResult && (
+          <div className="bg-cream rounded-xl p-3 mb-3 border-2 border-s1">
+            <div className="text-xs font-bold text-s4 uppercase mb-2">Ma démarche</div>
+            <div className="space-y-1.5">
+              {stepResults.map((sr, i) => (
+                <div key={i} className={`text-base font-bold flex items-center gap-2 ${sr.correct ? 'text-green-700' : 'text-red-600'}`}>
+                  <span className="text-lg">{sr.correct ? '✓' : '✗'}</span>
+                  <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    {sr.a} {sr.op} {sr.b} = {sr.result}
+                    {!sr.correct && <span className="text-xs ml-2 italic">(tu as dit {sr.userAnswer})</span>}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step calc UI — walks Ryan through each calculation instead of a single multi-choice */}
+        {hasSteps && operationAnswer !== null && !operationPhase && !showResult && stepIdx < question.stepCalcs.length && (
+          <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200 mb-4">
+            <p className="text-sm font-bold text-fox-d mb-2">
+              Étape {stepIdx + 1} sur {question.stepCalcs.length} — {question.stepCalcs[stepIdx].label}
+            </p>
+            <p className="text-3xl font-extrabold text-stone text-center my-3" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              {question.stepCalcs[stepIdx].a} {question.stepCalcs[stepIdx].op} {question.stepCalcs[stepIdx].b} = ?
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {stepOptions.map((opt) => {
+                const correctVal = question.stepCalcs[stepIdx].result;
+                let cls = 'bg-white border-s2 text-stone hover:border-fox';
+                if (stepFeedback) {
+                  if (opt === correctVal) cls = 'bg-green-50 border-green-500 text-green-700';
+                  else if (opt === stepFeedback.picked) cls = 'bg-red-50 border-red-400 text-red-600';
+                  else cls = 'bg-gray-50 border-gray-200 text-gray-400';
+                }
+                return (
+                  <button
+                    key={opt}
+                    onClick={() => handleStepAnswer(opt)}
+                    disabled={stepFeedback !== null}
+                    className={`py-3 rounded-xl font-extrabold text-2xl border-2 transition-all ${cls}`}
+                    style={{ minHeight: '56px' }}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+            {stepFeedback && (
+              <div className={`mt-3 text-center font-bold ${stepFeedback.correct ? 'text-green-700' : 'text-red-600'}`}>
+                {stepFeedback.correct ? '✅ Bravo!' : `❌ C'est ${question.stepCalcs[stepIdx].result}`}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Hint button for terme manquant */}
         {question.hint && !showHint && !showResult && (
           <button
@@ -373,8 +501,8 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           </div>
         )}
 
-        {/* Answer options */}
-        {(!isWordProblem || operationAnswer !== null) && !operationPhase && (
+        {/* Answer options — skipped for word problems with stepCalcs (handled by step UI above) */}
+        {(!isWordProblem || operationAnswer !== null) && !operationPhase && !hasSteps && (
           <div className={`grid gap-3 mt-4 ${question.isCompare || question.options.length === 3 ? 'grid-cols-3' : question.options.length === 2 ? 'grid-cols-2' : 'grid-cols-2'}`}>
             {question.options.map((opt, i) => {
               let btnClass = 'bg-white border-2 border-s2 text-stone hover:border-fox';
@@ -407,6 +535,22 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
         {/* Result feedback */}
         {showResult && (
           <div className="mt-4">
+            {/* Final démarche recap for word problems */}
+            {hasSteps && stepResults.length > 0 && (
+              <div className="bg-cream rounded-xl p-3 mb-3 border-2 border-s1">
+                <div className="text-xs font-bold text-s4 uppercase mb-2">Ma démarche complète</div>
+                <div className="space-y-1.5">
+                  {stepResults.map((sr, i) => (
+                    <div key={i} className={`text-base font-bold flex items-center gap-2 ${sr.correct ? 'text-green-700' : 'text-red-600'}`}>
+                      <span className="text-lg">{sr.correct ? '✓' : '✗'}</span>
+                      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        {sr.a} {sr.op} {sr.b} = {sr.result}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             {selected === question.correct ? (
               <div className="text-center p-3 bg-green-50 rounded-xl border-2 border-green-200">
                 <div className="text-2xl">✅</div>
