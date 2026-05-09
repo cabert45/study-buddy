@@ -182,7 +182,11 @@ app.get('/api/progress', async (req, res) => {
     const stats = await queryAll('SELECT * FROM category_stats WHERE profile = $1', [profile]);
     const sessions = await queryAll('SELECT * FROM sessions WHERE profile = $1 ORDER BY id DESC LIMIT 10', [profile]);
     const totals = await queryOne('SELECT COALESCE(SUM(correct),0) as correct, COALESCE(SUM(total),0) as total FROM category_stats WHERE profile = $1', [profile]);
-    res.json({ stats, sessions, totals });
+    const daily = await queryAll(`
+      SELECT date, SUM(correct) as correct, SUM(total) as total
+      FROM sessions WHERE profile = $1 GROUP BY date ORDER BY date DESC LIMIT 7
+    `, [profile]);
+    res.json({ stats, sessions, totals, daily: daily.reverse() });
   } catch (err) {
     console.error('Progress error:', err);
     res.status(500).json({ error: 'Database error' });

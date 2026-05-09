@@ -29,26 +29,41 @@ const categoryLabels = {
 };
 
 function ProgressChart({ daily }) {
-  if (!daily || daily.length === 0) return null;
-  const maxTotal = Math.max(...daily.map((d) => d.total), 1);
-  const barWidth = Math.max(20, Math.floor(280 / daily.length));
+  // Postgres SUM returns BIGINT as string — coerce to Number defensively
+  const safe = (daily || []).map((d) => ({
+    date: String(d.date || '').slice(0, 10),
+    correct: Number(d.correct) || 0,
+    total: Number(d.total) || 0,
+  }));
+
+  if (safe.length === 0) {
+    return (
+      <div className="bg-white rounded-2xl shadow-sm p-4 mb-4 border-2 border-s1">
+        <h3 className="font-bold text-s6 mb-3">📈 Progres par jour</h3>
+        <p className="text-sm text-s4 text-center py-6">Pas encore de sessions pour afficher un graphique.</p>
+      </div>
+    );
+  }
+
+  const maxTotal = Math.max(...safe.map((d) => d.total), 1);
+  const barWidth = Math.max(28, Math.floor(280 / safe.length));
 
   return (
     <div className="bg-white rounded-2xl shadow-sm p-4 mb-4 border-2 border-s1">
       <h3 className="font-bold text-s6 mb-3">📈 Progres par jour</h3>
-      <div className="flex items-end gap-1 justify-center" style={{ height: 140 }}>
-        {daily.map((d, i) => {
+      <div className="flex items-end gap-1 justify-center overflow-x-auto" style={{ height: 160 }}>
+        {safe.map((d, i) => {
           const pct = d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0;
-          const barH = Math.max(8, (d.total / maxTotal) * 110);
+          const barH = d.total > 0 ? Math.max(8, (d.total / maxTotal) * 110) : 4;
           const fillH = d.total > 0 ? (d.correct / d.total) * barH : 0;
-          const color = pct >= 70 ? '#00b894' : pct >= 50 ? '#e2762b' : '#e84393';
+          const color = pct >= 70 ? '#00b894' : pct >= 50 ? '#e2762b' : d.total > 0 ? '#e84393' : '#d6cfc4';
           const dateLabel = d.date.slice(5); // MM-DD
           return (
-            <div key={i} className="flex flex-col items-center" style={{ width: barWidth }}>
-              <span className="text-xs font-bold text-stone mb-1">{pct}%</span>
+            <div key={i} className="flex flex-col items-center flex-shrink-0" style={{ width: barWidth }}>
+              <span className="text-xs font-bold text-stone mb-1">{d.total > 0 ? `${pct}%` : '—'}</span>
               <div
                 className="rounded-t relative overflow-hidden"
-                style={{ width: barWidth - 4, height: barH, background: 'rgba(235,228,219,0.5)' }}
+                style={{ width: barWidth - 6, height: barH, background: 'rgba(235,228,219,0.5)' }}
               >
                 <div
                   className="absolute bottom-0 left-0 right-0 rounded-t transition-all"
@@ -56,6 +71,7 @@ function ProgressChart({ daily }) {
                 />
               </div>
               <span className="text-[10px] text-s4 mt-1">{dateLabel}</span>
+              <span className="text-[9px] text-s4">{d.total > 0 ? `${d.correct}/${d.total}` : ''}</span>
             </div>
           );
         })}

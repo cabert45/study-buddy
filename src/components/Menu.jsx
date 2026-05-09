@@ -25,6 +25,9 @@ const icons = {
   on_ont: { bg: '#fef5e4', color: '#b85d1a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="3" y="11" fontSize="7" fontWeight="700" fill="currentColor">ON</text><text x="10" y="11" fontSize="7" fontWeight="700" fill="currentColor">T</text></svg> },
   groupe_nom: { bg: '#e6f5f0', color: '#0f766e', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="6" width="14" height="6" rx="2" stroke="currentColor" strokeWidth="1.4"/><line x1="7" y1="6" x2="7" y2="12" stroke="currentColor" strokeWidth="1" strokeDasharray="2 1"/><line x1="12" y1="6" x2="12" y2="12" stroke="currentColor" strokeWidth="1" strokeDasharray="2 1"/></svg> },
   conjugaison: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 5H15M3 9H12M3 13H9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
+  futur_simple: { bg: '#e8eef8', color: '#3a5bc7', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M5 9H13M13 9L10 6M13 9L10 12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg> },
+  passe_compose: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M13 9H5M5 9L8 6M5 9L8 12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg> },
+  biographie_jr: { bg: '#e8f5ea', color: '#2d7a3a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 4C3 3.4 3.4 3 4 3H14C14.6 3 15 3.4 15 4V14C15 14.6 14.6 15 14 15H4C3.4 15 3 14.6 3 14V4Z" stroke="currentColor" strokeWidth="1.4"/><line x1="6" y1="7" x2="12" y2="7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><line x1="6" y1="10" x2="12" y2="10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><line x1="6" y1="13" x2="9" y2="13" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
 };
 
 const ryanMathModes = [
@@ -40,12 +43,11 @@ const ryanMathModes = [
 ];
 
 const ryanFrenchModes = [
-  { id: 'dictee_s3', label: '🎧 Dictée mardi', desc: 'Le son "o" — o, au, eau (semaine 3)', featured: true, special: true },
+  { id: 'biographie_jr', label: '📖 Biographie Jean Rostand', desc: 'CRITIQUE — il faut 90%+ pour passer', featured: true, special: true },
+  { id: 'dictee_s4', label: '🎧 Dictée mardi', desc: 'n → m devant b, p — campagne, compote (semaine 4)', special: true },
   { id: 'dictees_group', label: 'Dictées', desc: 'Toutes les semaines (1, 2, 3, 4, révision)', isGroup: true, special: true },
-  { id: 'accord_etre', label: 'Accord après ÊTRE', desc: 'TEST vendredi 8 mai — exact exercices', special: true },
-  { id: 'apostrophe', label: 'Apostrophe', desc: "TEST vendredi — le/la → l', je → j'", special: true },
-  { id: 'm_devant_bmp', label: 'M devant B, M, P', desc: 'TEST vendredi — campagne, jambe, important', special: true },
-  { id: 'passe_compose', label: 'Passé composé', desc: 'Verbes -er + finir' },
+  { id: 'futur_simple', label: 'Futur simple', desc: 'Verbes -er au futur — TEST mercredi 13 mai', special: true },
+  { id: 'passe_compose', label: 'Passé composé', desc: 'Verbes -er + finir — révision jeudi' },
   { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs' },
   { id: 'determinant', label: 'Déterminants', desc: 'le, la, un, une, mon...' },
   { id: 'verbes', label: 'Verbes', desc: 'être, avoir, aller, faire...' },
@@ -56,10 +58,10 @@ const ryanFrenchModes = [
 
 const dicteeWeeksList = [
   { id: 'dictee_revision', label: 'Révision TOUTES dictées', desc: 'Préparer la dictée cumulative 1-4', highlight: true },
-  { id: 'dictee_s3', label: 'Semaine 3 — son o', desc: "aujourd'hui, autre, motoneige, peau...", current: true },
+  { id: 'dictee_s4', label: 'Semaine 4 — n devient m', desc: 'campagne, compote, printemps, tomber...', current: true },
   { id: 'dictee_s1', label: 'Semaine 1 — verbes -er', desc: 'aller, arriver, pincer, réviser...' },
   { id: 'dictee_s2', label: 'Semaine 2 — mots en p', desc: 'paire, parce que, partout, prendre...' },
-  { id: 'dictee_s4', label: 'Semaine 4 — n devient m', desc: 'campagne, compote, printemps, tomber...' },
+  { id: 'dictee_s3', label: 'Semaine 3 — son o', desc: "aujourd'hui, autre, motoneige, peau..." },
 ];
 
 const caylaMathModes = [

@@ -73,9 +73,12 @@ function findWeakest(stats, type = null) {
 }
 
 // Build a smart plan based on current time + soccer + dashboard data
-function buildPlan(dashboardData) {
+// opts.dayOverride: 0-6 to force a specific day's plan (preview mode)
+// opts.skipSoccer: true to use the post-soccer (heaviest) plan even if soccer hasn't happened
+function buildPlan(dashboardData, opts = {}) {
   const now = new Date();
-  const day = now.getDay(); // 0=Sun, 6=Sat
+  const isPreview = opts.dayOverride != null && opts.dayOverride !== now.getDay();
+  const day = opts.dayOverride != null ? opts.dayOverride : now.getDay(); // 0=Sun, 6=Sat
   const hour = now.getHours();
   const min = now.getMinutes();
   const minutesNow = hour * 60 + min;
@@ -94,91 +97,114 @@ function buildPlan(dashboardData) {
   const weakMathMode = weakestMath?.category || 'calcul';
 
   if (day === 6) {
-    // SATURDAY — HEAVY DAY, dimanche est léger
+    // SATURDAY (May 9) — HEAVY DAY: Tuesday dictée s4 + Wednesday futur indicatif + biographie Jean Rostand
     const soccerMin = 16 * 60 + 30;
     const minutesUntilSoccer = soccerMin - minutesNow;
-    const isAfterSoccer = minutesNow > soccerMin + 60; // after ~5:30pm
+    // If preview mode OR user is skipping soccer → use the heaviest "post-soccer" plan
+    const isAfterSoccer = isPreview || opts.skipSoccer || minutesNow > soccerMin + 60;
 
     if (isAfterSoccer) {
-      // Post-soccer (evening) — study + finish chores
-      plan.push({ type: 'chore', label: 'Reste des tâches (chambre + salon)', mins: 25, icon: '🧹' });
+      // Post-soccer (evening) — biographie URGENTE (il échoue, doit avoir 90%+)
+      plan.push({ type: 'chore', label: 'Reste des tâches (chambre + salon)', mins: 20, icon: '🧹' });
       plan.push({ type: 'break', label: 'Pause + collation', mins: 10, icon: '🍎' });
-      plan.push({ type: 'app', mode: 'statistique', label: 'Diagrammes (test raté vendredi)', mins: 12, icon: '📊' });
+      plan.push({ type: 'app', mode: 'biographie_jr', label: 'Biographie Jean Rostand (PRIORITÉ!)', mins: 15, icon: '📖' });
       plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-      plan.push({ type: 'app', mode: 'dictee_s3', label: 'Dictée mardi (son o)', mins: 12, icon: '🎧' });
+      plan.push({ type: 'app', mode: 'dictee_s4', label: 'Dictée mardi — n→m devant b/p', mins: 12, icon: '🎧' });
       plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-      plan.push({ type: 'app', mode: 'passe_compose', label: 'Passé composé', mins: 12, icon: '📝' });
-      plan.push({ type: 'message', label: 'Bravo! Tu as fait beaucoup aujourd\'hui!', mins: 1, icon: '🌙' });
-    } else if (minutesUntilSoccer > 90) {
-      // Lots of time pre-soccer — pack it
+      plan.push({ type: 'app', mode: 'futur_simple', label: 'Futur simple (test mercredi)', mins: 12, icon: '🔮' });
+      plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+      plan.push({ type: 'app', mode: 'multi_step', label: 'Problèmes à étapes', mins: 10, icon: '🧩' });
+      plan.push({ type: 'message', label: 'Bravo! Grosse journée! 🌙', mins: 1, icon: '🌙' });
+    } else if (minutesUntilSoccer > 120) {
+      // 2h+ avant soccer — biographie EN PREMIER (priorité critique)
+      plan.push({ type: 'app', mode: 'biographie_jr', label: 'Biographie Jean Rostand (PRIORITÉ!)', mins: 15, icon: '📖' });
+      plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
       plan.push({ type: 'chore', label: 'Ramasser vêtements + chambre', mins: 20, icon: '🧸' });
       plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-      plan.push({ type: 'chore', label: 'Plier vêtements + ranger', mins: 20, icon: '👔' });
+      plan.push({ type: 'app', mode: 'dictee_s4', label: 'Dictée mardi — campagne, compote', mins: 12, icon: '🎧' });
       plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-      plan.push({ type: 'chore', label: 'Salon + entrée + balayer', mins: 20, icon: '🛋️' });
-      plan.push({ type: 'app', mode: 'dictee_s3', label: 'Dictée mardi (10 min)', mins: 10, icon: '🎧' });
-      plan.push({ type: 'message', label: 'Prépare-toi pour le soccer!', mins: 1, icon: '⚽' });
-    } else if (minutesUntilSoccer > 50) {
-      // Medium pre-soccer — chores priority
-      plan.push({ type: 'chore', label: 'Chambre (rapide!)', mins: 20, icon: '🧸' });
-      plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-      plan.push({ type: 'chore', label: 'Plier vêtements', mins: 15, icon: '👔' });
-      plan.push({ type: 'app', mode: 'dictee_s3', label: 'Dictée (rapide)', mins: 10, icon: '🎧' });
+      plan.push({ type: 'app', mode: 'futur_simple', label: 'Futur simple (test mercredi)', mins: 12, icon: '🔮' });
+      plan.push({ type: 'chore', label: 'Plier vêtements + ranger', mins: 15, icon: '👔' });
       plan.push({ type: 'message', label: 'Reste à faire ce soir après soccer!', mins: 1, icon: '⚽' });
-    } else if (minutesUntilSoccer > 20) {
-      // Tight pre-soccer
-      plan.push({ type: 'chore', label: 'Chambre — 15 min seulement!', mins: 15, icon: '🧸' });
-      plan.push({ type: 'message', label: 'Prépare-toi pour le soccer! Reste à faire ce soir.', mins: 5, icon: '⚽' });
-    } else {
+    } else if (minutesUntilSoccer > 60) {
+      // 60-120 min — biographie en premier
+      plan.push({ type: 'app', mode: 'biographie_jr', label: 'Biographie (PRIORITÉ!)', mins: 15, icon: '📖' });
+      plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+      plan.push({ type: 'app', mode: 'dictee_s4', label: 'Dictée mardi (n→m)', mins: 10, icon: '🎧' });
+      plan.push({ type: 'break', label: 'Pause', mins: 3, icon: '☕' });
+      plan.push({ type: 'app', mode: 'futur_simple', label: 'Futur simple', mins: 10, icon: '🔮' });
+      plan.push({ type: 'message', label: 'Reste à faire ce soir après soccer!', mins: 1, icon: '⚽' });
+    } else if (minutesUntilSoccer > 25) {
+      plan.push({ type: 'app', mode: 'biographie_jr', label: 'Biographie (PRIORITÉ!)', mins: 12, icon: '📖' });
       plan.push({ type: 'message', label: 'Prépare-toi pour le soccer!', mins: 5, icon: '⚽' });
+    } else if (minutesUntilSoccer > 0) {
+      plan.push({ type: 'message', label: 'Prépare-toi pour le soccer!', mins: 5, icon: '⚽' });
+    } else {
+      plan.push({ type: 'message', label: 'Soccer en cours / vient de finir. On reprend après!', mins: 1, icon: '⚽' });
     }
   } else if (day === 0) {
-    // SUNDAY — LIGHT day (Saturday was heavy)
-    plan.push({ type: 'app', mode: 'statistique', label: 'Diagrammes (test raté — on retravaille)', mins: 15, icon: '📊' });
-    plan.push({ type: 'break', label: 'Pause', mins: 10, icon: '☕' });
-    plan.push({ type: 'app', mode: 'dictee_s3', label: 'Dictée mardi — révision (son o)', mins: 15, icon: '🎧' });
-    plan.push({ type: 'message', label: 'C\'est tout pour aujourd\'hui! Profite de ta journée!', mins: 1, icon: '🌳' });
+    // SUNDAY (May 10) — biographie EN PREMIER (urgence), puis dictée + futur
+    plan.push({ type: 'app', mode: 'biographie_jr', label: 'Biographie Jean Rostand (PRIORITÉ!)', mins: 15, icon: '📖' });
+    plan.push({ type: 'break', label: 'Pause', mins: 8, icon: '☕' });
+    plan.push({ type: 'app', mode: 'dictee_s4', label: 'Dictée mardi — n→m devant b/p', mins: 12, icon: '🎧' });
+    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+    plan.push({ type: 'app', mode: 'futur_simple', label: 'Futur simple (test mercredi)', mins: 10, icon: '🔮' });
+    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+    plan.push({ type: 'app', mode: 'biographie_jr', label: '2e tour biographie (renforcer!)', mins: 10, icon: '📖' });
+    plan.push({ type: 'message', label: 'Bravo! Profite du reste de ta journée!', mins: 1, icon: '🌳' });
   } else if (day === 1) {
-    // MONDAY — last prep for Tuesday dictée
-    plan.push({ type: 'app', mode: 'dictee_s3', label: 'DERNIÈRE révision dictée!', mins: 20, icon: '🎧' });
-    plan.push({ type: 'break', label: 'Pause', mins: 10, icon: '☕' });
-    plan.push({ type: 'app', mode: 'dictee_revision', label: 'Mots des semaines passées', mins: 10, icon: '🔄' });
+    // MONDAY (May 11) — DERNIÈRE prep dictée + biographie + fable
+    plan.push({ type: 'app', mode: 'biographie_jr', label: 'DERNIÈRE révision biographie (90%+!)', mins: 15, icon: '📖' });
+    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+    plan.push({ type: 'app', mode: 'dictee_s4', label: 'DERNIÈRE révision dictée!', mins: 15, icon: '🎧' });
+    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+    plan.push({ type: 'message', label: 'Lecture fable "La cigale et la fourmi" (La Fontaine) — entraîne-toi à la lire en 1 min!', mins: 8, icon: '🐜' });
+    plan.push({ type: 'break', label: 'Pause', mins: 3, icon: '☕' });
+    plan.push({ type: 'app', mode: 'futur_simple', label: 'Futur simple (test mercredi)', mins: 10, icon: '🔮' });
   } else if (day === 2) {
-    // TUESDAY — dictée day! Light prep + start passé composé
+    // TUESDAY (May 12) — DICTÉE DAY! + prep futur indicatif pour mercredi
     plan.push({ type: 'message', label: '📢 Aujourd\'hui = dictée! Bonne chance!', mins: 1, icon: '🍀' });
-    plan.push({ type: 'app', mode: 'passe_compose', label: 'Commencer passé composé', mins: 15, icon: '📝' });
+    plan.push({ type: 'app', mode: 'futur_simple', label: 'DERNIÈRE prep futur (test demain!)', mins: 15, icon: '🔮' });
+    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+    plan.push({ type: 'app', mode: 'mental', label: 'Calcul mental (sens multiplication demain)', mins: 10, icon: '⚡' });
   } else if (day === 3) {
-    // WEDNESDAY — passé composé focus
-    plan.push({ type: 'app', mode: 'passe_compose', label: 'Passé composé (verbes -er)', mins: 20, icon: '📝' });
-    plan.push({ type: 'break', label: 'Pause', mins: 10, icon: '☕' });
-    plan.push({ type: 'app', mode: 'mixed', label: 'Math', mins: 15, icon: '🔢' });
+    // WEDNESDAY (May 13) — futur indicatif tested today + sens de la multiplication + oral anglais
+    plan.push({ type: 'message', label: '🇬🇧 Réviser oral anglais: days, months, seasons (5 min)', mins: 5, icon: '🌎' });
+    plan.push({ type: 'app', mode: 'mental', label: 'Sens de la multiplication (groupes égaux)', mins: 12, icon: '✖️' });
+    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+    plan.push({ type: 'app', mode: 'passe_compose', label: 'Passé composé (révision pour jeudi)', mins: 12, icon: '📝' });
   } else if (day === 4) {
-    // THURSDAY — DERNIÈRE PRÉP pour les 5 tests de vendredi (May 8)
-    // Tests: 1) +/-9/10 mental, 2) accord après être, 3) apostrophe,
-    //        4) m devant b/m/p, 5) addition 3 chiffres sans échange
-    plan.push({ type: 'message', label: 'Demain = 5 tests! On se prépare ce soir 💪', mins: 1, icon: '🎯' });
-    plan.push({ type: 'app', mode: 'accord_etre', label: 'Test 1: Accord après ÊTRE', mins: 10, icon: '📝' });
-    plan.push({ type: 'app', mode: 'apostrophe', label: "Test 2: L'apostrophe", mins: 10, icon: '✏️' });
-    plan.push({ type: 'app', mode: 'm_devant_bmp', label: 'Test 3: M devant B,M,P', mins: 10, icon: '🔤' });
-    plan.push({ type: 'break', label: 'Pause rapide', mins: 5, icon: '☕' });
-    plan.push({ type: 'app', mode: 'mental', label: 'Test 4: Calcul rapide +/-9 +/-10', mins: 10, icon: '⚡' });
-    plan.push({ type: 'app', mode: 'calcul', label: 'Test 5: Additions 3 chiffres', mins: 10, icon: '🔢' });
-    plan.push({ type: 'message', label: 'Tu es prêt! Dors bien! 😴', mins: 1, icon: '🌙' });
+    // THURSDAY (May 14) — verbes -er composés (passé composé)
+    plan.push({ type: 'app', mode: 'passe_compose', label: 'Verbes -er composés (passé composé)', mins: 18, icon: '📝' });
+    plan.push({ type: 'break', label: 'Pause', mins: 8, icon: '☕' });
+    plan.push({ type: 'app', mode: weakMathMode, label: 'Math — point faible', mins: 12, icon: '🔢' });
+    plan.push({ type: 'message', label: 'Demain = pas d\'école (journée pédagogique)! 🎉', mins: 1, icon: '🎉' });
   } else if (day === 5) {
-    // FRIDAY — test day! Light warmup on each
-    plan.push({ type: 'message', label: '🎯 5 TESTS AUJOURD\'HUI! Bonne chance!', mins: 1, icon: '🍀' });
-    plan.push({ type: 'app', mode: 'mental', label: 'Échauffement: calcul rapide', mins: 5, icon: '⚡' });
-    plan.push({ type: 'app', mode: 'accord_etre', label: 'Échauffement: accord être', mins: 5, icon: '📝' });
-    plan.push({ type: 'app', mode: 'apostrophe', label: 'Échauffement: apostrophe', mins: 5, icon: '✏️' });
+    // FRIDAY (May 15) — JOURNÉE PÉDAGOGIQUE / PAS D'ÉCOLE
+    plan.push({ type: 'message', label: '🎉 Pas d\'école aujourd\'hui! Journée pédagogique.', mins: 1, icon: '🎉' });
+    plan.push({ type: 'app', mode: 'mixed', label: 'Petit entraînement libre (math)', mins: 12, icon: '🔢' });
+    plan.push({ type: 'break', label: 'Pause', mins: 10, icon: '☕' });
+    plan.push({ type: 'app', mode: 'francais_mix', label: 'Petit entraînement libre (français)', mins: 12, icon: '📝' });
+    plan.push({ type: 'message', label: 'C\'est tout! Profite de ta journée!', mins: 1, icon: '🌳' });
   }
 
   return plan;
 }
 
-function dayLabel() {
+function dayLabel(dayIdx) {
   const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
-  return days[new Date().getDay()];
+  return days[dayIdx != null ? dayIdx : new Date().getDay()];
 }
+
+const dayChips = [
+  { idx: 1, label: 'Lun' },
+  { idx: 2, label: 'Mar' },
+  { idx: 3, label: 'Mer' },
+  { idx: 4, label: 'Jeu' },
+  { idx: 5, label: 'Ven' },
+  { idx: 6, label: 'Sam' },
+  { idx: 0, label: 'Dim' },
+];
 
 export default function Coach({ onHome, onStartPractice }) {
   const [plan, setPlan] = useState([]);
@@ -188,26 +214,41 @@ export default function Coach({ onHome, onStartPractice }) {
   const [running, setRunning] = useState(false);
   const [warned, setWarned] = useState({});
   const [doneSteps, setDoneSteps] = useState([]);
+  const [dashData, setDashData] = useState(null);
+  const [dayOverride, setDayOverride] = useState(null); // null = today, 0-6 = preview a different day
+  const [skipSoccer, setSkipSoccer] = useState(false);
   const intervalRef = useRef(null);
   const greetedRef = useRef(false);
 
   const currentStep = plan[stepIdx];
+  const today = new Date().getDay();
+  const isPreviewMode = dayOverride != null && dayOverride !== today;
 
-  // Load dashboard data and build adaptive plan
+  // Load dashboard data once
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      let dashData = null;
       try {
-        dashData = await getDashboard();
-      } catch {}
-      if (cancelled) return;
-      const built = buildPlan(dashData);
-      setPlan(built);
-      setPlanReady(true);
+        const d = await getDashboard();
+        if (!cancelled) setDashData(d);
+      } catch {
+        if (!cancelled) setDashData({});
+      }
     })();
     return () => { cancelled = true; };
   }, []);
+
+  // Build plan whenever dashData / overrides change
+  useEffect(() => {
+    if (dashData == null) return;
+    const built = buildPlan(dashData, { dayOverride, skipSoccer });
+    setPlan(built);
+    setPlanReady(true);
+    // Reset progression when plan changes
+    setStepIdx(0);
+    setDoneSteps([]);
+    setRunning(false);
+  }, [dashData, dayOverride, skipSoccer]);
 
   // Greet on first load
   useEffect(() => {
@@ -365,9 +406,71 @@ export default function Coach({ onHome, onStartPractice }) {
         <div className="text-xs font-bold text-s4">{stepIdx + 1}/{plan.length}</div>
       </div>
 
-      {/* Day banner */}
-      <div className="bg-orange-50 rounded-xl p-3 mb-3 border-2 border-orange-200 text-center">
-        <p className="text-xs font-bold text-fox-d uppercase tracking-wide">Plan de {dayLabel()}</p>
+      {/* Day banner with day picker */}
+      <div className={`rounded-xl p-3 mb-3 border-2 ${
+        isPreviewMode ? 'bg-blue-50 border-blue-300' : 'bg-orange-50 border-orange-200'
+      }`}>
+        <div className="flex items-center justify-between mb-2">
+          <p className={`text-xs font-bold uppercase tracking-wide ${
+            isPreviewMode ? 'text-blue-700' : 'text-fox-d'
+          }`}>
+            {isPreviewMode ? `👁 Aperçu — Plan de ${dayLabel(dayOverride)}` : `Plan de ${dayLabel()}`}
+          </p>
+          {isPreviewMode && (
+            <button
+              onClick={() => { setDayOverride(null); setSkipSoccer(false); }}
+              className="text-[10px] font-bold text-blue-700 underline"
+            >
+              ← Retour à aujourd'hui
+            </button>
+          )}
+        </div>
+        {/* Day picker chips */}
+        <div className="flex gap-1 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+          {dayChips.map(({ idx, label }) => {
+            const isActive = (dayOverride == null && idx === today) || dayOverride === idx;
+            const isToday = idx === today;
+            return (
+              <button
+                key={idx}
+                onClick={() => {
+                  setDayOverride(idx === today ? null : idx);
+                  setSkipSoccer(false);
+                }}
+                className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  isActive
+                    ? 'bg-stone text-white'
+                    : 'bg-white border border-s2 text-s6 hover:border-lava hover:text-lava'
+                }`}
+              >
+                {label}{isToday && !isActive ? ' •' : ''}
+              </button>
+            );
+          })}
+        </div>
+        {/* Skip soccer button — only Saturday + viewing today + before evening */}
+        {today === 6 && !isPreviewMode && new Date().getHours() < 17 && (
+          <div className="mt-2 pt-2 border-t border-orange-200/60">
+            {!skipSoccer ? (
+              <button
+                onClick={() => setSkipSoccer(true)}
+                className="text-xs font-bold text-fox-d underline"
+              >
+                ⚽ Pas de soccer aujourd'hui — voir le plan complet
+              </button>
+            ) : (
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-fox-d">⚽ Soccer ignoré — plan complet activé</span>
+                <button
+                  onClick={() => setSkipSoccer(false)}
+                  className="text-[10px] font-bold text-s4 underline"
+                >
+                  Annuler
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Big current step card */}

@@ -6,50 +6,117 @@ import React from 'react';
 // DataTable — tableau de données
 
 export function BarChart({ data, title, unit }) {
-  const maxValue = Math.max(...data.map((d) => d.value));
+  const maxValue = Math.max(...data.map((d) => d.value), 1);
   const step = maxValue <= 10 ? 1 : maxValue <= 25 ? 5 : 10;
   const ticks = [];
   for (let v = 0; v <= maxValue + step; v += step) ticks.push(v);
+  const yMax = ticks[ticks.length - 1] || 1;
+
+  // SVG-based chart for reliable rendering across all browsers/PWA
   const chartHeight = 180;
-  const scale = chartHeight / (ticks[ticks.length - 1] || 1);
+  const yAxisWidth = 28;
+  const barAreaPaddingX = 12;
+  const barCount = data.length;
+  // Allocate viewBox width based on number of bars
+  const barSlot = 56; // px per bar in viewBox
+  const barAreaWidth = Math.max(barCount * barSlot, 200);
+  const totalWidth = yAxisWidth + barAreaWidth + barAreaPaddingX * 2;
+
+  const scale = chartHeight / yMax;
+  const baseY = chartHeight + 6;
 
   return (
     <div className="bg-orange-50 rounded-xl p-4 mt-3 border-2 border-s1">
       {title && (
         <div className="text-sm font-bold text-stone text-center mb-3">{title}</div>
       )}
-      <div className="flex">
-        {/* Y-axis ticks */}
-        <div className="flex flex-col-reverse justify-between pr-2 text-xs font-semibold text-s4" style={{ height: chartHeight }}>
-          {ticks.map((t) => (
-            <div key={t} style={{ lineHeight: '1' }}>{t}</div>
-          ))}
-        </div>
-        {/* Bars */}
-        <div className="flex-1 flex items-end justify-around gap-2 border-l-2 border-b-2 border-stone/40 pl-2 pb-1" style={{ height: chartHeight + 4 }}>
-          {data.map((d, i) => (
-            <div key={i} className="flex flex-col items-center justify-end gap-1 flex-1" style={{ height: chartHeight }}>
-              <div className="text-xs font-bold text-fox-d">{d.value}</div>
-              <div
-                className="w-full max-w-[40px] rounded-t-sm"
-                style={{
-                  height: `${d.value * scale}px`,
-                  background: 'linear-gradient(180deg, #e8622a, #c74a15)',
-                }}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-      {/* X-axis labels */}
-      <div className="flex pl-6 mt-1">
-        <div className="flex-1 flex justify-around gap-2 pl-2">
-          {data.map((d, i) => (
-            <div key={i} className="flex-1 text-center text-xs font-semibold text-stone">
-              {d.label}
-            </div>
-          ))}
-        </div>
+      <div className="w-full overflow-x-auto">
+        <svg
+          viewBox={`0 0 ${totalWidth} ${chartHeight + 38}`}
+          width="100%"
+          style={{ minWidth: totalWidth, maxWidth: '100%', display: 'block' }}
+          preserveAspectRatio="xMidYMid meet"
+        >
+          {/* Y-axis grid + ticks */}
+          {ticks.map((t) => {
+            const y = baseY - t * scale;
+            return (
+              <g key={t}>
+                <line
+                  x1={yAxisWidth}
+                  x2={totalWidth - 4}
+                  y1={y}
+                  y2={y}
+                  stroke="#d6ccc0"
+                  strokeWidth="1"
+                  strokeDasharray={t === 0 ? '0' : '3 3'}
+                />
+                <text
+                  x={yAxisWidth - 4}
+                  y={y + 4}
+                  textAnchor="end"
+                  fontSize="11"
+                  fontWeight="600"
+                  fill="#9a8878"
+                >
+                  {t}
+                </text>
+              </g>
+            );
+          })}
+          {/* Y-axis line */}
+          <line x1={yAxisWidth} x2={yAxisWidth} y1={6} y2={baseY} stroke="#2c2017" strokeOpacity="0.4" strokeWidth="2" />
+
+          {/* Bars */}
+          {data.map((d, i) => {
+            const slotX = yAxisWidth + barAreaPaddingX + i * (barAreaWidth / barCount);
+            const slotW = barAreaWidth / barCount;
+            const barW = Math.min(40, slotW - 8);
+            const x = slotX + (slotW - barW) / 2;
+            const h = d.value * scale;
+            const y = baseY - h;
+            return (
+              <g key={i}>
+                <defs>
+                  <linearGradient id={`barGrad${i}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#e8622a" />
+                    <stop offset="100%" stopColor="#c74a15" />
+                  </linearGradient>
+                </defs>
+                <rect
+                  x={x}
+                  y={y}
+                  width={barW}
+                  height={h}
+                  fill={`url(#barGrad${i})`}
+                  rx="2"
+                />
+                {/* Value label above bar */}
+                <text
+                  x={x + barW / 2}
+                  y={y - 4}
+                  textAnchor="middle"
+                  fontSize="11"
+                  fontWeight="700"
+                  fill="#b85a1a"
+                >
+                  {d.value}
+                </text>
+                {/* X-axis label */}
+                <text
+                  x={slotX + slotW / 2}
+                  y={baseY + 16}
+                  textAnchor="middle"
+                  fontSize="11"
+                  fontWeight="600"
+                  fill="#2c2017"
+                >
+                  {d.label}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
       </div>
       {unit && (
         <div className="text-xs text-s4 text-center mt-2 italic">Nombre de {unit}</div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { generateCalcul } from '../generators/calcul';
 import { generateTerme } from '../generators/terme';
 import { generateWordProblem } from '../generators/wordProblem';
@@ -17,6 +17,8 @@ import { generateOnOnt } from '../generators/onOnt';
 import { generateGroupeNom } from '../generators/groupeNom';
 import { generateDicteeSemaine, generateDicteeCumulative, setCurrentWeek } from '../generators/dicteeSemaine';
 import { generatePasseCompose } from '../generators/passeCompose';
+import { generateFuturSimple } from '../generators/futurSimple';
+import { generateBiographieJr } from '../generators/biographieJr';
 import { recordPemdasAnswer } from '../generators/pemdas';
 import { generateApostrophe } from '../generators/apostrophe';
 import { generateMDevantBmp } from '../generators/mDevantBmp';
@@ -60,6 +62,8 @@ function getGenerator(mode) {
     case 'cayla_t6_s3': setCurrentWeek('cayla_t6_s3'); return generateDicteeSemaine;
     case 'dictee_revision': return generateDicteeCumulative;
     case 'passe_compose': return generatePasseCompose;
+    case 'futur_simple': return generateFuturSimple;
+    case 'biographie_jr': return generateBiographieJr;
     case 'apostrophe': return generateApostrophe;
     case 'm_devant_bmp': return generateMDevantBmp;
     case 'accord_etre': return generateAccordEtre;
@@ -119,6 +123,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
   const [stepIdx, setStepIdx] = useState(0);
   const [stepResults, setStepResults] = useState([]);
   const [stepFeedback, setStepFeedback] = useState(null);
+  const [stepInput, setStepInput] = useState('');
 
   const generate = useCallback(() => getGenerator(mode), [mode]);
 
@@ -153,26 +158,18 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
   const isWordProblem = question.type === 'word_problem';
   const hasSteps = isWordProblem && Array.isArray(question.stepCalcs) && question.stepCalcs.length > 0;
 
-  // Stable options per current step (4 numbers around the step's correct result)
-  const stepOptions = useMemo(() => {
-    if (!hasSteps || stepIdx >= question.stepCalcs.length) return [];
-    const target = question.stepCalcs[stepIdx].result;
-    const opts = new Set([target]);
-    while (opts.size < 4) {
-      const fake = target + Math.floor(Math.random() * 21) - 10;
-      if (fake > 0 && fake !== target && fake <= 200) opts.add(fake);
-    }
-    const arr = [...opts];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [question, stepIdx]);
-
-  function handleStepAnswer(value) {
+  function pressDigit(d) {
     if (stepFeedback !== null) return;
+    setStepInput((v) => (v.length >= 3 ? v : v + String(d)));
+  }
+  function pressBackspace() {
+    if (stepFeedback !== null) return;
+    setStepInput((v) => v.slice(0, -1));
+  }
+  function submitStep() {
+    if (stepFeedback !== null) return;
+    if (stepInput === '') return;
+    const value = parseInt(stepInput, 10);
     const calc = question.stepCalcs[stepIdx];
     const isCorrect = value === calc.result;
     const newResult = { ...calc, userAnswer: value, correct: isCorrect };
@@ -181,13 +178,14 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
 
     setTimeout(() => {
       setStepFeedback(null);
+      setStepInput('');
       if (stepIdx + 1 >= question.stepCalcs.length) {
         // Last step: this IS the final answer for the whole problem
         handleAnswer(value);
       } else {
         setStepIdx((i) => i + 1);
       }
-    }, 1400);
+    }, 1600);
   }
 
   function handleOperationChoice(op) {
@@ -262,6 +260,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
     setStepIdx(0);
     setStepResults([]);
     setStepFeedback(null);
+    setStepInput('');
   }
 
   function finishSession() {
@@ -320,6 +319,8 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'groupe_nom' && 'Groupe du nom'}
           {question.category === 'dictee_semaine' && `Dictée — ${question.weekName || 'Cette semaine'}`}
           {question.category === 'passe_compose' && 'Passé composé'}
+          {question.category === 'futur_simple' && 'Futur simple (1er groupe)'}
+          {question.category === 'biographie_jr' && 'Biographie — Jean Rostand'}
           {question.category === 'apostrophe' && "L'apostrophe"}
           {question.category === 'm_devant_bmp' && 'M devant B, M, P'}
           {question.category === 'accord_etre' && 'Accord adjectif après ÊTRE'}
@@ -447,37 +448,64 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           </div>
         )}
 
-        {/* Step calc UI — walks Ryan through each calculation instead of a single multi-choice */}
+        {/* Step calc UI — Ryan TYPES each step's answer (no multi-choice). Forces real computation. */}
         {hasSteps && operationAnswer !== null && !operationPhase && !showResult && stepIdx < question.stepCalcs.length && (
           <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200 mb-4">
             <p className="text-sm font-bold text-fox-d mb-2">
               Étape {stepIdx + 1} sur {question.stepCalcs.length} — {question.stepCalcs[stepIdx].label}
             </p>
-            <p className="text-3xl font-extrabold text-stone text-center my-3" style={{ fontVariantNumeric: 'tabular-nums' }}>
-              {question.stepCalcs[stepIdx].a} {question.stepCalcs[stepIdx].op} {question.stepCalcs[stepIdx].b} = ?
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              {stepOptions.map((opt) => {
-                const correctVal = question.stepCalcs[stepIdx].result;
-                let cls = 'bg-white border-s2 text-stone hover:border-fox';
-                if (stepFeedback) {
-                  if (opt === correctVal) cls = 'bg-green-50 border-green-500 text-green-700';
-                  else if (opt === stepFeedback.picked) cls = 'bg-red-50 border-red-400 text-red-600';
-                  else cls = 'bg-gray-50 border-gray-200 text-gray-400';
-                }
-                return (
-                  <button
-                    key={opt}
-                    onClick={() => handleStepAnswer(opt)}
-                    disabled={stepFeedback !== null}
-                    className={`py-3 rounded-xl font-extrabold text-2xl border-2 transition-all ${cls}`}
-                    style={{ minHeight: '56px' }}
-                  >
-                    {opt}
-                  </button>
-                );
-              })}
+            {/* Calc display with input */}
+            <div className="flex items-center justify-center gap-3 my-4 flex-wrap" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <span className="text-3xl font-extrabold text-stone">
+                {question.stepCalcs[stepIdx].a} {question.stepCalcs[stepIdx].op} {question.stepCalcs[stepIdx].b} =
+              </span>
+              <div className={`min-w-[100px] h-14 px-4 rounded-xl border-4 flex items-center justify-center text-3xl font-extrabold ${
+                stepFeedback
+                  ? stepFeedback.correct
+                    ? 'bg-green-50 border-green-500 text-green-700'
+                    : 'bg-red-50 border-red-400 text-red-600'
+                  : 'bg-white border-fox text-stone'
+              }`}>
+                {stepInput || <span className="text-s2">?</span>}
+              </div>
             </div>
+
+            {/* Digit pad */}
+            <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
+                <button
+                  key={d}
+                  onClick={() => pressDigit(d)}
+                  disabled={stepFeedback !== null}
+                  className="py-4 rounded-xl font-extrabold text-2xl bg-white border-2 border-s2 text-stone hover:border-fox active:bg-orange-100 transition-all disabled:opacity-50"
+                >
+                  {d}
+                </button>
+              ))}
+              <button
+                onClick={pressBackspace}
+                disabled={stepFeedback !== null || !stepInput}
+                className="py-4 rounded-xl font-extrabold text-xl bg-white border-2 border-s2 text-s4 hover:border-fox active:bg-orange-100 disabled:opacity-50"
+              >
+                ⌫
+              </button>
+              <button
+                onClick={() => pressDigit(0)}
+                disabled={stepFeedback !== null}
+                className="py-4 rounded-xl font-extrabold text-2xl bg-white border-2 border-s2 text-stone hover:border-fox active:bg-orange-100 disabled:opacity-50"
+              >
+                0
+              </button>
+              <button
+                onClick={submitStep}
+                disabled={stepFeedback !== null || stepInput === ''}
+                className="py-4 rounded-xl font-extrabold text-lg text-white disabled:opacity-40"
+                style={{ background: 'linear-gradient(90deg, #2d7a3a, #4ca65b)' }}
+              >
+                OK
+              </button>
+            </div>
+
             {stepFeedback && (
               <div className={`mt-3 text-center font-bold ${stepFeedback.correct ? 'text-green-700' : 'text-red-600'}`}>
                 {stepFeedback.correct ? '✅ Bravo!' : `❌ C'est ${question.stepCalcs[stepIdx].result}`}
