@@ -165,6 +165,127 @@ const templates = [
     return { text: `(${a} + ${b})² − ${c}`, correct: (a + b) ** 2 - c, wrong: a * a + b * b - c,
       hint: `(${a}+${b})² = ${a + b}² = ${(a + b) ** 2}. − ${c} = ${(a + b) ** 2 - c}` };
   }},
+  { cat: 'exponents', level: 5, gen: () => {
+    const a = rand(2, 5), b = rand(2, 5);
+    const correct = a * a + b * b;
+    return { text: `${a}² + ${b}²`, correct, wrong: (a + b) ** 2,
+      hint: `${a}² = ${a * a} et ${b}² = ${b * b}. Somme: ${correct}` };
+  }},
+  { cat: 'exponents', level: 5, gen: () => {
+    const a = rand(3, 6), b = rand(2, 4);
+    const correct = a * a - b * b;
+    if (correct <= 0) return null;
+    return { text: `${a}² − ${b}²`, correct, wrong: (a - b) ** 2,
+      hint: `${a}² = ${a * a} et ${b}² = ${b * b}. ${a * a} − ${b * b} = ${correct}` };
+  }},
+
+  // ---- Category: mult_div (Multiplication ET Division — left-to-right rule!) ----
+  // CRITIQUE: même priorité → on lit de GAUCHE À DROITE
+  { cat: 'mult_div', level: 2, gen: () => {
+    const c = rand(2, 6), b = rand(2, 5), a = b * c * rand(2, 4);
+    return { text: `${a} ÷ ${b} × ${c}`, correct: (a / b) * c, wrong: a / (b * c),
+      hint: `Gauche à droite: ${a} ÷ ${b} = ${a / b}. Puis × ${c} = ${(a / b) * c}` };
+  }},
+  { cat: 'mult_div', level: 2, gen: () => {
+    const a = rand(2, 6), b = rand(2, 5), c = b * rand(2, 4);
+    return { text: `${a} × ${b} ÷ ${b}`, correct: a, wrong: a * b * b,
+      hint: `Gauche à droite: ${a} × ${b} = ${a * b}. Puis ÷ ${b} = ${a}` };
+  }},
+  { cat: 'mult_div', level: 3, gen: () => {
+    const c = rand(2, 5), b = rand(2, 4), a = b * c * rand(2, 3), d = rand(2, 4);
+    return { text: `${a} ÷ ${b} × ${c} ÷ ${d}`, correct: ((a / b) * c) / d, wrong: a / (b * c * d),
+      hint: `Gauche à droite: ${a} ÷ ${b} = ${a / b}, × ${c} = ${(a / b) * c}, ÷ ${d} = ${((a / b) * c) / d}`,
+      // safety: only return if result is integer
+      _check: ((a / b) * c) / d };
+  }},
+
+  // ---- Category: add_sub (Addition ET Soustraction — left-to-right!) ----
+  { cat: 'add_sub', level: 1, gen: () => {
+    const a = rand(15, 40), b = rand(5, 15), c = rand(3, 10);
+    return { text: `${a} − ${b} + ${c}`, correct: a - b + c, wrong: a - (b + c),
+      hint: `Gauche à droite: ${a} − ${b} = ${a - b}. Puis + ${c} = ${a - b + c}. Attention: ne pas faire ${b} + ${c} d'abord!` };
+  }},
+  { cat: 'add_sub', level: 2, gen: () => {
+    const a = rand(20, 50), b = rand(3, 12), c = rand(3, 10), d = rand(2, 8);
+    return { text: `${a} − ${b} + ${c} − ${d}`, correct: a - b + c - d, wrong: a - (b + c - d),
+      hint: `Un à la fois, gauche à droite: ${a} − ${b} = ${a - b}, + ${c} = ${a - b + c}, − ${d} = ${a - b + c - d}` };
+  }},
+
+  // ---- More add_mult variations ----
+  { cat: 'add_mult', level: 2, gen: () => {
+    const a = rand(2, 6), b = rand(3, 8), c = rand(2, 5), d = rand(1, 5);
+    return { text: `${a} × ${b} + ${c} + ${d}`, correct: a * b + c + d, wrong: a * (b + c) + d,
+      hint: `× d'abord: ${a} × ${b} = ${a * b}. Puis + ${c} + ${d} = ${a * b + c + d}` };
+  }},
+  { cat: 'add_mult', level: 2, gen: () => {
+    const a = rand(2, 5), b = rand(3, 7), c = rand(2, 8);
+    return { text: `${a} + ${b} × ${c} + ${a}`, correct: a + b * c + a, wrong: (a + b) * (c + a),
+      hint: `${b} × ${c} = ${b * c}. Puis ${a} + ${b * c} + ${a} = ${a + b * c + a}` };
+  }},
+
+  // ---- More sub_mult variations ----
+  { cat: 'sub_mult', level: 1, gen: () => {
+    const b = rand(2, 5), c = rand(2, 6), d = rand(1, 8);
+    const correct = b * c - d;
+    if (correct < 0) return null;
+    return { text: `${b} × ${c} − ${d}`, correct, wrong: b * (c - d),
+      hint: `× d'abord: ${b} × ${c} = ${b * c}. Puis − ${d} = ${correct}` };
+  }},
+  { cat: 'sub_mult', level: 2, gen: () => {
+    const b = rand(2, 5), c = rand(2, 6), d = rand(1, 8), a = b * c + d + rand(5, 15);
+    return { text: `${a} − ${b} × ${c} − ${d}`, correct: a - b * c - d, wrong: (a - b) * c - d,
+      hint: `× d'abord: ${b} × ${c} = ${b * c}. ${a} − ${b * c} = ${a - b * c}. − ${d} = ${a - b * c - d}` };
+  }},
+
+  // ---- More parens variations ----
+  { cat: 'parens_simple', level: 2, gen: () => {
+    const a = rand(2, 8), b = rand(2, 6), c = rand(15, 40);
+    return { text: `${c} − ${a} × (${b} − 1)`, correct: c - a * (b - 1), wrong: (c - a) * (b - 1),
+      hint: `Parenthèses: ${b} − 1 = ${b - 1}. Puis ${a} × ${b - 1} = ${a * (b - 1)}. Puis ${c} − ${a * (b - 1)} = ${c - a * (b - 1)}` };
+  }},
+  { cat: 'parens_simple', level: 2, gen: () => {
+    const a = rand(2, 6), b = rand(2, 8), c = rand(2, 6);
+    return { text: `(${a} × ${b}) + ${c}`, correct: a * b + c, wrong: a * (b + c),
+      hint: `Parenthèses (qui ne changent rien ici): ${a} × ${b} = ${a * b}. Puis + ${c} = ${a * b + c}` };
+  }},
+
+  // ---- More division variations ----
+  { cat: 'division', level: 2, gen: () => {
+    const c = rand(2, 8), b = rand(2, 5), a = b * c, d = rand(2, 6);
+    return { text: `${a} ÷ ${b} × ${d}`, correct: c * d, wrong: a / (b * d),
+      hint: `Gauche à droite: ${a} ÷ ${b} = ${c}. Puis × ${d} = ${c * d}` };
+  }},
+  { cat: 'division', level: 3, gen: () => {
+    const c = rand(2, 6), b = rand(2, 5), a = b * c, d = rand(2, 6), e = rand(1, 5);
+    return { text: `${a} ÷ ${b} + ${d} − ${e}`, correct: c + d - e, wrong: c + (d - e),
+      hint: `${a} ÷ ${b} = ${c}. Puis ${c} + ${d} = ${c + d}, − ${e} = ${c + d - e}` };
+  }},
+
+  // ---- More multi_op variations ----
+  { cat: 'multi_op', level: 3, gen: () => {
+    const a = rand(2, 6), b = rand(2, 5), c = rand(3, 10);
+    return { text: `${c} + ${a} × ${b} − ${a}`, correct: c + a * b - a, wrong: (c + a) * (b - a),
+      hint: `× d'abord: ${a} × ${b} = ${a * b}. ${c} + ${a * b} − ${a} = ${c + a * b - a}` };
+  }},
+  { cat: 'multi_op', level: 4, gen: () => {
+    const a = rand(2, 4), b = rand(2, 5), c = rand(2, 4), d = rand(2, 5);
+    const correct = a * b * c - d;
+    if (correct < 0 || correct > 999) return null;
+    return { text: `${a} × ${b} × ${c} − ${d}`, correct, wrong: a * (b * c - d),
+      hint: `Trois × ensemble: ${a} × ${b} = ${a * b}, × ${c} = ${a * b * c}. Puis − ${d} = ${correct}` };
+  }},
+
+  // ---- More parens_mult variations ----
+  { cat: 'parens_mult', level: 3, gen: () => {
+    const a = rand(2, 5), b = rand(3, 8), c = rand(2, 5);
+    return { text: `(${a} + ${b}) × ${c} − ${a}`, correct: (a + b) * c - a, wrong: a + b * c - a,
+      hint: `Parenthèses d'abord: ${a} + ${b} = ${a + b}. ${a + b} × ${c} = ${(a + b) * c}. − ${a} = ${(a + b) * c - a}` };
+  }},
+  { cat: 'parens_mult', level: 4, gen: () => {
+    const a = rand(2, 5), b = rand(2, 6), c = rand(2, 5), d = rand(2, 5);
+    return { text: `(${a} + ${b}) × (${c} − 1) + ${d}`, correct: (a + b) * (c - 1) + d, wrong: a + b * (c - 1) + d,
+      hint: `Deux parenthèses: ${a + b} et ${c - 1}. ${a + b} × ${c - 1} = ${(a + b) * (c - 1)}. + ${d} = ${(a + b) * (c - 1) + d}` };
+  }},
 ];
 
 // ===== Mastery tracking per CATEGORY =====
