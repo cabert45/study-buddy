@@ -4,6 +4,15 @@ import { registerRoute, NavigationRoute } from 'workbox-routing';
 import { CacheFirst, NetworkFirst } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
 
+// Aggressive update: take over immediately on install/activate so users always get the latest
+// (PWA cache bugs caused white screens on math section May 9 2026)
+self.addEventListener('install', () => {
+  self.skipWaiting();
+});
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
 // Workbox precache (handled by injectManifest)
 precacheAndRoute(self.__WB_MANIFEST || []);
 
