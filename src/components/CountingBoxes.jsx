@@ -108,8 +108,8 @@ export default function CountingBoxes({ a, b, op, showExchange }) {
           💡 Pas assez d'unites! Echange 1 dizaine contre 10 unites.
         </div>
       )}
-      <div className="mt-2 text-sm font-bold text-green-700">
-        Il reste {a - b} points = la reponse!
+      <div className="mt-2 text-sm font-bold text-fox-d">
+        Compte les points qui restent!
       </div>
     </div>
   );
