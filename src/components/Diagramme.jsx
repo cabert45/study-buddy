@@ -6,22 +6,21 @@ import React from 'react';
 // DataTable — tableau de données
 
 export function BarChart({ data, title, unit }) {
-  const maxValue = Math.max(...data.map((d) => d.value), 1);
+  if (!data || data.length === 0) return null;
+
+  const values = data.map((d) => Number(d.value) || 0);
+  const maxValue = Math.max(...values, 1);
   const step = maxValue <= 10 ? 1 : maxValue <= 25 ? 5 : 10;
   const ticks = [];
   for (let v = 0; v <= maxValue + step; v += step) ticks.push(v);
   const yMax = ticks[ticks.length - 1] || 1;
 
-  // SVG-based chart for reliable rendering across all browsers/PWA
   const chartHeight = 180;
   const yAxisWidth = 28;
-  const barAreaPaddingX = 12;
   const barCount = data.length;
-  // Allocate viewBox width based on number of bars
-  const barSlot = 56; // px per bar in viewBox
+  const barSlot = 56;
   const barAreaWidth = Math.max(barCount * barSlot, 200);
-  const totalWidth = yAxisWidth + barAreaWidth + barAreaPaddingX * 2;
-
+  const totalWidth = yAxisWidth + barAreaWidth + 12;
   const scale = chartHeight / yMax;
   const baseY = chartHeight + 6;
 
@@ -33,15 +32,22 @@ export function BarChart({ data, title, unit }) {
       <div className="w-full overflow-x-auto">
         <svg
           viewBox={`0 0 ${totalWidth} ${chartHeight + 38}`}
-          width="100%"
-          style={{ minWidth: totalWidth, maxWidth: '100%', display: 'block' }}
-          preserveAspectRatio="xMidYMid meet"
+          width={totalWidth}
+          height={chartHeight + 38}
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
         >
-          {/* Y-axis grid + ticks */}
+          <defs>
+            <linearGradient id="barChartGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#e8622a" />
+              <stop offset="100%" stopColor="#c74a15" />
+            </linearGradient>
+          </defs>
+          {/* Y-axis grid lines + tick labels */}
           {ticks.map((t) => {
             const y = baseY - t * scale;
             return (
-              <g key={t}>
+              <g key={`tick-${t}`}>
                 <line
                   x1={yAxisWidth}
                   x2={totalWidth - 4}
@@ -49,7 +55,7 @@ export function BarChart({ data, title, unit }) {
                   y2={y}
                   stroke="#d6ccc0"
                   strokeWidth="1"
-                  strokeDasharray={t === 0 ? '0' : '3 3'}
+                  strokeDasharray={t === 0 ? undefined : '3 3'}
                 />
                 <text
                   x={yAxisWidth - 4}
@@ -66,32 +72,25 @@ export function BarChart({ data, title, unit }) {
           })}
           {/* Y-axis line */}
           <line x1={yAxisWidth} x2={yAxisWidth} y1={6} y2={baseY} stroke="#2c2017" strokeOpacity="0.4" strokeWidth="2" />
-
-          {/* Bars */}
+          {/* Bars + labels */}
           {data.map((d, i) => {
-            const slotX = yAxisWidth + barAreaPaddingX + i * (barAreaWidth / barCount);
             const slotW = barAreaWidth / barCount;
-            const barW = Math.min(40, slotW - 8);
+            const slotX = yAxisWidth + i * slotW;
+            const value = Number(d.value) || 0;
+            const barW = Math.min(40, Math.max(8, slotW - 12));
             const x = slotX + (slotW - barW) / 2;
-            const h = d.value * scale;
+            const h = value * scale;
             const y = baseY - h;
             return (
-              <g key={i}>
-                <defs>
-                  <linearGradient id={`barGrad${i}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#e8622a" />
-                    <stop offset="100%" stopColor="#c74a15" />
-                  </linearGradient>
-                </defs>
+              <g key={`bar-${i}`}>
                 <rect
                   x={x}
                   y={y}
                   width={barW}
                   height={h}
-                  fill={`url(#barGrad${i})`}
+                  fill="url(#barChartGrad)"
                   rx="2"
                 />
-                {/* Value label above bar */}
                 <text
                   x={x + barW / 2}
                   y={y - 4}
@@ -100,9 +99,8 @@ export function BarChart({ data, title, unit }) {
                   fontWeight="700"
                   fill="#b85a1a"
                 >
-                  {d.value}
+                  {value}
                 </text>
-                {/* X-axis label */}
                 <text
                   x={slotX + slotW / 2}
                   y={baseY + 16}
