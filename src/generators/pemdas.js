@@ -2,6 +2,7 @@
 // Order of operations: Parentheses, Exponents, Multiply, Divide, Add, Subtract
 // Templates are categorized so we can track which TYPES she struggles with
 // and surface those more often (adaptive selection).
+import { withFresh } from '../utils/antiRepeat';
 
 const MASTERY_KEY = 'sb_pemdas_mastery_cayla';
 
@@ -354,7 +355,7 @@ export function getPemdasMasterySummary() {
   });
 }
 
-export function generatePemdas() {
+function buildOnePemdas() {
   let question = null;
   let attempts = 0;
   let pickedCat = null;
@@ -384,7 +385,7 @@ export function generatePemdas() {
 
   return {
     category: 'pemdas',
-    pemdasCategory: pickedCat, // sub-category for adaptive tracking
+    pemdasCategory: pickedCat,
     type: 'pemdas',
     text: `${question.text} = ?`,
     correct: question.correct,
@@ -392,4 +393,10 @@ export function generatePemdas() {
     explanation: question.hint,
     hint: question.hint,
   };
+}
+
+export function generatePemdas() {
+  // Capacity 100 = remember the last 100 distinct question texts she's seen
+  // → about a week of practice (15-30 questions/session)
+  return withFresh('pemdas', buildOnePemdas, 100, 25);
 }

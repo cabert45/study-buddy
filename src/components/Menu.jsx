@@ -28,6 +28,8 @@ const icons = {
   futur_simple: { bg: '#e8eef8', color: '#3a5bc7', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M5 9H13M13 9L10 6M13 9L10 12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg> },
   passe_compose: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M13 9H5M5 9L8 6M5 9L8 12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg> },
   biographie_jr: { bg: '#e8f5ea', color: '#2d7a3a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 4C3 3.4 3.4 3 4 3H14C14.6 3 15 3.4 15 4V14C15 14.6 14.6 15 14 15H4C3.4 15 3 14.6 3 14V4Z" stroke="currentColor" strokeWidth="1.4"/><line x1="6" y1="7" x2="12" y2="7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><line x1="6" y1="10" x2="12" y2="10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><line x1="6" y1="13" x2="9" y2="13" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
+  classe_de_mots: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="3.5" width="13" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><line x1="2.5" y1="7" x2="15.5" y2="7" stroke="currentColor" strokeWidth="1.4"/><line x1="9" y1="7" x2="9" y2="14.5" stroke="currentColor" strokeWidth="1.4"/></svg> },
+  pluriels_cayla: { bg: '#fef0e4', color: '#c74a15', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="3" y="13" fontSize="9" fontWeight="700" fill="currentColor">×s</text><text x="10" y="13" fontSize="9" fontWeight="700" fill="currentColor">×x</text></svg> },
 };
 
 const ryanMathModes = [
@@ -69,7 +71,9 @@ const caylaMathModes = [
 ];
 
 const caylaFrenchModes = [
-  { id: 'cayla_dictees_group', label: 'Dictées de la semaine', desc: 'Mots du test de mardi (T6)', isGroup: true, featured: true },
+  { id: 'classe_de_mots', label: '📝 Classe de mots', desc: 'Test 43/57 (75%) — drill les confusions', featured: true },
+  { id: 'cayla_dictees_group', label: 'Dictées de la semaine', desc: 'Mots du test de mardi (T6)', isGroup: true },
+  { id: 'pluriels_cayla', label: 'Pluriels — cas particuliers', desc: 'corail→coraux, chevreuil→chevreuils, les 7 -oux' },
   { id: 'conjugaison', label: 'Conjugaison', desc: 'Verbes et temps' },
 ];
 

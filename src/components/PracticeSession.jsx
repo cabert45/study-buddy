@@ -19,6 +19,8 @@ import { generateDicteeSemaine, generateDicteeCumulative, setCurrentWeek } from 
 import { generatePasseCompose } from '../generators/passeCompose';
 import { generateFuturSimple } from '../generators/futurSimple';
 import { generateBiographieJr } from '../generators/biographieJr';
+import { generateClasseDeMots } from '../generators/classeDeMots';
+import { generatePlurielsCayla } from '../generators/plurielsCayla';
 import { recordPemdasAnswer } from '../generators/pemdas';
 import { generateApostrophe } from '../generators/apostrophe';
 import { generateMDevantBmp } from '../generators/mDevantBmp';
@@ -64,6 +66,8 @@ function getGenerator(mode) {
     case 'passe_compose': return generatePasseCompose;
     case 'futur_simple': return generateFuturSimple;
     case 'biographie_jr': return generateBiographieJr;
+    case 'classe_de_mots': return generateClasseDeMots;
+    case 'pluriels_cayla': return generatePlurielsCayla;
     case 'apostrophe': return generateApostrophe;
     case 'm_devant_bmp': return generateMDevantBmp;
     case 'accord_etre': return generateAccordEtre;
@@ -321,6 +325,8 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'passe_compose' && 'Passé composé'}
           {question.category === 'futur_simple' && 'Futur simple (1er groupe)'}
           {question.category === 'biographie_jr' && 'Biographie — Jean Rostand'}
+          {question.category === 'classe_de_mots' && 'Classe de mots'}
+          {question.category === 'pluriels' && 'Pluriels — cas particuliers'}
           {question.category === 'apostrophe' && "L'apostrophe"}
           {question.category === 'm_devant_bmp' && 'M devant B, M, P'}
           {question.category === 'accord_etre' && 'Accord adjectif après ÊTRE'}
