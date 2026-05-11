@@ -260,6 +260,22 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
         </button>
       )}
 
+      {/* Fable reader — La cigale et la fourmi (Mon May 11 1-min recitation) */}
+      {isRyan && onStartFable && (
+        <button onClick={onStartFable}
+          className="w-full rounded-2xl p-4 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+          style={{ background: 'linear-gradient(135deg, #2d7a3a, #4ca65b)', boxShadow: '0 5px 22px rgba(45,122,58,0.15)' }}>
+          <div className="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white text-2xl">
+            🐜
+          </div>
+          <div className="text-left flex-1">
+            <div className="font-heading text-lg font-extrabold text-white leading-tight">La cigale et la fourmi</div>
+            <div className="text-xs font-semibold text-white/85">Lis la fable à voix haute en 1 minute</div>
+          </div>
+          <ChevronRight className="text-white/40" size={20} strokeWidth={3} />
+        </button>
+      )}
+
       {/* Tasks button */}
       {onStartChores && !isDemo && (
         <button onClick={onStartChores}
@@ -402,21 +418,6 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
           <div className="text-left">
             <div className="font-heading text-lg font-bold text-stone leading-tight">Tuteur personnel</div>
             <div className="text-xs font-semibold text-s4">Apprends pas à pas avec ton professeur</div>
-          </div>
-        </button>
-      )}
-
-      {/* Fable reader — La cigale et la fourmi (Mon May 11 homework, 1-min recitation) */}
-      {isRyan && onStartFable && (
-        <button onClick={onStartFable}
-          className="w-full flex items-center gap-4 bg-white border-2 border-s1 rounded-2xl p-4 mb-3 transition-all hover:border-fox hover:shadow-md">
-          <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm text-white text-xl"
-            style={{ background: 'linear-gradient(135deg, #2d7a3a, #4ca65b)' }}>
-            🐜
-          </div>
-          <div className="text-left">
-            <div className="font-heading text-lg font-bold text-stone leading-tight">La cigale et la fourmi</div>
-            <div className="text-xs font-semibold text-s4">Lis la fable à voix haute en 1 minute</div>
           </div>
         </button>
       )}
