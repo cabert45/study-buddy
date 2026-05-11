@@ -31,6 +31,7 @@ import { generateFigures } from '../generators/figures';
 import { generateMesure } from '../generators/mesure';
 import { generatePlurielsRyan } from '../generators/plurielsRyan';
 import { generateHistoire } from '../generators/histoire';
+import { generateEnglishOral } from '../generators/englishOral';
 import { recordPemdasAnswer } from '../generators/pemdas';
 import { generateApostrophe } from '../generators/apostrophe';
 import { generateMDevantBmp } from '../generators/mDevantBmp';
@@ -88,6 +89,7 @@ function getGenerator(mode) {
     case 'mesure': return generateMesure;
     case 'pluriels_ryan': return generatePlurielsRyan;
     case 'histoire': return generateHistoire;
+    case 'english_oral': return generateEnglishOral;
     case 'apostrophe': return generateApostrophe;
     case 'm_devant_bmp': return generateMDevantBmp;
     case 'accord_etre': return generateAccordEtre;
@@ -162,8 +164,10 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
 
   useEffect(() => {
     if (question) {
-      // For dictée, speak the word slowly and clearly
-      if (question.spokenWord) {
+      if (question.spokenLang === 'en' && question.spokenWord) {
+        speak(question.spokenWord, 'en');
+      } else if (question.spokenWord) {
+        // For dictée, speak the word slowly and clearly
         speakSlow(question.spokenWord);
       } else {
         speak(question.text);
@@ -358,6 +362,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'mesure' && 'Mesure en centimètres'}
           {question.category === 'pluriels_ryan' && 'Pluriel & Féminin'}
           {question.category === 'histoire' && "Parties d'une histoire"}
+          {question.category === 'english_oral' && '🇬🇧 Anglais oral'}
           {question.category === 'apostrophe' && "L'apostrophe"}
           {question.category === 'm_devant_bmp' && 'M devant B, M, P'}
           {question.category === 'accord_etre' && 'Accord adjectif après ÊTRE'}
@@ -379,10 +384,18 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
         {/* Listen button + scratch pad + video help */}
         <div className="flex flex-wrap gap-3 mb-4">
           <button
-            onClick={() => question.spokenWord ? speakSlow(question.spokenWord) : speak(question.text)}
+            onClick={() => {
+              if (question.spokenLang === 'en' && question.spokenWord) {
+                speak(question.spokenWord, 'en');
+              } else if (question.spokenWord) {
+                speakSlow(question.spokenWord);
+              } else {
+                speak(question.text);
+              }
+            }}
             className="text-sm text-s4 font-semibold hover:text-lava"
           >
-            🔊 {question.spokenWord ? 'Réécouter le mot' : 'Ecouter'}
+            🔊 {question.spokenLang === 'en' ? 'Écouter en anglais' : question.spokenWord ? 'Réécouter le mot' : 'Écouter'}
           </button>
           {!showResult && (
             <button

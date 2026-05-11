@@ -153,23 +153,27 @@ function buildPlan(dashboardData, opts = {}) {
     plan.push({ type: 'app', mode: 'biographie_jr', label: '2e tour biographie (renforcer!)', mins: 10, icon: '📖' });
     plan.push({ type: 'message', label: 'Bravo! Profite du reste de ta journée!', mins: 1, icon: '🌳' });
   } else if (day === 1) {
-    // MONDAY (May 11) — DERNIÈRE prep dictée + biographie + fable
+    // MONDAY (May 11) — DERNIÈRE prep dictée + biographie + fable + start English
     plan.push({ type: 'app', mode: 'biographie_jr', label: 'DERNIÈRE révision biographie (90%+!)', mins: 15, icon: '📖' });
     plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'app', mode: 'dictee_s4', label: 'DERNIÈRE révision dictée!', mins: 15, icon: '🎧' });
+    plan.push({ type: 'app', mode: 'dictee_s4', label: 'DERNIÈRE révision dictée!', mins: 12, icon: '🎧' });
     plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'message', label: 'Lecture fable "La cigale et la fourmi" (La Fontaine) — entraîne-toi à la lire en 1 min!', mins: 8, icon: '🐜' });
+    plan.push({ type: 'message', label: 'Lecture fable "La cigale et la fourmi" (La Fontaine) — lis à voix haute, vise 1 minute!', mins: 8, icon: '🐜' });
     plan.push({ type: 'break', label: 'Pause', mins: 3, icon: '☕' });
+    plan.push({ type: 'app', mode: 'english_oral', label: '🇬🇧 Anglais — days/months/seasons (test mercredi)', mins: 10, icon: '🌎' });
     plan.push({ type: 'app', mode: 'futur_simple', label: 'Futur simple (test mercredi)', mins: 10, icon: '🔮' });
   } else if (day === 2) {
-    // TUESDAY (May 12) — DICTÉE DAY! + prep futur indicatif pour mercredi
+    // TUESDAY (May 12) — DICTÉE DAY! + prep futur + DERNIÈRE prep anglais
     plan.push({ type: 'message', label: '📢 Aujourd\'hui = dictée! Bonne chance!', mins: 1, icon: '🍀' });
-    plan.push({ type: 'app', mode: 'futur_simple', label: 'DERNIÈRE prep futur (test demain!)', mins: 15, icon: '🔮' });
+    plan.push({ type: 'app', mode: 'english_oral', label: '🇬🇧 DERNIÈRE prep anglais (test demain!)', mins: 12, icon: '🌎' });
     plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'app', mode: 'mental', label: 'Calcul mental (sens multiplication demain)', mins: 10, icon: '⚡' });
+    plan.push({ type: 'app', mode: 'futur_simple', label: 'DERNIÈRE prep futur (test demain!)', mins: 12, icon: '🔮' });
+    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+    plan.push({ type: 'app', mode: 'mental', label: 'Calcul mental (sens multiplication demain)', mins: 8, icon: '⚡' });
   } else if (day === 3) {
-    // WEDNESDAY (May 13) — futur indicatif test today + start exam-prep (homophones from cahier bleu)
-    plan.push({ type: 'message', label: '🇬🇧 Réviser oral anglais: days, months, seasons (5 min)', mins: 5, icon: '🌎' });
+    // WEDNESDAY (May 13) — futur indicatif test + ENGLISH oral test today
+    plan.push({ type: 'message', label: '🇬🇧 Bonne chance pour ton test d\'anglais ET de futur aujourd\'hui!', mins: 1, icon: '🍀' });
+    plan.push({ type: 'app', mode: 'english_oral', label: '🇬🇧 Échauffement anglais', mins: 8, icon: '🌎' });
     plan.push({ type: 'app', mode: 'homophones', label: 'Homophones (cahier bleu + examen final)', mins: 12, icon: '🔀' });
     plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
     plan.push({ type: 'app', mode: 'passe_compose', label: 'Passé composé (révision pour jeudi)', mins: 10, icon: '📝' });

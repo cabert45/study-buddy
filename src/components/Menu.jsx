@@ -40,6 +40,7 @@ const icons = {
   mesure: { bg: '#e8f5ea', color: '#2d7a3a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="6" width="14" height="6" stroke="currentColor" strokeWidth="1.4"/><line x1="5" y1="6" x2="5" y2="9" stroke="currentColor" strokeWidth="1.2"/><line x1="8" y1="6" x2="8" y2="9" stroke="currentColor" strokeWidth="1.2"/><line x1="11" y1="6" x2="11" y2="9" stroke="currentColor" strokeWidth="1.2"/><line x1="14" y1="6" x2="14" y2="9" stroke="currentColor" strokeWidth="1.2"/></svg> },
   pluriels_ryan: { bg: '#fef0e4', color: '#c74a15', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="3" y="13" fontSize="9" fontWeight="700" fill="currentColor">×s</text><text x="10" y="13" fontSize="9" fontWeight="700" fill="currentColor">×x</text></svg> },
   histoire: { bg: '#e6f5f0', color: '#0f766e', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 4C3 3.4 3.4 3 4 3H14C14.6 3 15 3.4 15 4V15L9 12L3 15V4Z" stroke="currentColor" strokeWidth="1.4" fill="none"/></svg> },
+  english_oral: { bg: '#e8eef8', color: '#3a5bc7', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="currentColor" strokeWidth="1.4"/><path d="M2 9H16M9 2C7 4 6 6 6 9C6 12 7 14 9 16C11 14 12 12 12 9C12 6 11 4 9 2Z" stroke="currentColor" strokeWidth="1.2" fill="none"/></svg> },
 };
 
 const ryanMathModes = [
@@ -62,6 +63,7 @@ const ryanMathModes = [
 
 const ryanFrenchModes = [
   { id: 'biographie_jr', label: '📖 Biographie Jean Rostand', desc: 'CRITIQUE — il faut 90%+ pour passer', featured: true, special: true },
+  { id: 'english_oral', label: '🇬🇧 Anglais — days/months/seasons', desc: 'TEST oral mercredi 13 mai + examen 10 juin', special: true, badge: 'Examen' },
   { id: 'dictee_s4', label: '🎧 Dictée mardi', desc: 'n → m devant b, p — campagne, compote (semaine 4)', special: true },
   { id: 'dictees_group', label: 'Dictées', desc: 'Toutes les semaines (1, 2, 3, 4, révision)', isGroup: true, special: true },
   { id: 'homophones', label: '🔀 Homophones', desc: 'a/à · et/est · son/sont · ont/on — cahier bleu + examen', badge: 'Examen' },

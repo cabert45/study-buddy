@@ -114,6 +114,14 @@ export const videoLinks = {
     { title: 'Jean Rostand — biographie courte', url: 'https://www.youtube.com/results?search_query=jean+rostand+biographie+biologiste', channel: 'Recherche' },
     { title: 'Edmond Rostand & Cyrano de Bergerac', url: 'https://www.youtube.com/results?search_query=edmond+rostand+cyrano+de+bergerac', channel: 'Recherche' },
   ],
+
+  // === English oral ===
+  english_oral: [
+    { title: 'Days of the Week song (Maple Leaf Learning)', url: 'https://www.youtube.com/results?search_query=days+of+the+week+song+kids', channel: 'Recherche' },
+    { title: 'Months of the Year song', url: 'https://www.youtube.com/results?search_query=months+of+the+year+song+kids', channel: 'Recherche' },
+    { title: 'The Four Seasons (Spring/Summer/Fall/Winter)', url: 'https://www.youtube.com/results?search_query=four+seasons+song+kids+spring+summer+fall+winter', channel: 'Recherche' },
+    { title: 'ABC English — Days, Months, Seasons (drill)', url: 'https://www.youtube.com/results?search_query=days+months+seasons+english+for+french+speakers', channel: 'Recherche' },
+  ],
 };
 
 export function getVideosForCategory(category) {
