@@ -180,11 +180,13 @@ function buildPlan(dashboardData, opts = {}) {
     plan.push({ type: 'app', mode: 'fractions', label: 'Fractions (nouveau pour finaux)', mins: 12, icon: '🍕' });
     plan.push({ type: 'message', label: 'Demain = pas d\'école (journée pédagogique)! 🎉', mins: 1, icon: '🎉' });
   } else if (day === 5) {
-    // FRIDAY (May 15) — JOURNÉE PÉDAGOGIQUE / PAS D'ÉCOLE — light exam prep
-    plan.push({ type: 'message', label: '🎉 Pas d\'école aujourd\'hui! Petite révision pour les examens.', mins: 1, icon: '🎉' });
-    plan.push({ type: 'app', mode: 'fractions', label: 'Fractions (examen final)', mins: 12, icon: '🍕' });
-    plan.push({ type: 'break', label: 'Pause', mins: 10, icon: '☕' });
-    plan.push({ type: 'app', mode: 'homophones', label: 'Homophones (examen final)', mins: 12, icon: '🔀' });
+    // FRIDAY (May 15) — JOURNÉE PÉDAGOGIQUE / PAS D'ÉCOLE — exam-prep rotation
+    plan.push({ type: 'message', label: '🎉 Pas d\'école aujourd\'hui! Révision pour les examens.', mins: 1, icon: '🎉' });
+    plan.push({ type: 'app', mode: 'fractions', label: 'Fractions (examen final)', mins: 10, icon: '🍕' });
+    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+    plan.push({ type: 'app', mode: 'mult_div', label: 'Sens × et ÷ (examen final)', mins: 10, icon: '✖️' });
+    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+    plan.push({ type: 'app', mode: 'homophones', label: 'Homophones (examen final)', mins: 10, icon: '🔀' });
     plan.push({ type: 'message', label: 'C\'est tout! Profite de ta journée!', mins: 1, icon: '🌳' });
   }
 

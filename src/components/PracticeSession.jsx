@@ -24,6 +24,13 @@ import { generatePlurielsCayla } from '../generators/plurielsCayla';
 import { generateHomophones } from '../generators/homophones';
 import { generatePresentIndicatif } from '../generators/presentIndicatif';
 import { generateFractions } from '../generators/fractions';
+import { generateSuites } from '../generators/suites';
+import { generateMultDiv } from '../generators/multDiv';
+import { generateRepresenter } from '../generators/representer';
+import { generateFigures } from '../generators/figures';
+import { generateMesure } from '../generators/mesure';
+import { generatePlurielsRyan } from '../generators/plurielsRyan';
+import { generateHistoire } from '../generators/histoire';
 import { recordPemdasAnswer } from '../generators/pemdas';
 import { generateApostrophe } from '../generators/apostrophe';
 import { generateMDevantBmp } from '../generators/mDevantBmp';
@@ -74,6 +81,13 @@ function getGenerator(mode) {
     case 'homophones': return generateHomophones;
     case 'present_indicatif': return generatePresentIndicatif;
     case 'fractions': return generateFractions;
+    case 'suites': return generateSuites;
+    case 'mult_div': return generateMultDiv;
+    case 'representer': return generateRepresenter;
+    case 'figures': return generateFigures;
+    case 'mesure': return generateMesure;
+    case 'pluriels_ryan': return generatePlurielsRyan;
+    case 'histoire': return generateHistoire;
     case 'apostrophe': return generateApostrophe;
     case 'm_devant_bmp': return generateMDevantBmp;
     case 'accord_etre': return generateAccordEtre;
@@ -336,6 +350,13 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'homophones' && 'Homophones'}
           {question.category === 'present_indicatif' && 'Présent — 1er groupe'}
           {question.category === 'fractions' && 'Fractions'}
+          {question.category === 'suites' && 'Suites et régularités'}
+          {question.category === 'mult_div' && 'Multiplication & Division'}
+          {question.category === 'representer' && 'Représenter un nombre'}
+          {question.category === 'figures' && 'Figures planes & solides'}
+          {question.category === 'mesure' && 'Mesure en centimètres'}
+          {question.category === 'pluriels_ryan' && 'Pluriel & Féminin'}
+          {question.category === 'histoire' && "Parties d'une histoire"}
           {question.category === 'apostrophe' && "L'apostrophe"}
           {question.category === 'm_devant_bmp' && 'M devant B, M, P'}
           {question.category === 'accord_etre' && 'Accord adjectif après ÊTRE'}
