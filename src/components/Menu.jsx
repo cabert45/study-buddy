@@ -30,14 +30,18 @@ const icons = {
   biographie_jr: { bg: '#e8f5ea', color: '#2d7a3a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 4C3 3.4 3.4 3 4 3H14C14.6 3 15 3.4 15 4V14C15 14.6 14.6 15 14 15H4C3.4 15 3 14.6 3 14V4Z" stroke="currentColor" strokeWidth="1.4"/><line x1="6" y1="7" x2="12" y2="7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><line x1="6" y1="10" x2="12" y2="10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><line x1="6" y1="13" x2="9" y2="13" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
   classe_de_mots: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="3.5" width="13" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><line x1="2.5" y1="7" x2="15.5" y2="7" stroke="currentColor" strokeWidth="1.4"/><line x1="9" y1="7" x2="9" y2="14.5" stroke="currentColor" strokeWidth="1.4"/></svg> },
   pluriels_cayla: { bg: '#fef0e4', color: '#c74a15', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="3" y="13" fontSize="9" fontWeight="700" fill="currentColor">×s</text><text x="10" y="13" fontSize="9" fontWeight="700" fill="currentColor">×x</text></svg> },
+  homophones: { bg: '#fce8ec', color: '#c74a60', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M5 5L13 13M13 5L5 13" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
+  present_indicatif: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.4"/><circle cx="9" cy="9" r="1.5" fill="currentColor"/></svg> },
+  fractions: { bg: '#e6f5f0', color: '#0f766e', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="9" y="8" textAnchor="middle" fontSize="7" fontWeight="800" fill="currentColor">1</text><line x1="4" y1="9" x2="14" y2="9" stroke="currentColor" strokeWidth="1.4"/><text x="9" y="15" textAnchor="middle" fontSize="7" fontWeight="800" fill="currentColor">2</text></svg> },
 };
 
 const ryanMathModes = [
   { id: 'mixed', label: 'Pratique ciblée', desc: 'Mix de tous tes exercices', featured: true },
+  { id: 'fractions', label: '🍕 Fractions', desc: 'Examens finaux — nouveau concept', badge: 'Nouveau' },
   { id: 'calcul', label: 'Calcul', desc: 'Addition et soustraction', badge: 'Priorité' },
   { id: 'terme', label: 'Terme manquant', desc: 'Trouve le nombre mystère', badge: 'Priorité' },
   { id: 'multi_step', label: 'Problèmes', desc: 'Problèmes à étapes', badge: 'À travailler' },
-  { id: 'statistique', label: 'Diagrammes', desc: 'Légendes, fin de semaine, totaux', badge: 'Nouveau' },
+  { id: 'statistique', label: 'Diagrammes', desc: 'Légendes, fin de semaine, totaux' },
   { id: 'relational', label: 'De plus / moins', desc: 'Comparaisons' },
   { id: 'compare', label: 'Compare', desc: '>, < ou =' },
   { id: 'pair_impair', label: 'Pair / Impair', desc: 'Nombres pairs et impairs' },
@@ -48,6 +52,8 @@ const ryanFrenchModes = [
   { id: 'biographie_jr', label: '📖 Biographie Jean Rostand', desc: 'CRITIQUE — il faut 90%+ pour passer', featured: true, special: true },
   { id: 'dictee_s4', label: '🎧 Dictée mardi', desc: 'n → m devant b, p — campagne, compote (semaine 4)', special: true },
   { id: 'dictees_group', label: 'Dictées', desc: 'Toutes les semaines (1, 2, 3, 4, révision)', isGroup: true, special: true },
+  { id: 'homophones', label: '🔀 Homophones', desc: 'a/à · et/est · son/sont · ont/on — cahier bleu + examen', badge: 'Examen' },
+  { id: 'present_indicatif', label: 'Présent — 1er groupe', desc: 'je chante, tu chantes... — cahier bleu', badge: 'Examen' },
   { id: 'futur_simple', label: 'Futur simple', desc: 'Verbes -er au futur — TEST mercredi 13 mai', special: true },
   { id: 'passe_compose', label: 'Passé composé', desc: 'Verbes -er + finir — révision jeudi' },
   { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs' },

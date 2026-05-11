@@ -168,23 +168,23 @@ function buildPlan(dashboardData, opts = {}) {
     plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
     plan.push({ type: 'app', mode: 'mental', label: 'Calcul mental (sens multiplication demain)', mins: 10, icon: '⚡' });
   } else if (day === 3) {
-    // WEDNESDAY (May 13) — futur indicatif tested today + sens de la multiplication + oral anglais
+    // WEDNESDAY (May 13) — futur indicatif test today + start exam-prep (homophones from cahier bleu)
     plan.push({ type: 'message', label: '🇬🇧 Réviser oral anglais: days, months, seasons (5 min)', mins: 5, icon: '🌎' });
-    plan.push({ type: 'app', mode: 'mental', label: 'Sens de la multiplication (groupes égaux)', mins: 12, icon: '✖️' });
+    plan.push({ type: 'app', mode: 'homophones', label: 'Homophones (cahier bleu + examen final)', mins: 12, icon: '🔀' });
     plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'app', mode: 'passe_compose', label: 'Passé composé (révision pour jeudi)', mins: 12, icon: '📝' });
+    plan.push({ type: 'app', mode: 'passe_compose', label: 'Passé composé (révision pour jeudi)', mins: 10, icon: '📝' });
   } else if (day === 4) {
-    // THURSDAY (May 14) — verbes -er composés (passé composé)
-    plan.push({ type: 'app', mode: 'passe_compose', label: 'Verbes -er composés (passé composé)', mins: 18, icon: '📝' });
-    plan.push({ type: 'break', label: 'Pause', mins: 8, icon: '☕' });
-    plan.push({ type: 'app', mode: weakMathMode, label: 'Math — point faible', mins: 12, icon: '🔢' });
+    // THURSDAY (May 14) — verbes -er composés + start fractions for finals
+    plan.push({ type: 'app', mode: 'passe_compose', label: 'Verbes -er composés (passé composé)', mins: 15, icon: '📝' });
+    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+    plan.push({ type: 'app', mode: 'fractions', label: 'Fractions (nouveau pour finaux)', mins: 12, icon: '🍕' });
     plan.push({ type: 'message', label: 'Demain = pas d\'école (journée pédagogique)! 🎉', mins: 1, icon: '🎉' });
   } else if (day === 5) {
-    // FRIDAY (May 15) — JOURNÉE PÉDAGOGIQUE / PAS D'ÉCOLE
-    plan.push({ type: 'message', label: '🎉 Pas d\'école aujourd\'hui! Journée pédagogique.', mins: 1, icon: '🎉' });
-    plan.push({ type: 'app', mode: 'mixed', label: 'Petit entraînement libre (math)', mins: 12, icon: '🔢' });
+    // FRIDAY (May 15) — JOURNÉE PÉDAGOGIQUE / PAS D'ÉCOLE — light exam prep
+    plan.push({ type: 'message', label: '🎉 Pas d\'école aujourd\'hui! Petite révision pour les examens.', mins: 1, icon: '🎉' });
+    plan.push({ type: 'app', mode: 'fractions', label: 'Fractions (examen final)', mins: 12, icon: '🍕' });
     plan.push({ type: 'break', label: 'Pause', mins: 10, icon: '☕' });
-    plan.push({ type: 'app', mode: 'francais_mix', label: 'Petit entraînement libre (français)', mins: 12, icon: '📝' });
+    plan.push({ type: 'app', mode: 'homophones', label: 'Homophones (examen final)', mins: 12, icon: '🔀' });
     plan.push({ type: 'message', label: 'C\'est tout! Profite de ta journée!', mins: 1, icon: '🌳' });
   }
 
