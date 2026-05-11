@@ -148,6 +148,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
   const [stepResults, setStepResults] = useState([]);
   const [stepFeedback, setStepFeedback] = useState(null);
   const [stepInput, setStepInput] = useState('');
+  const [showVideos, setShowVideos] = useState(false);
 
   const generate = useCallback(() => getGenerator(mode), [mode]);
 
@@ -362,6 +363,14 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'accord_etre' && 'Accord adjectif après ÊTRE'}
         </div>
 
+        {/* Persistent rule reminder — for tricky conjugation/spelling modes */}
+        {question.rule && (
+          <div className="bg-orange-50 rounded-xl p-3 mb-3 border-2 border-orange-200">
+            <p className="text-[10px] font-bold text-fox-d uppercase tracking-wide mb-1">Règle à retenir</p>
+            <div className="text-sm font-semibold text-stone whitespace-pre-line">{question.rule}</div>
+          </div>
+        )}
+
         {/* Question text */}
         <p className="text-xl font-heading font-bold text-stone leading-relaxed mb-4">
           {question.text}
@@ -385,16 +394,37 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           )}
           {getVideosForCategory(question.category).length > 0 && (
             <button
-              onClick={() => {
-                const videos = getVideosForCategory(question.category);
-                window.open(videos[0].url, '_blank');
-              }}
+              onClick={() => setShowVideos((v) => !v)}
               className="text-sm text-ok font-semibold"
             >
-              📺 Vidéo d'aide
+              📺 Vidéo d'aide ({getVideosForCategory(question.category).length})
             </button>
           )}
         </div>
+
+        {/* Video list panel */}
+        {showVideos && getVideosForCategory(question.category).length > 0 && (
+          <div className="bg-green-50 rounded-xl p-3 mb-4 border-2 border-green-200">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-bold text-green-700 uppercase tracking-wide">📺 Vidéos pour t'aider</p>
+              <button onClick={() => setShowVideos(false)} className="text-xs font-bold text-s4">✕</button>
+            </div>
+            <div className="space-y-2">
+              {getVideosForCategory(question.category).map((v, i) => (
+                <a
+                  key={i}
+                  href={v.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block bg-white rounded-lg p-2 border border-green-200 hover:border-green-500 text-sm"
+                >
+                  <div className="font-bold text-stone leading-tight">{v.title}</div>
+                  <div className="text-[10px] text-s4 font-semibold mt-0.5">{v.channel}</div>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Interactive scratch pad */}
         {showScratchPad && !showResult && (

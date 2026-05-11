@@ -32,6 +32,12 @@ const endings = {
 
 const pronouns = ['je', 'tu', 'il', 'elle', 'nous', 'vous', 'ils', 'elles'];
 
+// Persistent rule banner shown on every futur_simple question
+const FUTUR_RULE = `Verbe (infinitif) + AVOIR au présent → ai · as · a · ons · ez · ont
+
+je chanterAI · tu chanterAS · il chanterA
+nous chanterONS · vous chanterEZ · ils chanterONT`;
+
 function conjugate(verb, pronoun) {
   // Futur simple 1er groupe: infinitif + ending
   return verb + endings[pronoun];
@@ -70,6 +76,7 @@ export function generateFuturSimple() {
     return {
       category: 'futur_simple',
       type: 'conjugate',
+      rule: FUTUR_RULE,
       text: `Conjugue "${verb}" au FUTUR avec "${pronoun}":`,
       correct,
       options,
@@ -91,6 +98,7 @@ export function generateFuturSimple() {
     return {
       category: 'futur_simple',
       type: 'ending',
+      rule: FUTUR_RULE,
       text: `Au futur, quelle terminaison pour "${pronoun}"?`,
       correct,
       options,
@@ -114,6 +122,7 @@ export function generateFuturSimple() {
   return {
     category: 'futur_simple',
     type: 'choose_future',
+    rule: FUTUR_RULE,
     text: `Quelle phrase est au FUTUR avec "${pronoun}" et "${verb}"?`,
     correct,
     options,

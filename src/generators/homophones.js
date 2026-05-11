@@ -90,6 +90,13 @@ const allPairs = [
   { items: ontOn, pair: ['ont', 'on'], rule: '"ont" = verbe AVOIR pluriel (remplaçable par AVAIENT) · "on" = IL (pronom)' },
 ];
 
+const HOMOPHONES_RULE = `Le truc: remplace par un autre mot pour deviner.
+
+a (verbe avoir) → AVAIT · à (préposition) = lieu/temps
+et (= ET PUIS) · est (verbe être) → ÉTAIT
+son (= LE SIEN, déterminant) · sont (verbe être pluriel) → ÉTAIENT
+ont (verbe avoir pluriel) → AVAIENT · on (= IL, pronom)`;
+
 function buildOne() {
   const group = pick(allPairs);
   const item = pick(group.items);
@@ -97,6 +104,7 @@ function buildOne() {
   const options = shuffle([group.pair[0], group.pair[1]]);
   return {
     category: 'homophones',
+    rule: HOMOPHONES_RULE,
     type: 'homophone_fill',
     text: `Quel mot va dans la phrase?\n\n« ${item.sentence} »`,
     correct: item.correct,

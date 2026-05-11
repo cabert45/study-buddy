@@ -35,6 +35,11 @@ const endings = {
 
 const pronouns = ['je', 'tu', 'il', 'elle', 'nous', 'vous', 'ils', 'elles'];
 
+const PRESENT_RULE = `Verbe (enlever -er) + e · es · e · ons · ez · ent
+
+je chantE · tu chantES · il chantE
+nous chantONS · vous chantEZ · ils chantENT`;
+
 function radical(verb) {
   // -er → drop -er
   return verb.slice(0, -2);
@@ -80,6 +85,7 @@ function buildOne() {
 
     return {
       category: 'present_indicatif',
+      rule: PRESENT_RULE,
       type: 'conjugate',
       text: `Conjugue "${verb}" au PRÉSENT avec "${pronoun}":`,
       correct,
@@ -99,6 +105,7 @@ function buildOne() {
 
     return {
       category: 'present_indicatif',
+      rule: PRESENT_RULE,
       type: 'ending',
       text: `Au présent, quelle terminaison pour "${pronoun}"?`,
       correct,
@@ -123,6 +130,7 @@ function buildOne() {
 
   return {
     category: 'present_indicatif',
+    rule: PRESENT_RULE,
     type: 'choose_present',
     text: `Quelle phrase est au PRÉSENT avec "${pronoun}" et "${verb}"?`,
     correct,
