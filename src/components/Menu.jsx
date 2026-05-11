@@ -132,7 +132,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onStartJournal, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onStartJournal, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
   const [dicteesOpen, setDicteesOpen] = useState(false);
@@ -402,6 +402,21 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
           <div className="text-left">
             <div className="font-heading text-lg font-bold text-stone leading-tight">Tuteur personnel</div>
             <div className="text-xs font-semibold text-s4">Apprends pas à pas avec ton professeur</div>
+          </div>
+        </button>
+      )}
+
+      {/* Fable reader — La cigale et la fourmi (Mon May 11 homework, 1-min recitation) */}
+      {isRyan && onStartFable && (
+        <button onClick={onStartFable}
+          className="w-full flex items-center gap-4 bg-white border-2 border-s1 rounded-2xl p-4 mb-3 transition-all hover:border-fox hover:shadow-md">
+          <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm text-white text-xl"
+            style={{ background: 'linear-gradient(135deg, #2d7a3a, #4ca65b)' }}>
+            🐜
+          </div>
+          <div className="text-left">
+            <div className="font-heading text-lg font-bold text-stone leading-tight">La cigale et la fourmi</div>
+            <div className="text-xs font-semibold text-s4">Lis la fable à voix haute en 1 minute</div>
           </div>
         </button>
       )}

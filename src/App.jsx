@@ -23,6 +23,7 @@ import { autoResume } from './utils/studyReminder';
 import { addNotification } from './utils/notifications';
 import { getUnseenForProfile, markSeen } from './data/whatsNew';
 import Presentation from './components/Presentation';
+import FableReader from './components/FableReader';
 
 export default function App() {
   const [screen, setScreen] = useState('profile');
@@ -97,6 +98,10 @@ export default function App() {
 
   function startPresentation() {
     setScreen('presentation');
+  }
+
+  function startFable() {
+    setScreen('fable');
   }
 
   function finishSession(results) {
@@ -207,6 +212,7 @@ export default function App() {
           onStartChores={startChores}
           onStartCoach={startCoach}
           onStartPresentation={startPresentation}
+          onStartFable={startFable}
           onOpenDashboard={openDashboard}
           onOpenNotifications={() => setShowNotifs(true)}
           onOpenStudyReminder={() => setShowStudyReminder(true)}
@@ -276,6 +282,9 @@ export default function App() {
       )}
       {screen === 'presentation' && (
         <Presentation onHome={goHome} />
+      )}
+      {screen === 'fable' && (
+        <FableReader onHome={goHome} />
       )}
       {screen === 'dashboard' && (
         <ParentDashboard onHome={goHome} />
