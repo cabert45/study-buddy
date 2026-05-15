@@ -1,6 +1,7 @@
-// Passé composé generator — Friday test prep
-// Test on: verbes en -er (1er groupe) + verbes finir
-// Critical: Ryan must distinguish infinitif -ER from passé composé -É
+// Passé composé — Ryan 2e année
+// Final exam: duo-tang rouge + rédaction (May 27) + compréhension (June 5)
+// He's at 9/17, struggles with the concept. Add persistent rule banner + better explanations.
+import { withFresh } from '../utils/antiRepeat';
 
 function shuffle(arr) {
   const a = [...arr];
@@ -10,206 +11,268 @@ function shuffle(arr) {
   }
   return a;
 }
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-// Verbes en -ER (1er groupe) — past participle ends in -É
+// Verbes en -ER (1er groupe) — participe passé en -É
 const erVerbs = [
   'manger', 'parler', 'danser', 'jouer', 'chanter', 'aimer',
-  'travailler', 'arriver', 'rester', 'tomber', 'monter', 'écouter',
-  'regarder', 'trouver', 'donner', 'gagner', 'porter', 'commencer',
-  'amuser', 'passer', 'pincer', 'réviser', 'penser', 'appeler',
+  'travailler', 'écouter', 'regarder', 'trouver', 'donner',
+  'gagner', 'porter', 'commencer', 'amuser', 'passer',
+  'penser', 'appeler', 'demander', 'préparer',
 ];
 
-// Forms of avoir (auxiliary)
-const avoir = {
-  'j\'': 'ai',
-  'tu': 'as',
-  'il': 'a',
-  'elle': 'a',
-  'nous': 'avons',
-  'vous': 'avez',
-  'ils': 'ont',
-  'elles': 'ont',
-};
+// Verbes avec ÊTRE — verbes de mouvement (small but important list)
+const etreVerbs = ['aller', 'arriver', 'rester', 'tomber', 'monter', 'partir', 'venir', 'entrer', 'sortir', 'rentrer'];
 
-// Forms of être (auxiliary for some verbs like aller, arriver, tomber, monter, rester)
-const etre = {
-  'je': 'suis',
-  'tu': 'es',
-  'il': 'est',
-  'elle': 'est',
-  'nous': 'sommes',
-  'vous': 'êtes',
-  'ils': 'sont',
-  'elles': 'sont',
-};
-
-// Verbs that use être in passé composé (need agreement with subject)
-const etreVerbs = ['aller', 'arriver', 'rester', 'tomber', 'monter', 'partir', 'venir'];
-
-// FINIR conjugation in passé composé
-const finirConjugation = {
-  "j'": "j'ai fini",
-  'tu': 'tu as fini',
-  'il': 'il a fini',
-  'elle': 'elle a fini',
-  'nous': 'nous avons fini',
-  'vous': 'vous avez fini',
-  'ils': 'ils ont fini',
-  'elles': 'elles ont fini',
-};
-
-function getPastParticiple(verb) {
-  // -er → -é
-  if (verb.endsWith('er')) return verb.slice(0, -2) + 'é';
-  if (verb === 'finir') return 'fini';
-  return verb;
-}
-
-function buildPasseCompose(verb, pronoun) {
-  const pp = getPastParticiple(verb);
-  const useEtre = etreVerbs.includes(verb);
-  const aux = useEtre ? etre[pronoun] : avoir[pronoun.endsWith("'") ? pronoun : pronoun];
-
-  // For "je" with avoir → "j'ai"
-  let pronounDisplay = pronoun;
-  let auxForm;
-  if (useEtre) {
-    auxForm = etre[pronoun] || etre['il'];
-    return `${pronoun} ${auxForm} ${pp}`;
-  } else {
-    if (pronoun === 'je') {
-      pronounDisplay = "j'";
-      auxForm = "ai";
-    } else {
-      auxForm = avoir[pronoun] || avoir['il'];
-    }
-    return `${pronounDisplay}${pronounDisplay === "j'" ? '' : ' '}${auxForm} ${pp}`;
-  }
-}
+const avoir = { je: 'ai', tu: 'as', il: 'a', elle: 'a', nous: 'avons', vous: 'avez', ils: 'ont', elles: 'ont' };
+const etre  = { je: 'suis', tu: 'es', il: 'est', elle: 'est', nous: 'sommes', vous: 'êtes', ils: 'sont', elles: 'sont' };
 
 const pronouns = ['je', 'tu', 'il', 'elle', 'nous', 'vous', 'ils', 'elles'];
 
-export function generatePasseCompose() {
-  const r = Math.random();
+function pastParticiple(verb) {
+  if (verb.endsWith('er')) return verb.slice(0, -2) + 'é';
+  if (verb === 'finir') return 'fini';
+  if (verb === 'partir') return 'parti';
+  if (verb === 'venir') return 'venu';
+  if (verb === 'sortir') return 'sorti';
+  return verb;
+}
 
-  if (r < 0.40) {
-    // Conjugate ER verb in passé composé
-    const verb = erVerbs[Math.floor(Math.random() * erVerbs.length)];
-    const pronoun = pronouns[Math.floor(Math.random() * pronouns.length)];
-    const correct = buildPasseCompose(verb, pronoun);
+function usesEtre(verb) {
+  return etreVerbs.includes(verb);
+}
 
-    // Wrong options: wrong auxiliary, wrong participle ending, infinitive instead
-    const pp = getPastParticiple(verb);
-    const useEtre = etreVerbs.includes(verb);
-    const wrongAux = useEtre ? avoir[pronoun] || 'a' : etre[pronoun] || 'est';
-    const wrongPronoun = pronoun === 'je' ? "j'" : pronoun;
+function conjugatePC(verb, pronoun) {
+  const pp = pastParticiple(verb);
+  const useEtre = usesEtre(verb);
+  const auxTable = useEtre ? etre : avoir;
+  const aux = auxTable[pronoun];
+  // élision: je + ai → j'ai
+  if (pronoun === 'je' && !useEtre) return `j'ai ${pp}`;
+  return `${pronoun} ${aux} ${pp}`;
+}
 
-    const options = new Set([correct]);
-    // Wrong: infinitive instead of past participle
-    if (useEtre) {
-      options.add(`${pronoun} ${etre[pronoun]} ${verb}`);
-    } else {
-      options.add(`${wrongPronoun}${wrongPronoun === "j'" ? '' : ' '}${avoir[pronoun] || 'a'} ${verb}`);
-    }
-    // Wrong: wrong auxiliary
-    options.add(`${wrongPronoun}${wrongPronoun === "j'" ? '' : ' '}${wrongAux} ${pp}`);
-    // Wrong: missing accent
-    options.add(`${wrongPronoun}${wrongPronoun === "j'" ? '' : ' '}${useEtre ? etre[pronoun] : avoir[pronoun] || 'a'} ${pp.replace('é', 'e')}`);
+// === Persistent rule banner — shown every question ===
+const PC_RULE = `PASSÉ COMPOSÉ = AUXILIAIRE + PARTICIPE PASSÉ
 
-    return {
-      category: 'passe_compose',
-      type: 'conjugate_er',
-      text: `Conjugue "${verb}" au passé composé avec "${pronoun}":`,
-      correct,
-      options: shuffle([...options].slice(0, 4)),
-      explanation: `${pronoun} + ${useEtre ? 'être' : 'avoir'} + ${pp} = ${correct}`,
-    };
-  }
+Verbes en -ER → participe passé en -É
+(chanter → chanté · manger → mangé · jouer → joué)
 
-  if (r < 0.65) {
-    // FINIR conjugation
-    const pronouns2 = Object.keys(finirConjugation);
-    const pronoun = pronouns2[Math.floor(Math.random() * pronouns2.length)];
-    const correct = finirConjugation[pronoun];
+AVEC AVOIR (presque tous les verbes):
+j'AI chanté · tu AS chanté · il A chanté
+nous AVONS chanté · vous AVEZ chanté · ils ONT chanté
 
-    // Wrong options
-    const otherPronouns = pronouns2.filter(p => p !== pronoun);
-    const wrong1 = finirConjugation[otherPronouns[0]];
-    const wrong2 = finirConjugation[otherPronouns[1]];
-    const wrong3 = correct.replace('fini', 'finir'); // infinitive trap
+AVEC ÊTRE (verbes de mouvement: aller, arriver, rester, tomber, monter, partir, venir):
+je SUIS allé · tu ES allé · il EST allé
+nous SOMMES allés · vous ÊTES allés · ils SONT allés`;
 
-    return {
-      category: 'passe_compose',
-      type: 'conjugate_finir',
-      text: `Conjugue "finir" au passé composé avec "${pronoun.replace("'", '')}":`,
-      correct,
-      options: shuffle([correct, wrong1, wrong2, wrong3]),
-      explanation: `Passé composé: ${correct} (avoir + fini)`,
-    };
-  }
+// === Type 1: Conjugate -ER verb with AVOIR ===
+function generateConjugateEr() {
+  const verb = pick(erVerbs);
+  const pronoun = pick(pronouns);
+  const correct = conjugatePC(verb, pronoun);
+  const pp = pastParticiple(verb);
+  const auxText = pronoun === 'je' ? "j'ai" : `${pronoun} ${avoir[pronoun]}`;
 
-  if (r < 0.85) {
-    // Infinitif vs Participe passé — THE KEY TRAP
-    const verb = erVerbs[Math.floor(Math.random() * erVerbs.length)];
-    const pp = getPastParticiple(verb);
-    const isPasseCompose = Math.random() < 0.5;
-
-    let sentence, correct;
-    if (isPasseCompose) {
-      // Use the passé composé form (-é)
-      const sentences = [
-        `J'ai ${pp} hier.`,
-        `Tu as ${pp} ce matin.`,
-        `Il a ${pp} la semaine dernière.`,
-        `Nous avons ${pp} hier soir.`,
-      ];
-      sentence = sentences[Math.floor(Math.random() * sentences.length)];
-      correct = pp; // -é
-    } else {
-      // Use the infinitive form (-er) — usually after another verb
-      const sentences = [
-        `Je vais ${verb} demain.`,
-        `Tu dois ${verb} maintenant.`,
-        `Il aime ${verb} le soir.`,
-        `Nous voulons ${verb} ensemble.`,
-      ];
-      sentence = sentences[Math.floor(Math.random() * sentences.length)];
-      correct = verb; // -er
-    }
-
-    // Show sentence with blank, ask which form
-    const blank = isPasseCompose ? '_____' : '_____';
-    const sentenceWithBlank = sentence.replace(correct, blank);
-
-    return {
-      category: 'passe_compose',
-      type: 'er_vs_e',
-      text: `Complète: "${sentenceWithBlank}"`,
-      correct,
-      options: shuffle([verb, pp, verb + 's', pp + 's']),
-      explanation: isPasseCompose
-        ? `Passé composé (avec avoir/être) → participe passé: ${pp}. Truc: remplace par "vendu" → ça marche!`
-        : `Verbe à l'infinitif (après un autre verbe) → ${verb}. Truc: remplace par "vendre" → ça marche!`,
-    };
-  }
-
-  // Identify which is which — given a sentence, is it passé composé or infinitif?
-  const verb = erVerbs[Math.floor(Math.random() * erVerbs.length)];
-  const pp = getPastParticiple(verb);
-  const isPC = Math.random() < 0.5;
-
-  const sentence = isPC
-    ? `Hier, j'ai ${pp} dans le parc.`
-    : `Demain, je vais ${verb} dans le parc.`;
+  // Strong distractors
+  const wrongPron = pronouns.find((p) => p !== pronoun && avoir[p] !== avoir[pronoun]);
+  const distractors = [
+    // Wrong auxiliary (être instead of avoir)
+    pronoun === 'je' ? `je suis ${pp}` : `${pronoun} ${etre[pronoun]} ${pp}`,
+    // Infinitive instead of participe
+    pronoun === 'je' ? `j'ai ${verb}` : `${pronoun} ${avoir[pronoun]} ${verb}`,
+    // Wrong auxiliary form (mix pronoun endings)
+    pronoun === 'je' ? `je ${avoir[wrongPron]} ${pp}` : `${pronoun} ${avoir[wrongPron]} ${pp}`,
+  ];
+  const options = shuffle([correct, ...distractors]);
 
   return {
     category: 'passe_compose',
-    type: 'identify',
-    text: `"${sentence}" — Le verbe est à quel temps?`,
-    correct: isPC ? 'Passé composé' : 'Infinitif',
-    options: shuffle(['Passé composé', 'Infinitif', 'Présent', 'Futur']),
-    explanation: isPC
-      ? `Avec "ai/as/a..." + participe passé (-é) → passé composé`
-      : `Après "vais/dois/aime..." → infinitif (-er)`,
+    rule: PC_RULE,
+    type: 'conjugate_er',
+    text: `Conjugue « ${verb} » au PASSÉ COMPOSÉ avec « ${pronoun} »:`,
+    correct,
+    options,
+    explanation: `${pronoun} → auxiliaire AVOIR au présent (${avoir[pronoun]}) + participe passé (${pp}) = ${correct}.\nDeux mots: l'AUXILIAIRE (${auxText.split(' ').pop()}) + le PARTICIPE (${pp}).`,
+    hint: '1) Choisis l\'auxiliaire AVOIR au présent (j\'ai, tu as, il a...). 2) Ajoute le verbe en -É.',
   };
+}
+
+// === Type 2: Conjugate -ER verb with ÊTRE (movement verbs) ===
+function generateConjugateEtre() {
+  const verb = pick(etreVerbs.filter((v) => v.endsWith('er'))); // only -er movement verbs
+  const pronoun = pick(pronouns);
+  const correct = conjugatePC(verb, pronoun);
+  const pp = pastParticiple(verb);
+
+  const wrongPron = pronouns.find((p) => p !== pronoun && etre[p] !== etre[pronoun]);
+  const distractors = [
+    // Wrong auxiliary (avoir instead of être)
+    pronoun === 'je' ? `j'ai ${pp}` : `${pronoun} ${avoir[pronoun]} ${pp}`,
+    // Infinitive
+    `${pronoun} ${etre[pronoun]} ${verb}`,
+    // Wrong être form
+    `${pronoun} ${etre[wrongPron]} ${pp}`,
+  ];
+  const options = shuffle([correct, ...distractors]);
+
+  return {
+    category: 'passe_compose',
+    rule: PC_RULE,
+    type: 'conjugate_etre',
+    text: `Conjugue « ${verb} » au PASSÉ COMPOSÉ avec « ${pronoun} »:`,
+    correct,
+    options,
+    explanation: `« ${verb} » est un verbe de MOUVEMENT — il prend ÊTRE!\n${pronoun} → être au présent (${etre[pronoun]}) + ${pp} = ${correct}.`,
+    hint: `« ${verb} » est un verbe de mouvement → il prend ÊTRE (pas AVOIR!).`,
+  };
+}
+
+// === Type 3: Fill in a context sentence (time-marker triggers passé composé) ===
+function generateContextFill() {
+  const timeMarkers = [
+    'Hier,',
+    'La semaine dernière,',
+    'Ce matin,',
+    'Hier soir,',
+    "L'année dernière,",
+    'Avant-hier,',
+  ];
+  const marker = pick(timeMarkers);
+  const verb = pick(erVerbs);
+  const pronoun = pick(['je', 'tu', 'il', 'elle', 'nous', 'vous']);
+  const correct = conjugatePC(verb, pronoun);
+  const sentence = `${marker} ___ au parc.`.replace('___', correct);
+  const sentenceBlank = `${marker} ___ au parc.`;
+
+  // Distractors: same verb in WRONG tense
+  const distractors = [
+    pronoun === 'je' ? `je ${verb.slice(0, -2)}e` : `${pronoun} ${verb.slice(0, -2)}e`, // présent
+    pronoun === 'je' ? `je ${verb}` : `${pronoun} ${verb}`,                              // infinitif
+    pronoun === 'je' ? `je ${verb}ai` : `${pronoun} ${verb}ai`,                          // futur
+  ];
+  const options = shuffle([correct, ...distractors]);
+
+  return {
+    category: 'passe_compose',
+    rule: PC_RULE,
+    type: 'context_fill',
+    text: `Complète au PASSÉ COMPOSÉ:\n\n« ${sentenceBlank} »\n\n(verbe: ${verb}, pronom: ${pronoun})`,
+    correct,
+    options,
+    explanation: `« ${marker} » = c'est dans le passé → on utilise le PASSÉ COMPOSÉ.\n${pronoun} + ${avoir[pronoun]} (avoir) + ${pastParticiple(verb)} = ${correct}.`,
+    hint: 'Cherche le mot-temps (Hier, La semaine dernière...). Le passé composé a 2 mots: auxiliaire + verbe en -é.',
+  };
+}
+
+// === Type 4: -ER vs -É — the key trap ===
+function generateErVsE() {
+  const verb = pick(erVerbs);
+  const pp = pastParticiple(verb);
+  const useInfinitive = Math.random() < 0.5;
+
+  let sentenceBlank, correct, why;
+  if (useInfinitive) {
+    // After another verb → infinitive (-er)
+    const sentences = [
+      `Je vais ___ demain.`,
+      `Tu dois ___ maintenant.`,
+      `Il aime ___ le soir.`,
+      `Nous voulons ___ ensemble.`,
+      `Pour bien ___, il faut s'entraîner.`,
+    ];
+    sentenceBlank = pick(sentences);
+    correct = verb;
+    why = `Après "vais/dois/aime/voulons/pour" → INFINITIF (-er). Truc: remplace par "vendre" — ça marche → -er.`;
+  } else {
+    // After avoir/être → past participle (-é)
+    const sentences = [
+      `Hier, j'ai ___ avec mes amis.`,
+      `Elle a ___ ce matin.`,
+      `Nous avons ___ la chanson.`,
+      `Tu as ___ très fort.`,
+    ];
+    sentenceBlank = pick(sentences);
+    correct = pp;
+    why = `Après "ai/as/a/avons/avez/ont" → PARTICIPE PASSÉ (-é). Truc: remplace par "vendu" — ça marche → -é.`;
+  }
+
+  const options = shuffle([verb, pp]).concat(shuffle([verb + 's', pp + 's']));
+
+  return {
+    category: 'passe_compose',
+    rule: PC_RULE,
+    type: 'er_vs_e',
+    text: `Complète la phrase:\n\n« ${sentenceBlank} »\n\n(verbe: ${verb})`,
+    correct,
+    options: shuffle([verb, pp, verb + 's', pp + 's']).slice(0, 4),
+    explanation: `« ${sentenceBlank.replace('___', correct)} »\n\n💡 ${why}`,
+    hint: 'Truc: remplace par "vendre" (-re) OU "vendu" (-u). Si "vendre" marche → -ER. Si "vendu" marche → -É.',
+  };
+}
+
+// === Type 5: Choose the right auxiliary ===
+function generateAuxiliary() {
+  const verb = Math.random() < 0.4 ? pick(etreVerbs.filter((v) => v.endsWith('er'))) : pick(erVerbs);
+  const useEtre = usesEtre(verb);
+  const correct = useEtre ? 'être (je suis, tu es, il est...)' : 'avoir (j\'ai, tu as, il a...)';
+  const options = shuffle([
+    'avoir (j\'ai, tu as, il a...)',
+    'être (je suis, tu es, il est...)',
+    'aller (je vais...)',
+    'aucun auxiliaire',
+  ]);
+
+  return {
+    category: 'passe_compose',
+    rule: PC_RULE,
+    type: 'auxiliary',
+    text: `Au passé composé, quel AUXILIAIRE utilise-t-on avec le verbe « ${verb} »?`,
+    correct,
+    options,
+    explanation: useEtre
+      ? `« ${verb} » est un verbe de MOUVEMENT → il prend ÊTRE.\nExemple: ${conjugatePC(verb, 'il')}.`
+      : `« ${verb} » est un verbe d'action normal → il prend AVOIR.\nExemple: ${conjugatePC(verb, 'il')}.`,
+    hint: 'La PETITE liste qui prend ÊTRE: aller, arriver, rester, tomber, monter, partir, venir, entrer, sortir, rentrer. Tous les autres prennent AVOIR.',
+  };
+}
+
+// === Type 6: Identify the tense ===
+function generateIdentify() {
+  const verb = pick(erVerbs);
+  const pp = pastParticiple(verb);
+  const pronoun = pick(['je', 'tu', 'il', 'elle', 'nous', 'vous']);
+  const types = [
+    { sentence: `Hier, ${pronoun === 'je' ? "j'ai" : `${pronoun} ${avoir[pronoun]}`} ${pp} avec mes amis.`, tense: 'Passé composé' },
+    { sentence: `${pronoun === 'je' ? 'Je' : pronoun.charAt(0).toUpperCase() + pronoun.slice(1)} ${verb.slice(0, -2)}e maintenant.`, tense: 'Présent' },
+    { sentence: `Demain, ${pronoun === 'je' ? 'je' : pronoun} ${verb}ai très fort.`, tense: 'Futur' },
+    { sentence: `${pronoun === 'je' ? 'Je vais' : pronoun + ' va'} ${verb} bientôt.`, tense: 'Infinitif (après "aller")' },
+  ];
+  const item = pick(types);
+  const options = shuffle(['Passé composé', 'Présent', 'Futur', 'Infinitif (après "aller")']);
+
+  return {
+    category: 'passe_compose',
+    rule: PC_RULE,
+    type: 'identify',
+    text: `« ${item.sentence} » — Le verbe est à quel temps?`,
+    correct: item.tense,
+    options,
+    explanation: `${item.tense}. ${item.tense === 'Passé composé' ? '(avoir/être + verbe en -é)' : item.tense === 'Présent' ? '(action en train de se passer)' : item.tense === 'Futur' ? '(verbe entier + ai/as/a/ons/ez/ont)' : '(après "aller", "vouloir", "pouvoir"...)'}`,
+    hint: 'Cherche les mots-temps (Hier = passé · Maintenant = présent · Demain = futur · Après "aller" = infinitif).',
+  };
+}
+
+function buildOne() {
+  const r = Math.random();
+  if (r < 0.25) return generateConjugateEr();
+  if (r < 0.40) return generateConjugateEtre();
+  if (r < 0.60) return generateContextFill();
+  if (r < 0.80) return generateErVsE();
+  if (r < 0.92) return generateAuxiliary();
+  return generateIdentify();
+}
+
+export function generatePasseCompose() {
+  return withFresh('passe_compose', buildOne, 100, 25, (q) => `${q.type}|${q.text}`);
 }
