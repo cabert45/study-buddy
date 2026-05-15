@@ -41,6 +41,7 @@ const icons = {
   pluriels_ryan: { bg: '#fef0e4', color: '#c74a15', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><text x="3" y="13" fontSize="9" fontWeight="700" fill="currentColor">×s</text><text x="10" y="13" fontSize="9" fontWeight="700" fill="currentColor">×x</text></svg> },
   histoire: { bg: '#e6f5f0', color: '#0f766e', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 4C3 3.4 3.4 3 4 3H14C14.6 3 15 3.4 15 4V15L9 12L3 15V4Z" stroke="currentColor" strokeWidth="1.4" fill="none"/></svg> },
   english_oral: { bg: '#e8eef8', color: '#3a5bc7', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="currentColor" strokeWidth="1.4"/><path d="M2 9H16M9 2C7 4 6 6 6 9C6 12 7 14 9 16C11 14 12 12 12 9C12 6 11 4 9 2Z" stroke="currentColor" strokeWidth="1.2" fill="none"/></svg> },
+  mots_savants_jr: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 9C7 7 4 6 4 9C4 12 7 13 9 11C11 13 14 12 14 9C14 6 11 7 9 9Z" stroke="currentColor" strokeWidth="1.4" fill="none"/><line x1="9" y1="3" x2="9" y2="9" stroke="currentColor" strokeWidth="1.4"/></svg> },
 };
 
 const ryanMathModes = [
@@ -63,6 +64,7 @@ const ryanMathModes = [
 
 const ryanFrenchModes = [
   { id: 'biographie_jr', label: '📖 Biographie Jean Rostand', desc: 'CRITIQUE — il faut 90%+ pour passer', featured: true, special: true },
+  { id: 'mots_savants_jr', label: '🦋 Mots savants (Insectes/Fleurs)', desc: 'ciseler, discret, prospérer, pattes de mouche — accompagne le test biographie', special: true, badge: 'Critique' },
   { id: 'english_oral', label: '🇬🇧 Anglais — days/months/seasons', desc: 'TEST oral mercredi 13 mai + examen 10 juin', special: true, badge: 'Examen' },
   { id: 'dictee_s4', label: '🎧 Dictée mardi', desc: 'n → m devant b, p — campagne, compote (semaine 4)', special: true },
   { id: 'dictees_group', label: 'Dictées', desc: 'Toutes les semaines (1, 2, 3, 4, révision)', isGroup: true, special: true },

@@ -143,20 +143,22 @@ function buildPlan(dashboardData, opts = {}) {
       plan.push({ type: 'message', label: 'Soccer en cours / vient de finir. On reprend après!', mins: 1, icon: '⚽' });
     }
   } else if (day === 0) {
-    // SUNDAY (May 10) — biographie EN PREMIER (urgence), puis dictée + futur
-    plan.push({ type: 'app', mode: 'biographie_jr', label: 'Biographie Jean Rostand (PRIORITÉ!)', mins: 15, icon: '📖' });
-    plan.push({ type: 'break', label: 'Pause', mins: 8, icon: '☕' });
-    plan.push({ type: 'app', mode: 'dictee_s4', label: 'Dictée mardi — n→m devant b/p', mins: 12, icon: '🎧' });
+    // SUNDAY — biographie + mots savants EN PREMIER (urgence), puis dictée + futur
+    plan.push({ type: 'app', mode: 'biographie_jr', label: 'Biographie Jean Rostand (PRIORITÉ!)', mins: 12, icon: '📖' });
+    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+    plan.push({ type: 'app', mode: 'mots_savants_jr', label: 'Mots savants (CRITIQUE!)', mins: 10, icon: '🦋' });
+    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+    plan.push({ type: 'app', mode: 'dictee_s4', label: 'Dictée mardi — n→m devant b/p', mins: 10, icon: '🎧' });
     plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
     plan.push({ type: 'app', mode: 'futur_simple', label: 'Futur simple (test mercredi)', mins: 10, icon: '🔮' });
-    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'app', mode: 'biographie_jr', label: '2e tour biographie (renforcer!)', mins: 10, icon: '📖' });
     plan.push({ type: 'message', label: 'Bravo! Profite du reste de ta journée!', mins: 1, icon: '🌳' });
   } else if (day === 1) {
-    // MONDAY (May 11) — DERNIÈRE prep dictée + biographie + fable + start English
-    plan.push({ type: 'app', mode: 'biographie_jr', label: 'DERNIÈRE révision biographie (90%+!)', mins: 15, icon: '📖' });
+    // MONDAY (May 11) — DERNIÈRE prep biographie + mots savants + dictée + fable + start English
+    plan.push({ type: 'app', mode: 'biographie_jr', label: 'DERNIÈRE révision biographie (90%+!)', mins: 12, icon: '📖' });
+    plan.push({ type: 'break', label: 'Pause', mins: 3, icon: '☕' });
+    plan.push({ type: 'app', mode: 'mots_savants_jr', label: 'Mots savants (insectes/fleurs) — CRITIQUE', mins: 10, icon: '🦋' });
     plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'app', mode: 'dictee_s4', label: 'DERNIÈRE révision dictée!', mins: 12, icon: '🎧' });
+    plan.push({ type: 'app', mode: 'dictee_s4', label: 'DERNIÈRE révision dictée!', mins: 10, icon: '🎧' });
     plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
     plan.push({ type: 'message', label: 'Lecture fable "La cigale et la fourmi" (La Fontaine) — lis à voix haute, vise 1 minute!', mins: 8, icon: '🐜' });
     plan.push({ type: 'break', label: 'Pause', mins: 3, icon: '☕' });

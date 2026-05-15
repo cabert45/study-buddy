@@ -32,6 +32,7 @@ import { generateMesure } from '../generators/mesure';
 import { generatePlurielsRyan } from '../generators/plurielsRyan';
 import { generateHistoire } from '../generators/histoire';
 import { generateEnglishOral } from '../generators/englishOral';
+import { generateMotsSavantsJr } from '../generators/motsSavantsJr';
 import { recordPemdasAnswer } from '../generators/pemdas';
 import { generateApostrophe } from '../generators/apostrophe';
 import { generateMDevantBmp } from '../generators/mDevantBmp';
@@ -90,6 +91,7 @@ function getGenerator(mode) {
     case 'pluriels_ryan': return generatePlurielsRyan;
     case 'histoire': return generateHistoire;
     case 'english_oral': return generateEnglishOral;
+    case 'mots_savants_jr': return generateMotsSavantsJr;
     case 'apostrophe': return generateApostrophe;
     case 'm_devant_bmp': return generateMDevantBmp;
     case 'accord_etre': return generateAccordEtre;
@@ -363,6 +365,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'pluriels_ryan' && 'Pluriel & Féminin'}
           {question.category === 'histoire' && "Parties d'une histoire"}
           {question.category === 'english_oral' && '🇬🇧 Anglais oral'}
+          {question.category === 'mots_savants_jr' && '🦋 Mots savants — Insectes/Fleurs'}
           {question.category === 'apostrophe' && "L'apostrophe"}
           {question.category === 'm_devant_bmp' && 'M devant B, M, P'}
           {question.category === 'accord_etre' && 'Accord adjectif après ÊTRE'}
