@@ -51,20 +51,45 @@ const pluriels = [
 
 function buildPlurielDistractors(item) {
   const set = new Set();
+  // Plausible mistakes:
+  // 1. Singular itself (forgot to pluralize)
+  if (item.sing !== item.plur) set.add(item.sing);
+  // 2. Regular +s when irregular is needed
   if (item.sing + 's' !== item.plur) set.add(item.sing + 's');
+  // 3. +x when +s is needed (or vice versa)
   if (item.sing + 'x' !== item.plur) set.add(item.sing + 'x');
-  if (item.sing.endsWith('al')) set.add(item.sing.replace(/al$/, 'als'));
-  if (item.sing.endsWith('eau')) set.add(item.sing.replace(/eau$/, 'eaus'));
-  if (item.sing.endsWith('ou')) set.add(item.sing + (item.plur.endsWith('x') ? 's' : 'x'));
+  // 4. Pattern-specific wrong attempts
+  if (item.sing.endsWith('al')) {
+    set.add(item.sing.replace(/al$/, 'als'));  // wrong: most -al → -aux
+    set.add(item.sing.replace(/al$/, 'aus'));  // wrong stem
+  }
+  if (item.sing.endsWith('eau')) {
+    set.add(item.sing + 's');                  // wrong: -eau → -eaux not -eaus
+    set.add(item.sing.replace(/eau$/, 'aux')); // wrong stem
+  }
+  if (item.sing.endsWith('eu')) {
+    set.add(item.sing + 's');                  // wrong for most -eu
+  }
+  if (item.sing.endsWith('ou')) {
+    set.add(item.sing + (item.plur.endsWith('x') ? 's' : 'x'));
+  }
+  // 5. Plural-of-plural over-correction
+  set.add(item.plur + 's');
+  // Remove correct
   set.delete(item.plur);
-  set.delete(item.sing);
-  return [...set].slice(0, 3);
+  return shuffle([...set]).slice(0, 3);
 }
 
 function generatePluriel() {
   const item = pick(pluriels);
   const distractors = buildPlurielDistractors(item);
-  while (distractors.length < 3) distractors.push(item.sing + 's' + distractors.length);
+  // If somehow we still don't have 3 distractors, fall back to other words' plurals
+  while (distractors.length < 3) {
+    const fallback = pick(pluriels);
+    if (fallback.plur !== item.plur && !distractors.includes(fallback.plur)) {
+      distractors.push(fallback.plur);
+    }
+  }
   const options = shuffle([item.plur, ...distractors.slice(0, 3)]);
   return {
     category: 'pluriels_ryan',
@@ -116,20 +141,56 @@ const feminins = [
 
 function buildFemininDistractors(item) {
   const set = new Set();
-  if (item.masc + 'e' !== item.fem) set.add(item.masc + 'e');
-  if (item.masc.endsWith('eur')) set.add(item.masc.replace(/eur$/, 'rice'));
-  if (item.masc.endsWith('eux')) set.add(item.masc.replace(/x$/, 'sse'));
-  if (item.masc.endsWith('er')) set.add(item.masc + 'e');
-  set.add(item.masc + 'es');
+  // 1. The masculine itself (didn't change anything — common mistake)
+  if (item.masc !== item.fem) set.add(item.masc);
+  // 2. fem + s (plural confusion)
+  set.add(item.fem + 's');
+  // 3. masc + s (gave the masc plural instead)
+  if (item.masc !== item.fem) set.add(item.masc + 's');
+  // 4. just added -e (wrong for irregulars)
+  if (item.masc + 'e' !== item.fem && !item.masc.endsWith('e')) set.add(item.masc + 'e');
+  // 5. Pattern-specific common errors
+  if (item.masc.endsWith('eux')) {
+    set.add(item.masc + 'e');                       // didn't change x
+    set.add(item.masc.replace(/eux$/, 'eus'));      // wrong final
+    set.add(item.masc.replace(/eux$/, 'euxe'));     // added e after x
+  }
+  if (item.masc.endsWith('eur')) {
+    set.add(item.masc + 'e');                       // just added -e
+    set.add(item.masc.replace(/eur$/, 'euresse'));  // wrong feminizer
+    set.add(item.masc.replace(/eur$/, 'rice'));     // -rice instead of -euse
+  }
+  if (item.masc.endsWith('er')) {
+    set.add(item.masc + 'e');                       // no accent
+    set.add(item.masc + 'es');                      // pluriel pattern
+  }
+  if (item.masc.endsWith('f')) {
+    set.add(item.masc + 'e');                       // f stays
+    set.add(item.masc.replace(/f$/, 've') + 's');   // pluriel
+  }
+  if (item.masc.endsWith('n') && !item.masc.endsWith('en')) {
+    set.add(item.masc + 'e');                       // single -ne (wrong, should be -nne)
+  }
+  if (item.masc.endsWith('s')) {
+    set.add(item.masc + 'e');                       // single -se (wrong, should be -sse)
+  }
+  // 6. Generic fallback: fem with wrong ending swap
+  if (item.fem.endsWith('e')) set.add(item.fem.slice(0, -1));  // dropped -e
+  // Remove the correct answer
   set.delete(item.fem);
-  set.delete(item.masc);
-  return [...set].slice(0, 3);
+  return shuffle([...set]).slice(0, 3);
 }
 
 function generateFeminin() {
   const item = pick(feminins);
   const distractors = buildFemininDistractors(item);
-  while (distractors.length < 3) distractors.push(item.masc + 'e' + distractors.length);
+  // If somehow still under 3, pull féminins from OTHER items as distractors
+  while (distractors.length < 3) {
+    const fallback = pick(feminins);
+    if (fallback.fem !== item.fem && !distractors.includes(fallback.fem)) {
+      distractors.push(fallback.fem);
+    }
+  }
   const options = shuffle([item.fem, ...distractors.slice(0, 3)]);
   return {
     category: 'pluriels_ryan',
