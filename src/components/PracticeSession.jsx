@@ -18,6 +18,7 @@ import { generateGroupeNom } from '../generators/groupeNom';
 import { generateDicteeSemaine, generateDicteeCumulative, setCurrentWeek } from '../generators/dicteeSemaine';
 import { generatePasseCompose } from '../generators/passeCompose';
 import { generateFuturSimple } from '../generators/futurSimple';
+import { generateFuturEtreAvoir } from '../generators/futurEtreAvoir';
 import { generateBiographieJr } from '../generators/biographieJr';
 import { generateClasseDeMots } from '../generators/classeDeMots';
 import { generatePlurielsCayla } from '../generators/plurielsCayla';
@@ -77,6 +78,7 @@ function getGenerator(mode) {
     case 'dictee_revision': return generateDicteeCumulative;
     case 'passe_compose': return generatePasseCompose;
     case 'futur_simple': return generateFuturSimple;
+    case 'futur_etre_avoir': return generateFuturEtreAvoir;
     case 'biographie_jr': return generateBiographieJr;
     case 'classe_de_mots': return generateClasseDeMots;
     case 'pluriels_cayla': return generatePlurielsCayla;
