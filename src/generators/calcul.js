@@ -92,7 +92,7 @@ function generateSubtraction(forceBorrow) {
   };
 }
 
-// 3-digit addition WITHOUT exchange (Friday May 8 test)
+// 3-digit addition WITHOUT exchange (Cahier B p.35 / AM-27)
 function generate3DigitNoExchange() {
   // Pick units, tens, hundreds for both numbers such that no column exceeds 9
   let a, b;
@@ -125,13 +125,87 @@ function generate3DigitNoExchange() {
   };
 }
 
-export function generateCalcul() {
-  // 30% chance: 3-digit addition without exchange (Friday May 8 test prep)
-  if (Math.random() < 0.3) {
-    return generate3DigitNoExchange();
+// 3-digit addition WITH exchange (Cahier B p.37 / AM-28 — Méthode Nougat)
+// Mardi 19 mai test — Ryan's historical #1 weakness (1/8 on carrying)
+function generate3DigitWithExchange() {
+  let u1, u2, t1, t2, h1, h2, a, b, unitsCarry, tensCarry;
+  let attempts = 0;
+  do {
+    u1 = rand(0, 9);
+    u2 = rand(0, 9);
+    t1 = rand(0, 9);
+    t2 = rand(0, 9);
+    h1 = rand(1, 4);
+    h2 = rand(1, 4);
+    a = h1 * 100 + t1 * 10 + u1;
+    b = h2 * 100 + t2 * 10 + u2;
+    unitsCarry = u1 + u2 >= 10 ? 1 : 0;
+    tensCarry = t1 + t2 + unitsCarry >= 10 ? 1 : 0;
+    attempts++;
+  } while (
+    attempts < 100 &&
+    ((unitsCarry === 0 && tensCarry === 0) || a + b > 999) // must have at least one exchange, ≤ 999
+  );
+
+  const correct = a + b;
+
+  // Real Ryan errors: "forgot to carry the 1" → result short by 10 or 100
+  const forgotUnitsCarry = unitsCarry ? correct - 10 : null;
+  const forgotTensCarry = tensCarry ? correct - 100 : null;
+  const forgotBoth = unitsCarry && tensCarry ? correct - 110 : null;
+
+  const options = new Set([correct]);
+  if (forgotUnitsCarry && forgotUnitsCarry > 0) options.add(forgotUnitsCarry);
+  if (forgotTensCarry && forgotTensCarry > 0) options.add(forgotTensCarry);
+  if (forgotBoth && forgotBoth > 0 && options.size < 4) options.add(forgotBoth);
+  while (options.size < 4) {
+    const fake = correct + rand(-9, 9);
+    if (fake !== correct && fake > 0 && fake <= 999) options.add(fake);
   }
-  // Otherwise: 85% forced carry/borrow with 2-digit (Ryan's #1 weakness)
-  const forceHard = Math.random() < 0.85;
+
+  // Nougat step-by-step explanation
+  const uSum = u1 + u2;
+  const tSum = t1 + t2 + unitsCarry;
+  const hSum = h1 + h2 + tensCarry;
+  let steps = `Méthode Nougat — étape par étape :\n\n`;
+  steps += `1️⃣ UNITÉS : ${u1} + ${u2} = ${uSum}`;
+  if (unitsCarry) steps += `\n   → ${uSum} c'est trop! On échange 10 unités contre 1 dizaine.\n   → On écrit ${uSum % 10} en unités, on retient 1 dizaine.\n\n`;
+  else steps += ` → on écrit ${uSum} en unités.\n\n`;
+
+  steps += `2️⃣ DIZAINES : ${t1} + ${t2}${unitsCarry ? ' + 1 (la retenue)' : ''} = ${tSum}`;
+  if (tensCarry) steps += `\n   → ${tSum} c'est trop! On échange 10 dizaines contre 1 centaine.\n   → On écrit ${tSum % 10} en dizaines, on retient 1 centaine.\n\n`;
+  else steps += ` → on écrit ${tSum} en dizaines.\n\n`;
+
+  steps += `3️⃣ CENTAINES : ${h1} + ${h2}${tensCarry ? ' + 1 (la retenue)' : ''} = ${hSum} centaines.\n\n`;
+  steps += `✅ Total : ${correct}`;
+
+  const hint = unitsCarry
+    ? `Commence par les unités. ${u1} + ${u2} = ${uSum} → c'est plus que 9, donc tu dois ÉCHANGER!`
+    : `Pas d'échange aux unités, mais ${t1} + ${t2} = ${t1 + t2} aux dizaines... attention!`;
+
+  return {
+    category: 'calcul',
+    type: 'addition_3digit_exchange',
+    text: `${a} + ${b} = ?`,
+    a,
+    b,
+    correct,
+    options: shuffle([...options].slice(0, 4)),
+    explanation: steps,
+    hint,
+  };
+}
+
+export function generateCalcul() {
+  const r = Math.random();
+  // Distribution rebalanced for Mardi 19 mai tests:
+  // 40% 3-digit WITH exchange (Cahier B p.37 — top priority, biggest weakness)
+  // 20% 3-digit sans exchange (Cahier B p.35 — also on test)
+  // 30% 2-digit forced carry/borrow (long-standing weakness, keep drilling)
+  // 10% 2-digit mixed (variety)
+  if (r < 0.40) return generate3DigitWithExchange();
+  if (r < 0.60) return generate3DigitNoExchange();
+  const forceHard = r < 0.90;
   if (Math.random() < 0.5) {
     return generateAddition(forceHard);
   } else {
