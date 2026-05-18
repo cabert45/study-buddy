@@ -105,7 +105,7 @@ function getEnglishVoice() {
   return anyEn || null;
 }
 
-export function speak(text, lang = 'fr') {
+export function speak(text, lang = 'fr', rate = 0.85) {
   if (!speechEnabled || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const cleaned = cleanForSpeech(text);
@@ -119,7 +119,7 @@ export function speak(text, lang = 'fr') {
     u.lang = lang === 'en' ? 'en-US' : 'fr-FR';
   }
 
-  u.rate = 0.85;
+  u.rate = rate;
   u.pitch = 1.0;
   window.speechSynthesis.speak(u);
 }

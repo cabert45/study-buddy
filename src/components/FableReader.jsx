@@ -147,6 +147,7 @@ export default function FableReader({ onHome }) {
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
   const [showHints, setShowHints] = useState(false);
+  const [speechRate, setSpeechRate] = useState(0.7); // default a bit slower for memorization
   const intervalRef = useRef(null);
 
   const fable = FABLES[fableId];
@@ -197,7 +198,7 @@ export default function FableReader({ onHome }) {
     setSeconds(60);
     setDone(false);
   }
-  function playModel() { speak(fableFull); }
+  function playModel() { speak(fableFull, 'fr', speechRate); }
   function stopAudio() {
     if (window.speechSynthesis) window.speechSynthesis.cancel();
   }
@@ -285,6 +286,28 @@ export default function FableReader({ onHome }) {
             <p className="text-xs font-semibold text-s6">As-tu fini la fable? Si non, essaie encore!</p>
           </div>
         )}
+      </div>
+
+      {/* Speed selector */}
+      <div className="bg-white rounded-2xl p-3 mb-3 border-2 border-s1">
+        <p className="text-[10px] font-bold text-s4 uppercase tracking-wide mb-2 text-center">Vitesse de lecture</p>
+        <div className="flex gap-2">
+          {[
+            { label: '🐢 Très lent', rate: 0.55 },
+            { label: '🚶 Lent',      rate: 0.7  },
+            { label: '🏃 Normal',    rate: 0.9  },
+            { label: '⚡ Rapide',    rate: 1.1  },
+          ].map((opt) => (
+            <button key={opt.rate} onClick={() => setSpeechRate(opt.rate)}
+              className={`flex-1 py-2 px-1 rounded-xl font-bold text-xs border-2 transition-colors ${
+                Math.abs(speechRate - opt.rate) < 0.01
+                  ? 'bg-s4 text-white border-s4'
+                  : 'bg-white text-stone border-s2 hover:border-s4'
+              }`}>
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Audio model */}
