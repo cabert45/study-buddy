@@ -1,34 +1,139 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { speak } from '../utils/speech';
 
-// La cigale et la fourmi — Jean de La Fontaine
-// Ryan should be able to read this aloud in 1 minute (Mon May 11 2026 — cahier homework)
-const FABLE_LINES = [
-  'La cigale, ayant chanté',
-  "Tout l'été,",
-  'Se trouva fort dépourvue',
-  'Quand la bise fut venue:',
-  'Pas un seul petit morceau',
-  'De mouche ou de vermisseau.',
-  'Elle alla crier famine',
-  'Chez la fourmi sa voisine,',
-  'La priant de lui prêter',
-  'Quelque grain pour subsister',
-  'Jusqu\'à la saison nouvelle.',
-  '« Je vous paierai, lui dit-elle,',
-  "Avant l'oût, foi d'animal,",
-  'Intérêt et principal. »',
-  "La fourmi n'est pas prêteuse:",
-  'C\'est là son moindre défaut.',
-  '« Que faisiez-vous au temps chaud? »',
-  'Dit-elle à cette emprunteuse.',
-  '— Nuit et jour à tout venant',
-  'Je chantais, ne vous déplaise.',
-  '— Vous chantiez? j\'en suis fort aise:',
-  'Eh bien! dansez maintenant. »',
-];
+// Fables de Jean de La Fontaine — devoirs de mémorisation
+// Ryan doit pouvoir réciter chaque fable à voix haute en 1 minute.
 
-const FABLE_FULL = FABLE_LINES.join('\n');
+const FABLES = {
+  papillon: {
+    id: 'papillon',
+    type: 'poésie',
+    title: 'Le papillon',
+    subtitle: 'Marc Alyn',
+    devoir: 'TEST jeudi 21 mai',
+    emoji: '🦋',
+    lines: [
+      'Jaune ou bleu, vert ou vermeil,',
+      'Il vole, il va, il vit sa vie',
+      'À petits battements ravis.',
+      'Dans l\'air doux, comme un éventail.',
+      'Ah ! Mettez au clou vos filets,',
+      'Jetez épingles et bouchons,',
+      'Laissez-le libre car il est',
+      'La poésie, le papillon !',
+    ],
+    hints: [
+      ['vermeil', 'rouge vif (couleur, comme l\'or rouge)'],
+      ['il vit sa vie', 'il fait ce qu\'il veut, librement'],
+      ['battements', 'mouvements des ailes'],
+      ['ravis', 'très heureux'],
+      ['éventail', 'un objet qu\'on agite pour avoir de l\'air frais'],
+      ['Mettez au clou', 'rangez, mettez de côté (ne les utilisez plus)'],
+      ['filets', 'filets pour attraper les papillons'],
+      ['Jetez', 'lancez, débarrassez-vous de'],
+      ['épingles', 'aiguilles pour épingler les papillons morts'],
+      ['bouchons', 'ce qui ferme une bouteille (utilisé pour piquer les insectes)'],
+      ['Laissez-le libre', 'ne l\'attrapez pas, laissez-le voler'],
+      ['poésie', 'la beauté en mots'],
+    ],
+  },
+  corbeau: {
+    id: 'corbeau',
+    type: 'fable',
+    title: 'Le Corbeau et le Renard',
+    subtitle: 'Jean de La Fontaine — Fables, livre 1, fable 2',
+    devoir: 'Devoir lundi 18 mai',
+    emoji: '🦊',
+    lines: [
+      'Maître Corbeau, sur un arbre perché,',
+      'Tenait en son bec un fromage.',
+      'Maître Renard, par l\'odeur alléché,',
+      'Lui tint à peu près ce langage :',
+      '« Hé ! bonjour, Monsieur du Corbeau.',
+      'Que vous êtes joli ! que vous me semblez beau !',
+      'Sans mentir, si votre ramage',
+      'Se rapporte à votre plumage,',
+      'Vous êtes le Phénix des hôtes de ces bois. »',
+      'À ces mots le Corbeau ne se sent pas de joie ;',
+      'Et pour montrer sa belle voix,',
+      'Il ouvre un large bec, laisse tomber sa proie.',
+      'Le Renard s\'en saisit, et dit : « Mon bon Monsieur,',
+      'Apprenez que tout flatteur',
+      'Vit aux dépens de celui qui l\'écoute :',
+      'Cette leçon vaut bien un fromage, sans doute. »',
+      'Le Corbeau, honteux et confus,',
+      'Jura, mais un peu tard, qu\'on ne l\'y prendrait plus.',
+    ],
+    hints: [
+      ['perché', 'installé sur une branche'],
+      ['alléché', 'attiré (par une odeur)'],
+      ['ramage', 'le chant des oiseaux'],
+      ['plumage', 'les plumes'],
+      ['Phénix', 'oiseau légendaire — le plus beau de tous'],
+      ['hôtes', 'habitants (de ces bois)'],
+      ['proie', 'ce qu\'on attrape (le fromage)'],
+      ['s\'en saisit', 'l\'attrape vite'],
+      ['flatteur', 'quelqu\'un qui dit des faux compliments'],
+      ['vit aux dépens de', 'profite de'],
+      ['leçon', 'ce qu\'on apprend'],
+      ['honteux', 'qui a honte'],
+      ['confus', 'mélangé, mal à l\'aise'],
+      ['jura', 'promit très fort'],
+      ['on ne l\'y prendrait plus', 'il ne se ferait plus avoir'],
+    ],
+  },
+  cigale: {
+    id: 'cigale',
+    type: 'fable',
+    title: 'La cigale et la fourmi',
+    subtitle: 'Jean de La Fontaine — Fables, livre 1, fable 1',
+    devoir: 'Devoir lundi 11 mai',
+    emoji: '🐜',
+    lines: [
+      'La cigale, ayant chanté',
+      'Tout l\'été,',
+      'Se trouva fort dépourvue',
+      'Quand la bise fut venue:',
+      'Pas un seul petit morceau',
+      'De mouche ou de vermisseau.',
+      'Elle alla crier famine',
+      'Chez la fourmi sa voisine,',
+      'La priant de lui prêter',
+      'Quelque grain pour subsister',
+      'Jusqu\'à la saison nouvelle.',
+      '« Je vous paierai, lui dit-elle,',
+      'Avant l\'oût, foi d\'animal,',
+      'Intérêt et principal. »',
+      'La fourmi n\'est pas prêteuse:',
+      'C\'est là son moindre défaut.',
+      '« Que faisiez-vous au temps chaud? »',
+      'Dit-elle à cette emprunteuse.',
+      '— Nuit et jour à tout venant',
+      'Je chantais, ne vous déplaise.',
+      '— Vous chantiez? j\'en suis fort aise:',
+      'Eh bien! dansez maintenant. »',
+    ],
+    hints: [
+      ['dépourvue', 'elle n\'a plus rien'],
+      ['la bise', 'le vent froid d\'hiver'],
+      ['vermisseau', 'un petit ver'],
+      ['famine', 'pas de nourriture, on a faim'],
+      ['prêter', 'donner pour un temps'],
+      ['subsister', 'survivre, vivre'],
+      ['l\'oût (= août)', 'ancien français pour "août"'],
+      ['foi d\'animal', 'je te le promets'],
+      ['intérêt et principal', 'ce que je dois + un peu plus'],
+      ['prêteuse', 'quelqu\'un qui aime prêter'],
+      ['moindre défaut', 'son plus petit défaut'],
+      ['emprunteuse', 'quelqu\'un qui emprunte'],
+      ['à tout venant', 'à n\'importe qui'],
+      ['ne vous déplaise', 'ne te fâche pas'],
+      ['fort aise', 'très contente'],
+    ],
+  },
+};
+
+const DEFAULT_FABLE = 'corbeau'; // semaine du 18 mai
 
 function fmt(s) {
   const m = Math.floor(s / 60);
@@ -37,11 +142,15 @@ function fmt(s) {
 }
 
 export default function FableReader({ onHome }) {
+  const [fableId, setFableId] = useState(DEFAULT_FABLE);
   const [seconds, setSeconds] = useState(60);
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
   const [showHints, setShowHints] = useState(false);
   const intervalRef = useRef(null);
+
+  const fable = FABLES[fableId];
+  const fableFull = fable.lines.join('\n');
 
   // Timer tick
   useEffect(() => {
@@ -82,24 +191,22 @@ export default function FableReader({ onHome }) {
     setDone(false);
     setRunning(true);
   }
-
-  function pauseTimer() {
-    setRunning(false);
-  }
-
+  function pauseTimer() { setRunning(false); }
   function resetTimer() {
     setRunning(false);
     setSeconds(60);
     setDone(false);
   }
-
-  function playModel() {
-    // Read the fable aloud at a comfortable pace as a model
-    speak(FABLE_FULL);
-  }
-
+  function playModel() { speak(fableFull); }
   function stopAudio() {
     if (window.speechSynthesis) window.speechSynthesis.cancel();
+  }
+
+  function switchFable(id) {
+    stopAudio();
+    resetTimer();
+    setShowHints(false);
+    setFableId(id);
   }
 
   const timerColor = done ? '#2d7a3a' : seconds <= 10 ? '#c74a15' : seconds <= 30 ? '#e8a050' : '#3a5bc7';
@@ -109,15 +216,29 @@ export default function FableReader({ onHome }) {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <button onClick={() => { stopAudio(); onHome(); }} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
-        <h2 className="font-heading font-bold text-stone text-base">🐜 Lecture de la fable</h2>
+        <h2 className="font-heading font-bold text-stone text-base">{fable.emoji} Lecture de la {fable.type}</h2>
         <div />
+      </div>
+
+      {/* Fable picker */}
+      <div className="flex gap-2 mb-3">
+        {Object.values(FABLES).map((f) => (
+          <button key={f.id} onClick={() => switchFable(f.id)}
+            className={`flex-1 py-2 px-3 rounded-xl font-bold text-xs border-2 transition-colors ${
+              fableId === f.id
+                ? 'bg-fox-d text-white border-fox-d'
+                : 'bg-white text-stone border-s2 hover:border-s4'
+            }`}>
+            {f.emoji} {f.title}
+          </button>
+        ))}
       </div>
 
       {/* Title banner */}
       <div className="bg-orange-50 rounded-2xl p-4 mb-3 border-2 border-orange-200 text-center">
-        <p className="text-[10px] font-bold text-fox-d uppercase tracking-wide">Devoir lundi 11 mai</p>
-        <h1 className="font-heading text-2xl font-extrabold text-stone leading-tight mt-1">La cigale et la fourmi</h1>
-        <p className="text-xs font-semibold text-s4 mt-1">Jean de La Fontaine — Fables, livre 1, fable 1</p>
+        <p className="text-[10px] font-bold text-fox-d uppercase tracking-wide">{fable.devoir}</p>
+        <h1 className="font-heading text-2xl font-extrabold text-stone leading-tight mt-1">{fable.title}</h1>
+        <p className="text-xs font-semibold text-s4 mt-1">{fable.subtitle}</p>
         <p className="text-xs font-bold text-fox-d mt-2">Objectif: lire toute la fable à voix haute en 1 minute!</p>
       </div>
 
@@ -182,8 +303,8 @@ export default function FableReader({ onHome }) {
       {/* Fable text */}
       <div className="bg-cream rounded-2xl p-5 border-2 border-s1 shadow-sm mb-3">
         <div className="font-heading text-lg leading-relaxed text-stone whitespace-pre-line" style={{ fontSize: '1.15rem' }}>
-          {FABLE_LINES.map((line, i) => (
-            <p key={i} className={`${i > 0 && (FABLE_LINES[i - 1].endsWith('.') || FABLE_LINES[i - 1].endsWith('»') || FABLE_LINES[i - 1].endsWith(':')) ? 'mt-3' : ''}`}>
+          {fable.lines.map((line, i) => (
+            <p key={i} className={`${i > 0 && (fable.lines[i - 1].endsWith('.') || fable.lines[i - 1].endsWith('»') || fable.lines[i - 1].endsWith(':')) ? 'mt-3' : ''}`}>
               {line}
             </p>
           ))}
@@ -198,23 +319,11 @@ export default function FableReader({ onHome }) {
 
       {showHints && (
         <div className="bg-orange-50 rounded-2xl p-4 border-2 border-orange-200 mb-3">
-          <p className="text-xs font-bold text-fox-d uppercase tracking-wide mb-2">Mots à bien prononcer</p>
+          <p className="text-xs font-bold text-fox-d uppercase tracking-wide mb-2">Mots à bien comprendre</p>
           <ul className="text-sm font-semibold text-stone space-y-1">
-            <li><b>dépourvue</b> = elle n'a plus rien</li>
-            <li><b>la bise</b> = le vent froid d'hiver</li>
-            <li><b>vermisseau</b> = un petit ver</li>
-            <li><b>famine</b> = pas de nourriture, on a faim</li>
-            <li><b>prêter</b> = donner pour un temps</li>
-            <li><b>subsister</b> = survivre, vivre</li>
-            <li><b>l'oût</b> (= août) = ancien français pour "août"</li>
-            <li><b>foi d'animal</b> = je te le promets</li>
-            <li><b>intérêt et principal</b> = ce que je dois + un peu plus</li>
-            <li><b>prêteuse</b> = quelqu'un qui aime prêter</li>
-            <li><b>moindre défaut</b> = son plus petit défaut</li>
-            <li><b>emprunteuse</b> = quelqu'un qui emprunte</li>
-            <li><b>à tout venant</b> = à n'importe qui</li>
-            <li><b>ne vous déplaise</b> = ne te fâche pas</li>
-            <li><b>fort aise</b> = très contente</li>
+            {fable.hints.map(([word, meaning], i) => (
+              <li key={i}><b>{word}</b> = {meaning}</li>
+            ))}
           </ul>
         </div>
       )}
