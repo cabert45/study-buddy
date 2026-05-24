@@ -217,12 +217,12 @@ export default function App() {
           onOpenNotifications={() => setShowNotifs(true)}
           onOpenStudyReminder={() => setShowStudyReminder(true)}
           onStartFlashcard={(weekKey) => {
-            // Menu uses dictee_sN; DicteeFlashcard looks up by theme6_sN
+            // Menu uses dictee_sN; DicteeFlashcard looks up by theme7_sN
             const aliases = {
-              dictee_s1: 'theme6_s1',
-              dictee_s2: 'theme6_s2',
-              dictee_s3: 'theme6_s3',
-              dictee_s4: 'theme6_s4',
+              dictee_s1: 'theme7_s1',
+              dictee_s2: 'theme7_s2',
+              dictee_s3: 'theme7_s3',
+              dictee_s4: 'theme7_s4',
             };
             setFlashcardWeek(aliases[weekKey] || weekKey);
           }}

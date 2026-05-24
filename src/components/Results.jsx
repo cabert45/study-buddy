@@ -89,6 +89,7 @@ const categoryLabels = {
   on_ont: 'ON / ONT',
   groupe_nom: 'Groupe du nom',
   passe_compose: 'Passé composé',
+  comprehension: 'Compréhension de lecture',
   aquarium: 'Aquarium',
   speed: 'Course',
   memory: 'Mémoire',

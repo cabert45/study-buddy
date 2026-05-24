@@ -32,6 +32,7 @@ import { generateFigures } from '../generators/figures';
 import { generateMesure } from '../generators/mesure';
 import { generatePlurielsRyan } from '../generators/plurielsRyan';
 import { generateHistoire } from '../generators/histoire';
+import { generateComprehension } from '../generators/comprehension';
 import { generateEnglishOral } from '../generators/englishOral';
 import { generateMotsSavantsJr } from '../generators/motsSavantsJr';
 import { recordPemdasAnswer } from '../generators/pemdas';
@@ -68,10 +69,10 @@ function getGenerator(mode) {
     case 'on_ont': return generateOnOnt;
     case 'groupe_nom': return generateGroupeNom;
     case 'dictee_semaine': return generateDicteeSemaine;
-    case 'dictee_s1': setCurrentWeek('theme6_s1'); return generateDicteeSemaine;
-    case 'dictee_s2': setCurrentWeek('theme6_s2'); return generateDicteeSemaine;
-    case 'dictee_s3': setCurrentWeek('theme6_s3'); return generateDicteeSemaine;
-    case 'dictee_s4': setCurrentWeek('theme6_s4'); return generateDicteeSemaine;
+    case 'dictee_s1': setCurrentWeek('theme7_s1'); return generateDicteeSemaine;
+    case 'dictee_s2': setCurrentWeek('theme7_s2'); return generateDicteeSemaine;
+    case 'dictee_s3': setCurrentWeek('theme7_s3'); return generateDicteeSemaine;
+    case 'dictee_s4': setCurrentWeek('theme7_s4'); return generateDicteeSemaine;
     case 'cayla_t6_s1': setCurrentWeek('cayla_t6_s1'); return generateDicteeSemaine;
     case 'cayla_t6_s2': setCurrentWeek('cayla_t6_s2'); return generateDicteeSemaine;
     case 'cayla_t6_s3': setCurrentWeek('cayla_t6_s3'); return generateDicteeSemaine;
@@ -92,6 +93,7 @@ function getGenerator(mode) {
     case 'mesure': return generateMesure;
     case 'pluriels_ryan': return generatePlurielsRyan;
     case 'histoire': return generateHistoire;
+    case 'comprehension': return generateComprehension;
     case 'english_oral': return generateEnglishOral;
     case 'mots_savants_jr': return generateMotsSavantsJr;
     case 'apostrophe': return generateApostrophe;
@@ -366,6 +368,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'mesure' && 'Mesure en centimètres'}
           {question.category === 'pluriels_ryan' && 'Pluriel & Féminin'}
           {question.category === 'histoire' && "Parties d'une histoire"}
+          {question.category === 'comprehension' && '📖 Compréhension de lecture'}
           {question.category === 'english_oral' && '🇬🇧 Anglais oral'}
           {question.category === 'mots_savants_jr' && '🦋 Mots savants — Insectes/Fleurs'}
           {question.category === 'apostrophe' && "L'apostrophe"}

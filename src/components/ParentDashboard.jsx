@@ -23,6 +23,7 @@ const categoryLabels = {
   m_devant_bmp: 'M devant B, M, P',
   accord_etre: '🎯 Accord après être',
   passe_compose: '📝 Passé composé',
+  comprehension: '📖 Compréhension de lecture',
   aquarium: '🐟 Aquarium',
   speed: '⚡ Course',
   memory: '🎴 Mémoire',

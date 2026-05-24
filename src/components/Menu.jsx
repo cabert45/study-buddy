@@ -67,12 +67,13 @@ const ryanFrenchModes = [
   { id: 'biographie_jr', label: '📖 Biographie Jean Rostand', desc: 'CRITIQUE — il faut 90%+ pour passer', featured: true, special: true },
   { id: 'mots_savants_jr', label: '🦋 Mots savants (Insectes/Fleurs)', desc: 'ciseler, discret, prospérer, pattes de mouche — accompagne le test biographie', special: true, badge: 'Critique' },
   { id: 'english_oral', label: '🇬🇧 Anglais — days/months/seasons', desc: 'TEST oral mercredi 13 mai + examen 10 juin', special: true, badge: 'Examen' },
-  { id: 'dictee_s4', label: '🎧 Dictée mardi', desc: 'n → m devant b, p — campagne, compote (semaine 4)', special: true },
-  { id: 'dictees_group', label: 'Dictées', desc: 'Toutes les semaines (1, 2, 3, 4, révision)', isGroup: true, special: true },
+  { id: 'dictee_s1', label: '🎧 Dictée mardi 26 mai', desc: 'Thème 7 S1 — consonnes doubles (arroser, carotte, mettre, patte...)', special: true, badge: 'Mardi' },
+  { id: 'dictees_group', label: 'Dictées', desc: 'Thème 7 — toutes les semaines (1, 2, 3, 4, révision)', isGroup: true, special: true },
   { id: 'homophones', label: '🔀 Homophones', desc: 'a/à · et/est · son/sont · ont/on — cahier bleu + examen', badge: 'Examen' },
   { id: 'present_indicatif', label: 'Présent — 1er groupe', desc: 'je chante, tu chantes... — cahier bleu', badge: 'Examen' },
   { id: 'pluriels_ryan', label: 'Pluriel & Féminin', desc: 'chevaux, gâteaux, heureuse, première...', badge: 'Examen' },
   { id: 'histoire', label: "📖 Parties d'une histoire", desc: 'Préparation pour la rédaction (27 mai)', badge: 'Examen' },
+  { id: 'comprehension', label: '📖 Compréhension de lecture', desc: 'Lis un texte et réponds — examen vendredi 5 juin', badge: 'Examen' },
   { id: 'futur_etre_avoir', label: '⚡ Futur Être & Avoir', desc: 'TEST mercredi 20 mai — je serai, j\'aurai... (D-T Rouge)', special: true, badge: 'Test mercredi' },
   { id: 'futur_simple', label: 'Futur simple', desc: 'Verbes -er au futur — TEST mercredi 13 mai', special: true },
   { id: 'passe_compose', label: 'Passé composé', desc: 'Verbes -er + finir — révision jeudi' },
@@ -85,11 +86,11 @@ const ryanFrenchModes = [
 ];
 
 const dicteeWeeksList = [
-  { id: 'dictee_revision', label: 'Révision TOUTES dictées', desc: 'Préparer la dictée cumulative 1-4', highlight: true },
-  { id: 'dictee_s4', label: 'Semaine 4 — n devient m', desc: 'campagne, compote, printemps, tomber...', current: true },
-  { id: 'dictee_s1', label: 'Semaine 1 — verbes -er', desc: 'aller, arriver, pincer, réviser...' },
-  { id: 'dictee_s2', label: 'Semaine 2 — mots en p', desc: 'paire, parce que, partout, prendre...' },
-  { id: 'dictee_s3', label: 'Semaine 3 — son o', desc: "aujourd'hui, autre, motoneige, peau..." },
+  { id: 'dictee_revision', label: 'Révision TOUTES dictées', desc: 'Préparer la dictée cumulative', highlight: true },
+  { id: 'dictee_s1', label: 'Semaine 1 — consonnes doubles', desc: 'arroser, carotte, mettre, patte, cannelle...', current: true },
+  { id: 'dictee_s2', label: 'Semaine 2 — lettre muette (féminin)', desc: 'bas/basse, charmant/charmante, haut/haute...' },
+  { id: 'dictee_s3', label: 'Semaine 3 — s muet final', desc: 'alors, jamais, parfois, toujours...' },
+  { id: 'dictee_s4', label: "Semaine 4 — ne s'écrit pas comme se prononce", desc: 'automne, femme, monsieur, soixante...' },
 ];
 
 const caylaMathModes = [

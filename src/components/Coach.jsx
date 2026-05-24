@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getDashboard } from '../utils/storage';
+import { EXAMS, dicteeWeekForDate, daysBetween } from '../data/examSchedule';
 
 // The Coach decides what Ryan does and when.
 // Given the time of day, soccer schedule, and what's coming up this week,
@@ -75,125 +76,148 @@ function findWeakest(stats, type = null) {
 // Build a smart plan based on current time + soccer + dashboard data
 // opts.dayOverride: 0-6 to force a specific day's plan (preview mode)
 // opts.skipSoccer: true to use the post-soccer (heaviest) plan even if soccer hasn't happened
+// opts.dateOverride: a Date to preview the plan for a different calendar day
 function buildPlan(dashboardData, opts = {}) {
-  const now = new Date();
-  const isPreview = opts.dayOverride != null && opts.dayOverride !== now.getDay();
-  const day = opts.dayOverride != null ? opts.dayOverride : now.getDay(); // 0=Sun, 6=Sat
-  const hour = now.getHours();
-  const min = now.getMinutes();
-  const minutesNow = hour * 60 + min;
-
-  // Saturday: soccer at 4:30pm = 16:30 = 990 min
-  // Sunday: bigger study day
-  // Weekday afternoons: dictée + homework prep
+  const realNow = new Date();
+  const baseDate = opts.dateOverride || realNow;
+  // dayOverride still snaps to the current week if no date override is provided
+  let today;
+  if (opts.dateOverride) {
+    today = baseDate;
+  } else if (opts.dayOverride != null && opts.dayOverride !== realNow.getDay()) {
+    today = new Date(realNow);
+    today.setDate(today.getDate() + (opts.dayOverride - realNow.getDay()));
+  } else {
+    today = realNow;
+  }
+  const day = today.getDay(); // 0=Sun, 6=Sat
+  const minutesNow = realNow.getHours() * 60 + realNow.getMinutes();
 
   const plan = [];
-
-  // Identify Ryan's weakest French and math from real data
   const stats = dashboardData?.stats || [];
   const weakestFrench = findWeakest(stats, 'french');
   const weakestMath = findWeakest(stats, 'math');
   const weakFrenchMode = weakestFrench?.category || 'adjectif';
   const weakMathMode = weakestMath?.category || 'calcul';
 
+  // ===== Exam-deadline awareness =====
+  const upcoming = EXAMS
+    .map((ex) => ({ ...ex, daysAway: daysBetween(today, ex.date) }))
+    .filter((ex) => ex.daysAway >= 0 && ex.daysAway <= 17)
+    .sort((a, b) => a.daysAway - b.daysAway);
+
+  const examToday = upcoming.find((ex) => ex.daysAway === 0);
+  const examTomorrow = upcoming.find((ex) => ex.daysAway === 1);
+  const examThisWeek = upcoming.filter((ex) => ex.daysAway >= 2 && ex.daysAway <= 6);
+  const examNextWeek = upcoming.filter((ex) => ex.daysAway >= 7 && ex.daysAway <= 14);
+  const allDone = upcoming.length === 0;
+
+  // ===== Tuesday dictée — always a fixture =====
+  const dicteeToday = dicteeWeekForDate(today);
+  const dicteeFullLabel = `Dictée Thème 7 ${dicteeToday.short} — ${dicteeToday.label}`;
+  const isMonday = day === 1;
+  const isTuesday = day === 2;
+  const isSundayBeforeMon = day === 0;
+
+  // ===== Saturday soccer handling preserved =====
   if (day === 6) {
-    // SATURDAY (May 9) — HEAVY DAY: Tuesday dictée s4 + Wednesday futur indicatif + biographie Jean Rostand
     const soccerMin = 16 * 60 + 30;
     const minutesUntilSoccer = soccerMin - minutesNow;
-    // If preview mode OR user is skipping soccer → use the heaviest "post-soccer" plan
-    const isAfterSoccer = isPreview || opts.skipSoccer || minutesNow > soccerMin + 60;
+    const isAfterSoccer = opts.dayOverride != null || opts.skipSoccer || minutesNow > soccerMin + 60;
 
     if (isAfterSoccer) {
-      // Post-soccer (evening) — biographie URGENTE (il échoue, doit avoir 90%+)
       plan.push({ type: 'chore', label: 'Reste des tâches (chambre + salon)', mins: 20, icon: '🧹' });
       plan.push({ type: 'break', label: 'Pause + collation', mins: 10, icon: '🍎' });
-      plan.push({ type: 'app', mode: 'biographie_jr', label: 'Biographie Jean Rostand (PRIORITÉ!)', mins: 15, icon: '📖' });
-      plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-      plan.push({ type: 'app', mode: 'dictee_s4', label: 'Dictée mardi — n→m devant b/p', mins: 12, icon: '🎧' });
-      plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-      plan.push({ type: 'app', mode: 'futur_simple', label: 'Futur simple (test mercredi)', mins: 12, icon: '🔮' });
-      plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-      plan.push({ type: 'app', mode: 'multi_step', label: 'Problèmes à étapes', mins: 10, icon: '🧩' });
-      plan.push({ type: 'message', label: 'Bravo! Grosse journée! 🌙', mins: 1, icon: '🌙' });
     } else if (minutesUntilSoccer > 120) {
-      // 2h+ avant soccer — biographie EN PREMIER (priorité critique)
-      plan.push({ type: 'app', mode: 'biographie_jr', label: 'Biographie Jean Rostand (PRIORITÉ!)', mins: 15, icon: '📖' });
+      plan.push({ type: 'chore', label: 'Chambre + ramasser vêtements', mins: 20, icon: '🧸' });
       plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-      plan.push({ type: 'chore', label: 'Ramasser vêtements + chambre', mins: 20, icon: '🧸' });
-      plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-      plan.push({ type: 'app', mode: 'dictee_s4', label: 'Dictée mardi — campagne, compote', mins: 12, icon: '🎧' });
-      plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-      plan.push({ type: 'app', mode: 'futur_simple', label: 'Futur simple (test mercredi)', mins: 12, icon: '🔮' });
-      plan.push({ type: 'chore', label: 'Plier vêtements + ranger', mins: 15, icon: '👔' });
-      plan.push({ type: 'message', label: 'Reste à faire ce soir après soccer!', mins: 1, icon: '⚽' });
-    } else if (minutesUntilSoccer > 60) {
-      // 60-120 min — biographie en premier
-      plan.push({ type: 'app', mode: 'biographie_jr', label: 'Biographie (PRIORITÉ!)', mins: 15, icon: '📖' });
-      plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-      plan.push({ type: 'app', mode: 'dictee_s4', label: 'Dictée mardi (n→m)', mins: 10, icon: '🎧' });
-      plan.push({ type: 'break', label: 'Pause', mins: 3, icon: '☕' });
-      plan.push({ type: 'app', mode: 'futur_simple', label: 'Futur simple', mins: 10, icon: '🔮' });
-      plan.push({ type: 'message', label: 'Reste à faire ce soir après soccer!', mins: 1, icon: '⚽' });
     } else if (minutesUntilSoccer > 25) {
-      plan.push({ type: 'app', mode: 'biographie_jr', label: 'Biographie (PRIORITÉ!)', mins: 12, icon: '📖' });
+      // pre-soccer mini-block then go
+      const ex = upcoming[0];
+      if (ex && ex.modes[0]) {
+        plan.push({ type: 'app', mode: ex.modes[0].mode, label: `${ex.icon} ${ex.modes[0].label} (avant soccer)`, mins: 12, icon: ex.icon });
+      }
       plan.push({ type: 'message', label: 'Prépare-toi pour le soccer!', mins: 5, icon: '⚽' });
+      return plan;
     } else if (minutesUntilSoccer > 0) {
       plan.push({ type: 'message', label: 'Prépare-toi pour le soccer!', mins: 5, icon: '⚽' });
+      return plan;
     } else {
       plan.push({ type: 'message', label: 'Soccer en cours / vient de finir. On reprend après!', mins: 1, icon: '⚽' });
+      return plan;
     }
-  } else if (day === 0) {
-    // SUNDAY — biographie + mots savants EN PREMIER (urgence), puis dictée + futur
-    plan.push({ type: 'app', mode: 'biographie_jr', label: 'Biographie Jean Rostand (PRIORITÉ!)', mins: 12, icon: '📖' });
+  }
+
+  // ===== EXAM-DAY: encouragement + light warmup for what's left =====
+  if (examToday) {
+    plan.push({ type: 'message', label: `${examToday.icon} Bonne chance pour ton examen de ${examToday.name} aujourd'hui!`, mins: 1, icon: '🍀' });
+    if (examToday.modes[0]) {
+      plan.push({ type: 'app', mode: examToday.modes[0].mode, label: `Échauffement — ${examToday.modes[0].label}`, mins: 8, icon: examToday.modes[0].icon });
+    }
+    // After today's exam, look ahead to the next one
+    const next = upcoming.find((ex) => ex.daysAway > 0);
+    if (next && next.modes[0]) {
+      plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+      plan.push({ type: 'app', mode: next.modes[0].mode, label: `${next.icon} Commencer prep — ${next.name} (dans ${next.daysAway}j)`, mins: 12, icon: next.icon });
+    }
+    plan.push({ type: 'message', label: 'Tu peux le faire! 💪', mins: 1, icon: '🌟' });
+    return plan;
+  }
+
+  // ===== TUESDAY (recurring): dictée today =====
+  if (isTuesday) {
+    plan.push({ type: 'message', label: `📢 Aujourd'hui = ${dicteeFullLabel}!`, mins: 1, icon: '🍀' });
+    plan.push({ type: 'app', mode: dicteeToday.mode, label: `Échauffement — ${dicteeFullLabel}`, mins: 8, icon: '🎧' });
     plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'app', mode: 'mots_savants_jr', label: 'Mots savants (CRITIQUE!)', mins: 10, icon: '🦋' });
+  }
+
+  // ===== EXAM-TOMORROW: DERNIÈRE révision =====
+  if (examTomorrow) {
+    examTomorrow.modes.slice(0, 2).forEach((m, i) => {
+      plan.push({ type: 'app', mode: m.mode, label: `DERNIÈRE prep — ${m.label} (examen DEMAIN!)`, mins: 12, icon: m.icon });
+      if (i === 0) plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+    });
     plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'app', mode: 'dictee_s4', label: 'Dictée mardi — n→m devant b/p', mins: 10, icon: '🎧' });
+  }
+
+  // ===== Sunday/Monday before a Tuesday dictée → drill dictée =====
+  if ((isSundayBeforeMon || isMonday) && !examTomorrow) {
+    plan.push({ type: 'app', mode: dicteeToday.mode, label: `${dicteeFullLabel} (mardi!)`, mins: 12, icon: '🎧' });
     plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'app', mode: 'futur_simple', label: 'Futur simple (test mercredi)', mins: 10, icon: '🔮' });
+  }
+
+  // ===== Main exam-priority rotation =====
+  // Push top 2 exams from this week + 1 from next week (or filler if none)
+  const focusList = [...examThisWeek, ...examNextWeek].slice(0, 3);
+
+  if (focusList.length === 0 && !examToday && !examTomorrow) {
+    // No exams in the window — light review using weakest modes
+    plan.push({ type: 'app', mode: weakMathMode, label: `Maillon faible math — révision`, mins: 12, icon: '🧮' });
+    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+    plan.push({ type: 'app', mode: weakFrenchMode, label: `Maillon faible français — révision`, mins: 12, icon: '📚' });
+  } else {
+    focusList.forEach((ex, idx) => {
+      // Pick mode: rotate through ex.modes based on day-of-week so kid doesn't always do mode[0]
+      const m = ex.modes[day % ex.modes.length] || ex.modes[0];
+      const urgency = ex.daysAway <= 3 ? '🔥' : ex.daysAway <= 6 ? '⚡' : '📅';
+      plan.push({
+        type: 'app',
+        mode: m.mode,
+        label: `${urgency} ${ex.name} (dans ${ex.daysAway}j) — ${m.label}`,
+        mins: ex.daysAway <= 3 ? 15 : 12,
+        icon: m.icon,
+      });
+      if (idx < focusList.length - 1) {
+        plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
+      }
+    });
+  }
+
+  // ===== All exams done (after June 10) =====
+  if (allDone) {
+    plan.push({ type: 'message', label: '🎉 Tous les examens sont finis! Bravo!', mins: 1, icon: '🌳' });
+  } else {
     plan.push({ type: 'message', label: 'Bravo! Profite du reste de ta journée!', mins: 1, icon: '🌳' });
-  } else if (day === 1) {
-    // MONDAY (May 11) — DERNIÈRE prep biographie + mots savants + dictée + fable + start English
-    plan.push({ type: 'app', mode: 'biographie_jr', label: 'DERNIÈRE révision biographie (90%+!)', mins: 12, icon: '📖' });
-    plan.push({ type: 'break', label: 'Pause', mins: 3, icon: '☕' });
-    plan.push({ type: 'app', mode: 'mots_savants_jr', label: 'Mots savants (insectes/fleurs) — CRITIQUE', mins: 10, icon: '🦋' });
-    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'app', mode: 'dictee_s4', label: 'DERNIÈRE révision dictée!', mins: 10, icon: '🎧' });
-    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'message', label: 'Lecture fable "La cigale et la fourmi" (La Fontaine) — lis à voix haute, vise 1 minute!', mins: 8, icon: '🐜' });
-    plan.push({ type: 'break', label: 'Pause', mins: 3, icon: '☕' });
-    plan.push({ type: 'app', mode: 'english_oral', label: '🇬🇧 Anglais — days/months/seasons (test mercredi)', mins: 10, icon: '🌎' });
-    plan.push({ type: 'app', mode: 'futur_simple', label: 'Futur simple (test mercredi)', mins: 10, icon: '🔮' });
-  } else if (day === 2) {
-    // TUESDAY (May 12) — DICTÉE DAY! + prep futur + DERNIÈRE prep anglais
-    plan.push({ type: 'message', label: '📢 Aujourd\'hui = dictée! Bonne chance!', mins: 1, icon: '🍀' });
-    plan.push({ type: 'app', mode: 'english_oral', label: '🇬🇧 DERNIÈRE prep anglais (test demain!)', mins: 12, icon: '🌎' });
-    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'app', mode: 'futur_simple', label: 'DERNIÈRE prep futur (test demain!)', mins: 12, icon: '🔮' });
-    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'app', mode: 'mental', label: 'Calcul mental (sens multiplication demain)', mins: 8, icon: '⚡' });
-  } else if (day === 3) {
-    // WEDNESDAY (May 13) — futur indicatif test + ENGLISH oral test today
-    plan.push({ type: 'message', label: '🇬🇧 Bonne chance pour ton test d\'anglais ET de futur aujourd\'hui!', mins: 1, icon: '🍀' });
-    plan.push({ type: 'app', mode: 'english_oral', label: '🇬🇧 Échauffement anglais', mins: 8, icon: '🌎' });
-    plan.push({ type: 'app', mode: 'homophones', label: 'Homophones (cahier bleu + examen final)', mins: 12, icon: '🔀' });
-    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'app', mode: 'passe_compose', label: 'Passé composé (révision pour jeudi)', mins: 10, icon: '📝' });
-  } else if (day === 4) {
-    // THURSDAY (May 14) — verbes -er composés + start fractions for finals
-    plan.push({ type: 'app', mode: 'passe_compose', label: 'Verbes -er composés (passé composé)', mins: 15, icon: '📝' });
-    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'app', mode: 'fractions', label: 'Fractions (nouveau pour finaux)', mins: 12, icon: '🍕' });
-    plan.push({ type: 'message', label: 'Demain = pas d\'école (journée pédagogique)! 🎉', mins: 1, icon: '🎉' });
-  } else if (day === 5) {
-    // FRIDAY (May 15) — JOURNÉE PÉDAGOGIQUE / PAS D'ÉCOLE — exam-prep rotation
-    plan.push({ type: 'message', label: '🎉 Pas d\'école aujourd\'hui! Révision pour les examens.', mins: 1, icon: '🎉' });
-    plan.push({ type: 'app', mode: 'fractions', label: 'Fractions (examen final)', mins: 10, icon: '🍕' });
-    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'app', mode: 'mult_div', label: 'Sens × et ÷ (examen final)', mins: 10, icon: '✖️' });
-    plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    plan.push({ type: 'app', mode: 'homophones', label: 'Homophones (examen final)', mins: 10, icon: '🔀' });
-    plan.push({ type: 'message', label: 'C\'est tout! Profite de ta journée!', mins: 1, icon: '🌳' });
   }
 
   return plan;

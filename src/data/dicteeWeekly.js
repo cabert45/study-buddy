@@ -2,7 +2,83 @@
 // Teacher gives word lists in advance, Ryan studies them for Tuesday's test
 
 export const dicteeWeeks = {
-  // ======= THEME 6 (CURRENT) =======
+  // ======= THEME 7 (CURRENT — starting mardi 26 mai 2026) =======
+  'theme7_s1': {
+    name: 'Thème 7 - Semaine 1',
+    rule: 'Des mots avec des consonnes doubles',
+    testDate: 'Mardi',
+    words: [
+      { correct: 'arroser', wrongs: ['aroser', 'arrosser', 'arosé'] },
+      { correct: 'attendre', wrongs: ['atendre', 'attandre', 'attendr'] },
+      { correct: 'cannelle', wrongs: ['canelle', 'cannèle', 'canele'] },
+      { correct: 'carotte', wrongs: ['carote', 'carrotte', 'carottes'] },
+      { correct: 'comme', wrongs: ['come', 'commes', 'kome'] },
+      { correct: 'comment', wrongs: ['coment', 'comman', 'commant'] },
+      { correct: 'corriger', wrongs: ['coriger', 'corigé', 'corrigé'] },
+      { correct: 'derrière', wrongs: ['derière', 'dérrière', 'derrier'] },
+      { correct: 'mettre', wrongs: ['metre', 'mètre', 'metr'] },
+      { correct: 'patte', wrongs: ['pate', 'pattes', 'pâte'] },
+    ],
+  },
+  'theme7_s2': {
+    name: 'Thème 7 - Semaine 2',
+    rule: 'Des mots avec une lettre muette qu\'on entend au féminin ou dans la même famille',
+    testDate: 'Mardi',
+    words: [
+      { correct: 'bas', wrongs: ['ba', 'bât', 'bahs'] },
+      { correct: 'basse', wrongs: ['base', 'bass', 'basses'] },
+      { correct: 'charmant', wrongs: ['charman', 'charmant', 'sharmant'] },
+      { correct: 'charmante', wrongs: ['charmant', 'charmente', 'sharmante'] },
+      { correct: 'fort', wrongs: ['for', 'fors', 'forte'] },
+      { correct: 'froid', wrongs: ['fwa', 'froi', 'froide'] },
+      { correct: 'froide', wrongs: ['froide', 'froid', 'froides'] },
+      { correct: 'gourmand', wrongs: ['gourman', 'gourmant', 'gourmend'] },
+      { correct: 'gourmande', wrongs: ['gourmente', 'gourmandes', 'gourmend'] },
+      { correct: 'haut', wrongs: ['ho', 'hau', 'haute'] },
+      { correct: 'haute', wrongs: ['hote', 'hauts', 'hauthe'] },
+      { correct: 'laid', wrongs: ['lai', 'lait', 'laids'] },
+      { correct: 'laide', wrongs: ['lède', 'laid', 'laides'] },
+      { correct: 'porc', wrongs: ['por', 'porque', 'pors'] },
+      { correct: 'souriant', wrongs: ['sourian', 'souriants', 'soursant'] },
+      { correct: 'souriante', wrongs: ['souriante', 'souriente', 'sourianthe'] },
+      { correct: 'tard', wrongs: ['tar', 'tart', 'tarde'] },
+    ],
+  },
+  'theme7_s3': {
+    name: 'Thème 7 - Semaine 3',
+    rule: 'Des mots qui terminent avec un s qu\'on n\'entend pas',
+    testDate: 'Mardi',
+    words: [
+      { correct: 'alors', wrongs: ['alor', 'alore', 'allors'] },
+      { correct: 'après', wrongs: ['aprè', 'apré', 'apprès'] },
+      { correct: 'brebis', wrongs: ['brebi', 'breubis', 'brébis'] },
+      { correct: 'jamais', wrongs: ['jamai', 'jamès', 'jamés'] },
+      { correct: 'moins', wrongs: ['moin', 'moint', 'moinse'] },
+      { correct: 'parfois', wrongs: ['parfoi', 'parfoix', 'parfwa'] },
+      { correct: 'pas', wrongs: ['pa', 'pât', 'past'] },
+      { correct: 'sans', wrongs: ['san', 'sant', 'sand'] },
+      { correct: 'toujours', wrongs: ['toujour', 'toujourt', 'toujoure'] },
+      { correct: 'vers', wrongs: ['ver', 'vert', 'verre'] },
+    ],
+  },
+  'theme7_s4': {
+    name: 'Thème 7 - Semaine 4',
+    rule: 'Des mots qui ne s\'écrivent pas comme ils se prononcent',
+    testDate: 'Mardi',
+    words: [
+      { correct: 'automne', wrongs: ['otone', 'autone', 'automnne'] },
+      { correct: 'femme', wrongs: ['fame', 'fâme', 'fame'] },
+      { correct: 'fils', wrongs: ['fis', 'fiss', 'fils'] },
+      { correct: 'hiver', wrongs: ['ivère', 'iver', 'hivère'] },
+      { correct: 'homme', wrongs: ['ome', 'homes', 'hôme'] },
+      { correct: 'messieurs', wrongs: ['mecieurs', 'messieur', 'mèssieurs'] },
+      { correct: 'monsieur', wrongs: ['mecieu', 'monsieurt', 'monsieurs'] },
+      { correct: 'soixante', wrongs: ['soissante', 'soasante', 'soixent'] },
+      { correct: 'trop', wrongs: ['tro', 'trops', 'tro'] },
+    ],
+  },
+
+  // ======= THEME 6 (PAST — terminé) =======
   'theme6_s1': {
     name: 'Thème 6 - Semaine 1',
     rule: 'Le son "é" à la fin d\'un verbe à l\'infinitif s\'écrit toujours -er',
@@ -225,14 +301,14 @@ export const dicteeWeeks = {
   },
 };
 
-let currentWeekKey = 'theme6_s1';
+let currentWeekKey = 'theme7_s1';
 
 export function setCurrentWeek(key) {
   currentWeekKey = key;
 }
 
 export function getCurrentWeekWords(weekKey) {
-  return dicteeWeeks[weekKey || currentWeekKey] || dicteeWeeks['theme6_s1'];
+  return dicteeWeeks[weekKey || currentWeekKey] || dicteeWeeks['theme7_s1'];
 }
 
 export function getAllWeekKeys() {
