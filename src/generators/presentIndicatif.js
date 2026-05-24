@@ -3,6 +3,9 @@
 // Règle: enlève -er, ajoute -e/-es/-e/-ons/-ez/-ent
 // chanter → je chante, tu chantes, il/elle chante, nous chantons, vous chantez, ils/elles chantent
 import { withFresh } from '../utils/antiRepeat';
+import { getStudyRounds } from '../utils/studyRounds';
+
+const ruleFor = (mode, rule) => (getStudyRounds(mode) < 1 ? rule : undefined);
 
 function shuffle(arr) {
   const a = [...arr];
@@ -85,7 +88,7 @@ function buildOne() {
 
     return {
       category: 'present_indicatif',
-      rule: PRESENT_RULE,
+      rule: ruleFor('present_indicatif', PRESENT_RULE),
       type: 'conjugate',
       text: `Conjugue "${verb}" au PRÉSENT avec "${pronoun}":`,
       correct,
@@ -105,7 +108,7 @@ function buildOne() {
 
     return {
       category: 'present_indicatif',
-      rule: PRESENT_RULE,
+      rule: ruleFor('present_indicatif', PRESENT_RULE),
       type: 'ending',
       text: `Au présent, quelle terminaison pour "${pronoun}"?`,
       correct,
@@ -130,7 +133,7 @@ function buildOne() {
 
   return {
     category: 'present_indicatif',
-    rule: PRESENT_RULE,
+    rule: ruleFor('present_indicatif', PRESENT_RULE),
     type: 'choose_present',
     text: `Quelle phrase est au PRÉSENT avec "${pronoun}" et "${verb}"?`,
     correct,

@@ -2,6 +2,9 @@
 // Final exam: duo-tang rouge + rédaction (May 27) + compréhension (June 5)
 // He's at 9/17, struggles with the concept. Add persistent rule banner + better explanations.
 import { withFresh } from '../utils/antiRepeat';
+import { getStudyRounds } from '../utils/studyRounds';
+
+const ruleFor = (mode, rule) => (getStudyRounds(mode) < 1 ? rule : undefined);
 
 function shuffle(arr) {
   const a = [...arr];
@@ -88,7 +91,7 @@ function generateConjugateEr() {
 
   return {
     category: 'passe_compose',
-    rule: PC_RULE,
+    rule: ruleFor('passe_compose', PC_RULE),
     type: 'conjugate_er',
     text: `Conjugue « ${verb} » au PASSÉ COMPOSÉ avec « ${pronoun} »:`,
     correct,
@@ -118,7 +121,7 @@ function generateConjugateEtre() {
 
   return {
     category: 'passe_compose',
-    rule: PC_RULE,
+    rule: ruleFor('passe_compose', PC_RULE),
     type: 'conjugate_etre',
     text: `Conjugue « ${verb} » au PASSÉ COMPOSÉ avec « ${pronoun} »:`,
     correct,
@@ -155,7 +158,7 @@ function generateContextFill() {
 
   return {
     category: 'passe_compose',
-    rule: PC_RULE,
+    rule: ruleFor('passe_compose', PC_RULE),
     type: 'context_fill',
     text: `Complète au PASSÉ COMPOSÉ:\n\n« ${sentenceBlank} »\n\n(verbe: ${verb}, pronom: ${pronoun})`,
     correct,
@@ -201,7 +204,7 @@ function generateErVsE() {
 
   return {
     category: 'passe_compose',
-    rule: PC_RULE,
+    rule: ruleFor('passe_compose', PC_RULE),
     type: 'er_vs_e',
     text: `Complète la phrase:\n\n« ${sentenceBlank} »\n\n(verbe: ${verb})`,
     correct,
@@ -225,7 +228,7 @@ function generateAuxiliary() {
 
   return {
     category: 'passe_compose',
-    rule: PC_RULE,
+    rule: ruleFor('passe_compose', PC_RULE),
     type: 'auxiliary',
     text: `Au passé composé, quel AUXILIAIRE utilise-t-on avec le verbe « ${verb} »?`,
     correct,
@@ -253,7 +256,7 @@ function generateIdentify() {
 
   return {
     category: 'passe_compose',
-    rule: PC_RULE,
+    rule: ruleFor('passe_compose', PC_RULE),
     type: 'identify',
     text: `« ${item.sentence} » — Le verbe est à quel temps?`,
     correct: item.tense,

@@ -3,6 +3,9 @@
 // Pairs: a/à, et/est, son/sont, ont/on
 // Tests: substitute trick (a→avait, est→était, sont→étaient, ont→avaient, on→il)
 import { withFresh } from '../utils/antiRepeat';
+import { getStudyRounds } from '../utils/studyRounds';
+
+const ruleFor = (mode, rule) => (getStudyRounds(mode) < 1 ? rule : undefined);
 
 function shuffle(arr) {
   const a = [...arr];
@@ -104,7 +107,7 @@ function buildOne() {
   const options = shuffle([group.pair[0], group.pair[1]]);
   return {
     category: 'homophones',
-    rule: HOMOPHONES_RULE,
+    rule: ruleFor('homophones', HOMOPHONES_RULE),
     type: 'homophone_fill',
     text: `Quel mot va dans la phrase?\n\n« ${item.sentence} »`,
     correct: item.correct,

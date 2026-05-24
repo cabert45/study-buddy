@@ -2,6 +2,9 @@
 // Test: Mercredi 13 mai (this week) — réciter days, months, seasons
 // Also covers part of: Mercredi 10 juin — Anglais (exam final)
 import { withFresh } from '../utils/antiRepeat';
+import { getStudyRounds } from '../utils/studyRounds';
+
+const ruleFor = (mode, rule) => (getStudyRounds(mode) < 1 ? rule : undefined);
 
 function shuffle(arr) {
   const a = [...arr];
@@ -61,7 +64,7 @@ function generateFrToEn(pool) {
   return {
     category: 'english_oral',
     type: 'fr_to_en',
-    rule: ENGLISH_RULE,
+    rule: ruleFor('english_oral', ENGLISH_RULE),
     text: `Comment dit-on « ${item.fr} » en anglais?`,
     correct: item.en,
     spokenWord: item.en,
@@ -80,7 +83,7 @@ function generateEnToFr(pool) {
   return {
     category: 'english_oral',
     type: 'en_to_fr',
-    rule: ENGLISH_RULE,
+    rule: ruleFor('english_oral', ENGLISH_RULE),
     text: `Que veut dire « ${item.en} » en français?`,
     correct: item.fr,
     options,
@@ -100,7 +103,7 @@ function generateNext(pool, label) {
   return {
     category: 'english_oral',
     type: 'next',
-    rule: ENGLISH_RULE,
+    rule: ruleFor('english_oral', ENGLISH_RULE),
     text: `What comes AFTER ${item.en}? (${label})`,
     correct,
     spokenWord: correct,
@@ -122,7 +125,7 @@ function generatePrev(pool, label) {
   return {
     category: 'english_oral',
     type: 'prev',
-    rule: ENGLISH_RULE,
+    rule: ruleFor('english_oral', ENGLISH_RULE),
     text: `What comes BEFORE ${item.en}? (${label})`,
     correct,
     spokenWord: correct,
@@ -144,7 +147,7 @@ function generatePosition(pool, label, singular) {
   return {
     category: 'english_oral',
     type: 'position',
-    rule: ENGLISH_RULE,
+    rule: ruleFor('english_oral', ENGLISH_RULE),
     text: `What is the ${positionLabel} ${singular}?`,
     correct,
     spokenWord: correct,
