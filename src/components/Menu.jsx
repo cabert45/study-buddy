@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
 import { NotificationBell } from './Notifications';
-import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, Fish, Zap, Layers, GraduationCap, ChevronRight, Send } from 'lucide-react';
+import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, Fish, Zap, Layers, GraduationCap, ChevronRight, Send, Calendar } from 'lucide-react';
 
 // SVG icons for modules — clean, no emojis
 const icons = {
@@ -137,7 +137,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onStartJournal, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onStartJournal, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
   const [dicteesOpen, setDicteesOpen] = useState(false);
@@ -205,6 +205,13 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
             </button>
           )}
           {onOpenNotifications && <NotificationBell onClick={onOpenNotifications} />}
+          {onOpenAgenda && isRyan && (
+            <button onClick={onOpenAgenda}
+              className="bg-gradient-to-br from-lava to-fox rounded-xl p-2 text-white shadow-sm hover:opacity-90 transition-all"
+              title="Agenda & examens">
+              <Calendar size={18} />
+            </button>
+          )}
           <button onClick={onOpenDashboard}
             className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all">
             <BarChart3 size={18} />

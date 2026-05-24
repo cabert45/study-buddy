@@ -24,6 +24,7 @@ import { addNotification } from './utils/notifications';
 import { getUnseenForProfile, markSeen } from './data/whatsNew';
 import Presentation from './components/Presentation';
 import FableReader from './components/FableReader';
+import Agenda from './components/Agenda';
 
 export default function App() {
   const [screen, setScreen] = useState('profile');
@@ -38,6 +39,7 @@ export default function App() {
   const [flashcardWeek, setFlashcardWeek] = useState(null);
   const [showFamily, setShowFamily] = useState(false);
   const [showCompose, setShowCompose] = useState(false);
+  const [showAgenda, setShowAgenda] = useState(false);
 
   // Auto-resume study reminders on app load
   React.useEffect(() => { autoResume(); }, []);
@@ -199,6 +201,12 @@ export default function App() {
       )}
       {showFamily && <FamilyOverview onClose={() => setShowFamily(false)} />}
       {showCompose && <ComposeMessage onClose={() => setShowCompose(false)} profile={profile} />}
+      {showAgenda && (
+        <Agenda
+          onClose={() => setShowAgenda(false)}
+          onLaunchMode={(m) => { setShowAgenda(false); startPractice(m); }}
+        />
+      )}
       {screen === 'journal' && <Journal onHome={goHome} profile={profile} />}
       {screen === 'menu' && (
         <Menu
@@ -227,6 +235,7 @@ export default function App() {
             setFlashcardWeek(aliases[weekKey] || weekKey);
           }}
           onOpenFamily={() => setShowFamily(true)}
+          onOpenAgenda={() => setShowAgenda(true)}
           onStartJournal={startJournal}
           onOpenCompose={() => setShowCompose(true)}
           onSwitchProfile={switchProfile}
