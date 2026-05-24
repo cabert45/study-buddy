@@ -4,6 +4,7 @@
 // Test pattern (from memory ryan_biographie_exams.md):
 //   - match definitions, write the expression, define a word
 import { withFresh } from '../utils/antiRepeat';
+import { getStudyRounds } from '../utils/studyRounds';
 
 function shuffle(arr) {
   const a = [...arr];
@@ -60,6 +61,12 @@ prospérer = se multiplier
 Expression: « Écriture en PATTES DE MOUCHE »
 = une écriture fine et peu lisible`;
 
+// Show the rule sheet only during the very first round — after that,
+// Ryan has to recall from memory (real-test mode).
+function ruleForCurrentRound() {
+  return getStudyRounds('mots_savants_jr') < 1 ? RULE : undefined;
+}
+
 // === Type 1: definition → mot ===
 function generateDefToWord() {
   const item = pick(items);
@@ -67,7 +74,7 @@ function generateDefToWord() {
   const options = shuffle([item.word, ...distractors]);
   return {
     category: 'mots_savants_jr',
-    rule: RULE,
+    rule: ruleForCurrentRound(),
     type: 'def_to_word',
     text: `Quel mot signifie « ${item.definition} »?`,
     correct: item.word,
@@ -84,7 +91,7 @@ function generateWordToDef() {
   const options = shuffle([item.definition, ...distractors]);
   return {
     category: 'mots_savants_jr',
-    rule: RULE,
+    rule: ruleForCurrentRound(),
     type: 'word_to_def',
     text: `Que veut dire « ${item.word} »?`,
     correct: item.definition,
@@ -101,7 +108,7 @@ function generateCompleteExpression() {
   const options = shuffle([correct, ...distractors]);
   return {
     category: 'mots_savants_jr',
-    rule: RULE,
+    rule: ruleForCurrentRound(),
     type: 'expression',
     text: `Complète l'expression: « Écriture en _____ »`,
     correct,
@@ -122,7 +129,7 @@ function generateExpressionMeaning() {
   const options = shuffle([correct, ...distractors]);
   return {
     category: 'mots_savants_jr',
-    rule: RULE,
+    rule: ruleForCurrentRound(),
     type: 'expression_meaning',
     text: `Que veut dire « ${expression.full} »?`,
     correct,
@@ -146,7 +153,7 @@ function generateRightExample() {
   const options = shuffle([item.example, ...distractors]);
   return {
     category: 'mots_savants_jr',
-    rule: RULE,
+    rule: ruleForCurrentRound(),
     type: 'right_example',
     text: `Quel est le BON exemple pour le mot « ${item.word} »?`,
     correct: item.example,

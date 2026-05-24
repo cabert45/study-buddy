@@ -40,6 +40,7 @@ import { generateApostrophe } from '../generators/apostrophe';
 import { generateMDevantBmp } from '../generators/mDevantBmp';
 import { generateAccordEtre } from '../generators/accordEtre';
 import { saveSession } from '../utils/storage';
+import { incrementStudyRounds } from '../utils/studyRounds';
 import { notifySessionResult } from '../utils/notifications';
 import { speak, speakSlow } from '../utils/speech';
 import TensOnes from './TensOnes';
@@ -302,6 +303,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
     const correct = results.filter((r) => r.correct).length;
     const details = results.map((r) => ({ category: r.category, correct: r.correct, question: r.question, userAnswer: r.userAnswer, correctAnswer: r.correctAnswer }));
     saveSession(mode, results.length, correct, details);
+    incrementStudyRounds(mode);
     const profile = localStorage.getItem('sb_profile') || 'ryan';
     notifySessionResult({ profile, mode, correct, total: results.length, streak, results });
     onFinish({ results, correct, total: results.length, mode, streak });
