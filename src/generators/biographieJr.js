@@ -17,8 +17,9 @@ function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// All the questions, each with correct answer + plausible distractors
-const questions = [
+// All the questions, each with correct answer + plausible distractors.
+// Exported so the BiographieFlashcard component can reuse the same data.
+export const biographieQuestions = [
   // ----- PENSÉE -----
   {
     id: 'pensee',
@@ -183,7 +184,7 @@ const questions = [
 ];
 
 export function generateBiographieJr() {
-  const q = pick(questions);
+  const q = pick(biographieQuestions);
   return {
     category: 'biographie_jr',
     type: 'biographie',

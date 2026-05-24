@@ -15,6 +15,7 @@ import InstallPrompt from './components/InstallPrompt';
 import OwnerLock, { isOwnerUnlocked, lockOwner } from './components/OwnerLock';
 import NotificationsPanel from './components/Notifications';
 import DicteeFlashcard from './components/DicteeFlashcard';
+import BiographieFlashcard from './components/BiographieFlashcard';
 import StudyReminderSettings from './components/StudyReminderSettings';
 import FamilyOverview from './components/FamilyOverview';
 import Journal from './components/Journal';
@@ -40,6 +41,7 @@ export default function App() {
   const [showFamily, setShowFamily] = useState(false);
   const [showCompose, setShowCompose] = useState(false);
   const [showAgenda, setShowAgenda] = useState(false);
+  const [showBioFlashcard, setShowBioFlashcard] = useState(false);
 
   // Auto-resume study reminders on app load
   React.useEffect(() => { autoResume(); }, []);
@@ -192,6 +194,12 @@ export default function App() {
 
       {showNotifs && <NotificationsPanel onClose={() => setShowNotifs(false)} />}
       {showStudyReminder && <StudyReminderSettings onClose={() => setShowStudyReminder(false)} profile={profile} />}
+      {showBioFlashcard && (
+        <BiographieFlashcard
+          onHome={() => setShowBioFlashcard(false)}
+          onFinish={() => setShowBioFlashcard(false)}
+        />
+      )}
       {flashcardWeek && (
         <DicteeFlashcard
           weekKey={flashcardWeek}
@@ -236,6 +244,7 @@ export default function App() {
           }}
           onOpenFamily={() => setShowFamily(true)}
           onOpenAgenda={() => setShowAgenda(true)}
+          onOpenBioFlashcard={() => setShowBioFlashcard(true)}
           onStartJournal={startJournal}
           onOpenCompose={() => setShowCompose(true)}
           onSwitchProfile={switchProfile}

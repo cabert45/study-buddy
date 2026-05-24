@@ -65,6 +65,7 @@ const ryanMathModes = [
 
 const ryanFrenchModes = [
   { id: 'biographie_jr', label: '📖 Biographie Jean Rostand', desc: 'CRITIQUE — il faut 90%+ pour passer', featured: true, special: true },
+  { id: 'biographie_jr_flashcard', label: '✍️ Biographie — Écris la réponse', desc: 'Flashcard: tape ta réponse, on cycle les manquées', special: true, badge: 'Étude' },
   { id: 'mots_savants_jr', label: '🦋 Mots savants (Insectes/Fleurs)', desc: 'ciseler, discret, prospérer, pattes de mouche — accompagne le test biographie', special: true, badge: 'Critique' },
   { id: 'english_oral', label: '🇬🇧 Anglais — days/months/seasons', desc: 'TEST oral mercredi 13 mai + examen 10 juin', special: true, badge: 'Examen' },
   { id: 'dictee_s1', label: '🎧 Dictée mardi 26 mai', desc: 'Thème 7 S1 — consonnes doubles (arroser, carotte, mettre, patte...)', special: true, badge: 'Mardi' },
@@ -137,7 +138,12 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onStartJournal, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onStartJournal, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
+  // Dispatch a tile click — special-case modes that open their own screen instead of the practice flow
+  const launchMode = (id) => {
+    if (id === 'biographie_jr_flashcard') return onOpenBioFlashcard && onOpenBioFlashcard();
+    return onStartPractice(id);
+  };
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
   const [dicteesOpen, setDicteesOpen] = useState(false);
@@ -322,7 +328,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
 
       {/* Featured mode */}
       {featured && (
-        <button onClick={() => featured.isGroup ? setDicteesOpen(true) : onStartPractice(featured.id)}
+        <button onClick={() => featured.isGroup ? setDicteesOpen(true) : launchMode(featured.id)}
           className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a)', boxShadow: '0 5px 22px rgba(199,74,21,0.15)' }}>
           <div className="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white">
@@ -340,7 +346,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
       <div className="grid grid-cols-2 gap-2.5 mb-6">
         {grid.map(mode => (
           <button key={mode.id}
-            onClick={() => mode.isGroup ? setDicteesOpen(true) : onStartPractice(mode.id)}
+            onClick={() => mode.isGroup ? setDicteesOpen(true) : launchMode(mode.id)}
             className="bg-white border-2 border-s1 rounded-2xl p-4 text-left transition-all
               hover:border-fox hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97] relative">
             {mode.badge && (
