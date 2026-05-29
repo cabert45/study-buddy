@@ -342,6 +342,100 @@ const templates = [
       correct,
     };
   },
+  // ===== 3-DIGIT PATTERNS (added 2026-05-29 — match June 3 exam patterns) =====
+  // Castor — addition 3-chiffres avec échange (mirror of his test problem)
+  () => {
+    const printemps = rand(120, 250);
+    const ete = rand(40, 99); // forces a hundreds-tens échange
+    const correct = printemps + ete;
+    return {
+      text: `Un castor a coupé ${printemps} arbres au printemps et ${ete} arbres cet été. Combien d'arbres a-t-il coupés en tout?`,
+      steps: [{ label: 'Calcul', text: `${printemps} + ${ete} = ${correct}` }],
+      stepCalcs: [{ a: printemps, b: ete, op: '+', result: correct, label: 'Combien en tout? (montre l\'échange)' }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'addition',
+      correct,
+    };
+  },
+  // Bleuets — same person, two times of day (3-digit)
+  () => {
+    const n1 = pickName();
+    const matin = rand(150, 300);
+    const aprem = rand(150, 300);
+    const correct = matin + aprem;
+    return {
+      text: `${n1} cueille ${matin} bleuets en avant-midi et ${aprem} bleuets en après-midi. Combien de bleuets a-t-il cueillis en tout?`,
+      steps: [{ label: 'Calcul', text: `${matin} + ${aprem} = ${correct}` }],
+      stepCalcs: [{ a: matin, b: aprem, op: '+', result: correct, label: 'Total des deux moments' }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'addition',
+      correct,
+    };
+  },
+  // ===== TWO-PERSON COMPARISON (matches Martin/Simone caillou test) =====
+  // CRITICAL: Ryan failed this on his test — he mixed up which numbers belong to whom.
+  // Pattern: X has A blancs + B noirs; Y has C blancs + D noirs. Qui en a plus?
+  () => {
+    const n1 = pickName();
+    const n2 = pickName([n1]);
+    const xBlancs = rand(100, 300);
+    const xNoirs = rand(100, 300);
+    const yBlancs = rand(100, 300);
+    const yNoirs = rand(100, 300);
+    const xTotal = xBlancs + xNoirs;
+    const yTotal = yBlancs + yNoirs;
+    if (xTotal === yTotal) return null;
+    const winner = xTotal > yTotal ? n1 : n2;
+    return {
+      text: `${n1} a une collection de cailloux: ${xBlancs} blancs et ${xNoirs} noirs. ${n2} a ${yBlancs} cailloux blancs et ${yNoirs} cailloux noirs. Qui a plus de cailloux?`,
+      steps: [
+        { label: `Étape 1 — ${n1}`, text: `${xBlancs} + ${xNoirs} = ${xTotal}` },
+        { label: `Étape 2 — ${n2}`, text: `${yBlancs} + ${yNoirs} = ${yTotal}` },
+        { label: 'Étape 3', text: `${xTotal > yTotal ? `${xTotal} > ${yTotal}` : `${yTotal} > ${xTotal}`} → ${winner} a plus` },
+      ],
+      stepCalcs: [
+        { a: xBlancs, b: xNoirs, op: '+', result: xTotal, label: `D'abord, combien ${n1} en a en tout` },
+        { a: yBlancs, b: yNoirs, op: '+', result: yTotal, label: `Ensuite, combien ${n2} en a en tout` },
+      ],
+      operationQuestion: `Pour comparer ${n1} et ${n2}, que dois-tu faire d'abord?`,
+      correctOperation: 'addition',
+      correct: winner,
+      // Force literal-name answer for the final compare step
+      finalAnswerType: 'name',
+      nameOptions: [n1, n2],
+    };
+  },
+  // ===== TWO-PERSON COMPARISON — combien de plus =====
+  // (variant: how MANY more, not just who)
+  () => {
+    const n1 = pickName();
+    const n2 = pickName([n1]);
+    const xRouges = rand(100, 400);
+    const xBleus = rand(50, 200);
+    const yRouges = rand(100, 400);
+    const yBleus = rand(50, 200);
+    const xTotal = xRouges + xBleus;
+    const yTotal = yRouges + yBleus;
+    if (xTotal === yTotal) return null;
+    const diff = Math.abs(xTotal - yTotal);
+    const winner = xTotal > yTotal ? n1 : n2;
+    return {
+      text: `${n1} a ${xRouges} billes rouges et ${xBleus} billes bleues. ${n2} a ${yRouges} billes rouges et ${yBleus} billes bleues. Combien ${winner} a-t-il/elle de billes de PLUS que l'autre?`,
+      steps: [
+        { label: `Étape 1 — ${n1}`, text: `${xRouges} + ${xBleus} = ${xTotal}` },
+        { label: `Étape 2 — ${n2}`, text: `${yRouges} + ${yBleus} = ${yTotal}` },
+        { label: 'Étape 3 — différence', text: `${Math.max(xTotal, yTotal)} − ${Math.min(xTotal, yTotal)} = ${diff}` },
+      ],
+      stepCalcs: [
+        { a: xRouges, b: xBleus, op: '+', result: xTotal, label: `Combien ${n1} en a en tout` },
+        { a: yRouges, b: yBleus, op: '+', result: yTotal, label: `Combien ${n2} en a en tout` },
+        { a: Math.max(xTotal, yTotal), b: Math.min(xTotal, yTotal), op: '−', result: diff, label: 'La différence entre les deux totaux' },
+      ],
+      operationQuestion: 'Quelle est la dernière opération à faire?',
+      correctOperation: 'soustraction',
+      correct: diff,
+    };
+  },
 ];
 
 export function generateWordProblem() {

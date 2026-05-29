@@ -19,8 +19,10 @@ export const EXAMS = [
     cahier: 'Nougat p.3, 23',
     modes: [
       { mode: 'multi_step', label: 'Problèmes à étapes', icon: '🧩' },
+      { mode: 'calcul', label: 'Addition 3 chiffres avec échange', icon: '🔢' },
       { mode: 'terme', label: 'Terme manquant', icon: '➕' },
-      { mode: 'relational', label: 'De plus / de moins', icon: '⚖️' },
+      { mode: 'relational', label: 'De plus / de moins (comparaison)', icon: '⚖️' },
+      { mode: 'mult_div', label: 'Sens × et ÷', icon: '✖️' },
     ],
   },
   {
@@ -38,6 +40,7 @@ export const EXAMS = [
     icon: '🧮',
     cahier: 'Nougat p.6-48',
     modes: [
+      { mode: 'calcul_rapide_3', label: '⚡ Calcul rapide ±9/±10 (3 chiffres)', icon: '⚡' },
       { mode: 'fractions', label: 'Fractions', icon: '🍕' },
       { mode: 'mult_div', label: 'Sens × et ÷', icon: '✖️' },
       { mode: 'suites', label: 'Suites & régularités', icon: '🔢' },
