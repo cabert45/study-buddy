@@ -50,6 +50,7 @@ export const EXAMS = [
       { mode: 'calcul', label: '+ 3 chiffres (avec échange)', icon: '🔢' },
       { mode: 'pair_impair', label: 'Pair / Impair', icon: '🎯' },
       { mode: 'statistique', label: 'Diagrammes & tableaux', icon: '📊' },
+      { mode: 'probabilite', label: 'Probabilité (certain/possible/impossible)', icon: '🎲' },
     ],
   },
   {

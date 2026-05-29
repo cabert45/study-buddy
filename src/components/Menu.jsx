@@ -62,6 +62,7 @@ const ryanMathModes = [
   { id: 'pair_impair', label: 'Pair / Impair', desc: 'Nombres pairs et impairs' },
   { id: 'mental', label: 'Mental', desc: 'Calcul rapide' },
   { id: 'calcul_rapide_3', label: '⚡ Calcul rapide 3 chiffres', desc: '±9 / ±10 sur les centaines — 12/30 au dernier test!', badge: 'Test' },
+  { id: 'probabilite', label: '🎲 Probabilité', desc: 'Certain / possible / impossible — 6.5/13 au dernier test', badge: 'Examen' },
 ];
 
 const ryanFrenchModes = [

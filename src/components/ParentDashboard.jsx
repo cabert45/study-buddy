@@ -25,6 +25,7 @@ const categoryLabels = {
   passe_compose: '📝 Passé composé',
   comprehension: '📖 Compréhension de lecture',
   calcul_rapide_3: '⚡ Calcul rapide 3 chiffres',
+  probabilite: '🎲 Probabilité',
   aquarium: '🐟 Aquarium',
   speed: '⚡ Course',
   memory: '🎴 Mémoire',
