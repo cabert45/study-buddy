@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
 import { NotificationBell } from './Notifications';
-import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, Fish, Zap, Layers, GraduationCap, ChevronRight, Send, Calendar } from 'lucide-react';
+import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, Fish, Zap, Layers, GraduationCap, ChevronRight, Send, Calendar, Trophy } from 'lucide-react';
 
 // SVG icons for modules — clean, no emojis
 const icons = {
@@ -61,6 +61,7 @@ const ryanMathModes = [
   { id: 'compare', label: 'Compare', desc: '>, < ou =' },
   { id: 'pair_impair', label: 'Pair / Impair', desc: 'Nombres pairs et impairs' },
   { id: 'mental', label: 'Mental', desc: 'Calcul rapide' },
+  { id: 'calcul_rapide_3', label: '⚡ Calcul rapide 3 chiffres', desc: '±9 / ±10 sur les centaines — 12/30 au dernier test!', badge: 'Test' },
 ];
 
 const ryanFrenchModes = [
@@ -138,7 +139,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onStartJournal, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onStartJournal, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
   // Dispatch a tile click — special-case modes that open their own screen instead of the practice flow
   const launchMode = (id) => {
     if (id === 'biographie_jr_flashcard') return onOpenBioFlashcard && onOpenBioFlashcard();
@@ -216,6 +217,13 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
               className="bg-gradient-to-br from-lava to-fox rounded-xl p-2 text-white shadow-sm hover:opacity-90 transition-all"
               title="Agenda & examens">
               <Calendar size={18} />
+            </button>
+          )}
+          {onOpenTestResults && isRyan && (
+            <button onClick={onOpenTestResults}
+              className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all"
+              title="Résultats d'examens">
+              <Trophy size={18} />
             </button>
           )}
           <button onClick={onOpenDashboard}

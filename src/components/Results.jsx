@@ -90,6 +90,7 @@ const categoryLabels = {
   groupe_nom: 'Groupe du nom',
   passe_compose: 'Passé composé',
   comprehension: 'Compréhension de lecture',
+  calcul_rapide_3: 'Calcul rapide 3 chiffres',
   aquarium: 'Aquarium',
   speed: 'Course',
   memory: 'Mémoire',

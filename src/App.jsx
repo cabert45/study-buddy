@@ -26,6 +26,7 @@ import { getUnseenForProfile, markSeen } from './data/whatsNew';
 import Presentation from './components/Presentation';
 import FableReader from './components/FableReader';
 import Agenda from './components/Agenda';
+import TestResults from './components/TestResults';
 
 export default function App() {
   const [screen, setScreen] = useState('profile');
@@ -42,6 +43,7 @@ export default function App() {
   const [showCompose, setShowCompose] = useState(false);
   const [showAgenda, setShowAgenda] = useState(false);
   const [showBioFlashcard, setShowBioFlashcard] = useState(false);
+  const [showTestResults, setShowTestResults] = useState(false);
 
   // Auto-resume study reminders on app load
   React.useEffect(() => { autoResume(); }, []);
@@ -215,6 +217,9 @@ export default function App() {
           onLaunchMode={(m) => { setShowAgenda(false); startPractice(m); }}
         />
       )}
+      {showTestResults && (
+        <TestResults onClose={() => setShowTestResults(false)} />
+      )}
       {screen === 'journal' && <Journal onHome={goHome} profile={profile} />}
       {screen === 'menu' && (
         <Menu
@@ -245,6 +250,7 @@ export default function App() {
           onOpenFamily={() => setShowFamily(true)}
           onOpenAgenda={() => setShowAgenda(true)}
           onOpenBioFlashcard={() => setShowBioFlashcard(true)}
+          onOpenTestResults={() => setShowTestResults(true)}
           onStartJournal={startJournal}
           onOpenCompose={() => setShowCompose(true)}
           onSwitchProfile={switchProfile}

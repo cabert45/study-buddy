@@ -33,6 +33,7 @@ import { generateMesure } from '../generators/mesure';
 import { generatePlurielsRyan } from '../generators/plurielsRyan';
 import { generateHistoire } from '../generators/histoire';
 import { generateComprehension } from '../generators/comprehension';
+import { generateCalculRapide3 } from '../generators/calculRapide3';
 import { generateEnglishOral } from '../generators/englishOral';
 import { generateMotsSavantsJr } from '../generators/motsSavantsJr';
 import { recordPemdasAnswer } from '../generators/pemdas';
@@ -95,6 +96,7 @@ function getGenerator(mode) {
     case 'pluriels_ryan': return generatePlurielsRyan;
     case 'histoire': return generateHistoire;
     case 'comprehension': return generateComprehension;
+    case 'calcul_rapide_3': return generateCalculRapide3;
     case 'english_oral': return generateEnglishOral;
     case 'mots_savants_jr': return generateMotsSavantsJr;
     case 'apostrophe': return generateApostrophe;
@@ -371,6 +373,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'pluriels_ryan' && 'Pluriel & Féminin'}
           {question.category === 'histoire' && "Parties d'une histoire"}
           {question.category === 'comprehension' && '📖 Compréhension de lecture'}
+          {question.category === 'calcul_rapide_3' && '⚡ Calcul rapide — 3 chiffres ±9/±10'}
           {question.category === 'english_oral' && '🇬🇧 Anglais oral'}
           {question.category === 'mots_savants_jr' && '🦋 Mots savants — Insectes/Fleurs'}
           {question.category === 'apostrophe' && "L'apostrophe"}

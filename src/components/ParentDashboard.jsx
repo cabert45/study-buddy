@@ -24,6 +24,7 @@ const categoryLabels = {
   accord_etre: '🎯 Accord après être',
   passe_compose: '📝 Passé composé',
   comprehension: '📖 Compréhension de lecture',
+  calcul_rapide_3: '⚡ Calcul rapide 3 chiffres',
   aquarium: '🐟 Aquarium',
   speed: '⚡ Course',
   memory: '🎴 Mémoire',
