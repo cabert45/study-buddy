@@ -38,6 +38,11 @@ import { generateProbabilite } from '../generators/probabilite';
 import { generateNylaCount } from '../generators/nylaCount';
 import { generateNylaAdd } from '../generators/nylaAdd';
 import { generateNylaLetters } from '../generators/nylaLetters';
+import { generateNylaSightWords } from '../generators/nylaSightWords';
+import { generateNylaCompare } from '../generators/nylaCompare';
+import { generateNylaShapes } from '../generators/nylaShapes';
+import { generateNylaPatterns } from '../generators/nylaPatterns';
+import { generateNylaRhymes } from '../generators/nylaRhymes';
 import { generateEnglishOral } from '../generators/englishOral';
 import { generateMotsSavantsJr } from '../generators/motsSavantsJr';
 import { recordPemdasAnswer } from '../generators/pemdas';
@@ -105,6 +110,11 @@ function getGenerator(mode) {
     case 'nyla_count': return generateNylaCount;
     case 'nyla_add': return generateNylaAdd;
     case 'nyla_letters': return generateNylaLetters;
+    case 'nyla_sight_words': return generateNylaSightWords;
+    case 'nyla_compare': return generateNylaCompare;
+    case 'nyla_shapes': return generateNylaShapes;
+    case 'nyla_patterns': return generateNylaPatterns;
+    case 'nyla_rhymes': return generateNylaRhymes;
     case 'english_oral': return generateEnglishOral;
     case 'mots_savants_jr': return generateMotsSavantsJr;
     case 'apostrophe': return generateApostrophe;
@@ -494,6 +504,11 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'nyla_count' && '🍎 Compte les objets'}
           {question.category === 'nyla_add' && '➕ Petites additions'}
           {question.category === 'nyla_letters' && '🔤 Les lettres'}
+          {question.category === 'nyla_sight_words' && '⭐ Mots-étoiles'}
+          {question.category === 'nyla_compare' && '⚖️ Plus ou moins?'}
+          {question.category === 'nyla_shapes' && '⬜ Les formes'}
+          {question.category === 'nyla_patterns' && '🔄 Suites logiques'}
+          {question.category === 'nyla_rhymes' && '🎵 Les rimes'}
           {question.category === 'english_oral' && '🇬🇧 Anglais oral'}
           {question.category === 'mots_savants_jr' && '🦋 Mots savants — Insectes/Fleurs'}
           {question.category === 'apostrophe' && "L'apostrophe"}

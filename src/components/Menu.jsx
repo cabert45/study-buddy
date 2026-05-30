@@ -114,14 +114,21 @@ const caylaDicteeWeeksList = [
 ];
 
 // ===== Nyla — pré-maternelle (5 ans) =====
+// Built from Quebec maternelle 5 ans curriculum (éveil mathématique + langagier)
 const nylaMathModes = [
   { id: 'nyla_count', label: '🍎 Compte les objets', desc: 'De 1 à 10', featured: true },
-  { id: 'nyla_add', label: '➕ Petites additions', desc: '1+1 à 5+5 avec dessins' },
+  { id: 'nyla_compare', label: '⚖️ Plus ou moins?', desc: 'Compare deux groupes' },
+  { id: 'nyla_shapes', label: '⬜ Les formes', desc: 'Carré, cercle, triangle...' },
+  { id: 'nyla_patterns', label: '🔄 Suites logiques', desc: 'Qu\'est-ce qui vient ensuite?' },
+  { id: 'nyla_add', label: '➕ Combien en tout?', desc: 'Combine deux groupes (avec dessins)' },
 ];
 
 const nylaFrenchModes = [
   { id: 'nyla_boukili', label: '📚 Boukili', desc: 'Lis tes livres préférés', featured: true },
-  { id: 'nyla_letters', label: '🔤 Les lettres', desc: 'Reconnaître l\'alphabet + sons' },
+  { id: 'nyla_logiciel', label: '🎮 Logiciel Éducatif', desc: 'Jeux pour apprendre' },
+  { id: 'nyla_sight_words', label: '⭐ Mots-étoiles', desc: 'Reconnaître les mots de la maternelle' },
+  { id: 'nyla_letters', label: '🔤 Les lettres', desc: 'Alphabet + premier son' },
+  { id: 'nyla_rhymes', label: '🎵 Les rimes', desc: 'Mots qui finissent pareil' },
 ];
 
 function FoxMascot() {
@@ -156,6 +163,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
   const launchMode = (id) => {
     if (id === 'biographie_jr_flashcard') return onOpenBioFlashcard && onOpenBioFlashcard();
     if (id === 'nyla_boukili') return onOpenBoukili && onOpenBoukili();
+    if (id === 'nyla_logiciel') return window.open('https://www.logicieleducatif.fr/', '_blank', 'noopener,noreferrer');
     return onStartPractice(id);
   };
   const [stats, setStats] = useState(null);

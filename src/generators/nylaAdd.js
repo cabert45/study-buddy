@@ -31,7 +31,7 @@ function buildOne() {
   return {
     category: 'nyla_add',
     type: 'add',
-    text: `Combien en tout?\n\n${icon.repeat(a)}  +  ${icon.repeat(b)}\n\n${a} + ${b} = ?`,
+    text: `Combien y en a-t-il en tout?\n\n${icon.repeat(a)}    ${icon.repeat(b)}`,
     correct: String(correct),
     options: shuffle([correct, ...distractors]).map(String),
     explanation: `${a} + ${b} = ${correct}. Compte tous les ${icon} ensemble!`,
