@@ -249,8 +249,9 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
     if (pickedA === null || pickedB === null || pickedOp === null) return;
     const calc = question.stepCalcs[stepIdx];
     const okOp = pickedOp === calc.op;
-    // For + accept either order; for − the order matters.
-    const okNums = calc.op === '+'
+    // + and × are commutative; − and ÷ are order-sensitive.
+    const commutative = calc.op === '+' || calc.op === '×';
+    const okNums = commutative
       ? (pickedA === calc.a && pickedB === calc.b) || (pickedA === calc.b && pickedB === calc.a)
       : (pickedA === calc.a && pickedB === calc.b);
     if (okOp && okNums) {
@@ -497,10 +498,38 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           </div>
         )}
 
-        {/* Question text */}
-        <p className="text-xl font-heading font-bold text-stone leading-relaxed mb-4">
-          {question.text}
-        </p>
+        {/* Question text — for word problems with stepCalcs, split context from
+            the asked question so the question stays visually pinned/highlighted.
+            Helps Ryan stop answering the wrong question (alvéoles bug). */}
+        {(() => {
+          if (!hasSteps) {
+            return (
+              <p className="text-xl font-heading font-bold text-stone leading-relaxed mb-4">
+                {question.text}
+              </p>
+            );
+          }
+          // Split: last sentence ending in ? = the asked question; everything before = context
+          const t = question.text || '';
+          const m = t.match(/^(.*?[.!?]\s*)?([^.!?]*\?\s*)$/);
+          const context = (m && m[1]) ? m[1].trim() : '';
+          const ask = (m && m[2]) ? m[2].trim() : t;
+          return (
+            <div className="mb-4">
+              {context && (
+                <p className="text-lg font-heading font-semibold text-s6 leading-relaxed mb-3">
+                  {context}
+                </p>
+              )}
+              <div className="bg-yellow-50 rounded-xl p-3 border-2 border-yellow-400">
+                <div className="text-[10px] font-extrabold uppercase tracking-wide text-yellow-800 mb-1">📝 La question</div>
+                <p className="text-lg font-heading font-extrabold text-stone leading-snug">
+                  {ask}
+                </p>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Listen button + scratch pad + video help */}
         <div className="flex flex-wrap gap-3 mb-4">
@@ -688,14 +717,12 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
             {/* Operator buttons */}
             <div className="text-[10px] font-bold uppercase tracking-wide text-blue-700 mb-1.5">L'opération</div>
             <div className="flex gap-2 mb-3">
-              <button onClick={() => clickPickOp('+')} disabled={pickFeedback?.correct === false}
-                className={`flex-1 py-2 rounded-xl font-extrabold text-xl border-2 ${pickedOp === '+' ? 'bg-blue-100 border-blue-500 text-blue-800' : 'bg-white border-s2 text-stone'} disabled:opacity-40`}>
-                +
-              </button>
-              <button onClick={() => clickPickOp('−')} disabled={pickFeedback?.correct === false}
-                className={`flex-1 py-2 rounded-xl font-extrabold text-xl border-2 ${pickedOp === '−' ? 'bg-blue-100 border-blue-500 text-blue-800' : 'bg-white border-s2 text-stone'} disabled:opacity-40`}>
-                −
-              </button>
+              {['+', '−', '×', '÷'].map((op) => (
+                <button key={op} onClick={() => clickPickOp(op)} disabled={pickFeedback?.correct === false}
+                  className={`flex-1 py-2 rounded-xl font-extrabold text-xl border-2 ${pickedOp === op ? 'bg-blue-100 border-blue-500 text-blue-800' : 'bg-white border-s2 text-stone'} disabled:opacity-40`}>
+                  {op}
+                </button>
+              ))}
             </div>
 
             <div className="flex gap-2">

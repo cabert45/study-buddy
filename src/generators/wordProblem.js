@@ -405,6 +405,132 @@ const templates = [
       nameOptions: [n1, n2],
     };
   },
+  // ===== MULTIPLICATIVE ACCUMULATION (May 28 test: alvéoles, sauterelles) =====
+  // Ryan answered "7 alvéoles" instead of 35 on his test — he confused the
+  // unit being asked. Forces him to recognize "X per unit × N units = total".
+  // 2e année uses repeated addition + (×), so stepCalcs uses ×.
+  () => {
+    const perJour = rand(3, 8);
+    const jours = rand(4, 7);
+    const total = perJour * jours;
+    return {
+      text: `Les abeilles remplissent ${perJour} alvéoles par jour. En ${jours} jours, combien d'alvéoles remplissent-elles en tout?`,
+      steps: [{ label: 'Calcul', text: `${perJour} × ${jours} = ${total} (ou ${perJour}+${perJour}+...)` }],
+      stepCalcs: [{ a: perJour, b: jours, op: '×', result: total, label: `${perJour} alvéoles par jour, pendant ${jours} jours` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'multiplication',
+      correct: total,
+    };
+  },
+  // Sauterelles dans des pots (mirror of his test problem)
+  () => {
+    const pots = rand(3, 6);
+    const parPot = rand(5, 12);
+    const total = pots * parPot;
+    return {
+      text: `Samuel a ${pots} pots. Chaque pot contient ${parPot} sauterelles. Combien de sauterelles a-t-il en tout?`,
+      steps: [{ label: 'Calcul', text: `${pots} × ${parPot} = ${total}` }],
+      stepCalcs: [{ a: pots, b: parPot, op: '×', result: total, label: `${pots} pots × ${parPot} sauterelles` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'multiplication',
+      correct: total,
+    };
+  },
+  // Dessins par jour
+  () => {
+    const n1 = pickName();
+    const perJour = rand(2, 6);
+    const jours = rand(3, 7);
+    const total = perJour * jours;
+    return {
+      text: `${n1} fait ${perJour} dessins chaque jour. Au bout de ${jours} jours, combien de dessins a-t-il/elle faits en tout?`,
+      steps: [{ label: 'Calcul', text: `${perJour} × ${jours} = ${total}` }],
+      stepCalcs: [{ a: perJour, b: jours, op: '×', result: total, label: `${perJour} dessins/jour × ${jours} jours` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'multiplication',
+      correct: total,
+    };
+  },
+  // Partage (division) — Nougat distributes cards
+  () => {
+    const total = rand(12, 30);
+    const parPaquet = pick([2, 3, 4, 5]);
+    // Ensure total divides evenly
+    const adjustedTotal = Math.floor(total / parPaquet) * parPaquet;
+    if (adjustedTotal < parPaquet * 2) return null;
+    const paquets = adjustedTotal / parPaquet;
+    return {
+      text: `Nougat a ${adjustedTotal} cartes. Il les met dans des paquets de ${parPaquet}. Combien de paquets va-t-il faire?`,
+      steps: [{ label: 'Calcul', text: `${adjustedTotal} ÷ ${parPaquet} = ${paquets}` }],
+      stepCalcs: [{ a: adjustedTotal, b: parPaquet, op: '÷', result: paquets, label: `Partage ${adjustedTotal} en groupes de ${parPaquet}` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'division',
+      correct: paquets,
+    };
+  },
+  // ===== TERME MANQUANT in story context =====
+  // Ryan does fine with isolated terme manquant (18/20!) but struggles when
+  // it's embedded in a word problem ("Marc had ?. Lost 12. Has 15 left.").
+  // Story uses "lost/gave/spent" but math operation is reverse (+).
+  () => {
+    const n1 = pickName();
+    const reste = rand(10, 40);
+    const perdu = rand(5, 25);
+    const debut = reste + perdu;
+    return {
+      text: `${n1} avait des billes. Il en a perdu ${perdu}. Il lui en reste ${reste}. Combien de billes avait-il au début?`,
+      steps: [{ label: 'Calcul', text: `${reste} + ${perdu} = ${debut}` }],
+      stepCalcs: [{ a: reste, b: perdu, op: '+', result: debut, label: `Pour retrouver le début, on AJOUTE ce qu'il a perdu` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'addition',
+      correct: debut,
+    };
+  },
+  // Terme manquant — bonbons given away
+  () => {
+    const n1 = pickName();
+    const debut = rand(20, 50);
+    const reste = rand(5, debut - 5);
+    const donne = debut - reste;
+    return {
+      text: `${n1} a ${debut} bonbons. Elle en donne à ses amis. Il lui en reste ${reste}. Combien de bonbons a-t-elle donnés?`,
+      steps: [{ label: 'Calcul', text: `${debut} − ${reste} = ${donne}` }],
+      stepCalcs: [{ a: debut, b: reste, op: '−', result: donne, label: `Combien manquent? On SOUSTRAIT ce qu'il reste` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'soustraction',
+      correct: donne,
+    };
+  },
+  // Terme manquant — age problem
+  () => {
+    const totalAge = rand(13, 25);
+    const aA = rand(5, totalAge - 4);
+    const aB = totalAge - aA;
+    if (aB < 4) return null;
+    return {
+      text: `Tom a ${aA} ans. Sa sœur a un autre âge. Ensemble, ils ont ${totalAge} ans. Quel âge a sa sœur?`,
+      steps: [{ label: 'Calcul', text: `${totalAge} − ${aA} = ${aB}` }],
+      stepCalcs: [{ a: totalAge, b: aA, op: '−', result: aB, label: `Total − l'âge connu = l'âge cherché` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'soustraction',
+      correct: aB,
+    };
+  },
+  // Terme manquant — pages read
+  () => {
+    const n1 = pickName();
+    const total = rand(40, 80);
+    const lu = rand(15, total - 10);
+    const reste = total - lu;
+    return {
+      text: `${n1} lit un livre de ${total} pages. Il en a déjà lu plusieurs. Il lui reste ${reste} pages à lire. Combien de pages a-t-il déjà lues?`,
+      steps: [{ label: 'Calcul', text: `${total} − ${reste} = ${lu}` }],
+      stepCalcs: [{ a: total, b: reste, op: '−', result: lu, label: `Total du livre − reste à lire = pages déjà lues` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'soustraction',
+      correct: lu,
+    };
+  },
   // ===== TWO-PERSON COMPARISON — combien de plus =====
   // (variant: how MANY more, not just who)
   () => {
