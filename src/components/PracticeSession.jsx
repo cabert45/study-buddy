@@ -598,8 +598,11 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           />
         )}
 
-        {/* Word problem: operation identification step */}
-        {isWordProblem && operationAnswer === null && !showResult && (
+        {/* Word problem: operation identification step.
+            Skipped for multi-step problems (hasSteps) — the per-step picker
+            below covers operation choice in context. Kept as a fallback for
+            any legacy word problem that doesn't emit stepCalcs. */}
+        {isWordProblem && !hasSteps && operationAnswer === null && !showResult && (
           <div className="mb-4 p-4 bg-orange-50 rounded-xl border-2 border-orange-200">
             <p className="text-sm font-bold text-fox-d mb-3">
               {question.operationQuestion}
@@ -621,8 +624,8 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           </div>
         )}
 
-        {/* Operation feedback */}
-        {operationPhase && (
+        {/* Operation feedback (legacy single-step path only) */}
+        {operationPhase && !hasSteps && (
           <div className={`mb-4 p-3 rounded-xl text-center font-bold ${
             operationCorrect ? 'bg-green-50 text-green-700 border-2 border-green-200' : 'bg-red-50 text-red-600 border-2 border-red-200'
           }`}>
@@ -650,7 +653,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
 
         {/* PICKER PHASE — Ryan picks the operands + operator from the problem.
             Forces him to decide WHAT to compute, not just compute what's given. */}
-        {hasSteps && operationAnswer !== null && !operationPhase && !showResult && stepIdx < question.stepCalcs.length && !setupConfirmed && finalAnswerGate === null && (
+        {hasSteps && !showResult && stepIdx < question.stepCalcs.length && !setupConfirmed && finalAnswerGate === null && (
           <div className="bg-blue-50 rounded-xl p-4 border-2 border-blue-200 mb-4">
             <p className="text-sm font-bold text-blue-800 mb-1">
               Calcul {stepIdx + 1} — {question.stepCalcs[stepIdx].label}
@@ -717,7 +720,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
         )}
 
         {/* COMPUTE PHASE — calculator with picked operands. Ryan computes. */}
-        {hasSteps && operationAnswer !== null && !operationPhase && !showResult && stepIdx < question.stepCalcs.length && setupConfirmed && finalAnswerGate === null && (
+        {hasSteps && !showResult && stepIdx < question.stepCalcs.length && setupConfirmed && finalAnswerGate === null && (
           <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200 mb-4">
             <p className="text-sm font-bold text-fox-d mb-2">
               Calcul {stepIdx + 1} — calcule maintenant
