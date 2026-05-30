@@ -531,6 +531,129 @@ const templates = [
       correct: lu,
     };
   },
+  // ===== INVERSE COMPARISON — "de plus que / de moins que" =====
+  // The wording is the trap: "Tom en a 7 de MOINS" should trigger subtraction
+  // but Ryan often adds (or vice versa). Single-step but tricky.
+  () => {
+    const n1 = pickName();
+    const n2 = pickName([n1]);
+    const aN1 = rand(15, 60);
+    const diff = rand(3, 12);
+    return {
+      text: `${n1} a ${aN1} billes. ${n2} en a ${diff} de MOINS que ${n1}. Combien ${n2} a-t-il/elle de billes?`,
+      steps: [{ label: 'Calcul', text: `${aN1} − ${diff} = ${aN1 - diff}` }],
+      stepCalcs: [{ a: aN1, b: diff, op: '−', result: aN1 - diff, label: `"De moins" = soustraction` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'soustraction',
+      correct: aN1 - diff,
+    };
+  },
+  () => {
+    const n1 = pickName();
+    const n2 = pickName([n1]);
+    const aN1 = rand(15, 60);
+    const diff = rand(3, 15);
+    return {
+      text: `${n1} a ${aN1} cartes. ${n2} en a ${diff} de PLUS que ${n1}. Combien ${n2} a-t-il/elle de cartes?`,
+      steps: [{ label: 'Calcul', text: `${aN1} + ${diff} = ${aN1 + diff}` }],
+      stepCalcs: [{ a: aN1, b: diff, op: '+', result: aN1 + diff, label: `"De plus" = addition` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'addition',
+      correct: aN1 + diff,
+    };
+  },
+  () => {
+    const n1 = pickName();
+    const n2 = pickName([n1]);
+    const aN2 = rand(20, 50);
+    const diff = rand(3, 10);
+    return {
+      text: `${n2} a ${aN2} autocollants. C'est ${diff} de PLUS que ${n1}. Combien ${n1} a-t-il/elle d'autocollants?`,
+      steps: [{ label: 'Calcul', text: `${aN2} − ${diff} = ${aN2 - diff}` }],
+      stepCalcs: [{ a: aN2, b: diff, op: '−', result: aN2 - diff, label: `${n2} en a PLUS — pour trouver ${n1}, on SOUSTRAIT` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'soustraction',
+      correct: aN2 - diff,
+    };
+  },
+  // ===== MEASUREMENT — centimètres =====
+  () => {
+    const n1 = pickName();
+    const total = rand(40, 99);
+    const coupe = rand(10, total - 5);
+    return {
+      text: `${n1} a une ficelle de ${total} cm. Elle coupe ${coupe} cm. Combien de cm de ficelle lui reste-t-il?`,
+      steps: [{ label: 'Calcul', text: `${total} − ${coupe} = ${total - coupe} cm` }],
+      stepCalcs: [{ a: total, b: coupe, op: '−', result: total - coupe, label: `Longueur restante en cm` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'soustraction',
+      correct: total - coupe,
+    };
+  },
+  () => {
+    const bloc1 = rand(8, 30);
+    const bloc2 = rand(8, 30);
+    return {
+      text: `Marc empile deux blocs: un de ${bloc1} cm et un de ${bloc2} cm. Quelle est la hauteur totale en cm?`,
+      steps: [{ label: 'Calcul', text: `${bloc1} + ${bloc2} = ${bloc1 + bloc2} cm` }],
+      stepCalcs: [{ a: bloc1, b: bloc2, op: '+', result: bloc1 + bloc2, label: `Hauteur des deux blocs ensemble` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'addition',
+      correct: bloc1 + bloc2,
+    };
+  },
+  () => {
+    // Compare two lengths — "combien de cm de plus?"
+    const a = rand(40, 95);
+    const b = rand(15, a - 10);
+    return {
+      text: `Le crayon de Léo mesure ${a} cm. Celui de Marie mesure ${b} cm. Combien de cm de plus mesure le crayon de Léo?`,
+      steps: [{ label: 'Calcul', text: `${a} − ${b} = ${a - b} cm` }],
+      stepCalcs: [{ a: a, b: b, op: '−', result: a - b, label: `Différence entre les deux longueurs` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'soustraction',
+      correct: a - b,
+    };
+  },
+  // ===== TIME / DURATION — minutes (2e année stays in minutes) =====
+  () => {
+    const matin = rand(15, 35);
+    const soir = rand(10, 30);
+    return {
+      text: `Ryan joue dehors ${matin} minutes le matin et ${soir} minutes après l'école. Combien de minutes a-t-il joué en tout?`,
+      steps: [{ label: 'Calcul', text: `${matin} + ${soir} = ${matin + soir} min` }],
+      stepCalcs: [{ a: matin, b: soir, op: '+', result: matin + soir, label: `Total en minutes` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'addition',
+      correct: matin + soir,
+    };
+  },
+  () => {
+    const recreation = rand(30, 60);
+    const passe = rand(10, recreation - 5);
+    return {
+      text: `La récréation dure ${recreation} minutes. Il s'est déjà passé ${passe} minutes. Combien de minutes reste-t-il avant la fin?`,
+      steps: [{ label: 'Calcul', text: `${recreation} − ${passe} = ${recreation - passe} min` }],
+      stepCalcs: [{ a: recreation, b: passe, op: '−', result: recreation - passe, label: `Temps restant en minutes` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'soustraction',
+      correct: recreation - passe,
+    };
+  },
+  () => {
+    // Hour-based: simple "start at Xh, lasts N min, what hour?"
+    // To stay within the picker model, keep the answer in MINUTES past the hour
+    const startHour = rand(9, 14);
+    const duration = pick([15, 20, 25, 30, 40, 45, 50]);
+    return {
+      text: `L'activité commence à ${startHour}h00 et dure ${duration} minutes. À quelle heure se termine-t-elle? (Donne la réponse en minutes après ${startHour}h00.)`,
+      steps: [{ label: 'Calcul', text: `0 + ${duration} = ${duration} min après ${startHour}h00` }],
+      stepCalcs: [{ a: 0, b: duration, op: '+', result: duration, label: `Minutes après le début` }],
+      operationQuestion: 'Quelle opération?',
+      correctOperation: 'addition',
+      correct: duration,
+    };
+  },
   // ===== TWO-PERSON COMPARISON — combien de plus =====
   // (variant: how MANY more, not just who)
   () => {
