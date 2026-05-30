@@ -161,6 +161,18 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
   const [stepResults, setStepResults] = useState([]);
   const [stepFeedback, setStepFeedback] = useState(null);
   const [stepInput, setStepInput] = useState('');
+  // Per-step "pick the operands + operator" phase — forces Ryan to decide
+  // WHICH numbers and operation, not just compute. Cleared each step.
+  const [pickedA, setPickedA] = useState(null);
+  const [pickedB, setPickedB] = useState(null);
+  const [pickedOp, setPickedOp] = useState(null);
+  const [pickFeedback, setPickFeedback] = useState(null);
+  const [pickAttempts, setPickAttempts] = useState(0);
+  const [setupConfirmed, setSetupConfirmed] = useState(false);
+  // After the digit-pad answer is correct, if there are more steps the kid is
+  // asked: "Réponse finale, ou un autre calcul?". Teaches him to recognize when
+  // a problem needs 1 step vs 2.
+  const [finalAnswerGate, setFinalAnswerGate] = useState(null); // null | 'asking' | 'teach-more' | 'teach-done' | 'done'
   const [showVideos, setShowVideos] = useState(false);
 
   const generate = useCallback(() => getGenerator(mode), [mode]);
@@ -186,6 +198,17 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
     }
   }, [question]);
 
+  // Reset the operand-picker phase whenever Ryan moves to a new step or a new question
+  useEffect(() => {
+    setPickedA(null);
+    setPickedB(null);
+    setPickedOp(null);
+    setPickFeedback(null);
+    setPickAttempts(0);
+    setSetupConfirmed(false);
+    setFinalAnswerGate(null);
+  }, [currentIndex, stepIdx]);
+
   if (!question) {
     return (
       <div className="max-w-3xl mx-auto px-4 pt-10 text-center">
@@ -197,6 +220,62 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
 
   const isWordProblem = question.type === 'word_problem';
   const hasSteps = isWordProblem && Array.isArray(question.stepCalcs) && question.stepCalcs.length > 0;
+
+  // Pool of numbers Ryan can pick from for the operand-picker phase: every number
+  // mentioned in the problem text + any intermediate result from a prior step.
+  function buildNumberPool() {
+    const fromText = (question.text || '').match(/\d+/g) || [];
+    const fromPrior = stepResults.map((r) => r.result);
+    const all = new Set([...fromText.map((n) => parseInt(n, 10)), ...fromPrior]);
+    return [...all].sort((a, b) => a - b);
+  }
+
+  function clickPickNumber(n) {
+    if (setupConfirmed) return;
+    if (pickedA === null) setPickedA(n);
+    else if (pickedB === null) setPickedB(n);
+  }
+  function clickPickOp(op) {
+    if (setupConfirmed) return;
+    setPickedOp(op);
+  }
+  function clearPicks() {
+    setPickedA(null);
+    setPickedB(null);
+    setPickedOp(null);
+    setPickFeedback(null);
+  }
+  function submitSetup() {
+    if (pickedA === null || pickedB === null || pickedOp === null) return;
+    const calc = question.stepCalcs[stepIdx];
+    const okOp = pickedOp === calc.op;
+    // For + accept either order; for − the order matters.
+    const okNums = calc.op === '+'
+      ? (pickedA === calc.a && pickedB === calc.b) || (pickedA === calc.b && pickedB === calc.a)
+      : (pickedA === calc.a && pickedB === calc.b);
+    if (okOp && okNums) {
+      setPickFeedback({ correct: true });
+      setTimeout(() => {
+        setSetupConfirmed(true);
+        setPickFeedback(null);
+      }, 800);
+    } else {
+      setPickAttempts((n) => n + 1);
+      setPickFeedback({ correct: false, msg: !okOp ? 'Pas la bonne opération.' : 'Pas les bons nombres.' });
+      setTimeout(() => {
+        // After 2 wrong attempts, reveal the right setup so he can continue
+        if (pickAttempts + 1 >= 2) {
+          setPickedA(calc.a);
+          setPickedB(calc.b);
+          setPickedOp(calc.op);
+          setSetupConfirmed(true);
+          setPickFeedback(null);
+        } else {
+          clearPicks();
+        }
+      }, 1400);
+    }
+  }
 
   function pressDigit(d) {
     if (stepFeedback !== null) return;
@@ -219,13 +298,39 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
     setTimeout(() => {
       setStepFeedback(null);
       setStepInput('');
-      if (stepIdx + 1 >= question.stepCalcs.length) {
-        // Last step: this IS the final answer for the whole problem
-        handleAnswer(value);
-      } else {
-        setStepIdx((i) => i + 1);
-      }
+      // After every correct compute, ask Ryan if this is his final answer.
+      // Teaches him to recognize 1-step vs 2-step problems on his own.
+      setFinalAnswerGate('asking');
     }, 1600);
+  }
+
+  // Handle the "Est-ce ta réponse finale?" decision.
+  function chooseFinalAnswer(isFinal) {
+    const lastResult = stepResults[stepResults.length - 1]?.result ?? parseInt(stepInput || '0', 10);
+    const moreStepsExist = stepIdx + 1 < question.stepCalcs.length;
+    if (isFinal && !moreStepsExist) {
+      // Correct choice — submit as the final answer
+      setFinalAnswerGate('done');
+      handleAnswer(lastResult);
+    } else if (!isFinal && moreStepsExist) {
+      // Correct choice — advance to next step
+      setFinalAnswerGate(null);
+      setStepIdx((i) => i + 1);
+    } else if (isFinal && moreStepsExist) {
+      // Wrong — said it's final, but there are more steps. Teach + force continue.
+      setFinalAnswerGate('teach-more');
+      setTimeout(() => {
+        setFinalAnswerGate(null);
+        setStepIdx((i) => i + 1);
+      }, 2200);
+    } else {
+      // Wrong — said another calc needed, but this WAS the final step.
+      setFinalAnswerGate('teach-done');
+      setTimeout(() => {
+        setFinalAnswerGate('done');
+        handleAnswer(lastResult);
+      }, 2200);
+    }
   }
 
   function handleOperationChoice(op) {
@@ -543,13 +648,80 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           </div>
         )}
 
-        {/* Step calc UI — Ryan TYPES each step's answer (no multi-choice). Forces real computation. */}
-        {hasSteps && operationAnswer !== null && !operationPhase && !showResult && stepIdx < question.stepCalcs.length && (
+        {/* PICKER PHASE — Ryan picks the operands + operator from the problem.
+            Forces him to decide WHAT to compute, not just compute what's given. */}
+        {hasSteps && operationAnswer !== null && !operationPhase && !showResult && stepIdx < question.stepCalcs.length && !setupConfirmed && finalAnswerGate === null && (
+          <div className="bg-blue-50 rounded-xl p-4 border-2 border-blue-200 mb-4">
+            <p className="text-sm font-bold text-blue-800 mb-1">
+              Calcul {stepIdx + 1} — {question.stepCalcs[stepIdx].label}
+            </p>
+            <p className="text-xs text-blue-700 mb-3">Choisis les nombres et l'opération.</p>
+
+            {/* Slot display */}
+            <div className="flex items-center justify-center gap-2 my-4 flex-wrap" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <div className="min-w-[80px] h-14 px-3 rounded-xl border-4 flex items-center justify-center text-2xl font-extrabold bg-white border-fox text-stone">
+                {pickedA ?? <span className="text-s2">?</span>}
+              </div>
+              <div className="min-w-[50px] h-14 px-2 rounded-xl border-4 flex items-center justify-center text-2xl font-extrabold bg-white border-fox text-stone">
+                {pickedOp ?? <span className="text-s2">?</span>}
+              </div>
+              <div className="min-w-[80px] h-14 px-3 rounded-xl border-4 flex items-center justify-center text-2xl font-extrabold bg-white border-fox text-stone">
+                {pickedB ?? <span className="text-s2">?</span>}
+              </div>
+              <span className="text-2xl font-extrabold text-s5">= ?</span>
+            </div>
+
+            {/* Number buttons */}
+            <div className="text-[10px] font-bold uppercase tracking-wide text-blue-700 mb-1.5">Les nombres du problème</div>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {buildNumberPool().map((n) => (
+                <button key={n} onClick={() => clickPickNumber(n)} disabled={pickFeedback?.correct === false}
+                  className="px-4 py-2 rounded-xl font-extrabold text-lg bg-white border-2 border-s2 text-stone hover:border-fox active:bg-orange-100 disabled:opacity-40">
+                  {n}
+                </button>
+              ))}
+            </div>
+
+            {/* Operator buttons */}
+            <div className="text-[10px] font-bold uppercase tracking-wide text-blue-700 mb-1.5">L'opération</div>
+            <div className="flex gap-2 mb-3">
+              <button onClick={() => clickPickOp('+')} disabled={pickFeedback?.correct === false}
+                className={`flex-1 py-2 rounded-xl font-extrabold text-xl border-2 ${pickedOp === '+' ? 'bg-blue-100 border-blue-500 text-blue-800' : 'bg-white border-s2 text-stone'} disabled:opacity-40`}>
+                +
+              </button>
+              <button onClick={() => clickPickOp('−')} disabled={pickFeedback?.correct === false}
+                className={`flex-1 py-2 rounded-xl font-extrabold text-xl border-2 ${pickedOp === '−' ? 'bg-blue-100 border-blue-500 text-blue-800' : 'bg-white border-s2 text-stone'} disabled:opacity-40`}>
+                −
+              </button>
+            </div>
+
+            <div className="flex gap-2">
+              <button onClick={clearPicks} disabled={pickFeedback !== null}
+                className="px-3 py-2 rounded-xl font-bold text-s5 bg-white border-2 border-s2 disabled:opacity-40">
+                Effacer
+              </button>
+              <button onClick={submitSetup}
+                disabled={pickedA === null || pickedB === null || pickedOp === null || pickFeedback !== null}
+                className="flex-1 py-2 rounded-xl font-extrabold text-white text-lg disabled:opacity-40"
+                style={{ background: 'linear-gradient(90deg, #3a5bc7, #5d7dd8)' }}>
+                Vérifier mon calcul
+              </button>
+            </div>
+
+            {pickFeedback && (
+              <div className={`mt-3 text-center font-bold ${pickFeedback.correct ? 'text-green-700' : 'text-red-600'}`}>
+                {pickFeedback.correct ? '✅ Bon calcul! À toi de le calculer.' : `❌ ${pickFeedback.msg} Essaie encore.`}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* COMPUTE PHASE — calculator with picked operands. Ryan computes. */}
+        {hasSteps && operationAnswer !== null && !operationPhase && !showResult && stepIdx < question.stepCalcs.length && setupConfirmed && finalAnswerGate === null && (
           <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200 mb-4">
             <p className="text-sm font-bold text-fox-d mb-2">
-              Étape {stepIdx + 1} sur {question.stepCalcs.length} — {question.stepCalcs[stepIdx].label}
+              Calcul {stepIdx + 1} — calcule maintenant
             </p>
-            {/* Calc display with input */}
             <div className="flex items-center justify-center gap-3 my-4 flex-wrap" style={{ fontVariantNumeric: 'tabular-nums' }}>
               <span className="text-3xl font-extrabold text-stone">
                 {question.stepCalcs[stepIdx].a} {question.stepCalcs[stepIdx].op} {question.stepCalcs[stepIdx].b} =
@@ -565,38 +737,24 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
               </div>
             </div>
 
-            {/* Digit pad */}
             <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
-                <button
-                  key={d}
-                  onClick={() => pressDigit(d)}
-                  disabled={stepFeedback !== null}
-                  className="py-4 rounded-xl font-extrabold text-2xl bg-white border-2 border-s2 text-stone hover:border-fox active:bg-orange-100 transition-all disabled:opacity-50"
-                >
+                <button key={d} onClick={() => pressDigit(d)} disabled={stepFeedback !== null}
+                  className="py-4 rounded-xl font-extrabold text-2xl bg-white border-2 border-s2 text-stone hover:border-fox active:bg-orange-100 transition-all disabled:opacity-50">
                   {d}
                 </button>
               ))}
-              <button
-                onClick={pressBackspace}
-                disabled={stepFeedback !== null || !stepInput}
-                className="py-4 rounded-xl font-extrabold text-xl bg-white border-2 border-s2 text-s4 hover:border-fox active:bg-orange-100 disabled:opacity-50"
-              >
+              <button onClick={pressBackspace} disabled={stepFeedback !== null || !stepInput}
+                className="py-4 rounded-xl font-extrabold text-xl bg-white border-2 border-s2 text-s4 hover:border-fox active:bg-orange-100 disabled:opacity-50">
                 ⌫
               </button>
-              <button
-                onClick={() => pressDigit(0)}
-                disabled={stepFeedback !== null}
-                className="py-4 rounded-xl font-extrabold text-2xl bg-white border-2 border-s2 text-stone hover:border-fox active:bg-orange-100 disabled:opacity-50"
-              >
+              <button onClick={() => pressDigit(0)} disabled={stepFeedback !== null}
+                className="py-4 rounded-xl font-extrabold text-2xl bg-white border-2 border-s2 text-stone hover:border-fox active:bg-orange-100 disabled:opacity-50">
                 0
               </button>
-              <button
-                onClick={submitStep}
-                disabled={stepFeedback !== null || stepInput === ''}
+              <button onClick={submitStep} disabled={stepFeedback !== null || stepInput === ''}
                 className="py-4 rounded-xl font-extrabold text-lg text-white disabled:opacity-40"
-                style={{ background: 'linear-gradient(90deg, #2d7a3a, #4ca65b)' }}
-              >
+                style={{ background: 'linear-gradient(90deg, #2d7a3a, #4ca65b)' }}>
                 OK
               </button>
             </div>
@@ -606,6 +764,40 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
                 {stepFeedback.correct ? '✅ Bravo!' : `❌ C'est ${question.stepCalcs[stepIdx].result}`}
               </div>
             )}
+          </div>
+        )}
+
+        {/* FINAL-ANSWER GATE — teaches Ryan to recognize when a problem is done vs needs another step. */}
+        {hasSteps && finalAnswerGate === 'asking' && !showResult && (
+          <div className="bg-purple-50 rounded-xl p-4 border-2 border-purple-200 mb-4">
+            <p className="text-base font-extrabold text-purple-900 text-center mb-1">
+              🤔 Est-ce ta réponse finale?
+            </p>
+            <p className="text-xs text-purple-700 text-center mb-3">
+              Relis le problème: as-tu trouvé ce qu'on te demande, ou il manque un calcul?
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => chooseFinalAnswer(true)}
+                className="py-3 rounded-xl font-extrabold text-white bg-emerald-500 hover:bg-emerald-600">
+                ✓ Réponse finale
+              </button>
+              <button onClick={() => chooseFinalAnswer(false)}
+                className="py-3 rounded-xl font-extrabold text-white bg-amber-500 hover:bg-amber-600">
+                ➕ Un autre calcul
+              </button>
+            </div>
+          </div>
+        )}
+        {hasSteps && finalAnswerGate === 'teach-more' && (
+          <div className="bg-amber-50 rounded-xl p-4 border-2 border-amber-300 mb-4 text-center">
+            <p className="font-extrabold text-amber-900">❌ Pas encore fini!</p>
+            <p className="text-sm text-amber-800 mt-1">Il faut encore un calcul pour répondre à la question du problème.</p>
+          </div>
+        )}
+        {hasSteps && finalAnswerGate === 'teach-done' && (
+          <div className="bg-amber-50 rounded-xl p-4 border-2 border-amber-300 mb-4 text-center">
+            <p className="font-extrabold text-amber-900">⚠ C'était déjà fini!</p>
+            <p className="text-sm text-amber-800 mt-1">Ton dernier calcul donnait déjà la réponse au problème — pas besoin d'un autre.</p>
           </div>
         )}
 
