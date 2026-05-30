@@ -113,6 +113,17 @@ const caylaDicteeWeeksList = [
   { id: 'cayla_t6_s3', label: 'Semaine 3 — finales BLE/LE/ME', desc: 'agréable, marmite, vaste...' },
 ];
 
+// ===== Nyla — pré-maternelle (5 ans) =====
+const nylaMathModes = [
+  { id: 'nyla_count', label: '🍎 Compte les objets', desc: 'De 1 à 10', featured: true },
+  { id: 'nyla_add', label: '➕ Petites additions', desc: '1+1 à 5+5 avec dessins' },
+];
+
+const nylaFrenchModes = [
+  { id: 'nyla_boukili', label: '📚 Boukili', desc: 'Lis tes livres préférés', featured: true },
+  { id: 'nyla_letters', label: '🔤 Les lettres', desc: 'Reconnaître l\'alphabet + sons' },
+];
+
 function FoxMascot() {
   return (
     <svg className="fox-svg" viewBox="0 0 130 160" width="120" height="150" fill="none" style={{ animation: 'bounce 3s ease-in-out infinite' }}>
@@ -140,10 +151,11 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onStartJournal, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
   // Dispatch a tile click — special-case modes that open their own screen instead of the practice flow
   const launchMode = (id) => {
     if (id === 'biographie_jr_flashcard') return onOpenBioFlashcard && onOpenBioFlashcard();
+    if (id === 'nyla_boukili') return onOpenBoukili && onOpenBoukili();
     return onStartPractice(id);
   };
   const [stats, setStats] = useState(null);
@@ -160,12 +172,13 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
   const sessionCount = stats?.sessions?.length || 0;
 
   const isCayla = profile === 'cayla';
+  const isNyla = profile === 'nyla';
   const isDemo = profile === 'demo';
   const isRyan = profile === 'ryan' || isDemo; // demo gets Ryan's 2e année content
-  const name = isDemo ? 'Mon ami' : profile === 'ryan' ? 'Ryan' : 'Cayla';
-  const grade = isCayla ? '6e année' : '2e année';
-  const mathModes = isCayla ? caylaMathModes : ryanMathModes;
-  const frenchModes = isCayla ? caylaFrenchModes : ryanFrenchModes;
+  const name = isDemo ? 'Mon ami' : profile === 'ryan' ? 'Ryan' : isCayla ? 'Cayla' : 'Nyla';
+  const grade = isCayla ? '6e année' : isNyla ? 'Pré-maternelle' : '2e année';
+  const mathModes = isCayla ? caylaMathModes : isNyla ? nylaMathModes : ryanMathModes;
+  const frenchModes = isCayla ? caylaFrenchModes : isNyla ? nylaFrenchModes : ryanFrenchModes;
   const modes = tab === 'math' ? mathModes : frenchModes;
   const featured = modes.find(m => m.featured);
   const grid = modes.filter(m => !m.featured);

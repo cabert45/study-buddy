@@ -27,6 +27,7 @@ import Presentation from './components/Presentation';
 import FableReader from './components/FableReader';
 import Agenda from './components/Agenda';
 import TestResults from './components/TestResults';
+import BoukiliLauncher from './components/BoukiliLauncher';
 
 export default function App() {
   const [screen, setScreen] = useState('profile');
@@ -44,6 +45,7 @@ export default function App() {
   const [showAgenda, setShowAgenda] = useState(false);
   const [showBioFlashcard, setShowBioFlashcard] = useState(false);
   const [showTestResults, setShowTestResults] = useState(false);
+  const [showBoukili, setShowBoukili] = useState(false);
 
   // Auto-resume study reminders on app load
   React.useEffect(() => { autoResume(); }, []);
@@ -157,6 +159,12 @@ export default function App() {
                     <div className="font-heading text-xl font-extrabold text-stone">Cayla</div>
                     <div className="text-xs font-bold text-s4 mt-1">6e année</div>
                   </button>
+                  <button onClick={() => selectProfile('nyla')}
+                    className="bg-white border-2 border-s1 rounded-2xl p-6 hover:scale-105 hover:border-purple-400 hover:shadow-lg transition-all active:scale-95">
+                    <div className="text-5xl mb-3">🌸</div>
+                    <div className="font-heading text-xl font-extrabold text-stone">Nyla</div>
+                    <div className="text-xs font-bold text-s4 mt-1">Pré-maternelle · 5 ans</div>
+                  </button>
                 </>
               )}
               <button onClick={() => selectProfile('demo')}
@@ -220,6 +228,9 @@ export default function App() {
       {showTestResults && (
         <TestResults onClose={() => setShowTestResults(false)} />
       )}
+      {showBoukili && (
+        <BoukiliLauncher onClose={() => setShowBoukili(false)} />
+      )}
       {screen === 'journal' && <Journal onHome={goHome} profile={profile} />}
       {screen === 'menu' && (
         <Menu
@@ -251,6 +262,7 @@ export default function App() {
           onOpenAgenda={() => setShowAgenda(true)}
           onOpenBioFlashcard={() => setShowBioFlashcard(true)}
           onOpenTestResults={() => setShowTestResults(true)}
+          onOpenBoukili={() => setShowBoukili(true)}
           onStartJournal={startJournal}
           onOpenCompose={() => setShowCompose(true)}
           onSwitchProfile={switchProfile}

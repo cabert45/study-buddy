@@ -35,6 +35,9 @@ import { generateHistoire } from '../generators/histoire';
 import { generateComprehension } from '../generators/comprehension';
 import { generateCalculRapide3 } from '../generators/calculRapide3';
 import { generateProbabilite } from '../generators/probabilite';
+import { generateNylaCount } from '../generators/nylaCount';
+import { generateNylaAdd } from '../generators/nylaAdd';
+import { generateNylaLetters } from '../generators/nylaLetters';
 import { generateEnglishOral } from '../generators/englishOral';
 import { generateMotsSavantsJr } from '../generators/motsSavantsJr';
 import { recordPemdasAnswer } from '../generators/pemdas';
@@ -99,6 +102,9 @@ function getGenerator(mode) {
     case 'comprehension': return generateComprehension;
     case 'calcul_rapide_3': return generateCalculRapide3;
     case 'probabilite': return generateProbabilite;
+    case 'nyla_count': return generateNylaCount;
+    case 'nyla_add': return generateNylaAdd;
+    case 'nyla_letters': return generateNylaLetters;
     case 'english_oral': return generateEnglishOral;
     case 'mots_savants_jr': return generateMotsSavantsJr;
     case 'apostrophe': return generateApostrophe;
@@ -485,6 +491,9 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           {question.category === 'comprehension' && '📖 Compréhension de lecture'}
           {question.category === 'calcul_rapide_3' && '⚡ Calcul rapide — 3 chiffres ±9/±10'}
           {question.category === 'probabilite' && '🎲 Probabilité — certain / possible / impossible'}
+          {question.category === 'nyla_count' && '🍎 Compte les objets'}
+          {question.category === 'nyla_add' && '➕ Petites additions'}
+          {question.category === 'nyla_letters' && '🔤 Les lettres'}
           {question.category === 'english_oral' && '🇬🇧 Anglais oral'}
           {question.category === 'mots_savants_jr' && '🦋 Mots savants — Insectes/Fleurs'}
           {question.category === 'apostrophe' && "L'apostrophe"}
