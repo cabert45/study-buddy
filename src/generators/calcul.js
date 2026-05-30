@@ -49,6 +49,7 @@ function generateAddition(forceCarry) {
     b,
     correct,
     options: shuffle([...options].slice(0, 4)),
+    useDigitPad: true,
     visual: { a, b, op: '+' },
   };
 }
@@ -88,6 +89,7 @@ function generateSubtraction(forceBorrow) {
     b,
     correct,
     options: shuffle([...options].slice(0, 4)),
+    useDigitPad: true,
     visual: { a, b, op: '−' },
   };
 }
@@ -122,6 +124,7 @@ function generate3DigitNoExchange() {
     b,
     correct,
     options: shuffle([...options].slice(0, 4)),
+    useDigitPad: true,
   };
 }
 
@@ -191,6 +194,7 @@ function generate3DigitWithExchange() {
     b,
     correct,
     options: shuffle([...options].slice(0, 4)),
+    useDigitPad: true,
     explanation: steps,
     hint,
   };

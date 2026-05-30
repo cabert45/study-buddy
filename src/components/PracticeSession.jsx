@@ -198,7 +198,8 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
     }
   }, [question]);
 
-  // Reset the operand-picker phase whenever Ryan moves to a new step or a new question
+  // Reset the operand-picker phase whenever Ryan moves to a new step or a new question.
+  // Also clears the digit-pad buffer so the previous answer doesn't carry over.
   useEffect(() => {
     setPickedA(null);
     setPickedB(null);
@@ -207,6 +208,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
     setPickAttempts(0);
     setSetupConfirmed(false);
     setFinalAnswerGate(null);
+    setStepInput('');
   }, [currentIndex, stepIdx]);
 
   if (!question) {
@@ -846,8 +848,46 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           </div>
         )}
 
-        {/* Answer options — skipped for word problems with stepCalcs (handled by step UI above) */}
-        {(!isWordProblem || operationAnswer !== null) && !operationPhase && !hasSteps && (
+        {/* Digit-pad answer (calcul etc.) — Ryan TYPES the answer instead of
+            picking from options. Forces real computation. */}
+        {question.useDigitPad && !hasSteps && !showResult && (
+          <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200 mt-4 mb-4">
+            <div className="flex items-center justify-center gap-3 my-2 flex-wrap" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <span className="text-3xl font-extrabold text-stone">
+                {question.text.replace(/=\s*\?\s*$/, '=')}
+              </span>
+              <div className="min-w-[110px] h-14 px-4 rounded-xl border-4 flex items-center justify-center text-3xl font-extrabold bg-white border-fox text-stone">
+                {stepInput || <span className="text-s2">?</span>}
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto mt-3">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
+                <button key={d} onClick={() => pressDigit(d)}
+                  className="py-4 rounded-xl font-extrabold text-2xl bg-white border-2 border-s2 text-stone hover:border-fox active:bg-orange-100">
+                  {d}
+                </button>
+              ))}
+              <button onClick={pressBackspace} disabled={!stepInput}
+                className="py-4 rounded-xl font-extrabold text-xl bg-white border-2 border-s2 text-s4 hover:border-fox active:bg-orange-100 disabled:opacity-50">
+                ⌫
+              </button>
+              <button onClick={() => pressDigit(0)}
+                className="py-4 rounded-xl font-extrabold text-2xl bg-white border-2 border-s2 text-stone hover:border-fox active:bg-orange-100">
+                0
+              </button>
+              <button
+                onClick={() => { const v = parseInt(stepInput, 10); if (!isNaN(v)) { setStepInput(''); handleAnswer(v); } }}
+                disabled={stepInput === ''}
+                className="py-4 rounded-xl font-extrabold text-lg text-white disabled:opacity-40"
+                style={{ background: 'linear-gradient(90deg, #2d7a3a, #4ca65b)' }}>
+                OK
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Answer options — skipped for word problems with stepCalcs (handled by step UI above) or digit-pad mode */}
+        {(!isWordProblem || operationAnswer !== null) && !operationPhase && !hasSteps && !question.useDigitPad && (
           <div className={`grid gap-3 mt-4 ${question.isCompare || question.options.length === 3 ? 'grid-cols-3' : question.options.length === 2 ? 'grid-cols-2' : 'grid-cols-2'}`}>
             {question.options.map((opt, i) => {
               let btnClass = 'bg-white border-2 border-s2 text-stone hover:border-fox';
