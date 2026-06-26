@@ -195,16 +195,22 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
 
   useEffect(() => {
     const gen = generate();
-    const qs = Array.from({ length: TOTAL_QUESTIONS }, () => gen());
+    // Nyla (5 ans) gets short sessions — 15 is too long for a preschooler.
+    const total = String(mode).startsWith('nyla') ? 6 : TOTAL_QUESTIONS;
+    const qs = Array.from({ length: total }, () => gen());
     setQuestions(qs);
-  }, [generate]);
+  }, [generate, mode]);
 
   const question = questions[currentIndex];
 
   useEffect(() => {
     if (question) {
+      const isNyla = (question.category || '').startsWith('nyla');
       if (question.spokenLang === 'en' && question.spokenWord) {
         speak(question.spokenWord, 'en');
+      } else if (isNyla) {
+        // Read the FULL instruction so a non-reader knows what to do
+        speak(question.spokenWord ? `${question.text} ${question.spokenWord}` : question.text);
       } else if (question.spokenWord) {
         // For dictée, speak the word slowly and clearly
         speakSlow(question.spokenWord);
@@ -576,8 +582,11 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
         <div className="flex flex-wrap gap-3 mb-4">
           <button
             onClick={() => {
+              const isNyla = (question.category || '').startsWith('nyla');
               if (question.spokenLang === 'en' && question.spokenWord) {
                 speak(question.spokenWord, 'en');
+              } else if (isNyla) {
+                speak(question.spokenWord ? `${question.text} ${question.spokenWord}` : question.text);
               } else if (question.spokenWord) {
                 speakSlow(question.spokenWord);
               } else {
@@ -586,7 +595,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
             }}
             className="text-sm text-s4 font-semibold hover:text-lava"
           >
-            🔊 {question.spokenLang === 'en' ? 'Écouter en anglais' : question.spokenWord ? 'Réécouter le mot' : 'Écouter'}
+            🔊 {question.spokenLang === 'en' ? 'Écouter en anglais' : (question.category || '').startsWith('nyla') ? 'Réécouter' : question.spokenWord ? 'Réécouter le mot' : 'Écouter'}
           </button>
           {!showResult && (
             <button

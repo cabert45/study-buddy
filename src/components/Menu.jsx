@@ -181,7 +181,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onStartNylaAddition, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onStartNylaAddition, onStartNylaCompare, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
   // Dispatch a tile click — special-case modes that open their own screen instead of the practice flow
   const launchMode = (id) => {
     if (id === 'biographie_jr_flashcard') return onOpenBioFlashcard && onOpenBioFlashcard();
@@ -193,6 +193,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
     if (id === 'nyla_speed') return onStartNylaSpeed && onStartNylaSpeed();
     if (id === 'nyla_songs') return onStartNylaSongs && onStartNylaSongs();
     if (id === 'nyla_addition') return onStartNylaAddition && onStartNylaAddition();
+    if (id === 'nyla_compare') return onStartNylaCompare && onStartNylaCompare();
     return onStartPractice(id);
   };
   const [stats, setStats] = useState(null);

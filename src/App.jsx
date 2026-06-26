@@ -33,6 +33,7 @@ import NylaFlashcard from './components/NylaFlashcard';
 import NylaSpeed from './components/NylaSpeed';
 import NylaSongs from './components/NylaSongs';
 import NylaAddition from './components/NylaAddition';
+import NylaCompare from './components/NylaCompare';
 
 export default function App() {
   const [screen, setScreen] = useState('profile');
@@ -124,6 +125,10 @@ export default function App() {
 
   function startNylaAddition() {
     setScreen('nylaadd');
+  }
+
+  function startNylaCompare() {
+    setScreen('nylacompare');
   }
 
   function startPresentation() {
@@ -259,6 +264,7 @@ export default function App() {
       {screen === 'nylaspeed' && <NylaSpeed onHome={goHome} />}
       {screen === 'nylasongs' && <NylaSongs onHome={goHome} />}
       {screen === 'nylaadd' && <NylaAddition onHome={goHome} />}
+      {screen === 'nylacompare' && <NylaCompare onHome={goHome} />}
       {nylaDeck && (
         <NylaFlashcard
           deck={nylaDeck}
@@ -303,6 +309,7 @@ export default function App() {
           onStartNylaSpeed={startNylaSpeed}
           onStartNylaSongs={startNylaSongs}
           onStartNylaAddition={startNylaAddition}
+          onStartNylaCompare={startNylaCompare}
           onOpenCompose={() => setShowCompose(true)}
           onSwitchProfile={switchProfile}
           darkMode={darkMode}
