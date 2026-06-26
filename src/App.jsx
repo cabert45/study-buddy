@@ -32,6 +32,7 @@ import Reading from './components/Reading';
 import NylaFlashcard from './components/NylaFlashcard';
 import NylaSpeed from './components/NylaSpeed';
 import NylaSongs from './components/NylaSongs';
+import NylaAddition from './components/NylaAddition';
 
 export default function App() {
   const [screen, setScreen] = useState('profile');
@@ -119,6 +120,10 @@ export default function App() {
 
   function startNylaSongs() {
     setScreen('nylasongs');
+  }
+
+  function startNylaAddition() {
+    setScreen('nylaadd');
   }
 
   function startPresentation() {
@@ -253,6 +258,7 @@ export default function App() {
       {screen === 'reading' && <Reading onHome={goHome} profile={profile} />}
       {screen === 'nylaspeed' && <NylaSpeed onHome={goHome} />}
       {screen === 'nylasongs' && <NylaSongs onHome={goHome} />}
+      {screen === 'nylaadd' && <NylaAddition onHome={goHome} />}
       {nylaDeck && (
         <NylaFlashcard
           deck={nylaDeck}
@@ -296,6 +302,7 @@ export default function App() {
           onStartNylaFlashcard={(deck) => setNylaDeck(deck)}
           onStartNylaSpeed={startNylaSpeed}
           onStartNylaSongs={startNylaSongs}
+          onStartNylaAddition={startNylaAddition}
           onOpenCompose={() => setShowCompose(true)}
           onSwitchProfile={switchProfile}
           darkMode={darkMode}

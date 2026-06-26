@@ -139,7 +139,7 @@ const nylaMathModes = [
   { id: 'nyla_compare', label: '⚖️ Plus ou moins?', desc: 'Compare deux groupes' },
   { id: 'nyla_shapes', label: '⬜ Les formes', desc: 'Carré, cercle, triangle...' },
   { id: 'nyla_patterns', label: '🔄 Suites logiques', desc: 'Qu\'est-ce qui vient ensuite?' },
-  { id: 'nyla_add', label: '➕ Combien en tout?', desc: 'Combine deux groupes (avec dessins)' },
+  { id: 'nyla_addition', label: '➕ Additions (Numberblocks)', desc: 'Compte les blocs — niveaux jusqu\'à 20' },
 ];
 
 const nylaFrenchModes = [
@@ -181,7 +181,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onStartNylaAddition, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
   // Dispatch a tile click — special-case modes that open their own screen instead of the practice flow
   const launchMode = (id) => {
     if (id === 'biographie_jr_flashcard') return onOpenBioFlashcard && onOpenBioFlashcard();
@@ -192,6 +192,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
     if (id === 'nyla_numbers_flash') return onStartNylaFlashcard && onStartNylaFlashcard('numbers');
     if (id === 'nyla_speed') return onStartNylaSpeed && onStartNylaSpeed();
     if (id === 'nyla_songs') return onStartNylaSongs && onStartNylaSongs();
+    if (id === 'nyla_addition') return onStartNylaAddition && onStartNylaAddition();
     return onStartPractice(id);
   };
   const [stats, setStats] = useState(null);
