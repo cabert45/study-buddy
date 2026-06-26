@@ -146,6 +146,7 @@ const nylaFrenchModes = [
   { id: 'nyla_letters_flash', label: '🔤 Mes lettres MAJUSCULES', desc: 'Apprends à nommer A à Z', featured: true },
   { id: 'nyla_letters_lower_flash', label: '🔡 lettres minuscules', desc: 'a à z — après les majuscules' },
   { id: 'nyla_words_group', label: '⭐ Mots de la semaine', desc: '5 nouveaux mots à reconnaître', groupKind: 'nylawords' },
+  { id: 'nyla_songs', label: '🎵 Apprends une chanson', desc: 'Les comptines de l\'école' },
   { id: 'nyla_letters', label: '🔍 Le premier son', desc: 'Par quel son ça commence? (quand tu connais tes lettres)' },
   { id: 'nyla_boukili', label: '📚 Boukili', desc: 'Lis tes livres préférés' },
   { id: 'nyla_sight_words', label: '🃏 Mots-étoiles (jeu)', desc: 'Associe le mot et le dessin' },
@@ -180,7 +181,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
   // Dispatch a tile click — special-case modes that open their own screen instead of the practice flow
   const launchMode = (id) => {
     if (id === 'biographie_jr_flashcard') return onOpenBioFlashcard && onOpenBioFlashcard();
@@ -190,6 +191,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
     if (id === 'nyla_letters_lower_flash') return onStartNylaFlashcard && onStartNylaFlashcard('letters_lower');
     if (id === 'nyla_numbers_flash') return onStartNylaFlashcard && onStartNylaFlashcard('numbers');
     if (id === 'nyla_speed') return onStartNylaSpeed && onStartNylaSpeed();
+    if (id === 'nyla_songs') return onStartNylaSongs && onStartNylaSongs();
     return onStartPractice(id);
   };
   const [stats, setStats] = useState(null);

@@ -31,6 +31,7 @@ import BoukiliLauncher from './components/BoukiliLauncher';
 import Reading from './components/Reading';
 import NylaFlashcard from './components/NylaFlashcard';
 import NylaSpeed from './components/NylaSpeed';
+import NylaSongs from './components/NylaSongs';
 
 export default function App() {
   const [screen, setScreen] = useState('profile');
@@ -114,6 +115,10 @@ export default function App() {
 
   function startNylaSpeed() {
     setScreen('nylaspeed');
+  }
+
+  function startNylaSongs() {
+    setScreen('nylasongs');
   }
 
   function startPresentation() {
@@ -247,6 +252,7 @@ export default function App() {
       {screen === 'journal' && <Journal onHome={goHome} profile={profile} />}
       {screen === 'reading' && <Reading onHome={goHome} profile={profile} />}
       {screen === 'nylaspeed' && <NylaSpeed onHome={goHome} />}
+      {screen === 'nylasongs' && <NylaSongs onHome={goHome} />}
       {nylaDeck && (
         <NylaFlashcard
           deck={nylaDeck}
@@ -289,6 +295,7 @@ export default function App() {
           onStartReading={startReading}
           onStartNylaFlashcard={(deck) => setNylaDeck(deck)}
           onStartNylaSpeed={startNylaSpeed}
+          onStartNylaSongs={startNylaSongs}
           onOpenCompose={() => setShowCompose(true)}
           onSwitchProfile={switchProfile}
           darkMode={darkMode}
