@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, BookOpen, Plus, Check, X } from 'lucide-react';
+import { ChevronLeft, BookOpen, Plus, Check, X, ChevronDown } from 'lucide-react';
 
 // Read-to-earn tracker — encourage books over screens.
-// Kid logs a finished book, earns a per-book reward. Parent settles up.
-// Stored per-profile in localStorage (same safe storage as the journal).
+// Kid logs a finished book: title + answers 3 quick questions (proves he read
+// it + sneaks in comprehension/writing), then earns a per-book reward.
+// Parent settles up. Stored per-profile in localStorage (safe, like the journal).
 
 const DEFAULT_RATE = 20;
+
+// Generic "any book" questions — work for every title.
+const QUESTIONS = [
+  { key: 'sujet', q: '📖 De quoi parlait ton livre?' },
+  { key: 'perso', q: '🦸 Qui est le personnage principal?' },
+  { key: 'prefere', q: '⭐ Quelle est ta partie préférée? Pourquoi?' },
+];
 
 function loadData(profile) {
   try {
@@ -29,11 +37,18 @@ function dateLabel(iso) {
   return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
 }
 
+const emptyAnswers = () => QUESTIONS.reduce((a, q) => ({ ...a, [q.key]: '' }), {});
+
 export default function Reading({ onHome, profile }) {
   const [rate, setRate] = useState(DEFAULT_RATE);
   const [books, setBooks] = useState([]);
-  const [title, setTitle] = useState('');
   const [editingRate, setEditingRate] = useState(false);
+  const [openIds, setOpenIds] = useState([]);
+
+  // "Finish a book" form
+  const [adding, setAdding] = useState(false);
+  const [title, setTitle] = useState('');
+  const [answers, setAnswers] = useState(emptyAnswers());
 
   useEffect(() => {
     const d = loadData(profile);
@@ -47,16 +62,27 @@ export default function Reading({ onHome, profile }) {
     saveData(profile, { rate: nextRate, books: nextBooks });
   }
 
-  function addBook() {
-    const clean = title.trim();
+  const titleOk = title.trim().length > 0;
+  const answersOk = QUESTIONS.every((q) => (answers[q.key] || '').trim().length >= 2);
+  const canSubmit = titleOk && answersOk;
+
+  function resetForm() {
+    setAdding(false);
+    setTitle('');
+    setAnswers(emptyAnswers());
+  }
+
+  function submitBook() {
+    if (!canSubmit) return;
     const book = {
       id: `${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      title: clean || `Livre #${books.length + 1}`,
+      title: title.trim(),
+      answers: { ...answers },
       date: new Date().toISOString(),
       paid: false,
     };
     persist([book, ...books]);
-    setTitle('');
+    resetForm();
   }
 
   function removeBook(id) {
@@ -74,6 +100,10 @@ export default function Reading({ onHome, profile }) {
   function changeRate(v) {
     const n = Math.max(0, parseInt(v, 10) || 0);
     persist(books, n);
+  }
+
+  function toggleOpen(id) {
+    setOpenIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
   }
 
   const unpaid = books.filter((b) => !b.paid);
@@ -120,22 +150,58 @@ export default function Reading({ onHome, profile }) {
         </div>
       </div>
 
-      {/* Add a book */}
-      <div className="bg-white border-2 border-s1 rounded-2xl p-4 mb-4">
-        <label className="text-xs font-bold text-s4 uppercase tracking-wide mb-2 block">J'ai fini un livre!</label>
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') addBook(); }}
-          placeholder="Titre du livre (optionnel)"
-          className="w-full bg-cream border-2 border-s2 rounded-xl px-3 py-2.5 text-stone font-semibold mb-2.5 outline-none focus:border-fox"
-        />
-        <button onClick={addBook}
-          className="w-full py-3 rounded-xl font-bold text-white text-base flex items-center justify-center gap-2"
+      {/* Finish a book */}
+      {!adding ? (
+        <button onClick={() => setAdding(true)}
+          className="w-full py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2 mb-4"
           style={{ background: 'linear-gradient(90deg, #2d7a3a, #6cc24a)' }}>
-          <Plus size={20} strokeWidth={3} /> J'ai fini un livre! +{rate}$
+          <Plus size={20} strokeWidth={3} /> J'ai fini un livre!
         </button>
-      </div>
+      ) : (
+        <div className="bg-white border-2 border-fox rounded-2xl p-4 mb-4 shadow-md">
+          <div className="flex items-center justify-between mb-3">
+            <span className="font-heading text-lg font-extrabold text-stone">J'ai fini un livre! 📖</span>
+            <button onClick={resetForm} className="text-s3 hover:text-lava p-1"><X size={18} strokeWidth={3} /></button>
+          </div>
+
+          {/* Title (required) */}
+          <label className="text-xs font-bold text-s4 uppercase tracking-wide mb-1 block">Titre du livre *</label>
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Ex: Le petit prince"
+            className="w-full bg-cream border-2 border-s2 rounded-xl px-3 py-2.5 text-stone font-semibold mb-3 outline-none focus:border-fox"
+            autoFocus
+          />
+
+          {/* 3 questions */}
+          <div className="space-y-3 mb-3">
+            {QUESTIONS.map((q) => (
+              <div key={q.key}>
+                <label className="text-sm font-bold text-stone mb-1 block">{q.q}</label>
+                <textarea
+                  value={answers[q.key]}
+                  onChange={(e) => setAnswers((a) => ({ ...a, [q.key]: e.target.value }))}
+                  rows={2}
+                  placeholder="Écris ta réponse…"
+                  className="w-full bg-cream border-2 border-s2 rounded-xl px-3 py-2 text-stone font-semibold text-sm outline-none focus:border-fox resize-none"
+                />
+              </div>
+            ))}
+          </div>
+
+          <button onClick={submitBook} disabled={!canSubmit}
+            className={`w-full py-3 rounded-xl font-bold text-white text-base flex items-center justify-center gap-2 transition-opacity ${canSubmit ? '' : 'opacity-40 cursor-not-allowed'}`}
+            style={{ background: 'linear-gradient(90deg, #2d7a3a, #6cc24a)' }}>
+            <Check size={20} strokeWidth={3} /> Valider · +{rate}$
+          </button>
+          {!canSubmit && (
+            <p className="text-xs font-semibold text-s4 text-center mt-2">
+              {!titleOk ? 'Écris le titre du livre' : 'Réponds aux 3 questions pour gagner ton argent'}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Book list */}
       {books.length > 0 && (
@@ -150,19 +216,37 @@ export default function Reading({ onHome, profile }) {
             )}
           </div>
           <div className="space-y-1.5">
-            {books.map((b) => (
-              <div key={b.id}
-                className={`flex items-center gap-2 py-2 px-2.5 rounded-xl ${b.paid ? 'bg-cream opacity-60' : 'bg-ok-bg'}`}>
-                <span className="text-lg">{b.paid ? '✅' : '📖'}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="font-bold text-stone text-sm truncate">{b.title}</div>
-                  <div className="text-[11px] font-semibold text-s4">{dateLabel(b.date)} · {b.paid ? 'payé' : `${rate}$ à recevoir`}</div>
+            {books.map((b) => {
+              const open = openIds.includes(b.id);
+              const hasAnswers = b.answers && Object.values(b.answers).some((v) => v && v.trim());
+              return (
+                <div key={b.id} className={`rounded-xl ${b.paid ? 'bg-cream opacity-60' : 'bg-ok-bg'}`}>
+                  <div className="flex items-center gap-2 py-2 px-2.5">
+                    <span className="text-lg">{b.paid ? '✅' : '📖'}</span>
+                    <button onClick={() => hasAnswers && toggleOpen(b.id)} className="flex-1 min-w-0 text-left">
+                      <div className="font-bold text-stone text-sm truncate flex items-center gap-1">
+                        {b.title}
+                        {hasAnswers && <ChevronDown size={13} className={`text-s4 transition-transform ${open ? 'rotate-180' : ''}`} />}
+                      </div>
+                      <div className="text-[11px] font-semibold text-s4">{dateLabel(b.date)} · {b.paid ? 'payé' : `${rate}$ à recevoir`}</div>
+                    </button>
+                    <button onClick={() => removeBook(b.id)} className="text-s3 hover:text-lava p-1">
+                      <X size={15} strokeWidth={3} />
+                    </button>
+                  </div>
+                  {open && hasAnswers && (
+                    <div className="px-3 pb-3 pt-1 space-y-2">
+                      {QUESTIONS.map((q) => b.answers?.[q.key]?.trim() && (
+                        <div key={q.key} className="text-xs">
+                          <div className="font-bold text-s6">{q.q}</div>
+                          <div className="text-stone font-medium">{b.answers[q.key]}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <button onClick={() => removeBook(b.id)} className="text-s3 hover:text-lava p-1">
-                  <X size={15} strokeWidth={3} />
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
