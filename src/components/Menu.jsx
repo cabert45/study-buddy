@@ -174,7 +174,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
   // Dispatch a tile click — special-case modes that open their own screen instead of the practice flow
   const launchMode = (id) => {
     if (id === 'biographie_jr_flashcard') return onOpenBioFlashcard && onOpenBioFlashcard();
@@ -340,6 +340,20 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
           <div className="text-left flex-1">
             <div className="font-heading text-lg font-extrabold text-white leading-tight">Mes tâches du jour</div>
             <div className="text-xs font-semibold text-white/80">Coche tes tâches une par une</div>
+          </div>
+          <ChevronRight className="text-white/40" size={20} strokeWidth={3} />
+        </button>
+      )}
+
+      {/* Mes lectures — read-to-earn, encourage books over screens */}
+      {onStartReading && !isDemo && (
+        <button onClick={onStartReading}
+          className="w-full rounded-2xl p-4 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+          style={{ background: 'linear-gradient(135deg, #2d7a3a, #6cc24a)', boxShadow: '0 5px 22px rgba(45,122,58,0.18)' }}>
+          <div className="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white text-2xl">📚</div>
+          <div className="text-left flex-1">
+            <div className="font-heading text-lg font-extrabold text-white leading-tight">Mes lectures · 20$/livre</div>
+            <div className="text-xs font-semibold text-white/85">Lis un livre, gagne de l'argent! 💰</div>
           </div>
           <ChevronRight className="text-white/40" size={20} strokeWidth={3} />
         </button>

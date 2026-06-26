@@ -28,6 +28,7 @@ import FableReader from './components/FableReader';
 import Agenda from './components/Agenda';
 import TestResults from './components/TestResults';
 import BoukiliLauncher from './components/BoukiliLauncher';
+import Reading from './components/Reading';
 
 export default function App() {
   const [screen, setScreen] = useState('profile');
@@ -102,6 +103,10 @@ export default function App() {
 
   function startJournal() {
     setScreen('journal');
+  }
+
+  function startReading() {
+    setScreen('reading');
   }
 
   function startPresentation() {
@@ -233,6 +238,7 @@ export default function App() {
         <BoukiliLauncher onClose={() => setShowBoukili(false)} />
       )}
       {screen === 'journal' && <Journal onHome={goHome} profile={profile} />}
+      {screen === 'reading' && <Reading onHome={goHome} profile={profile} />}
       {screen === 'menu' && (
         <Menu
           profile={profile}
@@ -265,6 +271,7 @@ export default function App() {
           onOpenTestResults={() => setShowTestResults(true)}
           onOpenBoukili={() => setShowBoukili(true)}
           onStartJournal={startJournal}
+          onStartReading={startReading}
           onOpenCompose={() => setShowCompose(true)}
           onSwitchProfile={switchProfile}
           darkMode={darkMode}
