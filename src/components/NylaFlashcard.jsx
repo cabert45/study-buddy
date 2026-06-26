@@ -51,7 +51,7 @@ function buildDeck(deck, numLevel) {
     return {
       kind: 'letter',
       title: lower ? '🔡 Mes lettres (minuscules)' : '🔤 Mes lettres (MAJUSCULES)',
-      intro: 'Regarde chaque lettre et dis son nom tout fort.',
+      intro: 'Regarde la lettre, dis son nom, puis touche Montre-moi pour entendre.',
       cards: nylaLetters.map((l) => ({ id: l.letter, big: lower ? l.letter.toLowerCase() : l.letter, name: l.letter })),
     };
   }
@@ -59,7 +59,7 @@ function buildDeck(deck, numLevel) {
     return {
       kind: 'number',
       title: `🔢 Mes chiffres — ${NUMBER_LEVELS[numLevel].label}`,
-      intro: 'Regarde le nombre et dis-le tout fort.',
+      intro: 'Regarde le nombre, dis-le, puis touche Montre-moi pour entendre.',
       cards: numberCards(numLevel),
     };
   }
@@ -101,14 +101,17 @@ export default function NylaFlashcard({ deck, onHome, onFinish }) {
     }
   }, [built]);
 
-  // STUDY (letters/numbers): name it out loud when it appears (that's the lesson).
-  // WORDS: stay silent so she tries to read it first; the reveal says it.
-  useEffect(() => {
-    if (card && isStudy && !allDone && !pendingLevel) {
-      const t = setTimeout(() => speak(card.name, 'fr', 0.8), introDone.current ? 1200 : 900);
-      return () => clearTimeout(t);
-    }
-  }, [card, isStudy, allDone, pendingLevel]);
+  // "Try first, then reveal": the card stays SILENT so she attempts it herself.
+  // She taps "Montre-moi" to hear the answer (letter/number name or word).
+  function reveal() {
+    setRevealed(true);
+    if (built.kind === 'word') speakSlow(card.word);
+    else speak(card.name, 'fr', 0.8);
+  }
+  function replay() {
+    if (built.kind === 'word') speakSlow(card.word);
+    else speak(card.name, 'fr', 0.8);
+  }
 
   if (!built) {
     return (
@@ -205,8 +208,6 @@ export default function NylaFlashcard({ deck, onHome, onFinish }) {
     setRevealed(false);
   }
 
-  const showAnswerButtons = isStudy || revealed;
-
   return (
     <div className="max-w-xl mx-auto px-4 pt-4 pb-8">
       {/* Header */}
@@ -229,38 +230,43 @@ export default function NylaFlashcard({ deck, onHome, onFinish }) {
           {card.big}
         </div>
 
-        {/* WORDS only: reveal the picture */}
-        {built.kind === 'word' && (revealed ? (
+        {!revealed ? (
+          <button onClick={reveal}
+            className="mt-5 px-7 py-3 rounded-xl font-bold text-white text-base"
+            style={{ background: 'linear-gradient(90deg, #7c3aed, #a78bfa)' }}>
+            👀 Montre-moi
+          </button>
+        ) : built.kind === 'word' ? (
           <div className="mt-4">
             <div className="text-7xl mb-1">{card.icon}</div>
             <div className="font-heading text-xl font-bold text-purple-700">{card.word}</div>
           </div>
         ) : (
-          <button onClick={() => { setRevealed(true); speakSlow(card.word); }}
-            className="mt-5 px-6 py-3 rounded-xl font-bold text-white text-base"
-            style={{ background: 'linear-gradient(90deg, #7c3aed, #a78bfa)' }}>
-            👀 Montre-moi
-          </button>
-        ))}
-      </div>
-
-      {/* Listen again + (letters) help video */}
-      <div className="flex gap-2 mb-4">
-        <button onClick={() => (isStudy ? speak(card.name, 'fr', 0.8) : speakSlow(card.word))}
-          className="flex-1 py-2.5 rounded-xl font-bold text-purple-700 bg-purple-50 border-2 border-purple-200 hover:border-purple-400">
-          🔊 Écoute encore
-        </button>
-        {built.kind === 'letter' && (
-          <a href={ALPHABET_VIDEO} target="_blank" rel="noopener noreferrer"
-            className="flex-1 py-2.5 rounded-xl font-bold text-center text-white"
-            style={{ background: 'linear-gradient(90deg, #e84393, #fd79a8)' }}>
-            🎬 La chanson
-          </a>
+          <div className="mt-3 font-heading text-lg font-extrabold text-purple-700">🔊 C'est « {card.name} »</div>
         )}
       </div>
 
-      {/* I know it / not yet */}
-      {showAnswerButtons ? (
+      {/* After reveal: listen again. Letters always show the alphabet-song help. */}
+      {(revealed || built.kind === 'letter') && (
+        <div className="flex gap-2 mb-4">
+          {revealed && (
+            <button onClick={replay}
+              className="flex-1 py-2.5 rounded-xl font-bold text-purple-700 bg-purple-50 border-2 border-purple-200 hover:border-purple-400">
+              🔊 Écoute encore
+            </button>
+          )}
+          {built.kind === 'letter' && (
+            <a href={ALPHABET_VIDEO} target="_blank" rel="noopener noreferrer"
+              className="flex-1 py-2.5 rounded-xl font-bold text-center text-white"
+              style={{ background: 'linear-gradient(90deg, #e84393, #fd79a8)' }}>
+              🎬 La chanson
+            </a>
+          )}
+        </div>
+      )}
+
+      {/* I know it / not yet — only after she's seen the answer */}
+      {revealed ? (
         <div className="flex gap-3">
           <button onClick={() => answer(false)}
             className="flex-1 py-4 rounded-2xl font-extrabold text-white text-lg bg-fox active:scale-95 transition-transform">
@@ -272,7 +278,9 @@ export default function NylaFlashcard({ deck, onHome, onFinish }) {
           </button>
         </div>
       ) : (
-        <p className="text-center text-sm font-semibold text-s4">Lis le mot tout fort, puis touche « Montre-moi ».</p>
+        <p className="text-center text-sm font-semibold text-s4">
+          {isStudy ? 'Dis-le tout fort, puis touche « Montre-moi ».' : 'Lis le mot tout fort, puis touche « Montre-moi ».'}
+        </p>
       )}
     </div>
   );
