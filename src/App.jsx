@@ -29,6 +29,8 @@ import Agenda from './components/Agenda';
 import TestResults from './components/TestResults';
 import BoukiliLauncher from './components/BoukiliLauncher';
 import Reading from './components/Reading';
+import NylaFlashcard from './components/NylaFlashcard';
+import NylaSpeed from './components/NylaSpeed';
 
 export default function App() {
   const [screen, setScreen] = useState('profile');
@@ -41,6 +43,7 @@ export default function App() {
   const [showNotifs, setShowNotifs] = useState(false);
   const [showStudyReminder, setShowStudyReminder] = useState(false);
   const [flashcardWeek, setFlashcardWeek] = useState(null);
+  const [nylaDeck, setNylaDeck] = useState(null);
   const [showFamily, setShowFamily] = useState(false);
   const [showCompose, setShowCompose] = useState(false);
   const [showAgenda, setShowAgenda] = useState(false);
@@ -107,6 +110,10 @@ export default function App() {
 
   function startReading() {
     setScreen('reading');
+  }
+
+  function startNylaSpeed() {
+    setScreen('nylaspeed');
   }
 
   function startPresentation() {
@@ -239,6 +246,14 @@ export default function App() {
       )}
       {screen === 'journal' && <Journal onHome={goHome} profile={profile} />}
       {screen === 'reading' && <Reading onHome={goHome} profile={profile} />}
+      {screen === 'nylaspeed' && <NylaSpeed onHome={goHome} />}
+      {nylaDeck && (
+        <NylaFlashcard
+          deck={nylaDeck}
+          onHome={() => setNylaDeck(null)}
+          onFinish={() => setNylaDeck(null)}
+        />
+      )}
       {screen === 'menu' && (
         <Menu
           profile={profile}
@@ -272,6 +287,8 @@ export default function App() {
           onOpenBoukili={() => setShowBoukili(true)}
           onStartJournal={startJournal}
           onStartReading={startReading}
+          onStartNylaFlashcard={(deck) => setNylaDeck(deck)}
+          onStartNylaSpeed={startNylaSpeed}
           onOpenCompose={() => setShowCompose(true)}
           onSwitchProfile={switchProfile}
           darkMode={darkMode}

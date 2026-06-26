@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
+import { nylaWeekList } from '../data/nylaFlashcards';
 import { NotificationBell } from './Notifications';
 import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, Fish, Zap, Layers, GraduationCap, ChevronRight, Send, Calendar, Trophy } from 'lucide-react';
 
@@ -132,7 +133,8 @@ const caylaDicteeWeeksList = [
 // ===== Nyla — pré-maternelle (5 ans) =====
 // Built from Quebec maternelle 5 ans curriculum (éveil mathématique + langagier)
 const nylaMathModes = [
-  { id: 'nyla_count', label: '🍎 Compte les objets', desc: 'De 1 à 10', featured: true },
+  { id: 'nyla_speed', label: '⚡ Calcul rapide', desc: 'Vite vite! Compte, +1, le plus...', featured: true },
+  { id: 'nyla_count', label: '🍎 Compte les objets', desc: 'De 1 à 10' },
   { id: 'nyla_compare', label: '⚖️ Plus ou moins?', desc: 'Compare deux groupes' },
   { id: 'nyla_shapes', label: '⬜ Les formes', desc: 'Carré, cercle, triangle...' },
   { id: 'nyla_patterns', label: '🔄 Suites logiques', desc: 'Qu\'est-ce qui vient ensuite?' },
@@ -140,11 +142,13 @@ const nylaMathModes = [
 ];
 
 const nylaFrenchModes = [
-  { id: 'nyla_boukili', label: '📚 Boukili', desc: 'Lis tes livres préférés', featured: true },
-  { id: 'nyla_logiciel', label: '🎮 Logiciel Éducatif', desc: 'Jeux pour apprendre' },
-  { id: 'nyla_sight_words', label: '⭐ Mots-étoiles', desc: 'Reconnaître les mots de la maternelle' },
-  { id: 'nyla_letters', label: '🔤 Les lettres', desc: 'Alphabet + premier son' },
+  { id: 'nyla_letters_flash', label: '🔤 Mes lettres (cartes)', desc: 'Apprends tout l\'alphabet — A à Z', featured: true },
+  { id: 'nyla_words_group', label: '⭐ Mots de la semaine', desc: '5 nouveaux mots à reconnaître', groupKind: 'nylawords' },
+  { id: 'nyla_boukili', label: '📚 Boukili', desc: 'Lis tes livres préférés' },
+  { id: 'nyla_sight_words', label: '🃏 Mots-étoiles (jeu)', desc: 'Associe le mot et le dessin' },
+  { id: 'nyla_letters', label: '🔍 Les lettres (jeu)', desc: 'Trouve la lettre + premier son' },
   { id: 'nyla_rhymes', label: '🎵 Les rimes', desc: 'Mots qui finissent pareil' },
+  { id: 'nyla_logiciel', label: '🎮 Logiciel Éducatif', desc: 'Jeux pour apprendre' },
 ];
 
 function FoxMascot() {
@@ -174,17 +178,20 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
   // Dispatch a tile click — special-case modes that open their own screen instead of the practice flow
   const launchMode = (id) => {
     if (id === 'biographie_jr_flashcard') return onOpenBioFlashcard && onOpenBioFlashcard();
     if (id === 'nyla_boukili') return onOpenBoukili && onOpenBoukili();
     if (id === 'nyla_logiciel') return window.open('https://www.logicieleducatif.fr/', '_blank', 'noopener,noreferrer');
+    if (id === 'nyla_letters_flash') return onStartNylaFlashcard && onStartNylaFlashcard('letters');
+    if (id === 'nyla_speed') return onStartNylaSpeed && onStartNylaSpeed();
     return onStartPractice(id);
   };
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
   const [dicteesOpen, setDicteesOpen] = useState(false);
+  const [nylaWordsOpen, setNylaWordsOpen] = useState(false);
 
   // Grade / saison "fenêtres" — Ryan seulement (2e année · Été · 3e année à venir)
   const ryanGraded = profile === 'ryan';
@@ -445,7 +452,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
 
       {/* Featured mode */}
       {featured && (
-        <button onClick={() => featured.isGroup ? setDicteesOpen(true) : launchMode(featured.id)}
+        <button onClick={() => featured.groupKind === 'nylawords' ? setNylaWordsOpen(true) : featured.isGroup ? setDicteesOpen(true) : launchMode(featured.id)}
           className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a)', boxShadow: '0 5px 22px rgba(199,74,21,0.15)' }}>
           <div className="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white">
@@ -463,7 +470,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
       <div className="grid grid-cols-2 gap-2.5 mb-6">
         {grid.map(mode => (
           <button key={mode.id}
-            onClick={() => mode.isGroup ? setDicteesOpen(true) : launchMode(mode.id)}
+            onClick={() => mode.groupKind === 'nylawords' ? setNylaWordsOpen(true) : mode.isGroup ? setDicteesOpen(true) : launchMode(mode.id)}
             className="bg-white border-2 border-s1 rounded-2xl p-4 text-left transition-all
               hover:border-fox hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97] relative">
             {mode.badge && (
@@ -483,6 +490,42 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
         ))}
       </div>
         </>
+      )}
+
+      {/* Nyla — mots de la semaine (week picker → flashcards) */}
+      {nylaWordsOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4"
+          onClick={() => setNylaWordsOpen(false)}>
+          <div onClick={(e) => e.stopPropagation()}
+            className="bg-cream rounded-2xl p-5 max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl border-2 border-s1">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-heading text-xl font-extrabold text-stone">⭐ Mots de la semaine</h3>
+              <button onClick={() => setNylaWordsOpen(false)}
+                className="w-9 h-9 rounded-full bg-white border-2 border-s2 text-s4 font-bold hover:border-lava hover:text-lava">
+                ✕
+              </button>
+            </div>
+            <p className="text-xs font-bold text-purple-700 bg-purple-50 border-2 border-purple-200 rounded-xl p-3 mb-3 text-center">
+              5 mots par semaine — cartes à reconnaître (le son joue tout seul). On répète les mots pas encore sus.
+            </p>
+            <div className="space-y-2">
+              {nylaWeekList.map((w) => (
+                <button key={w.id}
+                  onClick={() => { setNylaWordsOpen(false); onStartNylaFlashcard && onStartNylaFlashcard(w.id); }}
+                  className="w-full text-left rounded-2xl p-3 border-2 bg-white border-s1 hover:border-purple-400 hover:shadow-sm transition-all flex items-center gap-3">
+                  <div className="flex-shrink-0 text-2xl">
+                    {w.words.map((x) => x.icon).slice(0, 3).join('')}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-heading font-bold text-stone text-base">{w.label}</div>
+                    <div className="text-xs text-s4 font-semibold mt-0.5">{w.desc}</div>
+                  </div>
+                  <ChevronRight className="text-s3" size={18} strokeWidth={3} />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Dictées sub-menu modal */}
