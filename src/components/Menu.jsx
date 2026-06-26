@@ -197,8 +197,8 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2.5">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm text-white"
-            style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a)' }}>
-            <Sparkles size={20} />
+            style={{ background: 'linear-gradient(135deg, #3aa0e8, #ffc24d)' }}>
+            <Sun size={20} />
           </div>
           <span className="font-heading text-2xl font-extrabold text-stone tracking-tight">Study Buddy</span>
         </div>
@@ -261,14 +261,14 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
 
       {/* Greeting banner with fox */}
       <div className="rounded-3xl mb-4 overflow-hidden flex items-end min-h-[165px]"
-        style={{ background: 'linear-gradient(135deg, #fff5ee, #ffe8d6 50%, #ffd8be)' }}>
+        style={{ background: 'linear-gradient(135deg, #e8f6ff, #fff3d6 55%, #ffe0b3)' }}>
         <div className="flex-1 p-6 z-[1]">
-          <div className="font-heading text-sm font-bold text-fox-d mb-0.5 tracking-wide">Bienvenue</div>
+          <div className="font-heading text-sm font-bold text-fox-d mb-0.5 tracking-wide">☀️ Mode été</div>
           <h1 className="font-heading text-3xl font-extrabold text-stone leading-tight mb-1">Bonjour {name}!</h1>
           <p className="text-sm font-semibold text-s4">
-            {pct >= 70 ? "Tu es en feu! Continue! 🔥" :
-             totalQuestions > 0 ? "Continue, tu progresses! 💪" :
-             "Prêt pour t'entraîner? Allons-y!"}
+            {pct >= 70 ? "Belle journée d'été — tu es en feu! ☀️" :
+             totalQuestions > 0 ? "Un peu de révision d'été, tu progresses! 🏖️" :
+             "C'est l'été! Prêt pour un peu de révision? 🌴"}
           </p>
         </div>
         <div className="flex-shrink-0 mr-2 z-[1]">

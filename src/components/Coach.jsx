@@ -60,6 +60,36 @@ function format(secs) {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
+// ===== SUMMER REVISION (école finie) =====
+// Daily rotation covering Ryan's weak spots + maintaining his wins.
+// One math focus + one french focus per day, varying so the whole week
+// covers everything without ever feeling repetitive.
+const SUMMER_START = new Date(2026, 5, 27); // samedi 27 juin 2026
+const SUMMER_END = new Date(2026, 8, 2);    // ~ rentrée (début septembre)
+
+// Indexed by day-of-week: 0 = dimanche ... 6 = samedi
+const SUMMER_ROTATION = [
+  { theme: 'Dimanche tranquille', math: { mode: 'suites', label: 'Suites & régularités', icon: '🔢' },        french: { mode: 'homophones',        label: 'Homophones (a/à, et/est…)', icon: '🔀' } },
+  { theme: 'Problèmes',           math: { mode: 'multi_step', label: 'Problèmes à étapes', icon: '🧩' },        french: { mode: 'passe_compose',     label: 'Passé composé',             icon: '⏪' } },
+  { theme: 'Vitesse',             math: { mode: 'calcul_rapide_3', label: 'Calcul rapide 3 chiffres', icon: '⚡' }, french: { mode: 'adjectif',       label: 'Accord des adjectifs',      icon: '🎨' } },
+  { theme: 'Calcul',              math: { mode: 'calcul', label: 'Addition avec échange', icon: '🔢' },          french: { mode: 'present_indicatif', label: 'Présent — 1er groupe',       icon: '✏️' } },
+  { theme: 'Terme manquant',      math: { mode: 'terme', label: 'Terme manquant', icon: '➕' },                  french: { mode: 'pluriels_ryan',     label: 'Pluriel & féminin',         icon: '🔤' } },
+  { theme: 'Comparaisons',        math: { mode: 'relational', label: 'De plus / de moins', icon: '⚖️' },         french: { mode: 'homophones',        label: 'Homophones',                icon: '🔀' } },
+  { theme: 'Multiplication',      math: { mode: 'mult_div', label: 'Multiplication & division', icon: '✖️' },    french: { mode: 'francais_mix',      label: 'Mix français',              icon: '🎲' } },
+];
+
+function buildSummerPlan(today) {
+  const r = SUMMER_ROTATION[today.getDay()];
+  return [
+    { type: 'message', label: "☀️ Révision d'été! 25 minutes et après tu joues dehors. On y va!", mins: 1, icon: '🏖️' },
+    { type: 'app', mode: 'mental', label: 'Échauffement — Calcul rapide ⚡', mins: 5, icon: '⚡' },
+    { type: 'app', mode: r.math.mode, label: `${r.math.icon} ${r.math.label}`, mins: 10, icon: r.math.icon },
+    { type: 'break', label: "Pause — bois de l'eau! 💧", mins: 3, icon: '💧' },
+    { type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: 10, icon: r.french.icon },
+    { type: 'message', label: "🏖️ Fini pour aujourd'hui! Bravo Ryan — va t'amuser dehors!", mins: 1, icon: '🌳' },
+  ];
+}
+
 // Identify weakest category from stats
 function findWeakest(stats, type = null) {
   if (!stats || stats.length === 0) return null;
@@ -92,6 +122,11 @@ function buildPlan(dashboardData, opts = {}) {
   }
   const day = today.getDay(); // 0=Sun, 6=Sat
   const minutesNow = realNow.getHours() * 60 + realNow.getMinutes();
+
+  // ===== SUMMER: school's out — run the daily revision rotation =====
+  if (today >= SUMMER_START && today < SUMMER_END) {
+    return buildSummerPlan(today);
+  }
 
   const plan = [];
   const stats = dashboardData?.stats || [];

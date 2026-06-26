@@ -36,8 +36,10 @@ body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background: radial-gradient(ellipse at 25% 0%, #f5dcc818, transparent 50%),
-              radial-gradient(ellipse at 75% 100%, #f0d0b010, transparent 50%);
+  /* Summer ambiance: blue sky glow + sunshine + warm sand */
+  background: radial-gradient(ellipse at 18% 0%, #bce4ff30, transparent 55%),
+              radial-gradient(ellipse at 85% 4%, #ffe39a42, transparent 50%),
+              radial-gradient(ellipse at 50% 100%, #ffd9a824, transparent 55%);
   pointer-events: none;
 }
 
