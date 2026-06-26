@@ -88,6 +88,22 @@ const ryanFrenchModes = [
   { id: 'groupe_nom', label: 'Groupe du nom', desc: 'GN: nom seul, dét+nom, dét+nom+adj' },
 ];
 
+// Été — révision quotidienne (mix des maillons faibles de Ryan)
+const summerModes = [
+  { id: 'multi_step', label: 'Problèmes', desc: 'Problèmes à étapes' },
+  { id: 'calcul_rapide_3', label: '⚡ Calcul rapide', desc: '3 chiffres ±9 / ±10' },
+  { id: 'calcul', label: 'Addition', desc: 'Avec échange (retenue)' },
+  { id: 'terme', label: 'Terme manquant', desc: 'Le nombre mystère' },
+  { id: 'relational', label: 'De plus / moins', desc: 'Comparaisons' },
+  { id: 'mult_div', label: 'Multiplication', desc: 'Sens × et ÷' },
+  { id: 'suites', label: 'Suites', desc: 'Trouve le prochain' },
+  { id: 'passe_compose', label: 'Passé composé', desc: 'Verbes -er + finir' },
+  { id: 'homophones', label: 'Homophones', desc: 'a/à · et/est · son/sont' },
+  { id: 'adjectif', label: 'Adjectifs', desc: 'Accord féminin/pluriel' },
+  { id: 'present_indicatif', label: 'Présent', desc: '1er groupe' },
+  { id: 'pluriels_ryan', label: 'Pluriel & féminin', desc: 'chevaux, heureuse...' },
+];
+
 const dicteeWeeksList = [
   { id: 'dictee_revision', label: 'Révision TOUTES dictées', desc: 'Préparer la dictée cumulative', highlight: true },
   { id: 'dictee_s1', label: 'Semaine 1 — consonnes doubles', desc: 'arroser, carotte, mettre, patte, cannelle...', current: true },
@@ -169,6 +185,11 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
   const [stats, setStats] = useState(null);
   const [tab, setTab] = useState('math');
   const [dicteesOpen, setDicteesOpen] = useState(false);
+
+  // Grade / saison "fenêtres" — Ryan seulement (2e année · Été · 3e année à venir)
+  const ryanGraded = profile === 'ryan';
+  const inSummer = (() => { const n = new Date(); return n >= new Date(2026, 5, 27) && n < new Date(2026, 8, 2); })();
+  const [section, setSection] = useState(ryanGraded && inSummer ? 'summer' : 'grade2');
 
   useEffect(() => {
     getProgress().then(setStats).catch(() => {});
@@ -292,8 +313,8 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
         </button>
       )}
 
-      {/* Coach button — the BIG one */}
-      {onStartCoach && !isDemo && (
+      {/* Coach button — the BIG one (Ryan: lives in the ☀️ Été window instead) */}
+      {onStartCoach && !isDemo && !ryanGraded && (
         <button onClick={onStartCoach}
           className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a 50%, #fdcb6e)', boxShadow: '0 6px 24px rgba(199,74,21,0.25)' }}>
@@ -324,6 +345,74 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
         </button>
       )}
 
+      {/* Grade / saison "fenêtres" — Ryan seulement */}
+      {ryanGraded && (
+        <div className="flex gap-2 mb-4 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+          {[
+            { id: 'grade2', label: '📘 2e année' },
+            { id: 'summer', label: '☀️ Été' },
+            { id: 'grade3', label: '📗 3e année' },
+          ].map(s => (
+            <button key={s.id} onClick={() => setSection(s.id)}
+              className={`flex-shrink-0 rounded-xl px-4 py-2.5 text-sm font-bold transition-all ${
+                section === s.id ? 'bg-stone text-white' : 'bg-white border-2 border-s2 text-s6 hover:border-lava hover:text-lava'
+              }`}>
+              {s.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* ☀️ Fenêtre Été — Coach du jour + exercices clés */}
+      {ryanGraded && section === 'summer' && (
+        <>
+          {onStartCoach && (
+            <button onClick={onStartCoach}
+              className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+              style={{ background: 'linear-gradient(135deg, #3aa0e8, #ffc24d)', boxShadow: '0 6px 24px rgba(58,160,232,0.22)' }}>
+              <div className="w-12 h-12 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white text-2xl">☀️</div>
+              <div className="text-left flex-1">
+                <div className="font-heading text-xl font-extrabold text-white leading-tight">Mon Coach d'été</div>
+                <div className="text-xs font-semibold text-white/90">Suis le plan du jour · ~25 min, puis va jouer dehors!</div>
+              </div>
+              <ChevronRight className="text-white/60" size={24} strokeWidth={3} />
+            </button>
+          )}
+          <div className="text-xs font-bold text-s4 uppercase tracking-wide mb-2 mt-1 px-1">Exercices d'été</div>
+          <div className="grid grid-cols-2 gap-2.5 mb-6">
+            {summerModes.map(mode => (
+              <button key={mode.id} onClick={() => launchMode(mode.id)}
+                className="bg-white border-2 border-s1 rounded-2xl p-4 text-left transition-all
+                  hover:border-fox hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97]">
+                {icons[mode.id] && (
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-2"
+                    style={{ background: icons[mode.id].bg, color: icons[mode.id].color }}>
+                    {icons[mode.id].svg}
+                  </div>
+                )}
+                <div className="font-heading text-base font-bold text-stone leading-tight">{mode.label}</div>
+                <div className="text-xs font-semibold text-s4 mt-0.5">{mode.desc}</div>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* 📗 Fenêtre 3e année (à venir) */}
+      {ryanGraded && section === 'grade3' && (
+        <div className="bg-white border-2 border-s1 rounded-2xl p-8 mb-6 text-center">
+          <div className="text-5xl mb-3">📗</div>
+          <h3 className="font-heading text-2xl font-extrabold text-stone mb-1">3e année</h3>
+          <p className="text-sm font-semibold text-s4 leading-relaxed">
+            Bientôt! Ton contenu de 3e année arrive à la rentrée. 🍁<br/>
+            Pour l'instant, profite de l'été! ☀️
+          </p>
+        </div>
+      )}
+
+      {/* 📘 Fenêtre 2e année (+ Cayla / Nyla) */}
+      {(!ryanGraded || section === 'grade2') && (
+        <>
       {/* Tabs */}
       <div className="flex gap-2 mb-4 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
         <button onClick={() => setTab('math')}
@@ -379,6 +468,8 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
           </button>
         ))}
       </div>
+        </>
+      )}
 
       {/* Dictées sub-menu modal */}
       {dicteesOpen && (
