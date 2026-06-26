@@ -529,6 +529,21 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
             Helps Ryan stop answering the wrong question (alvéoles bug). */}
         {(() => {
           if (!hasSteps) {
+            // Nyla (5 ans): when the question has a visual line (emojis/letter)
+            // after a newline, render it BIG so she can actually count/see it.
+            const isNyla = (question.category || '').startsWith('nyla');
+            const parts = (question.text || '').split('\n').map((s) => s.trim()).filter(Boolean);
+            if (isNyla && parts.length > 1) {
+              return (
+                <div className="mb-4 text-center">
+                  <p className="text-xl font-heading font-bold text-stone leading-relaxed mb-3">{parts[0]}</p>
+                  <div className="bg-cream rounded-2xl border-2 border-s1 px-4 py-5 break-words"
+                    style={{ fontSize: '3.25rem', letterSpacing: '0.2em', lineHeight: 1.5 }}>
+                    {parts.slice(1).join(' ')}
+                  </div>
+                </div>
+              );
+            }
             return (
               <p className="text-xl font-heading font-bold text-stone leading-relaxed mb-4">
                 {question.text}

@@ -133,7 +133,8 @@ const caylaDicteeWeeksList = [
 // ===== Nyla — pré-maternelle (5 ans) =====
 // Built from Quebec maternelle 5 ans curriculum (éveil mathématique + langagier)
 const nylaMathModes = [
-  { id: 'nyla_speed', label: '⚡ Calcul rapide', desc: 'Vite vite! Compte, +1, le plus...', featured: true },
+  { id: 'nyla_numbers_flash', label: '🔢 Mes chiffres (cartes)', desc: 'Reconnaître les nombres — niveaux jusqu\'à 50', featured: true },
+  { id: 'nyla_speed', label: '⚡ Calcul rapide', desc: 'Vite vite! Compte, +1, le plus...' },
   { id: 'nyla_count', label: '🍎 Compte les objets', desc: 'De 1 à 10' },
   { id: 'nyla_compare', label: '⚖️ Plus ou moins?', desc: 'Compare deux groupes' },
   { id: 'nyla_shapes', label: '⬜ Les formes', desc: 'Carré, cercle, triangle...' },
@@ -142,11 +143,12 @@ const nylaMathModes = [
 ];
 
 const nylaFrenchModes = [
-  { id: 'nyla_letters_flash', label: '🔤 Mes lettres (cartes)', desc: 'Apprends tout l\'alphabet — A à Z', featured: true },
+  { id: 'nyla_letters_flash', label: '🔤 Mes lettres MAJUSCULES', desc: 'Apprends à nommer A à Z', featured: true },
+  { id: 'nyla_letters_lower_flash', label: '🔡 lettres minuscules', desc: 'a à z — après les majuscules' },
   { id: 'nyla_words_group', label: '⭐ Mots de la semaine', desc: '5 nouveaux mots à reconnaître', groupKind: 'nylawords' },
+  { id: 'nyla_letters', label: '🔍 Le premier son', desc: 'Par quel son ça commence? (quand tu connais tes lettres)' },
   { id: 'nyla_boukili', label: '📚 Boukili', desc: 'Lis tes livres préférés' },
   { id: 'nyla_sight_words', label: '🃏 Mots-étoiles (jeu)', desc: 'Associe le mot et le dessin' },
-  { id: 'nyla_letters', label: '🔍 Les lettres (jeu)', desc: 'Trouve la lettre + premier son' },
   { id: 'nyla_rhymes', label: '🎵 Les rimes', desc: 'Mots qui finissent pareil' },
   { id: 'nyla_logiciel', label: '🎮 Logiciel Éducatif', desc: 'Jeux pour apprendre' },
 ];
@@ -184,7 +186,9 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
     if (id === 'biographie_jr_flashcard') return onOpenBioFlashcard && onOpenBioFlashcard();
     if (id === 'nyla_boukili') return onOpenBoukili && onOpenBoukili();
     if (id === 'nyla_logiciel') return window.open('https://www.logicieleducatif.fr/', '_blank', 'noopener,noreferrer');
-    if (id === 'nyla_letters_flash') return onStartNylaFlashcard && onStartNylaFlashcard('letters');
+    if (id === 'nyla_letters_flash') return onStartNylaFlashcard && onStartNylaFlashcard('letters_upper');
+    if (id === 'nyla_letters_lower_flash') return onStartNylaFlashcard && onStartNylaFlashcard('letters_lower');
+    if (id === 'nyla_numbers_flash') return onStartNylaFlashcard && onStartNylaFlashcard('numbers');
     if (id === 'nyla_speed') return onStartNylaSpeed && onStartNylaSpeed();
     return onStartPractice(id);
   };
@@ -321,7 +325,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
       )}
 
       {/* Coach button — the BIG one (Ryan: lives in the ☀️ Été window instead) */}
-      {onStartCoach && !isDemo && !ryanGraded && (
+      {onStartCoach && !isDemo && !ryanGraded && !isNyla && (
         <button onClick={onStartCoach}
           className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a 50%, #fdcb6e)', boxShadow: '0 6px 24px rgba(199,74,21,0.25)' }}>
@@ -617,7 +621,8 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
         </button>
       )}
 
-      {/* Games */}
+      {/* Games — not for Nyla (Ryan/Cayla level) */}
+      {!isNyla && (<>
       <div className="font-heading text-base font-bold text-s4 mb-3">Jeux</div>
       <div className="grid grid-cols-3 gap-2.5 mb-6">
         <button onClick={onStartAquarium}
@@ -642,6 +647,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
           <div className="text-xs font-bold text-s6">Mémoire</div>
         </button>
       </div>
+      </>)}
 
       {/* Stats */}
       {totalQuestions > 0 && (

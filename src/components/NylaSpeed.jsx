@@ -213,7 +213,12 @@ export default function NylaSpeed({ onHome }) {
             </button>
           </div>
         ) : (
-          <div className={`font-extrabold text-stone leading-snug break-words ${q.big ? 'text-6xl' : 'text-4xl'}`}>
+          <div className="font-extrabold text-stone break-words"
+            style={{
+              fontSize: q.big ? '4rem' : (q.kind === 'count' || q.kind === 'plus1') ? '3.25rem' : '2.5rem',
+              letterSpacing: (q.kind === 'count' || q.kind === 'plus1') ? '0.18em' : undefined,
+              lineHeight: 1.4,
+            }}>
             {q.display}
           </div>
         )}
