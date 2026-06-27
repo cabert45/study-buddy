@@ -598,7 +598,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           >
             🔊 {question.spokenLang === 'en' ? 'Écouter en anglais' : (question.category || '').startsWith('nyla') ? 'Réécouter' : question.spokenWord ? 'Réécouter le mot' : 'Écouter'}
           </button>
-          {!showResult && (
+          {!showResult && !(question.category || '').startsWith('nyla') && (
             <button
               onClick={() => setShowScratchPad((v) => !v)}
               className="text-sm text-fox font-semibold"
@@ -882,8 +882,8 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           </div>
         )}
 
-        {/* Hint button for terme manquant */}
-        {question.hint && !showHint && !showResult && (
+        {/* Hint button for terme manquant — hidden for Nyla (she can't read it) */}
+        {question.hint && !showHint && !showResult && !(question.category || '').startsWith('nyla') && (
           <button
             onClick={() => setShowHint(true)}
             className="text-sm text-fox font-semibold mb-3 block"
@@ -951,6 +951,10 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
               }
               // Display label: use optionLabels if present (pair/impair), otherwise the value
               const displayLabel = question.optionLabels ? question.optionLabels[opt] : opt;
+              // Nyla can't read — if an option is a word/letter, give it a 🔊 so
+              // she can hear it before choosing (tap speaker = hear, tap = answer).
+              const isNyla = (question.category || '').startsWith('nyla');
+              const speakable = isNyla && /[A-Za-zÀ-ÿ]/.test(String(opt));
               return (
                 <button
                   key={i}
@@ -959,7 +963,18 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
                   className={`py-4 rounded-xl font-extrabold text-2xl transition-all ${btnClass}`}
                   style={{ minHeight: '60px' }}
                 >
-                  {displayLabel}
+                  <span className="flex items-center justify-center gap-2">
+                    {speakable && (
+                      <span
+                        role="button"
+                        onClick={(e) => { e.stopPropagation(); if (!showResult) speak(String(opt)); }}
+                        className="text-base bg-purple-100 text-purple-700 rounded-full px-2 py-0.5 leading-none"
+                      >
+                        🔊
+                      </span>
+                    )}
+                    <span>{displayLabel}</span>
+                  </span>
                 </button>
               );
             })}
