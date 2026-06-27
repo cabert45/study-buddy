@@ -75,6 +75,8 @@ export default function App() {
   }
 
   function startPractice(selectedMode) {
+    setNylaDeck(null);
+    setFlashcardWeek(null);
     setMode(selectedMode);
     setScreen('practice');
   }
@@ -148,6 +150,8 @@ export default function App() {
     setScreen('menu');
     setMode(null);
     setSessionResults(null);
+    setNylaDeck(null);
+    setFlashcardWeek(null);
   }
 
   function switchProfile() {
@@ -238,7 +242,7 @@ export default function App() {
           onFinish={() => setShowBioFlashcard(false)}
         />
       )}
-      {flashcardWeek && (
+      {flashcardWeek && screen === 'menu' && (
         <DicteeFlashcard
           weekKey={flashcardWeek}
           onHome={() => setFlashcardWeek(null)}
@@ -265,7 +269,7 @@ export default function App() {
       {screen === 'nylasongs' && <NylaSongs onHome={goHome} />}
       {screen === 'nylaadd' && <NylaAddition onHome={goHome} />}
       {screen === 'nylacompare' && <NylaCompare onHome={goHome} />}
-      {nylaDeck && (
+      {nylaDeck && screen === 'menu' && (
         <NylaFlashcard
           deck={nylaDeck}
           onHome={() => setNylaDeck(null)}
@@ -305,7 +309,7 @@ export default function App() {
           onOpenBoukili={() => setShowBoukili(true)}
           onStartJournal={startJournal}
           onStartReading={startReading}
-          onStartNylaFlashcard={(deck) => setNylaDeck(deck)}
+          onStartNylaFlashcard={(deck) => { setScreen('menu'); setNylaDeck(deck); }}
           onStartNylaSpeed={startNylaSpeed}
           onStartNylaSongs={startNylaSongs}
           onStartNylaAddition={startNylaAddition}
