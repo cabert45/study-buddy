@@ -272,7 +272,7 @@ export default function App() {
           onFinish={() => setNylaDeck(null)}
         />
       )}
-      {screen === 'menu' && (
+      {screen === 'menu' && !nylaDeck && !flashcardWeek && (
         <Menu
           profile={profile}
           onStartPractice={startPractice}
