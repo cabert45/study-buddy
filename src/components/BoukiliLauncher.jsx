@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Copy, Eye, EyeOff, ExternalLink, Pencil } from 'lucide-react';
 
 const STORAGE_KEY = 'sb_boukili_creds';
-const BOUKILI_URL = 'https://boukili.ca';
+const BOUKILI_URL = 'https://app.boukili.ca/'; // the reading app (boukili.ca is just the info site)
 
 function loadCreds() {
   try {
