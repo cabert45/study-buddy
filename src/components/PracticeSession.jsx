@@ -209,8 +209,9 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
       if (question.spokenLang === 'en' && question.spokenWord) {
         speak(question.spokenWord, 'en');
       } else if (isNyla) {
-        // Read the FULL instruction so a non-reader knows what to do
-        speak(question.spokenWord ? `${question.text} ${question.spokenWord}` : question.text);
+        // Read only the instruction line (not the row of emojis — the TTS would
+        // read each "❤️" as "cœur rouge, cœur rouge…").
+        speak((question.text || '').split('\n')[0]);
       } else if (question.spokenWord) {
         // For dictée, speak the word slowly and clearly
         speakSlow(question.spokenWord);
@@ -586,7 +587,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
               if (question.spokenLang === 'en' && question.spokenWord) {
                 speak(question.spokenWord, 'en');
               } else if (isNyla) {
-                speak(question.spokenWord ? `${question.text} ${question.spokenWord}` : question.text);
+                speak((question.text || '').split('\n')[0]);
               } else if (question.spokenWord) {
                 speakSlow(question.spokenWord);
               } else {
