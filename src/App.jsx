@@ -199,14 +199,18 @@ export default function App() {
                   </button>
                 </>
               )}
-              <button onClick={() => selectProfile('demo')}
-                className={`border-2 border-s1 rounded-2xl p-6 hover:scale-105 hover:border-blue-400 hover:shadow-lg transition-all active:scale-95 ${unlocked ? 'col-span-2 md:col-span-1' : ''}`}
-                style={{ background: 'linear-gradient(135deg, #fff, #fef0e4)' }}>
-                <div className="text-5xl mb-3">👋</div>
-                <div className="font-heading text-xl font-extrabold text-stone">{unlocked ? 'Mes amis' : 'Commencer'}</div>
-                <div className="text-xs font-bold text-s4 mt-1">{unlocked ? 'Castiel · Rivant · Alexis' : 'Pratique de 2e année'}</div>
-                {unlocked && <div className="text-[10px] font-bold text-fox-d mt-1 uppercase tracking-wide">Démo · 2e année</div>}
-              </button>
+              {/* Démo « Commencer » — visible seulement quand l'app est verrouillée
+                  (c'est la seule porte d'entrée pour un visiteur). La carte
+                  « Mes amis » a été retirée de l'écran famille. */}
+              {!unlocked && (
+                <button onClick={() => selectProfile('demo')}
+                  className="border-2 border-s1 rounded-2xl p-6 hover:scale-105 hover:border-blue-400 hover:shadow-lg transition-all active:scale-95"
+                  style={{ background: 'linear-gradient(135deg, #fff, #fef0e4)' }}>
+                  <div className="text-5xl mb-3">👋</div>
+                  <div className="font-heading text-xl font-extrabold text-stone">Commencer</div>
+                  <div className="text-xs font-bold text-s4 mt-1">Pratique de 2e année</div>
+                </button>
+              )}
             </div>
 
             {/* Mode parent — small button at bottom */}
