@@ -1,3 +1,4 @@
+import { numericOptions, fillOptions } from './options.js';
 // Terme Manquant generator — finding the missing number
 // Ryan's #2 weakness
 
@@ -90,10 +91,7 @@ export function generateTerme() {
   [correct + 1, correct - 1, correct + 10, correct - 10].forEach((v) => {
     if (v > 0 && v <= 99) options.add(v);
   });
-  while (options.size < 4) {
-    const fake = correct + rand(-8, 8);
-    if (fake !== correct && fake > 0 && fake <= 99) options.add(fake);
-  }
+  fillOptions(options, numericOptions(correct, { spread: 8, count: 8 }));
 
   return {
     category: 'terme',

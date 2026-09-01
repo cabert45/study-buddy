@@ -1,3 +1,4 @@
+import { fillOptions } from './options.js';
 // Adjectif generator — Theme 5, Mini leçons 16-17
 // Identify adjectives, accord (gender/number agreement), lettres muettes
 
@@ -169,9 +170,10 @@ export function generateAdjectif() {
     options.add(word.slice(0, -1)); // remove last letter
     options.add(word.slice(0, -2)); // remove last 2 letters
     options.add(word); // the feminine itself
-    while (options.size < 4) {
-      options.add(q.masc + 'e');
-    }
+    // Cette boucle ajoutait toujours la même chaîne: dès que q.masc + 'e'
+    // valait déjà q.fem (le cas le plus courant: grand → grande), le Set ne
+    // grossissait plus et l'app gelait. On complète avec de vrais masculins.
+    fillOptions(options, [q.masc + 'e', ...lettresMuettes.map((o) => o.masc)]);
 
     return {
       category: 'adjectif',

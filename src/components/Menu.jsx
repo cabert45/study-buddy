@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
 import { nylaWeekList } from '../data/nylaFlashcards';
 import { NotificationBell } from './Notifications';
-import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, Fish, Zap, Layers, GraduationCap, ChevronRight, Send, Calendar, Trophy } from 'lucide-react';
+import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, GraduationCap, ChevronRight, Send, Calendar, Trophy } from 'lucide-react';
 
 // SVG icons for modules — clean, no emojis
 const icons = {
@@ -224,7 +224,7 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onStartTutor, onStartAquarium, onStartSpeed, onStartMemory, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onStartNylaAddition, onStartNylaCompare, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onStartTutor, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onStartNylaAddition, onStartNylaCompare, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
   // Dispatch a tile click — special-case modes that open their own screen instead of the practice flow
   const launchMode = (id) => {
     if (id === 'biographie_jr_flashcard') return onOpenBioFlashcard && onOpenBioFlashcard();
@@ -259,7 +259,6 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
   const totalCorrect = stats?.totals?.correct || 0;
   const totalQuestions = stats?.totals?.total || 0;
   const pct = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
-  const sessionCount = stats?.sessions?.length || 0;
 
   const isCayla = profile === 'cayla';
   const isNyla = profile === 'nyla';
@@ -689,55 +688,6 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
             <div className="text-xs font-semibold text-s4">Pratique pour ta prochaine présentation</div>
           </div>
         </button>
-      )}
-
-      {/* Games — not for Nyla (Ryan/Cayla level) */}
-      {!isNyla && (<>
-      <div className="font-heading text-base font-bold text-s4 mb-3">Jeux</div>
-      <div className="grid grid-cols-3 gap-2.5 mb-6">
-        <button onClick={onStartAquarium}
-          className="bg-white border-2 border-s1 rounded-2xl p-4 text-center transition-all hover:border-fox hover:-translate-y-0.5 active:scale-95">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2" style={{ background: '#e6f5f0', color: '#0f766e' }}>
-            <Fish size={20} />
-          </div>
-          <div className="text-xs font-bold text-s6">Aquarium</div>
-        </button>
-        <button onClick={onStartSpeed}
-          className="bg-white border-2 border-s1 rounded-2xl p-4 text-center transition-all hover:border-fox hover:-translate-y-0.5 active:scale-95">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2" style={{ background: '#fef0e4', color: '#c74a15' }}>
-            <Zap size={20} />
-          </div>
-          <div className="text-xs font-bold text-s6">Course</div>
-        </button>
-        <button onClick={onStartMemory}
-          className="bg-white border-2 border-s1 rounded-2xl p-4 text-center transition-all hover:border-fox hover:-translate-y-0.5 active:scale-95">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2" style={{ background: '#f0ecfb', color: '#6d28d9' }}>
-            <Layers size={20} />
-          </div>
-          <div className="text-xs font-bold text-s6">Mémoire</div>
-        </button>
-      </div>
-      </>)}
-
-      {/* Stats */}
-      {totalQuestions > 0 && (
-        <>
-          <div className="font-heading text-base font-bold text-s4 mb-3">Progrès</div>
-          <div className="grid grid-cols-3 gap-2.5 mb-4">
-            <div className="bg-white border-2 border-s1 rounded-xl p-3 text-center">
-              <div className="font-heading text-3xl font-extrabold text-ok">{pct}%</div>
-              <div className="text-[10px] font-bold text-s4 uppercase tracking-wide">Score</div>
-            </div>
-            <div className="bg-white border-2 border-s1 rounded-xl p-3 text-center">
-              <div className="font-heading text-3xl font-extrabold text-lava">{totalQuestions}</div>
-              <div className="text-[10px] font-bold text-s4 uppercase tracking-wide">Questions</div>
-            </div>
-            <div className="bg-white border-2 border-s1 rounded-xl p-3 text-center">
-              <div className="font-heading text-3xl font-extrabold text-fox">{sessionCount}</div>
-              <div className="text-[10px] font-bold text-s4 uppercase tracking-wide">Sessions</div>
-            </div>
-          </div>
-        </>
       )}
 
       <style>{`

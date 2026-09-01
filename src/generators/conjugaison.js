@@ -1,3 +1,4 @@
+import { fillOptions } from './options.js';
 // Conjugaison generator — 6e année (Cayla)
 // Present, imparfait, futur simple, passé composé
 
@@ -55,11 +56,7 @@ export function generateConjugaison() {
   }
 
   // From other verbs
-  while (options.size < 4) {
-    const otherKey = verbKeys[Math.floor(Math.random() * verbKeys.length)];
-    const otherForm = verbs[otherKey][pronoun];
-    if (otherForm !== correct) options.add(otherForm);
-  }
+  fillOptions(options, verbKeys.map((k) => verbs[k][pronoun]).filter((f) => f !== correct));
 
   return {
     category: 'conjugaison',

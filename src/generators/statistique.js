@@ -1,3 +1,4 @@
+import { numericOptions, fillOptions } from './options.js';
 // Statistique generator — bar charts, pictograms, table reading
 // Targets May 8 2026 test weaknesses: légende multiplication, fin de semaine vocab,
 // place value carry, total of all categories
@@ -46,10 +47,7 @@ function pick(arr) {
 
 function buildOptions(correct) {
   const options = new Set([correct]);
-  while (options.size < 4) {
-    const fake = correct + rand(-15, 15);
-    if (fake !== correct && fake > 0 && fake <= 200) options.add(fake);
-  }
+  fillOptions(options, numericOptions(correct, { spread: 15, count: 8 }));
   return shuffle([...options].slice(0, 4));
 }
 

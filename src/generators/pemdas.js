@@ -1,3 +1,4 @@
+import { numericOptions, fillOptions } from './options.js';
 // PEMDAS generator — 6e année (Cayla)
 // Order of operations: Parentheses, Exponents, Multiply, Divide, Add, Subtract
 // Templates are categorized so we can track which TYPES she struggles with
@@ -378,10 +379,7 @@ function buildOnePemdas() {
   const { correct, wrong } = question;
   const options = new Set([correct]);
   if (wrong !== correct && wrong > 0) options.add(wrong);
-  while (options.size < 4) {
-    const fake = correct + rand(-10, 10);
-    if (fake !== correct && fake > 0 && fake <= 999) options.add(fake);
-  }
+  fillOptions(options, numericOptions(correct, { count: 8 }));
 
   return {
     category: 'pemdas',

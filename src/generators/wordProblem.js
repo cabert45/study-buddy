@@ -3,6 +3,7 @@
 // Updated with actual exam themes: zoo, château, poissons, autobus
 // May 8 2026: added stepCalcs to force démarche (show your work) instead of mental math
 
+import { numericOptions } from './options.js';
 function rand(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -14,6 +15,12 @@ function shuffle(arr) {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+// Pick one element at random. Two call sites below used this without it ever
+// being defined, which threw "pick is not defined" and blanked the screen.
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
 const names = ['Noa', 'Léo', 'Ryan', 'Sofia', 'Justin', 'Rémi', 'Olivia', 'Mathieu', 'Daphnée', 'Chloé'];
@@ -709,11 +716,14 @@ export function generateWordProblem() {
   }
 
   const { correct } = question;
-  const options = new Set([correct]);
-  while (options.size < 4) {
-    const fake = correct + rand(-10, 10);
-    if (fake !== correct && fake > 0 && fake <= 99) options.add(fake);
-  }
+  // Certains problèmes se répondent par un prénom ("Qui a plus de cailloux?").
+  // Ils fournissent leurs propres nameOptions — les passer au générateur
+  // numérique ne donnait qu'une seule option.
+  const options = typeof correct === 'number'
+    // Le plafond fixe à 99 gelait l'app dès qu'une réponse dépassait 109
+    // (tous les problèmes à 3 chiffres). L'écart suit maintenant la réponse.
+    ? numericOptions(correct)
+    : shuffle([...new Set(question.nameOptions?.length ? question.nameOptions : [correct])]);
 
   return {
     category: 'multi_step',
@@ -724,6 +734,7 @@ export function generateWordProblem() {
     stepCalcs: question.stepCalcs,
     operationQuestion: question.operationQuestion,
     correctOperation: question.correctOperation,
-    options: shuffle([...options].slice(0, 4)),
+    finalAnswerType: question.finalAnswerType,
+    options,
   };
 }

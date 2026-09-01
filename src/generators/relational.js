@@ -1,3 +1,4 @@
+import { numericOptions, fillOptions } from './options.js';
 // Relational generator — "de plus que" / "de moins que" problems
 // Ryan's #4 weakness — includes chain relationships from exam
 // Exam example: "Sofia a 5 animaux. Éloé en a 2 de plus que Sofia.
@@ -204,10 +205,7 @@ export function generateRelational() {
   const options = new Set([correct]);
   if (trap > 0 && trap <= 99) options.add(trap);
   if (base > 0 && base <= 99 && base !== correct) options.add(base);
-  while (options.size < 4) {
-    const fake = correct + rand(-5, 5);
-    if (fake !== correct && fake > 0 && fake <= 99) options.add(fake);
-  }
+  fillOptions(options, numericOptions(correct, { count: 8 }));
 
   return {
     category: 'relational',

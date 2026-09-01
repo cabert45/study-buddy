@@ -1,3 +1,4 @@
+import { numericOptions, fillOptions } from './options.js';
 // Mental Math generator — reinforcement
 // Ryan scores well here, but needs speed practice
 
@@ -82,10 +83,7 @@ export function generateMental() {
   const q = strat();
 
   const options = new Set([q.correct]);
-  while (options.size < 4) {
-    const fake = q.correct + rand(-3, 3);
-    if (fake !== q.correct && fake >= 0 && fake <= 99) options.add(fake);
-  }
+  fillOptions(options, numericOptions(q.correct, { spread: 5, min: 0, count: 8 }));
 
   return {
     category: 'mental',

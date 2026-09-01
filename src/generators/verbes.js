@@ -1,3 +1,4 @@
+import { fillOptions } from './options.js';
 // Verbes utiles generator — Theme 4
 // 6 key verbs: aimer, aller, avoir, dire, être, faire
 // Conjugation matching, pronoun-verb agreement
@@ -69,10 +70,7 @@ export function generateVerbes() {
       if (options.size < 4) options.add(conjugations[verb][p]);
     }
     // Add from other verbs if needed
-    while (options.size < 4) {
-      const otherVerb = verbs[Math.floor(Math.random() * verbs.length)];
-      options.add(conjugations[otherVerb][pronoun]);
-    }
+    fillOptions(options, verbs.map((v) => conjugations[v][pronoun]));
 
     return {
       category: 'verbes',
@@ -118,9 +116,7 @@ export function generateVerbes() {
     // Identify which verb is used in a sentence
     const q = identifySentences[Math.floor(Math.random() * identifySentences.length)];
     const options = new Set([q.verb]);
-    while (options.size < 4) {
-      options.add(verbs[Math.floor(Math.random() * verbs.length)]);
-    }
+    fillOptions(options, verbs);
 
     return {
       category: 'verbes',
@@ -136,9 +132,7 @@ export function generateVerbes() {
   const q = pronounSentences[Math.floor(Math.random() * pronounSentences.length)];
   const allPronouns = ['Je', 'Tu', 'Il', 'Elle', 'Nous', 'Vous', 'Ils', 'Elles'];
   const options = new Set([q.correct, ...q.options]);
-  while (options.size < 4) {
-    options.add(allPronouns[Math.floor(Math.random() * allPronouns.length)]);
-  }
+  fillOptions(options, allPronouns);
 
   return {
     category: 'verbes',

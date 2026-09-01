@@ -1,6 +1,7 @@
 // Calcul generator — addition with carrying, subtraction with borrowing
 // Ryan's #1 weakness
 
+import { numericOptions, fillOptions } from './options.js';
 function rand(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -35,11 +36,6 @@ function generateAddition(forceCarry) {
   if (carryError !== correct && carryError > 0 && carryError <= 99) options.add(carryError);
   if (offByTen > 0 && offByTen <= 99) options.add(offByTen);
   if (wrongOp > 0 && wrongOp <= 99) options.add(wrongOp);
-  // Fill to 4 options
-  while (options.size < 4) {
-    const fake = correct + rand(-5, 5);
-    if (fake !== correct && fake > 0 && fake <= 99) options.add(fake);
-  }
 
   return {
     category: 'calcul',
@@ -48,7 +44,7 @@ function generateAddition(forceCarry) {
     a,
     b,
     correct,
-    options: shuffle([...options].slice(0, 4)),
+    options: shuffle([...fillOptions(options, numericOptions(correct, { count: 8 }))].slice(0, 4)),
     useDigitPad: true,
     visual: { a, b, op: '+' },
   };
@@ -76,10 +72,6 @@ function generateSubtraction(forceBorrow) {
   if (borrowError !== correct && borrowError > 0 && borrowError <= 99) options.add(borrowError);
   if (offByOne <= 99) options.add(offByOne);
   if (wrongOp <= 99) options.add(wrongOp);
-  while (options.size < 4) {
-    const fake = correct + rand(-5, 5);
-    if (fake !== correct && fake > 0 && fake <= 99) options.add(fake);
-  }
 
   return {
     category: 'calcul',
@@ -88,7 +80,7 @@ function generateSubtraction(forceBorrow) {
     a,
     b,
     correct,
-    options: shuffle([...options].slice(0, 4)),
+    options: shuffle([...fillOptions(options, numericOptions(correct, { count: 8 }))].slice(0, 4)),
     useDigitPad: true,
     visual: { a, b, op: '−' },
   };
@@ -111,10 +103,6 @@ function generate3DigitNoExchange() {
   options.add(correct - 100);
   options.add(correct + 10);
   options.add(correct - 10);
-  while (options.size < 4) {
-    const fake = correct + rand(-9, 9);
-    if (fake !== correct && fake > 0) options.add(fake);
-  }
 
   return {
     category: 'calcul',
@@ -123,7 +111,7 @@ function generate3DigitNoExchange() {
     a,
     b,
     correct,
-    options: shuffle([...options].slice(0, 4)),
+    options: shuffle([...fillOptions(options, numericOptions(correct, { count: 8 }))].slice(0, 4)),
     useDigitPad: true,
   };
 }
@@ -161,10 +149,6 @@ function generate3DigitWithExchange() {
   if (forgotUnitsCarry && forgotUnitsCarry > 0) options.add(forgotUnitsCarry);
   if (forgotTensCarry && forgotTensCarry > 0) options.add(forgotTensCarry);
   if (forgotBoth && forgotBoth > 0 && options.size < 4) options.add(forgotBoth);
-  while (options.size < 4) {
-    const fake = correct + rand(-9, 9);
-    if (fake !== correct && fake > 0 && fake <= 999) options.add(fake);
-  }
 
   // Nougat step-by-step explanation
   const uSum = u1 + u2;
@@ -193,7 +177,7 @@ function generate3DigitWithExchange() {
     a,
     b,
     correct,
-    options: shuffle([...options].slice(0, 4)),
+    options: shuffle([...fillOptions(options, numericOptions(correct, { count: 8 }))].slice(0, 4)),
     useDigitPad: true,
     explanation: steps,
     hint,

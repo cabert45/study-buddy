@@ -1,3 +1,4 @@
+import { fillOptions } from './options.js';
 // Déterminant generator — Theme 4, Mini leçon 11
 // Match the correct determiner to the noun (gender + number)
 
@@ -86,10 +87,7 @@ export function generateDeterminant() {
     const item = nouns[Math.floor(Math.random() * nouns.length)];
     const allDets = ['le', 'la', "l'", 'les', 'un', 'une', 'des'];
     const options = new Set([item.det]);
-    while (options.size < 4) {
-      const fake = allDets[Math.floor(Math.random() * allDets.length)];
-      if (fake !== item.det) options.add(fake);
-    }
+    fillOptions(options, allDets.filter((d) => d !== item.det));
     return {
       category: 'determinant',
       type: 'determinant',

@@ -1,3 +1,4 @@
+import { fillOptions } from './options.js';
 // Le m devant b, m, p generator — Friday May 8 test
 // Rule: n becomes m devant b, m, p (sauf bonbon, embonpoint, néanmoins, etc.)
 // Pomélo p.23
@@ -49,9 +50,9 @@ function generateSpellingQuestion() {
   // Add 2 more variations
   options.add(word.replace(/m/g, 'n'));
   options.add(word + 'e');
-  while (options.size < 4) {
-    options.add(word.slice(0, -1));
-  }
+  // Même piège: une seule valeur ajoutée en boucle. On complète avec d'autres
+  // mots de la liste plutôt que de tourner à vide.
+  fillOptions(options, [word.slice(0, -1), ...correctWords]);
 
   return {
     category: 'm_devant_bmp',
