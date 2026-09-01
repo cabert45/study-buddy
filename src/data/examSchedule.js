@@ -1,7 +1,15 @@
-// End-of-year exam schedule (Mme Bertheau, 2e année 2025-2026)
-// Shared between Coach (planning) and Agenda (visualization)
+// Exam schedule — shared between Coach (planning) and Agenda (visualization)
+//
+// 2026-09: Ryan est en 3e année. On ne connaît pas encore le calendrier
+// d'évaluations (ni l'enseignante, ni les cahiers). `EXAMS` reste donc vide:
+// le Coach bascule alors sur la rotation de rentrée (voir Coach.jsx) au lieu
+// de courir après des examens. Ajouter les examens de 3e année ici au fur et
+// à mesure qu'ils arrivent dans l'agenda, avec le même format que l'archive.
+export const EXAMS = [];
 
-export const EXAMS = [
+// ===== ARCHIVE — fin de 2e année (Mme Bertheau, 2025-2026) =====
+// Gardé pour référence / pour rebâtir un calendrier: ne plus alimenter le Coach.
+export const EXAMS_2E_ANNEE = [
   {
     name: 'Rédaction',
     date: new Date(2026, 4, 27), // mercredi 27 mai
@@ -64,8 +72,11 @@ export const EXAMS = [
   },
 ];
 
-// Dictée Theme 7 — Ryan's class cycles S1→S4 every Tuesday starting 26 mai
+// Dictée Theme 7 — Ryan's class cycled S1→S4 every Tuesday starting 26 mai (2e année)
 export const DICTEE_T7_START = new Date(2026, 4, 26);
+// Dernier mardi du cycle (S4 = 16 juin). Après cette date il n'y a plus de
+// dictée programmée tant qu'on n'a pas la liste de 3e année.
+export const DICTEE_T7_END = new Date(2026, 5, 17);
 
 export const DICTEE_WEEKS = [
   { mode: 'dictee_s1', short: 'S1', label: 'Consonnes doubles', preview: 'arroser, carotte, mettre, patte, cannelle...' },
@@ -73,6 +84,11 @@ export const DICTEE_WEEKS = [
   { mode: 'dictee_s3', short: 'S3', label: 's muet final', preview: 'alors, jamais, parfois, toujours...' },
   { mode: 'dictee_s4', short: 'S4', label: "Ne s'écrit pas comme prononcé", preview: 'automne, femme, monsieur, soixante...' },
 ];
+
+// Y a-t-il une dictée programmée à cette date? (faux hors du cycle Thème 7)
+export function dicteeActiveOn(d) {
+  return d >= DICTEE_T7_START && d < DICTEE_T7_END;
+}
 
 export function dicteeWeekForDate(d) {
   const days = Math.floor((d - DICTEE_T7_START) / 86400000);

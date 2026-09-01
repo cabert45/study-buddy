@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
-import { EXAMS, DICTEE_WEEKS, dicteeWeekForDate, daysBetween, frDateLabel, DICTEE_T7_START } from '../data/examSchedule';
+import { EXAMS, DICTEE_WEEKS, dicteeWeekForDate, dicteeActiveOn, daysBetween, frDateLabel, DICTEE_T7_START } from '../data/examSchedule';
 
 function startOfDay(d) {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -31,8 +31,8 @@ function eventsForDate(date) {
     }
   });
 
-  // Tuesday = dictée
-  if (day === 2 && date >= DICTEE_T7_START) {
+  // Tuesday = dictée (seulement pendant le cycle Thème 7 — 2e année)
+  if (day === 2 && dicteeActiveOn(date)) {
     const w = dicteeWeekForDate(date);
     events.push({ kind: 'dictee', icon: '🎧', label: `Dictée Thème 7 ${w.short} — ${w.label}` });
   }
@@ -113,9 +113,12 @@ export default function Agenda({ onClose, onLaunchMode }) {
           <section>
             <h3 className="text-xs font-bold uppercase tracking-wide text-s5 mb-2">Prochains examens ({upcomingExams.length})</h3>
             {upcomingExams.length === 0 ? (
-              <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-4 text-center">
-                <div className="text-2xl mb-1">🎉</div>
-                <div className="text-sm font-bold text-emerald-900">Tous les examens sont finis! Bravo Ryan!</div>
+              <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 text-center">
+                <div className="text-2xl mb-1">🍁</div>
+                <div className="text-sm font-bold text-amber-900">Aucun examen au calendrier</div>
+                <div className="text-xs font-semibold text-amber-800 mt-1">
+                  On est en début de 3e année — ajoute les évaluations dès qu'elles arrivent dans l'agenda.
+                </div>
               </div>
             ) : (
               <div className="space-y-2">
@@ -206,7 +209,8 @@ export default function Agenda({ onClose, onLaunchMode }) {
             </div>
           </section>
 
-          {/* ===== DICTÉES THÈME 7 ===== */}
+          {/* ===== DICTÉES THÈME 7 (2e année) — masqué hors du cycle ===== */}
+          {dicteeActiveOn(today) && (
           <section>
             <h3 className="text-xs font-bold uppercase tracking-wide text-s5 mb-2">Dictées Thème 7 (mardis)</h3>
             <div className="space-y-1.5">
@@ -236,8 +240,10 @@ export default function Agenda({ onClose, onLaunchMode }) {
               })}
             </div>
           </section>
+          )}
 
-          {/* ===== MODES À PRATIQUER (raccourcis) ===== */}
+          {/* ===== MODES À PRATIQUER (raccourcis) — rien à montrer sans examen ===== */}
+          {upcomingExams.length > 0 && (
           <section>
             <h3 className="text-xs font-bold uppercase tracking-wide text-s5 mb-2">Raccourcis prep — examens à venir</h3>
             <div className="space-y-3">
@@ -257,6 +263,7 @@ export default function Agenda({ onClose, onLaunchMode }) {
               ))}
             </div>
           </section>
+          )}
         </div>
       </div>
     </div>

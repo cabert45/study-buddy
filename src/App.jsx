@@ -172,9 +172,9 @@ export default function App() {
         const unlocked = isOwnerUnlocked();
         return (
           <div className="max-w-3xl mx-auto px-4 pt-16 text-center">
-            <div className="text-5xl mb-4">☀️</div>
+            <div className="text-5xl mb-4">🍁</div>
             <h1 className="font-heading text-3xl font-extrabold text-stone mb-1">Study Buddy</h1>
-            <div className="inline-block text-xs font-extrabold text-fox-d bg-fox-belly rounded-full px-3 py-1 mb-3">🏖️ Révision d'été</div>
+            <div className="inline-block text-xs font-extrabold text-fox-d bg-fox-belly rounded-full px-3 py-1 mb-3">🍁 Rentrée 2026-2027</div>
             <p className="text-s4 font-semibold mb-8">Qui es-tu?</p>
             <div className={`grid gap-4 ${unlocked ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-1 max-w-sm mx-auto'}`}>
               {unlocked && (
@@ -183,7 +183,7 @@ export default function App() {
                     className="bg-white border-2 border-s1 rounded-2xl p-6 hover:scale-105 hover:border-fox hover:shadow-lg transition-all active:scale-95">
                     <div className="text-5xl mb-3">🧑‍🚀</div>
                     <div className="font-heading text-xl font-extrabold text-stone">Ryan</div>
-                    <div className="text-xs font-bold text-s4 mt-1">2e année</div>
+                    <div className="text-xs font-bold text-s4 mt-1">3e année</div>
                   </button>
                   <button onClick={() => selectProfile('cayla')}
                     className="bg-white border-2 border-s1 rounded-2xl p-6 hover:scale-105 hover:border-pink-400 hover:shadow-lg transition-all active:scale-95">

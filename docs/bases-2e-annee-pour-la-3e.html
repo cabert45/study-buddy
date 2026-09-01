@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Les bases de 2e année — checklist pour réussir sa 3e année</title>
+<style>
+  @page { size: Letter; margin: 14mm 13mm 12mm 13mm; }
+
+  * { box-sizing: border-box; }
+  html { font-size: 10.5pt; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: #111;
+    line-height: 1.35;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ---------- Cover header ---------- */
+  .head { border-bottom: 2.5pt solid #111; padding-bottom: 7pt; margin-bottom: 11pt; }
+  .head .kicker { font-size: 8pt; letter-spacing: .14em; text-transform: uppercase; color: #555; font-weight: 700; }
+  .head h1 { font-size: 20pt; margin: 3pt 0 2pt; line-height: 1.12; letter-spacing: -.01em; }
+  .head .sub { font-size: 9.5pt; color: #444; }
+
+  .namebar { display: flex; gap: 10pt; margin: 9pt 0 12pt; font-size: 9pt; }
+  .namebar div { flex: 1; border-bottom: .8pt solid #999; padding-bottom: 2pt; color: #555; }
+
+  /* ---------- How to use ---------- */
+  .howto { border: 1pt solid #bbb; background: #f6f6f4; padding: 8pt 10pt; margin-bottom: 12pt; font-size: 9pt; }
+  .howto b { font-size: 9.5pt; }
+  .howto ul { margin: 4pt 0 0; padding-left: 14pt; }
+  .howto li { margin-bottom: 2pt; }
+
+  /* ---------- Sections ---------- */
+  section { margin-bottom: 11pt; break-inside: avoid; }
+  h2 {
+    font-size: 11.5pt; margin: 0 0 5pt; padding: 3.5pt 7pt;
+    background: #111; color: #fff; letter-spacing: .01em;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  h2 .tag { font-size: 7.5pt; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
+  h3 {
+    font-size: 9.5pt; margin: 8pt 0 3pt; padding-bottom: 1.5pt;
+    border-bottom: .8pt solid #333; text-transform: uppercase; letter-spacing: .05em;
+  }
+  h3:first-of-type { margin-top: 2pt; }
+
+  /* ---------- Checklist rows ---------- */
+  .col-head { display: flex; font-size: 6.8pt; text-transform: uppercase; letter-spacing: .08em;
+              color: #666; font-weight: 700; margin-bottom: 1pt; }
+  .col-head .spacer { flex: 1; }
+  .col-head span { width: 34pt; text-align: center; }
+
+  ul.check { list-style: none; margin: 0; padding: 0; }
+  ul.check li {
+    display: flex; align-items: flex-start; gap: 0;
+    padding: 2.2pt 0; border-bottom: .4pt dotted #bbb;
+    break-inside: avoid;
+  }
+  ul.check li .txt { flex: 1; padding-right: 8pt; }
+  ul.check li .box {
+    width: 34pt; flex-shrink: 0; display: flex; justify-content: center; padding-top: .5pt;
+  }
+  ul.check li .box i {
+    display: block; width: 10pt; height: 10pt; border: 1pt solid #333; border-radius: 1.5pt;
+  }
+  .ex { color: #555; font-style: italic; }
+  .hot { font-weight: 700; }
+  .hot::after {
+    content: "PRIORITÉ"; font-size: 6.5pt; font-style: normal; font-weight: 700;
+    letter-spacing: .07em; border: .8pt solid #111; padding: 0 3pt; margin-left: 5pt;
+    vertical-align: 1.5pt; white-space: nowrap;
+  }
+
+  /* ---------- Priority page ---------- */
+  .redzone { border: 1.6pt solid #111; padding: 9pt 11pt; margin-bottom: 12pt; }
+  .redzone h2 { background: none; color: #111; border-bottom: 1.2pt solid #111; padding: 0 0 3pt; margin-bottom: 6pt; }
+  .redzone table { width: 100%; border-collapse: collapse; font-size: 9pt; }
+  .redzone th { text-align: left; font-size: 7.5pt; text-transform: uppercase; letter-spacing: .07em;
+                color: #555; border-bottom: .8pt solid #333; padding: 0 6pt 2.5pt 0; }
+  .redzone td { padding: 3.5pt 6pt 3.5pt 0; border-bottom: .4pt dotted #bbb; vertical-align: top; }
+  .redzone td.score { white-space: nowrap; font-weight: 700; width: 58pt; }
+  .redzone td.what { width: 40%; }
+
+  .pagebreak { break-before: page; }
+  footer { margin-top: 10pt; padding-top: 5pt; border-top: .8pt solid #999;
+           font-size: 7.5pt; color: #666; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div class="kicker">Study Buddy · Révision de la rentrée · Septembre 2026</div>
+  <h1>Les bases de 2<sup>e</sup> année<br>pour bien réussir sa 3<sup>e</sup> année</h1>
+  <div class="sub">Checklist pour Ryan — coche au fur et à mesure. Ce qui est solide ici rend la 3<sup>e</sup> année beaucoup plus facile.</div>
+</div>
+
+<div class="namebar">
+  <div>Nom&nbsp;: Ryan</div>
+  <div>Début&nbsp;: ______________</div>
+  <div>Révision terminée&nbsp;: ______________</div>
+</div>
+
+<div class="howto">
+  <b>Comment s'en servir</b>
+  <ul>
+    <li><b>Une case «&nbsp;Revu&nbsp;»</b> = on a repris la notion ensemble au moins une fois.</li>
+    <li><b>Une case «&nbsp;OK seul&nbsp;»</b> = Ryan y arrive <i>sans aide et sans hésiter</i>. C'est ça, la vraie cible.</li>
+    <li>Ne pas tout faire d'un coup&nbsp;: 2 ou 3 lignes par soir suffisent. Les lignes marquées <b>PRIORITÉ</b> passent en premier.</li>
+    <li>Les exemples en <i>italique</i> sont là pour tester à l'oral, vite fait, sans papier.</li>
+  </ul>
+</div>
+
+<div class="redzone">
+  <h2>D'abord&nbsp;: les 5 zones rouges de Ryan</h2>
+  <p style="margin:0 0 6pt; font-size:9pt; color:#444;">
+    Tiré de ses examens de fin de 2<sup>e</sup> année (mai–juin 2026). Ce sont les notions qui vont
+    le plus lui coûter cher en 3<sup>e</sup> année si on ne les répare pas maintenant.
+  </p>
+  <table>
+    <tr><th class="what">Notion</th><th class="score">Résultat</th><th>Ce qui bloquait exactement</th></tr>
+    <tr>
+      <td class="what">Situations-problèmes</td>
+      <td class="score">2,95&nbsp;/&nbsp;11</td>
+      <td>Il calcule souvent juste, mais il n'écrit pas sa démarche et se trompe de réponse finale. La 3<sup>e</sup> année en est remplie.</td>
+    </tr>
+    <tr>
+      <td class="what">Calcul rapide, 3 chiffres</td>
+      <td class="score">12&nbsp;/&nbsp;30</td>
+      <td>Il est excellent sur 2 chiffres (29/30&nbsp;!) mais s'effondre dès qu'on passe aux centaines. C'est de la vitesse, pas de la compréhension.</td>
+    </tr>
+    <tr>
+      <td class="what">Passé composé</td>
+      <td class="score">9&nbsp;/&nbsp;17</td>
+      <td>Confond l'auxiliaire <i>être</i> et <i>avoir</i>, et ajoute un «&nbsp;s&nbsp;» au participe avec <i>avoir</i>&nbsp;: «&nbsp;<i>tu as rangés</i>&nbsp;».</td>
+    </tr>
+    <tr>
+      <td class="what">Tableaux et diagrammes</td>
+      <td class="score">1&nbsp;/&nbsp;7</td>
+      <td>Il ne lit pas la <b>légende</b> et bute sur le vocabulaire («&nbsp;fin de semaine&nbsp;», «&nbsp;au total&nbsp;»).</td>
+    </tr>
+    <tr>
+      <td class="what">Ordre des événements (lecture)</td>
+      <td class="score">1&nbsp;/&nbsp;5</td>
+      <td>Il comprend le texte mais n'arrive pas à remettre les événements dans l'ordre.</td>
+    </tr>
+  </table>
+</div>
+
+
+<!-- ================= MATHS ================= -->
+<footer><span>Les bases de 2<sup>e</sup> année · Ryan</span><span>Page 1</span></footer>
+<div class="pagebreak"></div>
+
+
+<section>
+  <h2>Mathématiques <span class="tag">1 · Les nombres</span></h2>
+  <div class="col-head"><span class="spacer"></span><span>Revu</span><span>OK seul</span></div>
+  <ul class="check">
+    <li><div class="txt">Lire, écrire et dire les nombres jusqu'à <b>1000</b> <span class="ex">— écris « trois cent quarante-sept »</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Dire la <b>valeur de position</b> de chaque chiffre <span class="ex">— dans 528, le 5 vaut combien ?</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Décomposer un nombre <span class="ex">— 347 = 300 + 40 + 7 = 3 centaines, 4 dizaines, 7 unités</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Comparer avec <b>&gt;, &lt; ou =</b> et ranger en ordre croissant / décroissant</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Compter par bonds de 2, 5, 10, 25 et 100 <span class="ex">— pars de 175 et compte par 25</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Reconnaître les nombres <b>pairs et impairs</b> et dire pourquoi</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Trouver la règle d'une <b>suite</b> et continuer <span class="ex">— 4, 8, 12, 16, … ?</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Mathématiques <span class="tag">2 · Addition et soustraction</span></h2>
+  <div class="col-head"><span class="spacer"></span><span>Revu</span><span>OK seul</span></div>
+  <ul class="check">
+    <li><div class="txt">Connaître <b>par cœur</b> les additions jusqu'à 20 <span class="ex">— 8 + 7, 9 + 6, sans compter sur ses doigts</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Les <b>doubles et les moitiés</b> <span class="ex">— 7 + 7, 8 + 8, la moitié de 16</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Les <b>compléments à 10 et à 100</b> <span class="ex">— 60 + ? = 100</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt hot">Additionner à <b>3 chiffres avec échange</b> (retenue) <span class="ex">— 347 + 285</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt hot">Soustraire à <b>3 chiffres avec emprunt</b> <span class="ex">— 502 − 267</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt hot">Aller <b>vite</b> sur ±&nbsp;9, ±&nbsp;10, ±&nbsp;1, ±&nbsp;2 avec des nombres à 3 chiffres <span class="ex">— 570 + 2, 348 − 9 : c'est LE point faible</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Trouver le <b>terme manquant</b> <span class="ex">— 25 + ? = 61 ; ? − 14 = 30</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Vérifier une soustraction par une addition <span class="ex">— 61 − 25 = 36, donc 36 + 25 = 61 ✓</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Mathématiques <span class="tag">3 · Vers la multiplication et la division</span></h2>
+  <div class="col-head"><span class="spacer"></span><span>Revu</span><span>OK seul</span></div>
+  <ul class="check">
+    <li><div class="txt hot">Comprendre que <b>×</b> = des <b>groupes égaux</b> <span class="ex">— 4 groupes de 3, c'est 3 + 3 + 3 + 3 = 4 × 3</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Comprendre que <b>÷</b> = <b>partager également</b> <span class="ex">— 12 bonbons pour 3 amis, chacun en a ?</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Dessiner une multiplication en rangées <span class="ex">— 3 rangées de 5 points</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt hot">Savoir les tables de <b>2, 5 et 10</b> <span class="ex">— la 3<sup>e</sup> année attaque toutes les tables : celles-là doivent être acquises</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+  </ul>
+</section>
+
+<footer><span>Les bases de 2<sup>e</sup> année · Ryan</span><span>Page 2</span></footer>
+<div class="pagebreak"></div>
+
+<section>
+  <h2>Mathématiques <span class="tag">4 · Résolution de problèmes</span></h2>
+  <div class="col-head"><span class="spacer"></span><span>Revu</span><span>OK seul</span></div>
+  <ul class="check">
+    <li><div class="txt hot">Dire <b>ce que la question demande</b> avant de calculer <span class="ex">— « on cherche quoi ? » à voix haute</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt hot">Écrire sa <b>démarche</b> : mes calculs, mon dessin, ma réponse <span class="ex">— la prof a écrit « où est le calcul ? » : les points se perdent là</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt hot">Résoudre un problème à <b>deux étapes</b> <span class="ex">— 60 fleurs, il en utilise 12 puis 32 : combien reste-t-il ?</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Terminer par une <b>phrase-réponse</b> complète <span class="ex">— « Il reste 16 fleurs. »</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Se relire : « est-ce que ma réponse a du bon sens ? »</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Comprendre <b>de plus / de moins</b> dans une comparaison <span class="ex">— Léa a 8 billes de plus que Tom, qui en a 15</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+  </ul>
+</section>
+
+
+
+<section>
+  <h2>Mathématiques <span class="tag">5 · Fractions</span></h2>
+  <div class="col-head"><span class="spacer"></span><span>Revu</span><span>OK seul</span></div>
+  <ul class="check">
+    <li><div class="txt">Nommer et écrire <b>½, ⅓, ¼</b> <span class="ex">— un demi, un tiers, un quart</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Comprendre que les parts doivent être <b>égales</b></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Colorier une fraction d'une figure <span class="ex">— colorie ¾ du rectangle</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Trouver une fraction d'une collection <span class="ex">— la moitié de 12 billes</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Mathématiques <span class="tag">6 · Mesure, temps et argent</span></h2>
+  <div class="col-head"><span class="spacer"></span><span>Revu</span><span>OK seul</span></div>
+  <ul class="check">
+    <li><div class="txt">Mesurer en <b>cm</b> avec une règle, en partant bien du 0</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Estimer une longueur avant de mesurer, puis comparer</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Savoir que <b>1 m = 100 cm</b> et 1 dm = 10 cm</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Lire l'heure : heures juste, et demie, et quart, moins quart</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Se repérer dans le calendrier <span class="ex">— les mois dans l'ordre, hier / demain, « la fin de semaine »</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Compter de l'argent et rendre la monnaie <span class="ex">— 2,45 $ payés avec 5 $</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Mathématiques <span class="tag">7 · Géométrie</span></h2>
+  <div class="col-head"><span class="spacer"></span><span>Revu</span><span>OK seul</span></div>
+  <ul class="check">
+    <li><div class="txt">Nommer les <b>figures planes</b> : carré, rectangle, triangle, cercle, losange</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Nommer les <b>solides</b> : cube, prisme, pyramide, cylindre, cône, sphère</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Compter les <b>faces, sommets et arêtes</b> d'un solide</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Reconnaître un axe de <b>symétrie</b></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Se repérer sur un plan quadrillé <span class="ex">— case B3</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+  </ul>
+</section>
+
+<footer><span>Les bases de 2<sup>e</sup> année · Ryan</span><span>Page 3</span></footer>
+<div class="pagebreak"></div>
+
+<section>
+  <h2>Mathématiques <span class="tag">8 · Tableaux, diagrammes et probabilité</span></h2>
+  <div class="col-head"><span class="spacer"></span><span>Revu</span><span>OK seul</span></div>
+  <ul class="check">
+    <li><div class="txt hot">Toujours <b>lire la légende et le titre</b> avant de répondre <span class="ex">— c'est exactement ce qui a coûté le 1/7</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Lire un <b>diagramme à bandes</b> et un <b>pictogramme</b> (1 dessin = 2 objets, etc.)</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Lire un tableau à double entrée (ligne × colonne)</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt hot">Comprendre le vocabulaire des questions <span class="ex">— « au total », « le plus », « le moins », « combien de plus », « la fin de semaine »</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Dire si un événement est <b>certain, possible ou impossible</b></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+  </ul>
+</section>
+
+
+<!-- ================= FRANÇAIS ================= -->
+
+<section>
+  <h2>Français <span class="tag">9 · Lecture et compréhension</span></h2>
+  <div class="col-head"><span class="spacer"></span><span>Revu</span><span>OK seul</span></div>
+  <ul class="check">
+    <li><div class="txt">Lire un texte court à voix haute, sans buter, avec le bon ton</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Retrouver une information <b>écrite dans le texte</b> et montrer où elle est</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt hot">Remettre les <b>événements dans l'ordre</b> <span class="ex">— d'abord, ensuite, puis, enfin : 1/5 au dernier examen</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Répondre par une <b>phrase complète</b>, pas juste un mot</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Dire qui sont les personnages, où et quand ça se passe, quel est le problème</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Expliquer <b>pourquoi</b> avec un « parce que… »</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Français <span class="tag">10 · Orthographe d'usage</span></h2>
+  <div class="col-head"><span class="spacer"></span><span>Revu</span><span>OK seul</span></div>
+  <ul class="check">
+    <li><div class="txt">Écrire les mots fréquents de 2<sup>e</sup> année sans faute</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Les <b>lettres muettes</b> à la fin <span class="ex">— grand, petit, souris, tapis</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Les <b>consonnes doubles</b> <span class="ex">— carotte, patte, cannelle, arroser</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt"><b>m</b> devant <b>b</b>, <b>m</b>, <b>p</b> <span class="ex">— tomber, immense, campagne</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">L'<b>apostrophe</b> (élision) <span class="ex">— l'ami, j'ai, c'est, d'accord</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Les sons difficiles <span class="ex">— ill, gn, eu, ain / ein, oin, ph</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Utiliser le dictionnaire ou l'ordre alphabétique pour vérifier un mot</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+  </ul>
+</section>
+
+<footer><span>Les bases de 2<sup>e</sup> année · Ryan</span><span>Page 4</span></footer>
+<div class="pagebreak"></div>
+
+<section>
+  <h2>Français <span class="tag">11 · Grammaire de la phrase</span></h2>
+  <div class="col-head"><span class="spacer"></span><span>Revu</span><span>OK seul</span></div>
+  <ul class="check">
+    <li><div class="txt">Une phrase commence par une <b>majuscule</b> et finit par un <b>point</b></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Reconnaître les <b>classes de mots</b> : nom, déterminant, adjectif, verbe, pronom</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Repérer le <b>groupe du nom</b> <span class="ex">— « le grand chien noir » : dét + nom + adjectifs</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt hot">Accorder l'adjectif en <b>genre et en nombre</b> <span class="ex">— une petite fille, des petites filles : 1/4 à l'examen du féminin</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Le <b>pluriel</b> : s, x <span class="ex">— cheval → chevaux, gâteau → gâteaux, hibou → hiboux</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Le <b>féminin</b> <span class="ex">— heureux → heureuse, premier → première, menteur → menteuse</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Reconnaître une phrase déclarative, interrogative, exclamative</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+  </ul>
+</section>
+
+
+
+<section>
+  <h2>Français <span class="tag">12 · Conjugaison</span></h2>
+  <div class="col-head"><span class="spacer"></span><span>Revu</span><span>OK seul</span></div>
+  <ul class="check">
+    <li><div class="txt">Trouver le <b>verbe</b> dans une phrase et donner son infinitif</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Connaître les <b>pronoms</b> dans l'ordre : je, tu, il/elle, nous, vous, ils/elles</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt"><b>Présent</b> des verbes en -er <span class="ex">— e, es, e, ons, ez, ent</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt"><b>Présent</b> de être, avoir, aller, faire <span class="ex">— les 4 verbes qui reviennent partout</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt hot">Choisir le bon <b>auxiliaire</b> au passé composé <span class="ex">— j'<b>ai</b> chanté, mais je <b>suis</b> allé</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt hot">Ne pas mettre de « s » au participe avec <b>avoir</b> <span class="ex">— « tu as rangé », pas « tu as rangés »</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Accorder le participe avec <b>être</b> <span class="ex">— elle est arrivée, elles sont arrivées</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt"><b>Futur simple</b> des verbes en -er <span class="ex">— ai, as, a, ons, ez, ont</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Reconnaître si une phrase est au <b>passé, présent ou futur</b></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+  </ul>
+</section>
+
+<footer><span>Les bases de 2<sup>e</sup> année · Ryan</span><span>Page 5</span></footer>
+<div class="pagebreak"></div>
+
+<section>
+  <h2>Français <span class="tag">13 · Homophones</span></h2>
+  <div class="col-head"><span class="spacer"></span><span>Revu</span><span>OK seul</span></div>
+  <ul class="check">
+    <li><div class="txt"><b>a / à</b> <span class="ex">— si je peux dire « avait », c'est « a »</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt"><b>et / est</b> <span class="ex">— si je peux dire « était », c'est « est »</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt"><b>son / sont</b> <span class="ex">— si je peux dire « étaient », c'est « sont »</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt"><b>on / ont</b> <span class="ex">— si je peux dire « avaient », c'est « ont »</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt"><b>ce / se</b> et <b>mes / mais</b></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Français <span class="tag">14 · Écriture</span></h2>
+  <div class="col-head"><span class="spacer"></span><span>Revu</span><span>OK seul</span></div>
+  <ul class="check">
+    <li><div class="txt">Écrire un petit texte avec un <b>début, un milieu et une fin</b></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Utiliser des mots pour organiser <span class="ex">— d'abord, ensuite, puis, enfin</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Se <b>relire</b> et corriger : majuscules, points, accords</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Écrire lisiblement, en attaché, sur la ligne</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Habitudes de travail <span class="tag">15 · Ce qui fait la différence</span></h2>
+  <div class="col-head"><span class="spacer"></span><span>Revu</span><span>OK seul</span></div>
+  <ul class="check">
+    <li><div class="txt hot">Lire la consigne <b>en entier</b> avant de commencer <span class="ex">— « Reste concentré !! » écrit par la prof</span></div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Souligner les mots importants dans la question</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Se relire avant de remettre sa feuille</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Lever la main quand il ne comprend pas, au lieu de deviner</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+    <li><div class="txt">Travailler 20 minutes sans se lever ni se déconcentrer</div><div class="box"><i></i></div><div class="box"><i></i></div></li>
+  </ul>
+</section>
+
+<div class="howto" style="margin-top:12pt;">
+  <b>Notes / à revoir avec l'enseignante</b>
+  <div style="border-bottom:.6pt solid #999; height:15pt;"></div>
+  <div style="border-bottom:.6pt solid #999; height:15pt;"></div>
+  <div style="border-bottom:.6pt solid #999; height:15pt;"></div>
+</div>
+
+
+<footer><span>Les bases de 2<sup>e</sup> année · Ryan</span><span>Page 6</span></footer>
+
+</body>
+</html>

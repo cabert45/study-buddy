@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getDashboard } from '../utils/storage';
-import { EXAMS, dicteeWeekForDate, daysBetween } from '../data/examSchedule';
+import { EXAMS, dicteeWeekForDate, dicteeActiveOn, daysBetween } from '../data/examSchedule';
 
 // The Coach decides what Ryan does and when.
-// Given the time of day, soccer schedule, and what's coming up this week,
+// Given the time of day and what's coming up this week,
 // it builds a plan, runs timers, and voice-coaches transitions.
 
 function speak(text, rate = 0.9) {
@@ -65,7 +65,7 @@ function format(secs) {
 // One math focus + one french focus per day, varying so the whole week
 // covers everything without ever feeling repetitive.
 const SUMMER_START = new Date(2026, 5, 27); // samedi 27 juin 2026
-const SUMMER_END = new Date(2026, 8, 2);    // ~ rentrée (début septembre)
+const SUMMER_END = new Date(2026, 8, 1);    // rentrée — mardi 1er septembre 2026
 
 // Indexed by day-of-week: 0 = dimanche ... 6 = samedi
 const SUMMER_ROTATION = [
@@ -90,6 +90,53 @@ function buildSummerPlan(today) {
   ];
 }
 
+// ===== 3e ANNÉE — rentrée (septembre 2026) =====
+// OBJECTIF: admission à l'école privée. Le français pèse 60 % et les maths 40 %
+// (formule du Collège Laval), ET un résultat sous 60 % dans UNE des deux matières
+// = refus automatique. Le français de Ryan était son point faible en 2e année:
+// c'est donc lui qui mène le plan, tous les jours, en premier — quand sa tête
+// est la plus fraîche. Les maths suivent, plus courtes mais jamais sautées.
+//
+// Le bloc de focus fait 25 min: 15 min de français + 10 min de maths = 60/40.
+const GRADE3_START = new Date(2026, 8, 1); // mardi 1er septembre 2026
+
+// Indexed by day-of-week: 0 = dimanche ... 6 = samedi
+// Le français couvre la semaine complète: lecture, orthographe, grammaire,
+// conjugaison, accords — les cinq blocs d'une épreuve d'admission.
+const RENTREE_ROTATION = [
+  { theme: 'Dimanche — lecture',      french: { mode: 'comprehension',     label: 'Compréhension de lecture',  icon: '📖' }, math: { mode: 'suites',          label: 'Suites & régularités',      icon: '🔢' } },
+  { theme: 'Lundi — conjugaison',     french: { mode: 'passe_compose',     label: 'Passé composé',             icon: '⏪' }, math: { mode: 'multi_step',      label: 'Problèmes à étapes',        icon: '🧩' } },
+  { theme: 'Mardi — accords',         french: { mode: 'adjectif',          label: 'Accord des adjectifs',      icon: '🎨' }, math: { mode: 'calcul_rapide_3', label: 'Calcul rapide 3 chiffres',  icon: '⚡' } },
+  { theme: 'Mercredi — orthographe',  french: { mode: 'homophones',        label: 'Homophones (a/à, et/est…)', icon: '🔀' }, math: { mode: 'mult_div',        label: 'Multiplication & division', icon: '✖️' } },
+  { theme: 'Jeudi — grammaire',       french: { mode: 'groupe_nom',        label: 'Groupe du nom & classes',   icon: '🧱' }, math: { mode: 'calcul',          label: 'Addition avec échange',     icon: '🔢' } },
+  { theme: 'Vendredi — conjugaison',  french: { mode: 'present_indicatif', label: 'Présent — 1er groupe',      icon: '✏️' }, math: { mode: 'representer',     label: 'Représenter un nombre',     icon: '📏' } },
+  { theme: 'Samedi — orthographe',    french: { mode: 'pluriels_ryan',     label: 'Pluriel & féminin',         icon: '🔤' }, math: { mode: 'fractions',       label: 'Fractions',                 icon: '🍕' } },
+];
+
+function buildRentreePlan(today) {
+  const day = today.getDay();
+  const r = RENTREE_ROTATION[day];
+  const isWeekend = day === 0 || day === 6;
+  // 60/40 français / maths, même en version courte de fin de semaine.
+  const frenchMins = isWeekend ? 10 : 15;
+  const mathMins = isWeekend ? 7 : 10;
+  return [
+    {
+      type: 'message',
+      label: isWeekend
+        ? `🍁 ${r.theme}. Un bloc tranquille — le français d'abord, puis les maths.`
+        : `🍁 3e année! ${r.theme}. Le français en premier: c'est lui qui compte le plus pour l'école privée. 💪`,
+      mins: 1,
+      icon: '🍁',
+    },
+    { type: 'app', mode: 'mental', label: 'Échauffement — Calcul rapide ⚡', mins: 5, icon: '⚡' },
+    { type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: frenchMins, icon: r.french.icon },
+    { type: 'break', label: "Pause — bois de l'eau! 💧", mins: isWeekend ? 3 : 5, icon: '💧' },
+    { type: 'app', mode: r.math.mode, label: `${r.math.icon} ${r.math.label}`, mins: mathMins, icon: r.math.icon },
+    { type: 'message', label: 'Bravo Ryan! Bloc terminé — va jouer! 🎉', mins: 1, icon: '🌳' },
+  ];
+}
+
 // Identify weakest category from stats
 function findWeakest(stats, type = null) {
   if (!stats || stats.length === 0) return null;
@@ -103,9 +150,8 @@ function findWeakest(stats, type = null) {
   return filtered[0];
 }
 
-// Build a smart plan based on current time + soccer + dashboard data
+// Build a smart plan based on current time + dashboard data
 // opts.dayOverride: 0-6 to force a specific day's plan (preview mode)
-// opts.skipSoccer: true to use the post-soccer (heaviest) plan even if soccer hasn't happened
 // opts.dateOverride: a Date to preview the plan for a different calendar day
 function buildPlan(dashboardData, opts = {}) {
   const realNow = new Date();
@@ -128,6 +174,11 @@ function buildPlan(dashboardData, opts = {}) {
     return buildSummerPlan(today);
   }
 
+  // ===== 3e ANNÉE: pas encore de calendrier d'évaluations → rotation de rentrée =====
+  if (today >= GRADE3_START && EXAMS.length === 0) {
+    return buildRentreePlan(today);
+  }
+
   const plan = [];
   const stats = dashboardData?.stats || [];
   const weakestFrench = findWeakest(stats, 'french');
@@ -148,39 +199,19 @@ function buildPlan(dashboardData, opts = {}) {
   const allDone = upcoming.length === 0;
 
   // ===== Tuesday dictée — always a fixture =====
+  const hasDictee = dicteeActiveOn(today);
   const dicteeToday = dicteeWeekForDate(today);
   const dicteeFullLabel = `Dictée Thème 7 ${dicteeToday.short} — ${dicteeToday.label}`;
   const isMonday = day === 1;
-  const isTuesday = day === 2;
-  const isSundayBeforeMon = day === 0;
+  const isTuesday = day === 2 && hasDictee;
+  const isSundayBeforeMon = day === 0 && hasDictee;
 
-  // ===== Saturday soccer handling preserved =====
+  // ===== Samedi =====
+  // Plus de soccer le samedi (automne 2026) — on garde juste un bloc tâches + pause
+  // avant le travail scolaire.
   if (day === 6) {
-    const soccerMin = 16 * 60 + 30;
-    const minutesUntilSoccer = soccerMin - minutesNow;
-    const isAfterSoccer = opts.dayOverride != null || opts.skipSoccer || minutesNow > soccerMin + 60;
-
-    if (isAfterSoccer) {
-      plan.push({ type: 'chore', label: 'Reste des tâches (chambre + salon)', mins: 20, icon: '🧹' });
-      plan.push({ type: 'break', label: 'Pause + collation', mins: 10, icon: '🍎' });
-    } else if (minutesUntilSoccer > 120) {
-      plan.push({ type: 'chore', label: 'Chambre + ramasser vêtements', mins: 20, icon: '🧸' });
-      plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
-    } else if (minutesUntilSoccer > 25) {
-      // pre-soccer mini-block then go
-      const ex = upcoming[0];
-      if (ex && ex.modes[0]) {
-        plan.push({ type: 'app', mode: ex.modes[0].mode, label: `${ex.icon} ${ex.modes[0].label} (avant soccer)`, mins: 12, icon: ex.icon });
-      }
-      plan.push({ type: 'message', label: 'Prépare-toi pour le soccer!', mins: 5, icon: '⚽' });
-      return plan;
-    } else if (minutesUntilSoccer > 0) {
-      plan.push({ type: 'message', label: 'Prépare-toi pour le soccer!', mins: 5, icon: '⚽' });
-      return plan;
-    } else {
-      plan.push({ type: 'message', label: 'Soccer en cours / vient de finir. On reprend après!', mins: 1, icon: '⚽' });
-      return plan;
-    }
+    plan.push({ type: 'chore', label: 'Tâches du samedi (chambre + salon)', mins: 20, icon: '🧹' });
+    plan.push({ type: 'break', label: 'Pause + collation', mins: 10, icon: '🍎' });
   }
 
   // ===== EXAM-DAY: encouragement + light warmup for what's left =====
@@ -216,7 +247,7 @@ function buildPlan(dashboardData, opts = {}) {
   }
 
   // ===== Sunday/Monday before a Tuesday dictée → drill dictée =====
-  if ((isSundayBeforeMon || isMonday) && !examTomorrow) {
+  if ((isSundayBeforeMon || (isMonday && hasDictee)) && !examTomorrow) {
     plan.push({ type: 'app', mode: dicteeToday.mode, label: `${dicteeFullLabel} (mardi!)`, mins: 12, icon: '🎧' });
     plan.push({ type: 'break', label: 'Pause', mins: 5, icon: '☕' });
   }
@@ -283,7 +314,6 @@ export default function Coach({ onHome, onStartPractice }) {
   const [doneSteps, setDoneSteps] = useState([]);
   const [dashData, setDashData] = useState(null);
   const [dayOverride, setDayOverride] = useState(null); // null = today, 0-6 = preview a different day
-  const [skipSoccer, setSkipSoccer] = useState(false);
   const intervalRef = useRef(null);
   const greetedRef = useRef(false);
 
@@ -308,14 +338,14 @@ export default function Coach({ onHome, onStartPractice }) {
   // Build plan whenever dashData / overrides change
   useEffect(() => {
     if (dashData == null) return;
-    const built = buildPlan(dashData, { dayOverride, skipSoccer });
+    const built = buildPlan(dashData, { dayOverride });
     setPlan(built);
     setPlanReady(true);
     // Reset progression when plan changes
     setStepIdx(0);
     setDoneSteps([]);
     setRunning(false);
-  }, [dashData, dayOverride, skipSoccer]);
+  }, [dashData, dayOverride]);
 
   // Greet on first load
   useEffect(() => {
@@ -485,7 +515,7 @@ export default function Coach({ onHome, onStartPractice }) {
           </p>
           {isPreviewMode && (
             <button
-              onClick={() => { setDayOverride(null); setSkipSoccer(false); }}
+              onClick={() => setDayOverride(null)}
               className="text-[10px] font-bold text-blue-700 underline"
             >
               ← Retour à aujourd'hui
@@ -500,10 +530,7 @@ export default function Coach({ onHome, onStartPractice }) {
             return (
               <button
                 key={idx}
-                onClick={() => {
-                  setDayOverride(idx === today ? null : idx);
-                  setSkipSoccer(false);
-                }}
+                onClick={() => setDayOverride(idx === today ? null : idx)}
                 className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   isActive
                     ? 'bg-stone text-white'
@@ -515,29 +542,6 @@ export default function Coach({ onHome, onStartPractice }) {
             );
           })}
         </div>
-        {/* Skip soccer button — only Saturday + viewing today + before evening */}
-        {today === 6 && !isPreviewMode && new Date().getHours() < 17 && (
-          <div className="mt-2 pt-2 border-t border-orange-200/60">
-            {!skipSoccer ? (
-              <button
-                onClick={() => setSkipSoccer(true)}
-                className="text-xs font-bold text-fox-d underline"
-              >
-                ⚽ Pas de soccer aujourd'hui — voir le plan complet
-              </button>
-            ) : (
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-fox-d">⚽ Soccer ignoré — plan complet activé</span>
-                <button
-                  onClick={() => setSkipSoccer(false)}
-                  className="text-[10px] font-bold text-s4 underline"
-                >
-                  Annuler
-                </button>
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Big current step card */}

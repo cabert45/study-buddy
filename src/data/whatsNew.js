@@ -3,6 +3,13 @@
 
 export const whatsNew = [
   {
+    id: '2026-09-01-rentree-3e-annee',
+    date: '2026-09-01',
+    profile: 'ryan',
+    title: 'Bonne rentrée — bienvenue en 3e année! 🍁',
+    body: "L'app est passée en mode 3e année. Ton Coach a un nouveau plan quotidien (~35 min après l'école) et la fenêtre 📗 3e année regroupe tes exercices. Tes affaires de 2e année sont gardées dans l'onglet archive.",
+  },
+  {
     id: '2026-05-03-pemdas-adaptive',
     date: '2026-05-03',
     profile: 'cayla',

@@ -89,6 +89,49 @@ const ryanFrenchModes = [
   { id: 'groupe_nom', label: 'Groupe du nom', desc: 'GN: nom seul, dét+nom, dét+nom+adj' },
 ];
 
+// ===== 3e année (2026-2027) =====
+// Rentrée septembre 2026. En attendant les cahiers/le calendrier de la nouvelle
+// enseignante, la fenêtre 3e année sert de révision active: on garde les acquis
+// de 2e année et on attaque en priorité ce qui a coulé aux examens de juin
+// (situations-problèmes 2.95/11, passé composé 9/17, vitesse de calcul).
+const grade3MathModes = [
+  { id: 'mixed', label: 'Pratique ciblée', desc: 'Mix de tous tes exercices', featured: true },
+  { id: 'multi_step', label: '🧩 Problèmes', desc: 'Problèmes à étapes — le gros morceau de juin', badge: 'Priorité' },
+  { id: 'calcul_rapide_3', label: '⚡ Calcul rapide 3 chiffres', desc: 'Garde ta vitesse: ±9 / ±10 sur les centaines', badge: 'Vitesse' },
+  { id: 'mult_div', label: '✖️ Multiplication & division', desc: 'La base des tables — au cœur de la 3e année', badge: 'Clé 3e' },
+  { id: 'calcul', label: '🔢 Calcul', desc: 'Addition et soustraction avec échange', badge: 'Clé 3e' },
+  { id: 'terme', label: '➕ Terme manquant', desc: 'Trouve le nombre mystère' },
+  { id: 'fractions', label: '🍕 Fractions', desc: 'Demi, tiers, quart — ça continue en 3e' },
+  { id: 'representer', label: '📏 Représenter un nombre', desc: 'Centaines, dizaines, unités, décomposition' },
+  { id: 'suites', label: '🔢 Suites & régularités', desc: 'Trouve la règle et le prochain nombre' },
+  { id: 'mesure', label: '📐 Mesure en cm', desc: 'Estimer, comparer, lire la règle' },
+  { id: 'figures', label: '⬜ Figures & solides', desc: 'Carré, cube, cône, cylindre...' },
+  { id: 'statistique', label: '📊 Diagrammes', desc: 'Légendes, tableaux, totaux' },
+  { id: 'probabilite', label: '🎲 Probabilité', desc: 'Certain / possible / impossible' },
+  { id: 'relational', label: '⚖️ De plus / moins', desc: 'Comparaisons' },
+  { id: 'compare', label: '↔️ Compare', desc: '>, < ou =' },
+  { id: 'mental', label: '🧠 Mental', desc: 'Calcul rapide' },
+];
+
+const grade3FrenchModes = [
+  { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs', featured: true },
+  { id: 'passe_compose', label: '⏪ Passé composé', desc: 'Auxiliaire être/avoir — 9/17 au dernier examen', badge: 'Priorité' },
+  { id: 'present_indicatif', label: '✏️ Présent — 1er groupe', desc: 'je chante, tu chantes...' },
+  { id: 'futur_simple', label: '➡️ Futur simple', desc: 'Verbes -er au futur' },
+  { id: 'homophones', label: '🔀 Homophones', desc: 'a/à · et/est · son/sont · ont/on' },
+  { id: 'pluriels_ryan', label: '🔤 Pluriel & Féminin', desc: 'chevaux, gâteaux, heureuse, première...' },
+  { id: 'adjectif', label: '🎨 Adjectifs', desc: 'Accord en genre et en nombre' },
+  { id: 'groupe_nom', label: '🧱 Groupe du nom', desc: 'GN: dét + nom + adjectif' },
+  { id: 'classe_de_mots', label: '📝 Classe de mots', desc: 'Nom, verbe, adjectif, déterminant, pronom', badge: 'Clé 3e' },
+  { id: 'apostrophe', label: "' Apostrophe", desc: "l'ami, j'ai, c'est..." },
+  { id: 'm_devant_bmp', label: 'm devant b/m/p', desc: 'tomber, immense, campagne' },
+  { id: 'on_ont', label: 'ON / ONT', desc: 'Pronom ou verbe avoir?' },
+  { id: 'determinant', label: 'Déterminants', desc: 'le, la, un, une, mon...' },
+  { id: 'verbes', label: 'Verbes', desc: 'être, avoir, aller, faire...' },
+  { id: 'comprehension', label: '📖 Compréhension de lecture', desc: 'Lis un texte et réponds' },
+  { id: 'histoire', label: "📖 Parties d'une histoire", desc: 'Début, milieu, fin — pour la rédaction' },
+];
+
 // Été — révision quotidienne (mix des maillons faibles de Ryan)
 const summerModes = [
   { id: 'multi_step', label: 'Problèmes', desc: 'Problèmes à étapes' },
@@ -197,14 +240,17 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
     return onStartPractice(id);
   };
   const [stats, setStats] = useState(null);
-  const [tab, setTab] = useState('math');
+  const [tab, setTab] = useState('math'); // le mode 3e année bascule sur 'french' (voir plus bas)
   const [dicteesOpen, setDicteesOpen] = useState(false);
   const [nylaWordsOpen, setNylaWordsOpen] = useState(false);
 
-  // Grade / saison "fenêtres" — Ryan seulement (2e année · Été · 3e année à venir)
+  // Grade / saison "fenêtres" — Ryan seulement (3e année · Été · 2e année en archive)
   const ryanGraded = profile === 'ryan';
-  const inSummer = (() => { const n = new Date(); return n >= new Date(2026, 5, 27) && n < new Date(2026, 8, 2); })();
-  const [section, setSection] = useState(ryanGraded && inSummer ? 'summer' : 'grade2');
+  const inSummer = (() => { const n = new Date(); return n >= new Date(2026, 5, 27) && n < new Date(2026, 8, 1); })();
+  const inGrade3 = (() => new Date() >= new Date(2026, 8, 1))();
+  const [section, setSection] = useState(
+    ryanGraded ? (inSummer ? 'summer' : inGrade3 ? 'grade3' : 'grade2') : 'grade2'
+  );
 
   useEffect(() => {
     getProgress().then(setStats).catch(() => {});
@@ -220,9 +266,10 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
   const isDemo = profile === 'demo';
   const isRyan = profile === 'ryan' || isDemo; // demo gets Ryan's 2e année content
   const name = isDemo ? 'Mon ami' : profile === 'ryan' ? 'Ryan' : isCayla ? 'Cayla' : 'Nyla';
-  const grade = isCayla ? '6e année' : isNyla ? 'Pré-maternelle' : '2e année';
-  const mathModes = isCayla ? caylaMathModes : isNyla ? nylaMathModes : ryanMathModes;
-  const frenchModes = isCayla ? caylaFrenchModes : isNyla ? nylaFrenchModes : ryanFrenchModes;
+  const isGrade3 = ryanGraded && section === 'grade3';
+  const grade = isCayla ? '6e année' : isNyla ? 'Pré-maternelle' : ryanGraded ? '3e année' : '2e année';
+  const mathModes = isCayla ? caylaMathModes : isNyla ? nylaMathModes : isGrade3 ? grade3MathModes : ryanMathModes;
+  const frenchModes = isCayla ? caylaFrenchModes : isNyla ? nylaFrenchModes : isGrade3 ? grade3FrenchModes : ryanFrenchModes;
   const modes = tab === 'math' ? mathModes : frenchModes;
   const featured = modes.find(m => m.featured);
   const grid = modes.filter(m => !m.featured);
@@ -233,7 +280,7 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2.5">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm text-white"
-            style={{ background: 'linear-gradient(135deg, #3aa0e8, #ffc24d)' }}>
+            style={{ background: 'linear-gradient(135deg, #c74a15, #ffc24d)' }}>
             <Sun size={20} />
           </div>
           <span className="font-heading text-2xl font-extrabold text-stone tracking-tight">Study Buddy</span>
@@ -297,14 +344,16 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
 
       {/* Greeting banner with fox */}
       <div className="rounded-3xl mb-4 overflow-hidden flex items-end min-h-[165px]"
-        style={{ background: 'linear-gradient(135deg, #e8f6ff, #fff3d6 55%, #ffe0b3)' }}>
+        style={{ background: 'linear-gradient(135deg, #fff3e0, #ffe6c4 55%, #ffd8b0)' }}>
         <div className="flex-1 p-6 z-[1]">
-          <div className="font-heading text-sm font-bold text-fox-d mb-0.5 tracking-wide">☀️ Mode été</div>
+          <div className="font-heading text-sm font-bold text-fox-d mb-0.5 tracking-wide">
+            {ryanGraded ? '🍁 Rentrée · 3e année' : '🍁 Rentrée'}
+          </div>
           <h1 className="font-heading text-3xl font-extrabold text-stone leading-tight mb-1">Bonjour {name}!</h1>
           <p className="text-sm font-semibold text-s4">
-            {pct >= 70 ? "Belle journée d'été — tu es en feu! ☀️" :
-             totalQuestions > 0 ? "Un peu de révision d'été, tu progresses! 🏖️" :
-             "C'est l'été! Prêt pour un peu de révision? 🌴"}
+            {pct >= 70 ? 'Nouvelle année, tu es en feu! 🔥' :
+             totalQuestions > 0 ? 'On repart du bon pied — tu progresses! 📗' :
+             'Nouvelle année, nouveau départ. On commence? 🍁'}
           </p>
         </div>
         <div className="flex-shrink-0 mr-2 z-[1]">
@@ -378,9 +427,9 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
       {ryanGraded && (
         <div className="flex gap-2 mb-4 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
           {[
-            { id: 'grade2', label: '📘 2e année' },
-            { id: 'summer', label: '☀️ Été' },
             { id: 'grade3', label: '📗 3e année' },
+            { id: 'grade2', label: '📘 2e année (archive)' },
+            { id: 'summer', label: '☀️ Été' },
           ].map(s => (
             <button key={s.id} onClick={() => setSection(s.id)}
               className={`flex-shrink-0 rounded-xl px-4 py-2.5 text-sm font-bold transition-all ${
@@ -427,20 +476,37 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartAq
         </>
       )}
 
-      {/* 📗 Fenêtre 3e année (à venir) */}
-      {ryanGraded && section === 'grade3' && (
-        <div className="bg-white border-2 border-s1 rounded-2xl p-8 mb-6 text-center">
-          <div className="text-5xl mb-3">📗</div>
-          <h3 className="font-heading text-2xl font-extrabold text-stone mb-1">3e année</h3>
-          <p className="text-sm font-semibold text-s4 leading-relaxed">
-            Bientôt! Ton contenu de 3e année arrive à la rentrée. 🍁<br/>
-            Pour l'instant, profite de l'été! ☀️
-          </p>
-        </div>
+      {/* 📗 Fenêtre 3e année — Coach du jour, puis les modules (tabs partagés) */}
+      {isGrade3 && (
+        <>
+          {onStartCoach && (
+            <button onClick={onStartCoach}
+              className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+              style={{ background: 'linear-gradient(135deg, #c74a15, #e8a33a)', boxShadow: '0 6px 24px rgba(199,74,21,0.22)' }}>
+              <div className="w-12 h-12 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white text-2xl">🍁</div>
+              <div className="text-left flex-1">
+                <div className="font-heading text-xl font-extrabold text-white leading-tight">Mon Coach — 3e année</div>
+                <div className="text-xs font-semibold text-white/90">Le plan du jour · ~35 min après l'école</div>
+              </div>
+              <ChevronRight className="text-white/60" size={24} strokeWidth={3} />
+            </button>
+          )}
+          <div className="bg-white border-2 border-s1 rounded-2xl p-4 mb-4 flex items-start gap-3">
+            <div className="text-2xl flex-shrink-0">🎯</div>
+            <div>
+              <div className="text-xs font-extrabold text-stone mb-1">Objectif&nbsp;: l'école privée</div>
+              <p className="text-xs font-semibold text-s5 leading-relaxed">
+                Aux examens d'admission, le <b>français compte 60&nbsp;%</b> et les maths 40&nbsp;% —
+                et il faut <b>au moins 60&nbsp;% dans les deux</b>. C'est pour ça qu'on fait
+                du français en premier chaque jour. 💪
+              </p>
+            </div>
+          </div>
+        </>
       )}
 
-      {/* 📘 Fenêtre 2e année (+ Cayla / Nyla) */}
-      {(!ryanGraded || section === 'grade2') && (
+      {/* 📘 Fenêtre 2e année (archive) + Cayla / Nyla — partage les mêmes onglets */}
+      {(!ryanGraded || section === 'grade2' || section === 'grade3') && (
         <>
       {/* Tabs */}
       <div className="flex gap-2 mb-4 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
