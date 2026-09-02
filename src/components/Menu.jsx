@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
 import { nylaWeekList } from '../data/nylaFlashcards';
 import { NotificationBell } from './Notifications';
-import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, GraduationCap, ChevronRight, Send, Calendar, Trophy } from 'lucide-react';
+import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, GraduationCap, ChevronRight, Send, Calendar, Trophy, RefreshCw } from 'lucide-react';
 
 // SVG icons for modules — clean, no emojis
 const icons = {
@@ -243,6 +243,34 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartTi
   const [tab, setTab] = useState('math'); // le mode 3e année bascule sur 'french' (voir plus bas)
   const [dicteesOpen, setDicteesOpen] = useState(false);
   const [nylaWordsOpen, setNylaWordsOpen] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Dans l'app installée (mode standalone) il n'y a ni bouton recharger ni
+  // tirer-pour-rafraîchir. Ce bouton force la mise à jour: on redemande au
+  // service worker de se mettre à jour, on vide les caches Workbox, puis on
+  // recharge. Le localStorage (identifiants, préférences) n'est jamais touché.
+  async function hardRefresh() {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(async (r) => {
+          try { await r.update(); } catch {}
+          if (r.waiting) r.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }));
+      }
+      // Hors ligne, vider le précache rendrait l'app illisible: on s'abstient.
+      if (window.caches && navigator.onLine !== false) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
+    } catch {
+      // peu importe la raison — on recharge quand même
+    }
+    window.location.reload();
+  }
+
 
   // Grade / saison "fenêtres" — Ryan seulement (3e année · Été · 2e année en archive)
   const ryanGraded = profile === 'ryan';
@@ -285,6 +313,11 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartTi
           <span className="font-heading text-2xl font-extrabold text-stone tracking-tight">Study Buddy</span>
         </div>
         <div className="flex gap-2">
+          <button onClick={hardRefresh} disabled={refreshing} aria-label="Rafraîchir l'app"
+            title="Rafraîchir — va chercher la dernière version"
+            className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all disabled:opacity-50">
+            <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''} />
+          </button>
           {onStartTimer && (
             <button onClick={onStartTimer}
               className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all">
