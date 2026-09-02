@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import Menu from './components/Menu';
 import PracticeSession from './components/PracticeSession';
+import Blocs from './components/Blocs';
+import { BLOC_TEST_LENGTH } from './data/blocs';
 import TutorSession from './components/TutorSession';
 import Results from './components/Results';
 import ParentDashboard from './components/ParentDashboard';
@@ -48,6 +50,7 @@ export default function App() {
   const [flashcardWeek, setFlashcardWeek] = useState(null);
   const [nylaDeck, setNylaDeck] = useState(null);
   const [showFamily, setShowFamily] = useState(false);
+  const [activeBloc, setActiveBloc] = useState(null); // test de bloc en cours
   const [showCompose, setShowCompose] = useState(false);
   const [showAgenda, setShowAgenda] = useState(false);
   const [showBioFlashcard, setShowBioFlashcard] = useState(false);
@@ -78,6 +81,15 @@ export default function App() {
     setNylaDeck(null);
     setFlashcardWeek(null);
     setMode(selectedMode);
+    setScreen('practice');
+  }
+
+  // Test d'un bloc de fondation: même moteur de pratique, mais court et sans aide.
+  function startBlocTest(bloc) {
+    setNylaDeck(null);
+    setFlashcardWeek(null);
+    setActiveBloc(bloc);
+    setMode(bloc.mode);
     setScreen('practice');
   }
 
@@ -141,14 +153,33 @@ export default function App() {
     setScreen('fable');
   }
 
-  function finishSession(results) {
-    setSessionResults(results);
+  async function finishSession(results) {
+    // Si c'était un test de bloc, on enregistre l'état de la fondation.
+    if (activeBloc) {
+      try {
+        const { etatPourScore } = await import('./data/blocs');
+        const { getBlocs, saveBlocs } = await import('./utils/storage');
+        const actuels = (await getBlocs()) || {};
+        actuels[activeBloc.id] = {
+          etat: etatPourScore(results.correct, results.total),
+          correct: results.correct,
+          total: results.total,
+          date: new Date().toISOString().slice(0, 10),
+        };
+        await saveBlocs(actuels);
+      } catch (e) {
+        console.error('bloc non enregistré:', e);
+      }
+    }
+    setSessionResults({ ...results, bloc: activeBloc });
+    setActiveBloc(null);
     setScreen('results');
   }
 
   function goHome() {
     setScreen('menu');
     setMode(null);
+    setActiveBloc(null);
     setSessionResults(null);
     setNylaDeck(null);
     setFlashcardWeek(null);
@@ -181,7 +212,7 @@ export default function App() {
                 <>
                   <button onClick={() => selectProfile('ryan')}
                     className="bg-white border-2 border-s1 rounded-2xl p-6 hover:scale-105 hover:border-fox hover:shadow-lg transition-all active:scale-95">
-                    <div className="text-5xl mb-3">🧑‍🚀</div>
+                    <div className="text-5xl mb-3">🦁</div>
                     <div className="font-heading text-xl font-extrabold text-stone">Ryan</div>
                     <div className="text-xs font-bold text-s4 mt-1">3e année</div>
                   </button>
@@ -284,6 +315,7 @@ export default function App() {
         <Menu
           profile={profile}
           onStartPractice={startPractice}
+          onOpenBlocs={() => setScreen('blocs')}
           onStartTutor={startTutor}
           onStartAquarium={startAquarium}
           onStartSpeed={startSpeed}
@@ -327,6 +359,7 @@ export default function App() {
       {screen === 'practice' && (
         <PracticeSession
           mode={mode}
+          questionCount={activeBloc ? BLOC_TEST_LENGTH : undefined}
           onFinish={finishSession}
           onHome={goHome}
         />
@@ -369,6 +402,9 @@ export default function App() {
       )}
       {screen === 'coach' && (
         <Coach onHome={goHome} onStartPractice={startPractice} />
+      )}
+      {screen === 'blocs' && (
+        <Blocs onHome={goHome} onTestBloc={startBlocTest} />
       )}
       {screen === 'presentation' && (
         <Presentation onHome={goHome} />

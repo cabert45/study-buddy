@@ -64,3 +64,18 @@ export async function askTutor(prompt) {
   });
   return res.json();
 }
+
+// ===== « Mes blocs » =====
+export async function getBlocs() {
+  const res = await fetch(`${API_BASE}/blocs?profile=${getProfile()}`);
+  return res.json();
+}
+
+export async function saveBlocs(blocs) {
+  const res = await fetch(`${API_BASE}/blocs`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ blocs, profile: getProfile() }),
+  });
+  return res.json();
+}

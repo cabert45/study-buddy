@@ -160,7 +160,7 @@ function getGenerator(mode) {
   }
 }
 
-export default function PracticeSession({ mode, onFinish, onHome }) {
+export default function PracticeSession({ mode, onFinish, onHome, questionCount }) {
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState(null);
@@ -196,7 +196,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
   useEffect(() => {
     const gen = generate();
     // Nyla (5 ans) gets short sessions — 15 is too long for a preschooler.
-    const total = String(mode).startsWith('nyla') ? 6 : TOTAL_QUESTIONS;
+    const total = questionCount || (String(mode).startsWith('nyla') ? 6 : TOTAL_QUESTIONS);
     const qs = Array.from({ length: total }, () => gen());
     setQuestions(qs);
   }, [generate, mode]);
@@ -709,7 +709,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
           <div className={`mb-4 p-3 rounded-xl text-center font-bold ${
             operationCorrect ? 'bg-green-50 text-green-700 border-2 border-green-200' : 'bg-red-50 text-red-600 border-2 border-red-200'
           }`}>
-            {operationCorrect ? '✅ Bonne operation!' : `❌ C'est une ${question.correctOperation}!`}
+            {operationCorrect ? '✅ Bonne opération!' : `🔁 C'était une ${question.correctOperation} — on réessaie!`}
           </div>
         )}
 
@@ -791,7 +791,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
 
             {pickFeedback && (
               <div className={`mt-3 text-center font-bold ${pickFeedback.correct ? 'text-green-700' : 'text-red-600'}`}>
-                {pickFeedback.correct ? '✅ Bon calcul! À toi de le calculer.' : `❌ ${pickFeedback.msg} Essaie encore.`}
+                {pickFeedback.correct ? '✅ Bon calcul! À toi de le calculer.' : `🔁 ${pickFeedback.msg} Try again — tu es capable.`}
               </div>
             )}
           </div>
@@ -842,7 +842,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
 
             {stepFeedback && (
               <div className={`mt-3 text-center font-bold ${stepFeedback.correct ? 'text-green-700' : 'text-red-600'}`}>
-                {stepFeedback.correct ? '✅ Bravo!' : `❌ C'est ${question.stepCalcs[stepIdx].result}`}
+                {stepFeedback.correct ? '✅ Bravo!' : `🔁 La réponse est ${question.stepCalcs[stepIdx].result} — maintenant tu le sais!`}
               </div>
             )}
           </div>
@@ -871,7 +871,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
         )}
         {hasSteps && finalAnswerGate === 'teach-more' && (
           <div className="bg-amber-50 rounded-xl p-4 border-2 border-amber-300 mb-4 text-center">
-            <p className="font-extrabold text-amber-900">❌ Pas encore fini!</p>
+            <p className="font-extrabold text-amber-900">🔁 Pas encore fini — continue!</p>
             <p className="text-sm text-amber-800 mt-1">Il faut encore un calcul pour répondre à la question du problème.</p>
           </div>
         )}
@@ -1007,7 +1007,7 @@ export default function PracticeSession({ mode, onFinish, onHome }) {
               </div>
             ) : (
               <div className="p-3 bg-red-50 rounded-xl border-2 border-red-200">
-                <div className="text-center text-2xl mb-2">❌</div>
+                <div className="text-center text-2xl mb-2">🔁</div>
                 <p className="font-bold text-red-600 text-center mb-2">
                   La reponse est {question.correct}
                 </p>

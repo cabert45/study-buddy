@@ -387,6 +387,36 @@ Donne-moi:
   }
 });
 
+// ===== « Mes blocs » — état de la fondation de 2e année =====
+// Stocké dans la table settings existante (clé blocs_<profil>): aucun changement
+// de schéma, donc aucun risque pour les données de sessions.
+app.get('/api/blocs', async (req, res) => {
+  try {
+    const profile = req.query.profile || 'ryan';
+    const r = await pool.query('SELECT value FROM settings WHERE key = $1', [`blocs_${profile}`]);
+    res.json(r.rows[0] ? JSON.parse(r.rows[0].value) : {});
+  } catch (e) {
+    console.error('GET /api/blocs', e.message);
+    res.json({});
+  }
+});
+
+app.post('/api/blocs', async (req, res) => {
+  try {
+    const { profile = 'ryan', blocs } = req.body || {};
+    if (!blocs || typeof blocs !== 'object') return res.status(400).json({ error: 'blocs manquant' });
+    await pool.query(
+      `INSERT INTO settings (key, value) VALUES ($1, $2)
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
+      [`blocs_${profile}`, JSON.stringify(blocs)]
+    );
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('POST /api/blocs', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.post('/api/reset', async (req, res) => {
   try {
     const profile = req.body?.profile || 'ryan';

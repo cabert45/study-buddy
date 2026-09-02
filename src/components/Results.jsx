@@ -2,11 +2,15 @@ import React from 'react';
 import { speak } from '../utils/speech';
 import { getVideosForCategory } from '../data/videoLinks';
 
+// Devise de l'année: « dust yourself off and try again ».
+// Aucun palier ne dit à Ryan qu'il a raté — une erreur est un bloc qu'on vient
+// de repérer. Il pleure quand il se trompe: le texte ne doit jamais confirmer
+// que se tromper est grave.
 function getReaction(pct) {
   if (pct >= 90) return { emoji: '🏆', text: 'Champion!' };
   if (pct >= 70) return { emoji: '⭐', text: 'Bravo!' };
   if (pct >= 50) return { emoji: '💪', text: 'Tu progresses!' };
-  return { emoji: '🌋', text: 'Continue, tu vas y arriver!' };
+  return { emoji: '🧱', text: 'On a trouvé des blocs à solidifier!' };
 }
 
 // Analyze session and decide what to do next
