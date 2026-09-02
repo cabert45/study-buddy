@@ -13,6 +13,19 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
+// ⚠ ORDRE IMPORTANT — Workbox teste les routes dans l'ordre d'enregistrement.
+// La navigation doit être déclarée AVANT precacheAndRoute: sinon la route de
+// précache attrape « / » (via directoryIndex: index.html) et sert la coquille
+// de l'app depuis le cache. On restait alors coincé sur l'ancienne version,
+// qui pointe vers l'ancien bundle JS — même après avoir rechargé.
+// NetworkFirst: en ligne on prend toujours la version fraîche; hors ligne on
+// retombe sur la dernière copie mise en cache.
+registerRoute(new NavigationRoute(new NetworkFirst({
+  cacheName: 'app-shell',
+  networkTimeoutSeconds: 4,
+  plugins: [new ExpirationPlugin({ maxEntries: 4 })],
+})));
+
 // Workbox precache (handled by injectManifest)
 precacheAndRoute(self.__WB_MANIFEST || []);
 
@@ -41,17 +54,6 @@ registerRoute(
     networkTimeoutSeconds: 5,
   })
 );
-
-// SPA fallback
-registerRoute(new NavigationRoute(
-  async ({ event }) => {
-    try {
-      return await fetch(event.request);
-    } catch {
-      return caches.match('/index.html');
-    }
-  }
-));
 
 // === PUSH NOTIFICATION HANDLER ===
 self.addEventListener('push', (event) => {

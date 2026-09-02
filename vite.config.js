@@ -54,4 +54,11 @@ export default defineConfig({
   build: {
     outDir: 'dist',
   },
+  // Estampille de build affichée dans le menu, pour pouvoir vérifier d'un coup
+  // d'oeil quelle version tourne réellement dans l'app installée.
+  define: {
+    __BUILD_ID__: JSON.stringify(
+      new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC'
+    ),
+  },
 });

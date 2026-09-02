@@ -268,7 +268,9 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartTi
     } catch {
       // peu importe la raison — on recharge quand même
     }
-    window.location.reload();
+    // Un paramètre unique garantit une URL que le service worker n'a pas en
+    // cache: le document est forcément retéléchargé.
+    window.location.replace(`${window.location.pathname}?v=${Date.now()}`);
   }
 
 
@@ -722,6 +724,10 @@ export default function Menu({ profile, onStartPractice, onStartTutor, onStartTi
           </div>
         </button>
       )}
+
+      <div className="text-center text-[10px] font-semibold text-s3 mt-8 mb-2 select-none">
+        version {typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : 'dev'}
+      </div>
 
       <style>{`
         @keyframes tailwag { 0%,100%{transform:rotate(-5deg)} 50%{transform:rotate(15deg)} }
