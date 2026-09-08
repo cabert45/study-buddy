@@ -3,6 +3,13 @@
 
 export const whatsNew = [
   {
+    id: '2026-09-08-cayla-secondaire-verbes',
+    date: '2026-09-08',
+    profile: 'cayla',
+    title: 'Bienvenue au secondaire! 📗 Verbes avoir & être',
+    body: "Ton profil est passé en secondaire 1. Nouveau module: AVOIR et ÊTRE à tous les modes et temps (indicatif, conditionnel, subjonctif, impératif). Lis le tableau, écris les formes comme au test, ou fais du choix multiple. Commence par le niveau 1 (temps simples).",
+  },
+  {
     id: '2026-09-01-rentree-3e-annee',
     date: '2026-09-01',
     profile: 'ryan',

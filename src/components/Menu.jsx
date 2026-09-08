@@ -160,15 +160,17 @@ const caylaMathModes = [
   { id: 'pemdas', label: 'PEMDAS', desc: 'Ordre des opérations', featured: true },
 ];
 
+// Cayla — secondaire 1 depuis sept. 2026. Priorité de la rentrée: les verbes.
 const caylaFrenchModes = [
-  { id: 'classe_de_mots', label: '📝 Classe de mots', desc: 'Test 43/57 (75%) — drill les confusions', featured: true },
-  { id: 'cayla_dictees_group', label: 'Dictées de la semaine', desc: 'Mots du test de mardi (T6)', isGroup: true },
+  { id: 'verbes_avoir_etre', label: '📗 Verbes avoir & être', desc: 'Tous les modes et temps — tableau, écrire, choix multiple', featured: true },
+  { id: 'conjugaison', label: 'Conjugaison — autres verbes', desc: 'manger, finir, prendre, venir, pouvoir...' },
+  { id: 'classe_de_mots', label: '📝 Classe de mots', desc: 'Nom, verbe, adjectif, déterminant, pronom' },
   { id: 'pluriels_cayla', label: 'Pluriels — cas particuliers', desc: 'corail→coraux, chevreuil→chevreuils, les 7 -oux' },
-  { id: 'conjugaison', label: 'Conjugaison', desc: 'Verbes et temps' },
+  { id: 'cayla_dictees_group', label: 'Dictées (archive 6e)', desc: "Thème 6 de l'an dernier — révision", isGroup: true },
 ];
 
 const caylaDicteeWeeksList = [
-  { id: 'cayla_t6_s1', label: 'Semaine 1 — son [eur]', desc: 'acteur, danseur, vendeur, courageux...', current: true },
+  { id: 'cayla_t6_s1', label: 'Semaine 1 — son [eur]', desc: 'acteur, danseur, vendeur, courageux...' },
   { id: 'cayla_t6_s2', label: 'Semaine 2 — verbes en -ER', desc: 'conserver, demeurer, déranger...' },
   { id: 'cayla_t6_s3', label: 'Semaine 3 — finales BLE/LE/ME', desc: 'agréable, marmite, vaste...' },
 ];
@@ -275,10 +277,11 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onOpenBlocs, onStartTutor, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onStartNylaAddition, onStartNylaCompare, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerbes, onStartTutor, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onStartNylaAddition, onStartNylaCompare, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
   // Dispatch a tile click — special-case modes that open their own screen instead of the practice flow
   const launchMode = (id) => {
     if (id === 'biographie_jr_flashcard') return onOpenBioFlashcard && onOpenBioFlashcard();
+    if (id === 'verbes_avoir_etre' && onOpenVerbes) return onOpenVerbes();
     if (id === 'nyla_boukili') return onOpenBoukili && onOpenBoukili();
     if (id === 'nyla_logiciel') return window.open('https://www.logicieleducatif.fr/', '_blank', 'noopener,noreferrer');
     if (id === 'nyla_letters_flash') return onStartNylaFlashcard && onStartNylaFlashcard('letters_upper');
@@ -347,7 +350,7 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onStartTut
   const isRyan = profile === 'ryan' || isDemo; // demo gets Ryan's 2e année content
   const name = isDemo ? 'Mon ami' : profile === 'ryan' ? 'Ryan' : isCayla ? 'Cayla' : 'Nyla';
   const isGrade3 = ryanGraded && section === 'grade3';
-  const grade = isCayla ? '6e année' : isNyla ? 'Pré-maternelle' : ryanGraded ? '3e année' : '2e année';
+  const grade = isCayla ? 'Secondaire 1' : isNyla ? 'Pré-maternelle' : ryanGraded ? '3e année' : '2e année';
   const mathModes = isCayla ? caylaMathModes : isNyla ? nylaMathModes : isGrade3 ? grade3MathModes : ryanMathModes;
   const frenchModes = isCayla ? caylaFrenchModes : isNyla ? nylaFrenchModes : isGrade3 ? grade3FrenchModes : ryanFrenchModes;
   const modes = tab === 'math' ? mathModes : frenchModes;

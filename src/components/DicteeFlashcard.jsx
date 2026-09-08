@@ -181,7 +181,7 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
   async function getNewSentence() {
     if (!word) return;
     setLoadingSentence(true);
-    const grade = profile === 'cayla' ? '6' : '2';
+    const grade = profile === 'cayla' ? 'sec1' : '2';
     const s = await generateAISentence(word.correct, grade);
     if (s) setAiSentence(s);
     setLoadingSentence(false);

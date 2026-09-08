@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 const profileMeta = {
   ryan: { name: 'Ryan', grade: '3e année', emoji: '🧑‍🚀', color: '#c74a15' },
-  cayla: { name: 'Cayla', grade: '6e année', emoji: '🌟', color: '#e84393' },
+  cayla: { name: 'Cayla', grade: 'Secondaire 1', emoji: '🌟', color: '#e84393' },
   demo: { name: 'Mes amis', grade: 'Démo', emoji: '👋', color: '#3a5bc7' },
 };
 

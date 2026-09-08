@@ -49,6 +49,7 @@ import { recordPemdasAnswer } from '../generators/pemdas';
 import { generateApostrophe } from '../generators/apostrophe';
 import { generateMDevantBmp } from '../generators/mDevantBmp';
 import { generateAccordEtre } from '../generators/accordEtre';
+import { generateVerbesAvoirEtre } from '../generators/verbesAvoirEtre';
 import { saveSession } from '../utils/storage';
 import { incrementStudyRounds } from '../utils/studyRounds';
 import { notifySessionResult } from '../utils/notifications';
@@ -120,6 +121,7 @@ function getGenerator(mode) {
     case 'apostrophe': return generateApostrophe;
     case 'm_devant_bmp': return generateMDevantBmp;
     case 'accord_etre': return generateAccordEtre;
+    case 'verbes_avoir_etre': return generateVerbesAvoirEtre;
     case 'francais_mix':
       // Weighted by Ryan's French exam results:
       // Adjective accord 8/20 → 25%, Dictée 3/10 → 20%,

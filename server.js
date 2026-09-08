@@ -269,7 +269,7 @@ app.post('/api/dictee/sentence', async (req, res) => {
   if (!anthropic) return res.json({ sentence: null });
   try {
     const { word, grade } = req.body;
-    const ageDesc = grade === '6' ? '11 ans (6e année)' : '7 ans (2e année)';
+    const ageDesc = grade === 'sec1' ? '12 ans (secondaire 1)' : grade === '6' ? '11 ans (6e année)' : '7 ans (2e année)';
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 80,

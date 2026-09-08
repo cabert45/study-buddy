@@ -18,6 +18,7 @@ import OwnerLock, { isOwnerUnlocked, lockOwner } from './components/OwnerLock';
 import NotificationsPanel from './components/Notifications';
 import DicteeFlashcard from './components/DicteeFlashcard';
 import BiographieFlashcard from './components/BiographieFlashcard';
+import VerbesAvoirEtre from './components/VerbesAvoirEtre';
 import StudyReminderSettings from './components/StudyReminderSettings';
 import FamilyOverview from './components/FamilyOverview';
 import Journal from './components/Journal';
@@ -220,7 +221,7 @@ export default function App() {
                     className="bg-white border-2 border-s1 rounded-2xl p-6 hover:scale-105 hover:border-pink-400 hover:shadow-lg transition-all active:scale-95">
                     <div className="text-5xl mb-3">🌟</div>
                     <div className="font-heading text-xl font-extrabold text-stone">Cayla</div>
-                    <div className="text-xs font-bold text-s4 mt-1">6e année</div>
+                    <div className="text-xs font-bold text-s4 mt-1">Secondaire 1</div>
                   </button>
                   <button onClick={() => selectProfile('nyla')}
                     className="bg-white border-2 border-s1 rounded-2xl p-6 hover:scale-105 hover:border-purple-400 hover:shadow-lg transition-all active:scale-95">
@@ -299,6 +300,7 @@ export default function App() {
         <BoukiliLauncher onClose={() => setShowBoukili(false)} />
       )}
       {screen === 'journal' && <Journal onHome={goHome} profile={profile} />}
+      {screen === 'verbes' && <VerbesAvoirEtre onHome={goHome} onStartPractice={startPractice} />}
       {screen === 'reading' && <Reading onHome={goHome} profile={profile} />}
       {screen === 'nylaspeed' && <NylaSpeed onHome={goHome} />}
       {screen === 'nylasongs' && <NylaSongs onHome={goHome} />}
@@ -316,6 +318,7 @@ export default function App() {
           profile={profile}
           onStartPractice={startPractice}
           onOpenBlocs={() => setScreen('blocs')}
+          onOpenVerbes={() => setScreen('verbes')}
           onStartTutor={startTutor}
           onStartAquarium={startAquarium}
           onStartSpeed={startSpeed}
