@@ -46,6 +46,7 @@ export default function UniversSocial({ onHome, onStartPractice }) {
       <div className="bg-orange-50 rounded-xl p-3 mb-3 border-2 border-orange-200 text-xs font-semibold text-stone">
         <p className="font-extrabold text-fox-d uppercase tracking-wide mb-1">L'examen demande de</p>
         <p>1. associer le mot à une définition · 2. trouver le mot qui résume un texte · 3. placer un mot dans un texte · 4. <b>donner une définition dans tes mots</b></p>
+        <p className="mt-1 text-green-700">✅ Pas besoin d'apprendre les définitions par cœur: il faut juste pouvoir <b>expliquer l'idée dans tes mots</b>.</p>
       </div>
 
       {/* Maîtrise */}
@@ -174,10 +175,11 @@ function Cartes({ profile, onAnswer, onHome }) {
     return (
       <div className="bg-white rounded-2xl border-2 border-s1 p-5 text-center">
         <div className="text-4xl mb-2">🃏</div>
-        <h3 className="font-heading text-xl font-extrabold text-stone mb-1">Définis chaque mot dans tes mots</h3>
+        <h3 className="font-heading text-xl font-extrabold text-stone mb-1">Explique chaque mot dans tes mots</h3>
         <p className="text-sm font-semibold text-s4 mb-4">
-          Tu vois le mot. Dis la définition à voix haute (ou écris-la sur une feuille), puis retourne la carte et compare.
-          Sois honnête: « Je l'avais » seulement si tu as dit l'idée-clé. Les mots ratés reviennent au tour suivant.
+          Tu vois le mot. Explique-le à voix haute comme tu le dirais à une amie, puis retourne la carte et compare avec l'idée-clé.
+          Pas besoin des mêmes mots que le prof — seulement la bonne idée. Sois honnête: « Je l'avais » seulement si l'idée y était.
+          Les mots ratés reviennent au tour suivant.
         </p>
         <button onClick={start} className="w-full py-3 rounded-xl font-bold text-white text-lg"
           style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
@@ -221,7 +223,7 @@ function Cartes({ profile, onAnswer, onHome }) {
 
         {!flipped ? (
           <>
-            <p className="text-sm font-semibold text-s4 mb-4">Dis la définition dans tes mots, puis retourne la carte.</p>
+            <p className="text-sm font-semibold text-s4 mb-4">Explique ce mot dans tes mots, puis retourne la carte.</p>
             <button onClick={() => { setFlipped(true); speak(m.cle); }}
               className="w-full py-3 rounded-xl font-bold text-white"
               style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
@@ -231,13 +233,15 @@ function Cartes({ profile, onAnswer, onHome }) {
         ) : (
           <>
             <div className="bg-cream rounded-xl border-2 border-s1 p-3 mb-3">
-              <p className="text-xs font-bold text-fox-d uppercase">Idée-clé</p>
+              <p className="text-xs font-bold text-fox-d uppercase">L'idée à avoir</p>
               <p className="font-heading text-lg font-bold text-stone">{m.cle}</p>
-              <p className="text-xs font-bold text-s4 uppercase mt-2">Définition du prof</p>
-              <p className="text-sm text-stone font-medium">{m.def}</p>
               {m.note && <p className="mt-1 text-sm text-pink-600 font-semibold">✍️ Ta note: {m.note}</p>}
+              <details className="mt-2">
+                <summary className="text-xs font-bold text-s4 cursor-pointer">Voir la définition du prof (pour référence seulement)</summary>
+                <p className="text-sm text-stone font-medium mt-1">{m.def}</p>
+              </details>
             </div>
-            <p className="text-xs font-bold text-s4 text-center mb-2">Est-ce que tu avais l'idée-clé?</p>
+            <p className="text-xs font-bold text-s4 text-center mb-2">Est-ce que ton explication avait cette idée?</p>
             <div className="flex gap-2">
               <button onClick={() => grade(false)} className="flex-1 py-3 rounded-xl font-bold text-red-600 bg-red-50 border-2 border-red-300">✗ À revoir</button>
               <button onClick={() => grade(true)} className="flex-1 py-3 rounded-xl font-bold text-white bg-green-600">✓ Je l'avais</button>
