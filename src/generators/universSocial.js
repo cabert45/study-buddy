@@ -73,9 +73,16 @@ const base = (m, extra) => ({
   explanation: `${m.mot}: ${m.cle}${m.note ? ` (ta note: « ${m.note} »)` : ''}`,
 });
 
+// Les formats tournent (au lieu du hasard pur) pour que chaque Test montre
+// visiblement les 3 formats de l'examen + le sens du mot, dans l'ordre.
+const ORDER = ['def_mot', 'texte', 'trou', 'mot_def', 'texte', 'trou', 'def_mot', 'image'];
+let cursor = Math.floor(Math.random() * ORDER.length);
+const R = { def_mot: 0.1, mot_def: 0.4, texte: 0.6, trou: 0.8, image: 0.95 };
+
 export function generateUniversSocial() {
   const m = pickWord();
-  const r = Math.random();
+  const format = ORDER[cursor++ % ORDER.length];
+  const r = R[format];
 
   // 1a. définition → mot
   if (r < 0.3) {

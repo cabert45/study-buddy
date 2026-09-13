@@ -507,6 +507,13 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           {question.category === 'verbes' && 'Verbes'}
           {question.category === 'adjectif' && 'Adjectif'}
           {question.category === 'pemdas' && 'PEMDAS'}
+          {question.category === 'univers_social' && ({
+            us_def_mot: 'Univers social · Format 1 — associer la définition au mot',
+            us_mot_def: 'Univers social · Format 1 — le sens du mot',
+            us_texte: 'Univers social · Format 2 — le mot qui résume un texte',
+            us_trou: 'Univers social · Format 3 — placer le mot dans la phrase',
+            us_image: 'Univers social · Bonus — image du dossier (p.5)',
+          }[question.type] || 'Univers social')}
           {question.category === 'conjugaison' && 'Conjugaison'}
           {question.category === 'dictee' && 'Dictée'}
           {question.category === 'on_ont' && 'ON / ONT'}
