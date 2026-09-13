@@ -155,12 +155,16 @@ function Liste() {
             </div>
             <p className="text-sm font-semibold text-stone mt-1">{m.cle}</p>
           </button>
+          <button onClick={() => speak(`${m.mot}. ${m.cle}`)} className="mt-1 text-xs font-bold text-fox-d">🔊 Écouter le mot et l'idée simple</button>
           {open === m.id && (
             <div className="mt-2 pt-2 border-t border-s1 text-sm">
               <p className="text-xs font-bold text-s4 uppercase">Définition du prof</p>
               <p className="text-stone font-medium">{m.def}</p>
               {m.note && <p className="mt-1 text-pink-600 font-semibold">✍️ Ta note: {m.note}</p>}
-              <button onClick={() => speak(`${m.mot}. ${m.def}`)} className="mt-1 text-xs font-bold text-fox-d">🔊 Écouter</button>
+              <div className="flex gap-3 mt-1">
+                <button onClick={() => speak(`${m.mot}. ${m.cle}`)} className="text-xs font-bold text-fox-d">🔊 Écouter l'idée simple</button>
+                <button onClick={() => speak(`${m.mot}. ${m.def}`)} className="text-xs font-bold text-s4">🔊 Définition du prof</button>
+              </div>
             </div>
           )}
         </div>
@@ -179,6 +183,13 @@ function Cartes({ profile, onAnswer, onHome }) {
   const [missed, setMissed] = useState([]);
   const [stats, setStats] = useState({ correct: 0, total: 0 });
   const [done, setDone] = useState(false);
+  const [unknown, setUnknown] = useState(false); // « je ne le connais pas » → on écoute l'explication
+
+  // Le mot est lu à voix haute dès qu'une carte apparaît (elle ne connaît pas encore la plupart des mots)
+  const current = queue[idx];
+  useEffect(() => {
+    if (started && current && !flipped) setTimeout(() => speak(current.mot), 250);
+  }, [current, started]);
 
   function start() {
     // Priorité: les mots ratés / nouveaux d'abord, puis on met les rouges et jaunes de sa feuille en tête
@@ -199,7 +210,7 @@ function Cartes({ profile, onAnswer, onHome }) {
     setStats(s);
     const nextMissed = ok ? missed : [...missed, m];
     if (idx + 1 < queue.length) {
-      setIdx(idx + 1); setFlipped(false); setMissed(nextMissed);
+      setIdx(idx + 1); setFlipped(false); setUnknown(false); setMissed(nextMissed);
       return;
     }
     if (nextMissed.length === 0) {
@@ -208,7 +219,7 @@ function Cartes({ profile, onAnswer, onHome }) {
       notifySessionResult({ profile, mode: 'univers social — cartes', correct: s.correct, total: s.total, streak: 0, results: [] });
       return;
     }
-    setRound((r) => r + 1); setQueue(shuffle(nextMissed)); setMissed([]); setIdx(0); setFlipped(false);
+    setRound((r) => r + 1); setQueue(shuffle(nextMissed)); setMissed([]); setIdx(0); setFlipped(false); setUnknown(false);
   }
 
   if (!started) {
@@ -260,7 +271,11 @@ function Cartes({ profile, onAnswer, onHome }) {
           <AspectTag aspect={m.aspect} />
           {m.page && <span className="text-[10px] text-s4 font-bold">p.{m.page}</span>}
         </div>
-        <p className="font-heading text-3xl font-extrabold text-stone mb-2">{m.mot}</p>
+        <div className="flex items-center gap-3 mb-2">
+          <p className="font-heading text-3xl font-extrabold text-stone">{m.mot}</p>
+          <button onClick={() => speak(m.mot)} aria-label="Écouter le mot"
+            className="w-10 h-10 rounded-full bg-orange-50 border-2 border-orange-200 text-lg flex-shrink-0">🔊</button>
+        </div>
         {m.alias && <p className="text-xs font-semibold text-s4 mb-2">aussi: {m.alias}</p>}
 
         {!flipped ? (
@@ -271,11 +286,18 @@ function Cartes({ profile, onAnswer, onHome }) {
               style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
               Retourner la carte
             </button>
+            <button onClick={() => { setUnknown(true); setFlipped(true); speak(`${m.mot}. ${m.cle}`); }}
+              className="w-full mt-2 py-3 rounded-xl font-bold text-s6 bg-white border-2 border-s2 hover:border-lava">
+              ❓ Je ne le connais pas → écouter l'explication
+            </button>
           </>
         ) : (
           <>
             <div className="bg-cream rounded-xl border-2 border-s1 p-3 mb-3">
-              <p className="text-xs font-bold text-fox-d uppercase">L'idée à avoir</p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-bold text-fox-d uppercase">L'idée à avoir</p>
+                <button onClick={() => speak(`${m.mot}. ${m.cle}`)} className="text-xs font-bold text-fox-d">🔊 Écouter l'idée simple</button>
+              </div>
               <p className="font-heading text-lg font-bold text-stone">{m.cle}</p>
               {m.note && <p className="mt-1 text-sm text-pink-600 font-semibold">✍️ Ta note: {m.note}</p>}
               <details className="mt-2">
@@ -283,11 +305,23 @@ function Cartes({ profile, onAnswer, onHome }) {
                 <p className="text-sm text-stone font-medium mt-1">{m.def}</p>
               </details>
             </div>
-            <p className="text-xs font-bold text-s4 text-center mb-2">Est-ce que ton explication avait cette idée?</p>
-            <div className="flex gap-2">
-              <button onClick={() => grade(false)} className="flex-1 py-3 rounded-xl font-bold text-red-600 bg-red-50 border-2 border-red-300">✗ À revoir</button>
-              <button onClick={() => grade(true)} className="flex-1 py-3 rounded-xl font-bold text-white bg-green-600">✓ Je l'avais</button>
-            </div>
+            {unknown ? (
+              <>
+                <p className="text-xs font-bold text-s4 text-center mb-2">Répète l'idée à voix haute une fois, puis continue. Ce mot reviendra au prochain tour.</p>
+                <button onClick={() => grade(false)} className="w-full py-3 rounded-xl font-bold text-white"
+                  style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
+                  Compris, suivant →
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-xs font-bold text-s4 text-center mb-2">Est-ce que ton explication avait cette idée?</p>
+                <div className="flex gap-2">
+                  <button onClick={() => grade(false)} className="flex-1 py-3 rounded-xl font-bold text-red-600 bg-red-50 border-2 border-red-300">✗ À revoir</button>
+                  <button onClick={() => grade(true)} className="flex-1 py-3 rounded-xl font-bold text-white bg-green-600">✓ Je l'avais</button>
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
