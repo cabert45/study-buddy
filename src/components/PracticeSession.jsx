@@ -52,6 +52,11 @@ import { generateAccordEtre } from '../generators/accordEtre';
 import { generateVerbesAvoirEtre } from '../generators/verbesAvoirEtre';
 import { generateUniversSocial } from '../generators/universSocial';
 import { recordUsAnswer } from '../data/universSocialStats';
+import {
+  generateT1Nom, generateT1Determinant, generateT1Adjectif, generateT1Verbe,
+  generateT1Pronom, generateT1Dialogue, generateT1Voc, generateT1Revision,
+} from '../generators/theme1';
+import { generateMatchaNombres } from '../generators/matcha1';
 import { saveSession } from '../utils/storage';
 import { incrementStudyRounds } from '../utils/studyRounds';
 import { notifySessionResult } from '../utils/notifications';
@@ -125,6 +130,15 @@ function getGenerator(mode) {
     case 'accord_etre': return generateAccordEtre;
     case 'verbes_avoir_etre': return generateVerbesAvoirEtre;
     case 'univers_social': return generateUniversSocial;
+    case 't1_nom': return generateT1Nom;
+    case 't1_determinant': return generateT1Determinant;
+    case 't1_adjectif': return generateT1Adjectif;
+    case 't1_verbe': return generateT1Verbe;
+    case 't1_pronom': return generateT1Pronom;
+    case 't1_dialogue': return generateT1Dialogue;
+    case 't1_voc': return generateT1Voc;
+    case 'matcha_nombres': return generateMatchaNombres;
+    case 't1_revision': return generateT1Revision;
     case 'francais_mix':
       // Weighted by Ryan's French exam results:
       // Adjective accord 8/20 → 25%, Dictée 3/10 → 20%,
@@ -529,6 +543,15 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           {question.category === 'apostrophe' && "L'apostrophe"}
           {question.category === 'm_devant_bmp' && 'M devant B, M, P'}
           {question.category === 'accord_etre' && 'Accord adjectif après ÊTRE'}
+          {question.category === 't1_nom' && '📒 Jazz · Thème 1 — Le nom'}
+          {question.category === 't1_determinant' && '📒 Jazz · Thème 1 — Le déterminant'}
+          {question.category === 't1_adjectif' && "📒 Jazz · Thème 1 — L'adjectif"}
+          {question.category === 't1_verbe' && '📒 Jazz · Thème 1 — Le verbe'}
+          {question.category === 't1_pronom' && '📒 Jazz · Thème 1 — Le pronom de conjugaison'}
+          {question.category === 't1_dialogue' && '📒 Jazz · Thème 1 — Personnages & dialogue'}
+          {question.category === 't1_voc' && '📒 Jazz · Voc en vrac — Les comparaisons'}
+          {question.category === 'matcha_nombres' && '📘 Matcha · Thème 1 — Les nombres jusqu\'à 9 999'}
+          {question.category === 't1_revision' && '📒 Jazz · Révision du thème 1'}
         </div>
 
         {/* Persistent rule reminder — for tricky conjugation/spelling modes */}

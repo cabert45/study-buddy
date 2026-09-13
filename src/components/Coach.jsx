@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getDashboard } from '../utils/storage';
 import { EXAMS, dicteeWeekForDate, dicteeActiveOn, daysBetween } from '../data/examSchedule';
+import { moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data/cahierFrancais';
 
 // The Coach decides what Ryan does and when.
 // Given the time of day and what's coming up this week,
@@ -113,6 +114,27 @@ const RENTREE_ROTATION = [
   { theme: 'Samedi — orthographe',    french: { mode: 'pluriels_ryan',     label: 'Pluriel & féminin',         icon: '🔤' }, math: { mode: 'fractions',       label: 'Fractions',                 icon: '🍕' } },
 ];
 
+// Cahier Jazz: le français suit la classe. Lundi→mercredi = le module de la semaine;
+// jeudi, vendredi ET dimanche = un pas d'avance sur le module qui s'en vient;
+// samedi = révision de ce qui a été vu.
+function cahierStep(today, mins) {
+  const day = today.getDay();
+  const actuel = moduleCetteSemaine(today);
+  if (!actuel || !actuel.mode) return null;
+  if (day === 6) {
+    const mode = actuel.theme.id === 't1' ? 't1_revision' : actuel.mode;
+    return { type: 'app', mode, label: `📒 Cahier Jazz — révision de la semaine`, mins, icon: '📒' };
+  }
+  const prochain = moduleSemaineProchaine(today);
+  if ((day === 4 || day === 5 || day === 0) && prochain?.mode) {
+    const mode = day === 5 && prochain.extra ? prochain.extra.mode : prochain.mode;
+    return { type: 'app', mode, label: `🚀 En avance — ${titreModule(prochain)}`, mins, icon: '🚀' };
+  }
+  // Mercredi: le 2e exercice du module (Voc en vrac, le pronom…)
+  const mode = day === 3 && actuel.extra ? actuel.extra.mode : actuel.mode;
+  return { type: 'app', mode, label: `📒 En classe cette semaine — ${titreModule(actuel)}`, mins, icon: '📒' };
+}
+
 function buildRentreePlan(today) {
   const day = today.getDay();
   const r = RENTREE_ROTATION[day];
@@ -120,6 +142,18 @@ function buildRentreePlan(today) {
   // 60/40 français / maths, même en version courte de fin de semaine.
   const frenchMins = isWeekend ? 10 : 15;
   const mathMins = isWeekend ? 7 : 10;
+  // Le cahier prend la plus grosse part du bloc de français; le maillon faible
+  // de juin garde quelques minutes pour ne pas perdre les acquis.
+  const cahier = cahierStep(today, isWeekend ? 6 : 10);
+  // Maths: mercredi, vendredi, dimanche = le cahier Matcha (nombres jusqu'à 9 999, échanges
+  // de blocs — les erreurs rouges du cahier). Lundi garde les problèmes à étapes (priorité
+  // de juin); les autres jours gardent la rotation.
+  const math = [0, 3, 5].includes(day)
+    ? { mode: 'matcha_nombres', label: 'Cahier Matcha — les nombres jusqu\'à 9 999', icon: '📘' }
+    : r.math;
+  const frenchSteps = cahier
+    ? [cahier, { type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: frenchMins - cahier.mins, icon: r.french.icon }]
+    : [{ type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: frenchMins, icon: r.french.icon }];
   return [
     {
       type: 'message',
@@ -130,9 +164,9 @@ function buildRentreePlan(today) {
       icon: '🍁',
     },
     { type: 'app', mode: 'mental', label: 'Échauffement — Calcul rapide ⚡', mins: 5, icon: '⚡' },
-    { type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: frenchMins, icon: r.french.icon },
+    ...frenchSteps,
     { type: 'break', label: "Pause — bois de l'eau! 💧", mins: isWeekend ? 3 : 5, icon: '💧' },
-    { type: 'app', mode: r.math.mode, label: `${r.math.icon} ${r.math.label}`, mins: mathMins, icon: r.math.icon },
+    { type: 'app', mode: math.mode, label: `${math.icon} ${math.label}`, mins: mathMins, icon: math.icon },
     { type: 'message', label: 'Bravo Ryan! Bloc terminé — va jouer! 🎉', mins: 1, icon: '🌳' },
   ];
 }

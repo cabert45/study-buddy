@@ -3,6 +3,13 @@
 
 export const whatsNew = [
   {
+    id: '2026-09-13-ryan-cahier-jazz',
+    date: '2026-09-13',
+    profile: 'ryan',
+    title: 'Tes cahiers Jazz et Matcha sont dans l\'app! 📒📘',
+    body: "Nouveau: 📒 Mon cahier Jazz (Français) et 📘 Mon cahier Matcha (Maths). Tu pratiques ce que tu fais en classe cette semaine — le déterminant, les blocs, la valeur de position — avec les trucs du cahier, et tu prends un pas d'avance sur la semaine prochaine. Ton Coach le fait avec toi chaque jour. Une erreur? Try again — c'est comme ça qu'on apprend. 🦁",
+  },
+  {
     id: '2026-09-13-cayla-univers-social-d1',
     date: '2026-09-13',
     profile: 'cayla',

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
 import { nylaWeekList } from '../data/nylaFlashcards';
+import { CAHIER_THEMES, CAHIER_SEMAINES, moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data/cahierFrancais';
 import { NotificationBell } from './Notifications';
 import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, GraduationCap, ChevronRight, Send, Calendar, Trophy, RefreshCw } from 'lucide-react';
 
@@ -95,7 +96,8 @@ const ryanFrenchModes = [
 // de 2e année et on attaque en priorité ce qui a coulé aux examens de juin
 // (situations-problèmes 2.95/11, passé composé 9/17, vitesse de calcul).
 const grade3MathModes = [
-  { id: 'mixed', label: 'Pratique ciblée', desc: 'Mix de tous tes exercices', featured: true },
+  { id: 'matcha_nombres', label: '📘 Mon cahier Matcha', desc: 'Thème 1 en classe: blocs, valeur de position, nombres jusqu\'à 9 999', featured: true },
+  { id: 'mixed', label: 'Pratique ciblée', desc: 'Mix de tous tes exercices' },
   { id: 'multi_step', label: '🧩 Problèmes', desc: 'Problèmes à étapes — le gros morceau de juin', badge: 'Priorité' },
   { id: 'calcul_rapide_3', label: '⚡ Calcul rapide 3 chiffres', desc: 'Garde ta vitesse: ±9 / ±10 sur les centaines', badge: 'Vitesse' },
   { id: 'mult_div', label: '✖️ Multiplication & division', desc: 'La base des tables — au cœur de la 3e année', badge: 'Clé 3e' },
@@ -114,7 +116,9 @@ const grade3MathModes = [
 ];
 
 const grade3FrenchModes = [
-  { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs', featured: true },
+  { id: 'cahier_jazz', label: '📒 Mon cahier Jazz', desc: 'Ce que tu fais en classe — et un pas d\'avance', featured: true, groupKind: 'cahier' },
+  { id: 't1_revision', label: '📝 Classes de mots', desc: 'Nom, déterminant, adjectif, verbe, pronom — Thème 1', badge: 'En classe' },
+  { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs' },
   { id: 'passe_compose', label: '⏪ Passé composé', desc: 'Auxiliaire être/avoir — 9/17 au dernier examen', badge: 'Priorité' },
   { id: 'present_indicatif', label: '✏️ Présent — 1er groupe', desc: 'je chante, tu chantes...' },
   { id: 'futur_simple', label: '➡️ Futur simple', desc: 'Verbes -er au futur' },
@@ -122,7 +126,6 @@ const grade3FrenchModes = [
   { id: 'pluriels_ryan', label: '🔤 Pluriel & Féminin', desc: 'chevaux, gâteaux, heureuse, première...' },
   { id: 'adjectif', label: '🎨 Adjectifs', desc: 'Accord en genre et en nombre' },
   { id: 'groupe_nom', label: '🧱 Groupe du nom', desc: 'GN: dét + nom + adjectif' },
-  { id: 'classe_de_mots', label: '📝 Classe de mots', desc: 'Nom, verbe, adjectif, déterminant, pronom', badge: 'Clé 3e' },
   { id: 'apostrophe', label: "' Apostrophe", desc: "l'ami, j'ai, c'est..." },
   { id: 'm_devant_bmp', label: 'm devant b/m/p', desc: 'tomber, immense, campagne' },
   { id: 'on_ont', label: 'ON / ONT', desc: 'Pronom ou verbe avoir?' },
@@ -299,7 +302,20 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
   const [tab, setTab] = useState('math'); // le mode 3e année bascule sur 'french' (voir plus bas)
   const [dicteesOpen, setDicteesOpen] = useState(false);
   const [nylaWordsOpen, setNylaWordsOpen] = useState(false);
+  const [cahierOpen, setCahierOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const openGroup = (m) => (m.groupKind === 'nylawords' ? setNylaWordsOpen(true)
+    : m.groupKind === 'cahier' ? setCahierOpen(true)
+    : m.isGroup ? setDicteesOpen(true) : launchMode(m.id));
+
+  // Cahier Jazz: module en classe cette semaine / la semaine prochaine / déjà vus
+  const cahierActuel = moduleCetteSemaine();
+  const cahierProchain = moduleSemaineProchaine();
+  const cahierFaits = new Set();
+  for (const w of CAHIER_SEMAINES) {
+    if (w.module === cahierActuel?.id) break;
+    cahierFaits.add(w.module);
+  }
 
   // Dans l'app installée (mode standalone) il n'y a ni bouton recharger ni
   // tirer-pour-rafraîchir. Ce bouton force la mise à jour: on redemande au
@@ -629,7 +645,7 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
 
       {/* Featured mode */}
       {featured && (
-        <button onClick={() => featured.groupKind === 'nylawords' ? setNylaWordsOpen(true) : featured.isGroup ? setDicteesOpen(true) : launchMode(featured.id)}
+        <button onClick={() => openGroup(featured)}
           className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a)', boxShadow: '0 5px 22px rgba(199,74,21,0.15)' }}>
           <div className="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white">
@@ -637,7 +653,9 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
           </div>
           <div className="text-left flex-1">
             <div className="font-heading text-xl font-extrabold text-white leading-tight">{featured.label}</div>
-            <div className="text-sm font-semibold text-white/70">{featured.desc}</div>
+            <div className="text-sm font-semibold text-white/70">
+              {featured.groupKind === 'cahier' && cahierActuel ? `Cette semaine: ${titreModule(cahierActuel)}` : featured.desc}
+            </div>
           </div>
           <ChevronRight className="text-white/40" size={20} strokeWidth={3} />
         </button>
@@ -647,7 +665,7 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
       <div className="grid grid-cols-2 gap-2.5 mb-6">
         {grid.map(mode => (
           <button key={mode.id}
-            onClick={() => mode.groupKind === 'nylawords' ? setNylaWordsOpen(true) : mode.isGroup ? setDicteesOpen(true) : launchMode(mode.id)}
+            onClick={() => openGroup(mode)}
             className="bg-white border-2 border-s1 rounded-2xl p-4 text-left transition-all
               hover:border-fox hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97] relative">
             {mode.badge && (
@@ -701,6 +719,76 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
                 </button>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 📒 Cahier Jazz — table des matières, module de la semaine + un pas d'avance */}
+      {cahierOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4"
+          onClick={() => setCahierOpen(false)}>
+          <div onClick={(e) => e.stopPropagation()}
+            className="bg-cream rounded-2xl p-5 max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl border-2 border-s1">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-heading text-xl font-extrabold text-stone">📒 Mon cahier Jazz</h3>
+              <button onClick={() => setCahierOpen(false)}
+                className="w-9 h-9 rounded-full bg-white border-2 border-s2 text-s4 font-bold hover:border-lava hover:text-lava">
+                ✕
+              </button>
+            </div>
+            <p className="text-xs font-bold text-fox-d bg-orange-50 border-2 border-orange-200 rounded-xl p-3 mb-4 text-center">
+              Pratique ce que tu fais en classe cette semaine, puis prends un pas d'avance sur la semaine prochaine. 🦁
+            </p>
+            {CAHIER_THEMES.map((theme) => (
+              <div key={theme.id} className="mb-4">
+                <div className="text-xs font-extrabold text-s4 uppercase tracking-wide mb-2 px-1">
+                  {theme.numero ? `Thème ${theme.numero} — ${theme.titre}` : theme.titre} · p. {theme.page}
+                </div>
+                <div className="space-y-2">
+                  {theme.modules.map((m) => {
+                    const actuel = m.id === cahierActuel?.id;
+                    const prochain = m.id === cahierProchain?.id;
+                    const fait = cahierFaits.has(m.id);
+                    return (
+                      <div key={m.id}
+                        className={`rounded-2xl p-3 border-2 ${actuel ? 'bg-orange-50 border-lava' : prochain ? 'bg-white border-fox' : 'bg-white border-s1'} ${!m.mode ? 'opacity-60' : ''}`}>
+                        <div className="flex items-start gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-heading font-bold text-stone text-sm flex flex-wrap items-center gap-1.5">
+                              {m.numero ? `Module ${m.numero} — ${m.notions[0]}` : m.label}
+                              {actuel && <span className="text-[10px] font-bold bg-lava text-white px-2 py-0.5 rounded-full">CETTE SEMAINE</span>}
+                              {prochain && <span className="text-[10px] font-bold bg-fox text-white px-2 py-0.5 rounded-full">🚀 SEMAINE PROCHAINE</span>}
+                              {fait && <span className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">✓ VU EN CLASSE</span>}
+                            </div>
+                            <div className="text-xs text-s4 font-semibold mt-0.5">
+                              {m.lecture ? `« ${m.lecture} » · ` : ''}p. {m.pages}
+                              {m.notions.length > 1 ? ` · ${m.notions.slice(1).join(' · ')}` : ''}
+                            </div>
+                          </div>
+                          {m.mode ? (
+                            <div className="flex flex-col gap-1.5 flex-shrink-0">
+                              <button onClick={() => { setCahierOpen(false); launchMode(m.mode); }}
+                                className="px-3 py-1.5 rounded-lg font-bold text-white text-xs"
+                                style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
+                                ▶ {m.extra ? m.notions[0].replace(/^(Le |La |L')/, '') : 'Pratiquer'}
+                              </button>
+                              {m.extra && (
+                                <button onClick={() => { setCahierOpen(false); launchMode(m.extra.mode); }}
+                                  className="px-3 py-1.5 rounded-lg font-bold text-fox-d text-xs bg-orange-50 border-2 border-orange-200">
+                                  ▶ {m.extra.label}
+                                </button>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-[10px] font-bold text-s4 flex-shrink-0 mt-1">bientôt</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
