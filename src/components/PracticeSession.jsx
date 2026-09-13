@@ -51,6 +51,7 @@ import { generateMDevantBmp } from '../generators/mDevantBmp';
 import { generateAccordEtre } from '../generators/accordEtre';
 import { generateVerbesAvoirEtre } from '../generators/verbesAvoirEtre';
 import { generateUniversSocial } from '../generators/universSocial';
+import { recordUsAnswer } from '../data/universSocialStats';
 import { saveSession } from '../utils/storage';
 import { incrementStudyRounds } from '../utils/studyRounds';
 import { notifySessionResult } from '../utils/notifications';
@@ -396,6 +397,9 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
     // Record per-category mastery for PEMDAS adaptive learning
     if (question.category === 'pemdas' && question.pemdasCategory) {
       recordPemdasAnswer(question.pemdasCategory, isCorrect);
+    }
+    if (question.category === 'univers_social') {
+      recordUsAnswer(question.correct, value, isCorrect);
     }
 
     setResults((prev) => [...prev, result]);

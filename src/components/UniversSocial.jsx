@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { speak } from '../utils/speech';
 import { saveSession } from '../utils/storage';
 import { notifySessionResult } from '../utils/notifications';
 import { buildSmartQueue, recordAnswer, getWeekSummary } from '../utils/wordMastery';
 import { DOSSIER, MOTS, ASPECTS, masteryItems } from '../data/universSocialD1';
+import { syncFromServer, weakWords, fetchVariants } from '../data/universSocialStats';
 
 // Univers social — Dossier 1 (Cayla, secondaire 1)
 //   📖 Liste  — les 30 mots, définition du prof + idée-clé + ses notes
@@ -32,6 +33,26 @@ export default function UniversSocial({ onHome, onStartPractice }) {
   const [view, setView] = useState('cartes');
   const [tick, setTick] = useState(0);
   const summary = useMemo(() => getWeekSummary(profile, MASTERY_KEY, masteryItems), [tick]);
+  const [weak, setWeak] = useState(() => weakWords(6));
+  const [aiStatus, setAiStatus] = useState('');
+
+  // À l'ouverture: on récupère ses résultats de Test (tous appareils), puis l'IA
+  // écrit de nouveaux textes / phrases pour ses mots faibles.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      await syncFromServer(profile);
+      const w = weakWords(6);
+      if (cancelled) return;
+      setWeak(w);
+      if (w.length) {
+        setAiStatus('🤖 L\'IA prépare de nouvelles questions sur tes mots difficiles…');
+        await fetchVariants(w.map((x) => x.id));
+        if (!cancelled) setAiStatus('🤖 Nouvelles questions prêtes pour: ' + w.map((x) => x.mot).join(', '));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [profile]);
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-4 pb-10">
@@ -61,6 +82,25 @@ export default function UniversSocial({ onHome, onStartPractice }) {
           <div className="h-3" style={{ width: `${(summary.learning / summary.total) * 100}%`, background: '#e8622a' }} />
         </div>
       </div>
+
+      {/* Où elle se trompe (d'après ses Tests) */}
+      {weak.length > 0 && (
+        <div className="bg-red-50 rounded-xl p-3 mb-3 border-2 border-red-200">
+          <p className="text-xs font-extrabold text-red-700 uppercase tracking-wide mb-1">🎯 Tes mots à travailler (d'après tes tests)</p>
+          <div className="space-y-1">
+            {weak.map((w) => (
+              <div key={w.id} className="text-sm text-stone">
+                <b>{w.mot}</b> <span className="text-xs text-s4 font-bold">{w.right}/{w.total} bon{w.total > 1 ? 's' : ''}</span>
+                {w.confusions.length > 0 && (
+                  <span className="text-xs text-red-700 font-semibold"> — tu l'as confondu avec {w.confusions.slice(0, 2).map((c) => c.mot).join(' et ')}</span>
+                )}
+              </div>
+            ))}
+          </div>
+          {aiStatus && <p className="text-[11px] font-bold text-s4 mt-2">{aiStatus}</p>}
+          <p className="text-[11px] font-semibold text-s4 mt-1">Le Test te repose ces mots plus souvent et te ressort exprès les choix que tu as confondus.</p>
+        </div>
+      )}
 
       <div className="flex gap-2 mb-4">
         <button onClick={() => setView('cartes')}
@@ -176,8 +216,10 @@ function Cartes({ profile, onAnswer, onHome }) {
       <div className="bg-white rounded-2xl border-2 border-s1 p-5 text-center">
         <div className="text-4xl mb-2">🃏</div>
         <h3 className="font-heading text-xl font-extrabold text-stone mb-1">Explique chaque mot dans tes mots</h3>
+        <p className="text-sm font-semibold text-s4 mb-2">
+          <b>Rien à écrire ni à taper.</b> Tu vois le mot, tu l'expliques <b>à voix haute</b> comme à une amie, puis tu retournes la carte et tu compares avec l'idée-clé.
+        </p>
         <p className="text-sm font-semibold text-s4 mb-4">
-          Tu vois le mot. Explique-le à voix haute comme tu le dirais à une amie, puis retourne la carte et compare avec l'idée-clé.
           Pas besoin des mêmes mots que le prof — seulement la bonne idée. Sois honnête: « Je l'avais » seulement si l'idée y était.
           Les mots ratés reviennent au tour suivant.
         </p>
@@ -223,7 +265,7 @@ function Cartes({ profile, onAnswer, onHome }) {
 
         {!flipped ? (
           <>
-            <p className="text-sm font-semibold text-s4 mb-4">Explique ce mot dans tes mots, puis retourne la carte.</p>
+            <p className="text-sm font-semibold text-s4 mb-4">Explique ce mot à voix haute, dans tes mots (rien à écrire), puis retourne la carte.</p>
             <button onClick={() => { setFlipped(true); speak(m.cle); }}
               className="w-full py-3 rounded-xl font-bold text-white"
               style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>

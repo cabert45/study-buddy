@@ -429,6 +429,42 @@ app.post('/api/reset', async (req, res) => {
   }
 });
 
+// Univers social (Cayla) — l'IA écrit de nouveaux textes à résumer et de
+// nouvelles phrases à trou pour les mots qu'elle rate, pour qu'elle ne
+// reconnaisse pas la question par cœur.
+app.post('/api/univers-social/variantes', async (req, res) => {
+  if (!anthropic) return res.json({ variantes: {} });
+  try {
+    const mots = (req.body.mots || []).slice(0, 8);
+    if (!mots.length) return res.json({ variantes: {} });
+    const liste = mots.map((m) => `- id: ${m.id} | mot: ${m.mot} | idée: ${m.cle}`).join('\n');
+    const response = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1800,
+      system: `Tu prépares des exercices de vocabulaire d'histoire (secondaire 1, Québec, Dossier « La sédentarisation », Néolithique).
+Pour chaque mot, écris 2 courts textes (2 phrases, max 35 mots) qui DÉCRIVENT la situation sans jamais utiliser le mot ni sa racine, et 2 phrases à trou où le mot est remplacé par ___ (le mot ne doit apparaître nulle part dans la phrase).
+Réponds UNIQUEMENT en JSON: {"variantes": {"<id>": {"textes": ["...","..."], "trous": ["...","..."]}}}`,
+      messages: [{ role: 'user', content: `Mots:\n${liste}` }],
+    });
+    const text = response.content[0]?.text || '';
+    const json = text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1);
+    const parsed = JSON.parse(json);
+    // Sécurité: on retire toute variante où le mot apparaît quand même
+    const out = {};
+    for (const m of mots) {
+      const v = parsed.variantes?.[m.id];
+      if (!v) continue;
+      const root = m.mot.toLowerCase().split(/[\s/]/)[0].slice(0, 5);
+      const clean = (arr) => (arr || []).filter((t) => typeof t === 'string' && !t.toLowerCase().includes(root));
+      out[m.id] = { textes: clean(v.textes), trous: clean(v.trous).filter((t) => t.includes('___')) };
+    }
+    res.json({ variantes: out });
+  } catch (err) {
+    console.error('Univers social variantes error:', err);
+    res.json({ variantes: {} });
+  }
+});
+
 app.post('/api/tutor', async (req, res) => {
   if (!anthropic) {
     return res.status(500).json({ error: 'Cle API Anthropic non configuree' });
