@@ -3,6 +3,13 @@
 
 export const whatsNew = [
   {
+    id: '2026-09-13-cayla-univers-social-d1',
+    date: '2026-09-13',
+    profile: 'cayla',
+    title: 'Univers social — Dossier 1: tes 29 mots 🏺',
+    body: "Tes mots de vocabulaire sur la sédentarisation sont dans l'app, avec tes notes et tes pastilles. Fais les Cartes (définis chaque mot dans tes mots), puis le Test en choix multiple. Les mots rouges et jaunes passent en premier.",
+  },
+  {
     id: '2026-09-08-cayla-secondaire-verbes',
     date: '2026-09-08',
     profile: 'cayla',

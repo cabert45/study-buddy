@@ -60,10 +60,11 @@ const nouns = [
 // Possessive determiners
 const possessiveQuestions = [
   { sentence: '___ amis patinent sur le lac gelé.', correct: 'Nos', options: ['Ta', 'Mon', 'Nos'] },
-  { sentence: '___ mère fait de la raquette.', correct: 'Mon', options: ['Ta', 'Mon', 'Nos'] },
+  { sentence: '___ mère fait de la raquette.', correct: 'Ma', options: ['Ma', 'Mon', 'Mes'] },
   { sentence: '___ père boit un chocolat chaud.', correct: 'Mon', options: ['Ta', 'Mon', 'Nos'] },
   { sentence: '___ chat dort sur le sofa.', correct: 'Mon', options: ['Ta', 'Mon', 'Ses'] },
-  { sentence: '___ amie joue dehors.', correct: 'Son', options: ['Son', 'Ses', 'Mon'] },
+  // « son amie » (et non « sa amie ») devant une voyelle — Mon serait aussi correct, donc pas dans les choix
+  { sentence: '___ amie joue dehors.', correct: 'Son', options: ['Son', 'Sa', 'Ses'] },
   { sentence: '___ livres sont sur la table.', correct: 'Ses', options: ['Son', 'Ses', 'Mon'] },
   { sentence: '___ soeur est gentille.', correct: 'Sa', options: ['Sa', 'Son', 'Ses'] },
   { sentence: '___ parents arrivent bientôt.', correct: 'Ses', options: ['Son', 'Sa', 'Ses'] },
@@ -71,30 +72,52 @@ const possessiveQuestions = [
 
 // Sentence completion with du/des, son/ses
 const sentenceQuestions = [
-  { sentence: 'Tu fais ___ patin.', correct: 'du', options: ['du', 'des'] },
-  { sentence: 'Shany apporte ___ skis.', correct: 'ses', options: ['son', 'ses'] },
-  { sentence: 'Ryan mange ___ pommes.', correct: 'des', options: ['du', 'des'] },
-  { sentence: 'Elle lit ___ livre.', correct: 'son', options: ['son', 'ses'] },
-  { sentence: 'Nous avons ___ crayons.', correct: 'des', options: ['du', 'des'] },
-  { sentence: 'Il prend ___ manteau.', correct: 'son', options: ['son', 'ses'] },
+  { sentence: 'Tu fais ___ patin.', correct: 'du', options: ['du', 'des', 'de la'] },
+  { sentence: 'Shany apporte ___ skis.', correct: 'ses', options: ['son', 'sa', 'ses'] },
+  { sentence: 'Ryan mange ___ pommes.', correct: 'des', options: ['du', 'une', 'des'] },
+  { sentence: 'Elle lit ___ livre.', correct: 'son', options: ['son', 'sa', 'ses'] },
+  { sentence: 'Nous avons ___ crayons.', correct: 'des', options: ['du', 'un', 'des'] },
+  { sentence: 'Il prend ___ manteau.', correct: 'son', options: ['son', 'sa', 'ses'] },
 ];
+
+// Commence par une voyelle ou un h muet → élision (l')
+const commenceParVoyelle = (mot) => /^[aeiouyàâéèêëîïôûh]/i.test(mot);
+
+// Tous les déterminants corrects pour ce nom (même genre, même nombre)
+function determinantsValides({ noun, gender, number }) {
+  if (number === 'p') return ['les', 'des'];
+  const defini = commenceParVoyelle(noun) ? "l'" : gender === 'f' ? 'la' : 'le';
+  return [defini, gender === 'f' ? 'une' : 'un'];
+}
+
+const avec = (det, noun) => (det === "l'" ? `l'${noun}` : `${det} ${noun}`);
 
 export function generateDeterminant() {
   const r = Math.random();
 
   if (r < 0.45) {
-    // Basic determiner matching
+    // Basic determiner matching.
+    // Plusieurs déterminants sont corrects pour un même nom: « la princesse » ET
+    // « une princesse », « le château » ET « un château », « les pommes » ET
+    // « des pommes ». Avant, un seul était accepté et l'autre apparaissait comme
+    // mauvais choix — Ryan se faisait compter faux avec le bon genre. On retire
+    // donc des distracteurs toutes les formes valides: les mauvais choix sont
+    // seulement ceux qui se trompent de genre, de nombre ou d'élision.
     const item = nouns[Math.floor(Math.random() * nouns.length)];
+    const valides = determinantsValides(item);
     const allDets = ['le', 'la', "l'", 'les', 'un', 'une', 'des'];
     const options = new Set([item.det]);
-    fillOptions(options, allDets.filter((d) => d !== item.det));
+    fillOptions(options, allDets.filter((d) => !valides.includes(d)));
+    const autre = valides.find((d) => d !== item.det);
+    const genre = `${item.gender === 'f' ? 'féminin' : 'masculin'} ${item.number === 's' ? 'singulier' : 'pluriel'}`;
     return {
       category: 'determinant',
       type: 'determinant',
       text: `Quel déterminant va avec "${item.noun}"?`,
       correct: item.det,
       options: shuffle([...options]),
-      explanation: `${item.noun} est ${item.gender === 'f' ? 'féminin' : 'masculin'} ${item.number === 's' ? 'singulier' : 'pluriel'} → ${item.det} ${item.noun}`,
+      explanation: `${item.noun} est ${genre} → ${avec(item.det, item.noun)}`
+        + (autre ? ` (on peut aussi dire ${avec(autre, item.noun)})` : ''),
     };
   }
 
@@ -118,7 +141,7 @@ export function generateDeterminant() {
     type: 'determinant_phrase',
     text: q.sentence.replace('___', '?'),
     correct: q.correct,
-    options: shuffle([...q.options, ...['le', 'la'].filter(o => !q.options.includes(o))].slice(0, 4)),
+    options: shuffle(q.options),
     explanation: `La bonne réponse est: ${q.sentence.replace('___', q.correct)}`,
   };
 }

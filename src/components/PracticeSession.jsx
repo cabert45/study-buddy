@@ -50,6 +50,7 @@ import { generateApostrophe } from '../generators/apostrophe';
 import { generateMDevantBmp } from '../generators/mDevantBmp';
 import { generateAccordEtre } from '../generators/accordEtre';
 import { generateVerbesAvoirEtre } from '../generators/verbesAvoirEtre';
+import { generateUniversSocial } from '../generators/universSocial';
 import { saveSession } from '../utils/storage';
 import { incrementStudyRounds } from '../utils/studyRounds';
 import { notifySessionResult } from '../utils/notifications';
@@ -122,6 +123,7 @@ function getGenerator(mode) {
     case 'm_devant_bmp': return generateMDevantBmp;
     case 'accord_etre': return generateAccordEtre;
     case 'verbes_avoir_etre': return generateVerbesAvoirEtre;
+    case 'univers_social': return generateUniversSocial;
     case 'francais_mix':
       // Weighted by Ryan's French exam results:
       // Adjective accord 8/20 → 25%, Dictée 3/10 → 20%,
@@ -554,7 +556,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
               );
             }
             return (
-              <p className="text-xl font-heading font-bold text-stone leading-relaxed mb-4">
+              <p className="text-xl font-heading font-bold text-stone leading-relaxed mb-4 whitespace-pre-line">
                 {question.text}
               </p>
             );
@@ -962,7 +964,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
                   key={i}
                   onClick={() => !showResult && handleAnswer(opt)}
                   disabled={showResult}
-                  className={`py-4 rounded-xl font-extrabold text-2xl transition-all ${btnClass}`}
+                  className={`py-4 rounded-xl font-extrabold transition-all ${String(displayLabel).length > 28 ? 'text-sm px-3 text-left leading-snug' : 'text-2xl'} ${btnClass}`}
                   style={{ minHeight: '60px' }}
                 >
                   <span className="flex items-center justify-center gap-2">
