@@ -1,30 +1,71 @@
 /* =====================================================================
    SKINS — un skin = un bloc de variables sous <html data-skin="…">.
    Les composants utilisent les couleurs Tailwind (bg-cream, text-stone,
-   border-s1…) qui lisent ces variables: aucun composant à dupliquer.
+   border-s1…) qui lisent des variables, plus les variables --sb-* ci-dessous
+   pour les nouveaux écrans (accueil, en-têtes de module).
 
-   « secondaire » — Cayla (sec. 1) et les invités /laval.
-   Direction: sobre, net, confiant. Encre bleu nuit, indigo → violet pour
-   l'action, beaucoup d'air, bordures fines et ombres douces, typo
-   Plus Jakarta Sans (titres) + Inter (texte). Plus d'orange « enfant ».
+   « secondaire » (Cayla + invités /laval) — la mise en page soignée
+     (bordures fines, ombres douces, icônes) AVEC les couleurs orange et les
+     polices Baloo 2 / Quicksand de l'app. Choix de Cayla, 14 sept. 2026.
+   « indigo » — variante sobre bleu nuit / violet, Plus Jakarta Sans + Inter.
+     Gardée pour le futur sélecteur « Choisis ton style ».
    ===================================================================== */
 
-html[data-skin='secondaire'] {
-  --c-cream: 246 247 251;      /* fond de page / surfaces douces */
-  --c-peach: 238 242 255;      /* indigo-50 */
-  --c-sand: 224 231 255;       /* indigo-100 */
-  --c-lava: 79 70 229;         /* indigo-600 — action principale */
-  --c-lava-l: 124 58 237;      /* violet-600 */
-  --c-fox: 99 102 241;         /* indigo-500 */
-  --c-fox-d: 67 56 202;        /* indigo-700 — libellés d'accent */
+/* ---- valeurs par défaut des nouveaux écrans (orange) ---- */
+:root {
+  --sb-grad: linear-gradient(135deg, #c74a15 0%, #e8622a 100%);
+  --sb-grad-shadow: rgba(199, 74, 21, 0.28);
+  --sb-hero: linear-gradient(135deg, #9a3412 0%, #c2410c 50%, #ea580c 100%);
+  --sb-hero-shadow: rgba(154, 52, 18, 0.28);
+  --sb-glow-1: rgba(253, 186, 116, 0.55);
+  --sb-glow-2: rgba(251, 191, 36, 0.35);
+  --sb-hero-eyebrow: #fed7aa;
+  --sb-hero-muted: rgba(255, 237, 213, 0.9);
+  --sb-brand-fg: #b85a1a;
+  --sb-brand-bg: #fdf0e5;
+  --sb-brand-ring: #f5dece;
+  --sb-progress: #f59e0b;
+  --sb-track: #f1e8df;
+}
+
+/* ---- mise en page soignée, commune aux skins secondaires ---- */
+html[data-skin] .border-2 { border-width: 1px; }
+html[data-skin] .bg-white.border-2,
+html[data-skin] .bg-white.border {
+  box-shadow: 0 1px 2px rgba(44, 32, 23, 0.04), 0 4px 16px rgba(44, 32, 23, 0.05);
+}
+html[data-skin] .rounded-2xl { border-radius: 18px; }
+html[data-skin] .rounded-xl { border-radius: 12px; }
+html[data-skin] .border-l-4 { border-left-width: 1px; border-left-color: rgb(var(--c-s1)); }
+
+/* Boutons principaux (classe réutilisable dans les nouveaux écrans) */
+.sb-btn-primary {
+  background: var(--sb-grad);
+  color: #fff;
+  box-shadow: 0 6px 18px var(--sb-grad-shadow);
+}
+.sb-btn-primary:hover { filter: brightness(1.06); }
+.sb-btn-primary:disabled { opacity: 0.45; }
+
+/* =====================================================================
+   « indigo » — pour plus tard (sélecteur de style)
+   ===================================================================== */
+html[data-skin='indigo'] {
+  --c-cream: 246 247 251;
+  --c-peach: 238 242 255;
+  --c-sand: 224 231 255;
+  --c-lava: 79 70 229;
+  --c-lava-l: 124 58 237;
+  --c-fox: 99 102 241;
+  --c-fox-d: 67 56 202;
   --c-fox-belly: 224 231 255;
-  --c-stone: 15 23 42;         /* slate-900 — encre */
-  --c-s6: 51 65 85;            /* slate-700 */
-  --c-s4: 100 116 139;         /* slate-500 */
-  --c-s3: 148 163 184;         /* slate-400 */
-  --c-s2: 203 213 225;         /* slate-300 */
-  --c-s1: 226 232 240;         /* slate-200 */
-  --c-ok: 5 150 105;           /* emerald-600 */
+  --c-stone: 15 23 42;
+  --c-s6: 51 65 85;
+  --c-s4: 100 116 139;
+  --c-s3: 148 163 184;
+  --c-s2: 203 213 225;
+  --c-s1: 226 232 240;
+  --c-ok: 5 150 105;
   --c-ok-bg: 236 253 245;
   --c-info: 37 99 235;
 
@@ -32,80 +73,41 @@ html[data-skin='secondaire'] {
   --font-body: 'Inter', system-ui, sans-serif;
 
   --sb-grad: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  --sb-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px rgba(15, 23, 42, 0.05);
-  --sb-shadow-lg: 0 2px 4px rgba(15, 23, 42, 0.04), 0 16px 40px rgba(49, 46, 129, 0.12);
+  --sb-grad-shadow: rgba(79, 70, 229, 0.25);
+  --sb-hero: linear-gradient(135deg, #0f172a 0%, #1e1b4b 55%, #312e81 100%);
+  --sb-hero-shadow: rgba(30, 27, 75, 0.25);
+  --sb-glow-1: rgba(129, 140, 248, 0.45);
+  --sb-glow-2: rgba(192, 132, 252, 0.30);
+  --sb-hero-eyebrow: #c7d2fe;
+  --sb-hero-muted: rgba(224, 231, 255, 0.8);
+  --sb-brand-fg: #4338ca;
+  --sb-brand-bg: #eef2ff;
+  --sb-brand-ring: #c7d2fe;
+  --sb-progress: #818cf8;
+  --sb-track: #eef2f7;
 }
-
-html[data-skin='secondaire'] body {
-  background: #f6f7fb;
-  color: #0f172a;
-  letter-spacing: -0.005em;
-}
-
-/* Lumière d'ambiance: halo indigo très discret en haut, rien d'autre */
-html[data-skin='secondaire'] body::before {
+html[data-skin='indigo'] body { background: #f6f7fb; color: #0f172a; letter-spacing: -0.005em; }
+html[data-skin='indigo'] body::before {
   background:
     radial-gradient(1200px 500px at 15% -10%, rgba(99, 102, 241, 0.10), transparent 60%),
     radial-gradient(900px 420px at 95% -5%, rgba(168, 85, 247, 0.08), transparent 60%);
 }
-
-html[data-skin='secondaire'] h1,
-html[data-skin='secondaire'] h2,
-html[data-skin='secondaire'] h3,
-html[data-skin='secondaire'] .font-heading {
-  letter-spacing: -0.02em;
-}
-
-/* Poids: les « extrabold » de l'ancien thème deviennent « bold » — plus élégant */
-html[data-skin='secondaire'] .font-extrabold { font-weight: 700; }
-
-/* Bordures fines + ombre douce au lieu des gros contours de 2 px */
-html[data-skin='secondaire'] .border-2 { border-width: 1px; }
-html[data-skin='secondaire'] .bg-white.border-2,
-html[data-skin='secondaire'] .bg-white.border {
-  box-shadow: var(--sb-shadow);
-}
-html[data-skin='secondaire'] .rounded-2xl { border-radius: 18px; }
-html[data-skin='secondaire'] .rounded-xl { border-radius: 12px; }
-
-/* Liseré d'accent à gauche des cartes: trop « scolaire » ici → carte propre */
-html[data-skin='secondaire'] .border-l-4 { border-left-width: 1px; border-left-color: rgb(var(--c-s1)); }
-
-/* Les accents orange/jaune de l'ancien thème → indigo */
-html[data-skin='secondaire'] .bg-orange-50 { background-color: #eef2ff; }
-html[data-skin='secondaire'] .border-orange-200 { border-color: #c7d2fe; }
-html[data-skin='secondaire'] .text-orange-500,
-html[data-skin='secondaire'] .text-orange-600,
-html[data-skin='secondaire'] .text-orange-700 { color: #4338ca; }
-html[data-skin='secondaire'] .bg-yellow-50 { background-color: #fffbeb; }
-
-/* Boutons à dégradé orange écrits en style inline → dégradé indigo/violet */
-html[data-skin='secondaire'] [style*='#c74a15'],
-html[data-skin='secondaire'] [style*='199, 74, 21'],
-html[data-skin='secondaire'] [style*='226, 118, 43'] {
+html[data-skin='indigo'] h1, html[data-skin='indigo'] h2, html[data-skin='indigo'] h3,
+html[data-skin='indigo'] .font-heading { letter-spacing: -0.02em; }
+html[data-skin='indigo'] .font-extrabold { font-weight: 700; }
+html[data-skin='indigo'] .bg-orange-50 { background-color: #eef2ff; }
+html[data-skin='indigo'] .border-orange-200 { border-color: #c7d2fe; }
+html[data-skin='indigo'] .text-orange-500,
+html[data-skin='indigo'] .text-orange-600,
+html[data-skin='indigo'] .text-orange-700 { color: #4338ca; }
+/* dégradés orange écrits en style inline (le navigateur les note en rgb) */
+html[data-skin='indigo'] [style*='199, 74, 21'],
+html[data-skin='indigo'] [style*='226, 118, 43'] {
   background: var(--sb-grad) !important;
-  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.25) !important;
+  box-shadow: 0 6px 18px var(--sb-grad-shadow) !important;
 }
-html[data-skin='secondaire'] [style*='#fff3e0'],
-html[data-skin='secondaire'] [style*='255, 243, 224'] {
+html[data-skin='indigo'] [style*='255, 243, 224'] {
   background: linear-gradient(135deg, #eef2ff, #f5f3ff) !important;
 }
-
-/* Boutons principaux (classe réutilisable dans les nouveaux écrans) */
-.sb-btn-primary {
-  background: linear-gradient(90deg, #c74a15, #e8622a);
-  color: #fff;
-}
-html[data-skin='secondaire'] .sb-btn-primary {
-  background: var(--sb-grad);
-  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.25);
-}
-.sb-btn-primary:hover { filter: brightness(1.06); }
-.sb-btn-primary:disabled { opacity: 0.45; }
-
-html[data-skin='secondaire'] input:focus {
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
-}
-
-/* Petite bannière « Installer » plus sobre */
-html[data-skin='secondaire'] ::selection { background: #c7d2fe; }
+html[data-skin='indigo'] input:focus { box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15); }
+html[data-skin='indigo'] ::selection { background: #c7d2fe; }

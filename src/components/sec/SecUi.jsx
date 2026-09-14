@@ -6,7 +6,8 @@ import { ArrowLeft } from 'lucide-react';
 // les encadrés — pour que les 3 modules aient exactement la même allure.
 
 export const TONES = {
-  indigo: { fg: '#4338ca', bg: '#eef2ff', ring: '#c7d2fe' },
+  // « indigo » = la couleur de marque du skin actif (orange par défaut)
+  indigo: { fg: 'var(--sb-brand-fg)', bg: 'var(--sb-brand-bg)', ring: 'var(--sb-brand-ring)' },
   amber: { fg: '#b45309', bg: '#fef3c7', ring: '#fde68a' },
   teal: { fg: '#0f766e', bg: '#ccfbf1', ring: '#99f6e4' },
   rose: { fg: '#be123c', bg: '#ffe4e6', ring: '#fecdd3' },
@@ -71,14 +72,14 @@ export function MasteryBar({ label = 'Maîtrise', summary }) {
         <p className="text-sm font-semibold text-stone">{label}</p>
         <p className="text-sm text-s4"><span className="font-semibold text-stone">{summary.mastered}</span> / {summary.total} · {pct}%</p>
       </div>
-      <div className="w-full h-2 rounded-full overflow-hidden flex" style={{ background: '#eef2f7' }}>
+      <div className="w-full h-2 rounded-full overflow-hidden flex" style={{ background: 'var(--sb-track)' }}>
         <div style={{ width: `${(summary.mastered / total) * 100}%`, background: '#059669' }} />
-        <div style={{ width: `${(summary.practicing / total) * 100}%`, background: '#818cf8' }} />
+        <div style={{ width: `${(summary.practicing / total) * 100}%`, background: 'var(--sb-progress)' }} />
         <div style={{ width: `${(summary.learning / total) * 100}%`, background: '#fb7185' }} />
       </div>
       <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[11px] text-s4">
         <Legend color="#059669" label={`Maîtrisées ${summary.mastered}`} />
-        <Legend color="#818cf8" label={`En progrès ${summary.practicing}`} />
+        <Legend color="var(--sb-progress)" label={`En progrès ${summary.practicing}`} />
         <Legend color="#fb7185" label={`À revoir ${summary.learning}`} />
         <Legend color="#cbd5e1" label={`Nouvelles ${summary.new}`} />
       </div>

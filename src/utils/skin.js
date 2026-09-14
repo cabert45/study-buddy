@@ -16,7 +16,7 @@ export function applySkin(skin) {
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
       if (!meta.dataset.default) meta.dataset.default = meta.getAttribute('content') || '';
-      meta.setAttribute('content', skin === 'secondaire' ? '#f6f7fb' : meta.dataset.default);
+      meta.setAttribute('content', skin === 'indigo' ? '#f6f7fb' : meta.dataset.default);
     }
   } catch {}
 }

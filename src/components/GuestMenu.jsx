@@ -104,7 +104,7 @@ export default function GuestMenu({
       <nav className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white"
-            style={{ background: 'linear-gradient(135deg,#4f46e5,#7c3aed)', boxShadow: '0 6px 16px rgba(79,70,229,.3)' }}>
+            style={{ background: 'var(--sb-grad)', boxShadow: '0 6px 16px var(--sb-grad-shadow)' }}>
             <GraduationCap size={19} />
           </div>
           <span className="font-heading text-lg font-bold text-stone">Study Buddy</span>
@@ -122,7 +122,7 @@ export default function GuestMenu({
               <button onClick={onSwitchProfile} title="Changer de profil"
                 className="h-9 pl-1 pr-3 rounded-xl bg-white border border-s1 flex items-center gap-2 text-sm font-semibold text-stone">
                 <span className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold"
-                  style={{ background: 'linear-gradient(135deg,#4f46e5,#7c3aed)' }}>{(name || '?').charAt(0)}</span>
+                  style={{ background: 'var(--sb-grad)' }}>{(name || '?').charAt(0)}</span>
                 {name}
               </button>
             )}
@@ -132,25 +132,25 @@ export default function GuestMenu({
 
       {/* Héros */}
       <section className="relative overflow-hidden rounded-3xl p-6 sm:p-8 mb-8 text-white"
-        style={{ background: 'linear-gradient(135deg,#0f172a 0%,#1e1b4b 55%,#312e81 100%)', boxShadow: '0 20px 50px rgba(30,27,75,.25)' }}>
-        <div aria-hidden className="absolute -right-16 -top-16 w-64 h-64 rounded-full" style={{ background: 'radial-gradient(circle, rgba(129,140,248,.45), transparent 70%)' }} />
-        <div aria-hidden className="absolute right-10 -bottom-20 w-56 h-56 rounded-full" style={{ background: 'radial-gradient(circle, rgba(192,132,252,.30), transparent 70%)' }} />
+        style={{ background: 'var(--sb-hero)', boxShadow: '0 20px 50px var(--sb-hero-shadow)' }}>
+        <div aria-hidden className="absolute -right-16 -top-16 w-64 h-64 rounded-full" style={{ background: 'radial-gradient(circle, var(--sb-glow-1), transparent 70%)' }} />
+        <div aria-hidden className="absolute right-10 -bottom-20 w-56 h-56 rounded-full" style={{ background: 'radial-gradient(circle, var(--sb-glow-2), transparent 70%)' }} />
         <div className="relative">
-          <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-indigo-200 mb-3">
+          <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.1em] mb-3" style={{ color: 'var(--sb-hero-eyebrow)' }}>
             <CalendarClock size={14} /> {name ? `Bonjour ${name} · Révision d’examens` : 'Révision d’examens'}
           </p>
           <h1 className="font-heading text-[28px] sm:text-4xl font-bold leading-[1.1] mb-3 text-white" style={{ letterSpacing: '-0.025em' }}>
             Arrive à ton examen<br />en sachant que tu sais.
           </h1>
-          <p className="text-sm sm:text-base text-indigo-100/80 max-w-md mb-6">
+          <p className="text-sm sm:text-base max-w-md mb-6" style={{ color: 'var(--sb-hero-muted)' }}>
             Des modules bâtis à partir des documents de ta classe. Apprends, pratique comme à l’examen, et revois seulement ce que tu rates.
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <button onClick={() => open(next.id)}
-              className="inline-flex items-center gap-2 rounded-xl bg-white text-slate-900 font-semibold text-sm px-4 py-2.5 hover:bg-indigo-50 transition-colors">
+              className="inline-flex items-center gap-2 rounded-xl bg-white text-slate-900 font-semibold text-sm px-4 py-2.5 hover:opacity-90 transition-opacity">
               {next.started ? 'Continuer' : 'Commencer'} : {next.title} <ArrowRight size={16} />
             </button>
-            <span className="text-sm text-indigo-100/80">
+            <span className="text-sm" style={{ color: 'var(--sb-hero-muted)' }}>
               <span className="font-semibold text-white">{mastered}</span> / {total} notions maîtrisées
             </span>
           </div>
@@ -181,8 +181,8 @@ export default function GuestMenu({
               <ArrowRight size={18} className="text-s3 group-hover:text-fox-d transition-colors mt-1 flex-shrink-0" />
             </div>
             <div className="mt-4 flex items-center gap-3">
-              <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: '#eef2f7' }}>
-                <div className="h-full rounded-full" style={{ width: `${m.pct}%`, background: 'linear-gradient(90deg,#4f46e5,#7c3aed)' }} />
+              <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--sb-track)' }}>
+                <div className="h-full rounded-full" style={{ width: `${m.pct}%`, background: 'var(--sb-grad)' }} />
               </div>
               <span className="text-xs text-s4 w-24 text-right">{m.started ? `${m.pct}% maîtrisé` : 'Pas commencé'}</span>
             </div>
