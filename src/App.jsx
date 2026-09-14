@@ -23,6 +23,7 @@ import SciencesLabo from './components/SciencesLabo';
 import GuestMenu from './components/GuestMenu';
 import { isGuest, guestProfile } from './utils/guest';
 import { applySkin, skinForProfile } from './utils/skin';
+import { stopSpeech } from './utils/speech';
 import StudyReminderSettings from './components/StudyReminderSettings';
 import FamilyOverview from './components/FamilyOverview';
 import Journal from './components/Journal';
@@ -64,6 +65,10 @@ export default function App() {
   // Auto-resume study reminders on app load
   React.useEffect(() => { autoResume(); }, []);
   React.useEffect(() => { applySkin(skinForProfile(profile)); }, [profile]);
+  // Quitter un écran (ou fermer une carte/un panneau) coupe la voix. useLayoutEffect:
+  // passe AVANT les useEffect du nouvel écran, pour ne pas couper sa première phrase.
+  React.useLayoutEffect(() => { stopSpeech(); },
+    [screen, flashcardWeek, nylaDeck, showBioFlashcard, showAgenda, showTestResults, showBoukili, showFamily]);
 
   function selectProfile(p) {
     setProfile(p);

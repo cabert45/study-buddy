@@ -105,6 +105,25 @@ function getEnglishVoice() {
   return anyEn || null;
 }
 
+// ---- Arrêter la voix quand on quitte un écran ----
+// Chaque changement d'écran appelle stopSpeech(): la phrase en cours est coupée ET
+// toute lecture programmée avec speakAfter() avant ce moment est annulée (sinon une
+// carte qui disait « lis le mot dans 300 ms » parlait encore une fois de retour au menu).
+let speechGen = 0;
+
+export function stopSpeech() {
+  speechGen++;
+  try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch {}
+}
+
+// setTimeout pour la voix: ne parle pas si on a changé d'écran entre-temps.
+// Retourne la fonction de nettoyage (à renvoyer depuis un useEffect).
+export function speakAfter(ms, fn) {
+  const gen = speechGen;
+  const t = setTimeout(() => { if (gen === speechGen) fn(); }, ms);
+  return () => clearTimeout(t);
+}
+
 export function speak(text, lang = 'fr', rate = 0.85) {
   if (!speechEnabled || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();

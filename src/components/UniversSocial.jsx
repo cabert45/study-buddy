@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Landmark, Layers, List, ClipboardCheck, Target, Info } from 'lucide-react';
 import { SecHeader, Segmented, MasteryBar, Callout, StartCard, IconTile } from './sec/SecUi';
 import { Volume2, HelpCircle, Trophy, PenLine } from 'lucide-react';
-import { speak } from '../utils/speech';
+import { speak, speakAfter, stopSpeech } from '../utils/speech';
 import { saveSession } from '../utils/storage';
 import { notifySessionResult } from '../utils/notifications';
 import { buildSmartQueue, recordAnswer, getWeekSummary } from '../utils/wordMastery';
@@ -172,8 +172,10 @@ function Cartes({ profile, onAnswer, onHome }) {
   // Le mot est lu à voix haute dès qu'une carte apparaît (elle ne connaît pas encore la plupart des mots)
   const current = queue[idx];
   useEffect(() => {
-    if (started && current && !flipped) setTimeout(() => speak(current.mot), 250);
+    if (started && current && !flipped) return speakAfter(250, () => speak(current.mot));
   }, [current, started]);
+  // Passer de Cartes à Liste (même écran) coupe aussi la voix
+  useEffect(() => () => stopSpeech(), []);
 
   function start() {
     // Priorité: les mots ratés / nouveaux d'abord, puis on met les rouges et jaunes de sa feuille en tête

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { speak } from '../utils/speech';
+import { speak, speakAfter } from '../utils/speech';
 import { saveSession } from '../utils/storage';
 import { biographieQuestions } from '../generators/biographieJr';
 import { notifySessionResult } from '../utils/notifications';
@@ -54,7 +54,7 @@ export default function BiographieFlashcard({ onHome, onFinish }) {
 
   useEffect(() => {
     if (q) {
-      setTimeout(() => speak(q.text, 0.95), 300);
+      speakAfter(300, () => speak(q.text, 0.95));
       setTimeout(() => inputRef.current?.focus(), 600);
     }
   }, [q]);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { speak } from '../utils/speech';
+import { speak, speakAfter } from '../utils/speech';
 import { saveSession } from '../utils/storage';
 
 // Nyla — Additions façon "Numberblocks": add two groups of blocks, count the
@@ -60,12 +60,11 @@ export default function NylaAddition({ onHome }) {
     const nq = buildQuestion(lvl);
     setQ(nq);
     setFlash(null);
-    setTimeout(() => speak(`${nq.a} plus ${nq.b}, ça fait combien?`, 'fr', 0.85), 150);
+    speakAfter(150, () => speak(`${nq.a} plus ${nq.b}, ça fait combien?`, 'fr', 0.85));
   }, []);
 
   useEffect(() => {
-    const t = setTimeout(() => speak(`${q.a} plus ${q.b}, ça fait combien?`, 'fr', 0.85), 500);
-    return () => clearTimeout(t);
+    return speakAfter(500, () => speak(`${q.a} plus ${q.b}, ça fait combien?`, 'fr', 0.85));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

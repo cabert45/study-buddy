@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { speak } from '../utils/speech';
+import { speak, speakAfter } from '../utils/speech';
 import { saveSession } from '../utils/storage';
 
 // Nyla — Plus ou moins? She can't read, so there are NO word choices.
@@ -36,10 +36,10 @@ export default function NylaCompare({ onHome }) {
   const [over, setOver] = useState(false);
 
   const ask = useCallback((nq) => {
-    setTimeout(() => speak(nq.say, 'fr', 0.85), 150);
+    speakAfter(150, () => speak(nq.say, 'fr', 0.85));
   }, []);
 
-  useEffect(() => { const t = setTimeout(() => speak(q.say, 'fr', 0.85), 500); return () => clearTimeout(t); }, []); // eslint-disable-line
+  useEffect(() => speakAfter(500, () => speak(q.say, 'fr', 0.85)), []); // eslint-disable-line
 
   function answer(side) {
     if (flash || over) return;

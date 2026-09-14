@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { speak, speakSlow } from '../utils/speech';
+import { speak, speakSlow, speakAfter } from '../utils/speech';
 import { saveSession } from '../utils/storage';
 import { nylaLetters, nylaWordWeeks } from '../data/nylaFlashcards';
 
@@ -96,8 +96,7 @@ export default function NylaFlashcard({ deck, onHome, onFinish }) {
   useEffect(() => {
     if (built && !introDone.current) {
       introDone.current = true;
-      const t = setTimeout(() => speak(built.intro, 'fr', 0.85), 300);
-      return () => clearTimeout(t);
+      return speakAfter(300, () => speak(built.intro, 'fr', 0.85));
     }
   }, [built]);
 

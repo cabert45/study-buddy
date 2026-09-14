@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { speak, speakSlow } from '../utils/speech';
+import { speak, speakSlow, speakAfter } from '../utils/speech';
 import { saveSession, generateAISentence } from '../utils/storage';
 import { dicteeWeeks } from '../data/dicteeWeekly';
 import { notifySessionResult } from '../utils/notifications';
@@ -192,7 +192,7 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
   // Speak the word when shown
   useEffect(() => {
     if (word) {
-      setTimeout(() => speakSlow(word.correct), 400);
+      speakAfter(400, () => speakSlow(word.correct));
       setTimeout(() => inputRef.current?.focus(), 800);
     }
   }, [word]);

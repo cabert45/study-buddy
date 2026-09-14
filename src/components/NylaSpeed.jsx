@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { speak } from '../utils/speech';
+import { speak, speakAfter } from '../utils/speech';
 import { saveSession } from '../utils/storage';
 
 // Nyla's "calcul rapide" — same idea as Ryan's SpeedGame (timed, streak, big
@@ -104,7 +104,7 @@ export default function NylaSpeed({ onHome }) {
     const nq = buildQuestion();
     setQ(nq);
     setFlash(null);
-    setTimeout(() => speak(nq.say, 'fr', 0.85), 150);
+    speakAfter(150, () => speak(nq.say, 'fr', 0.85));
   }, []);
 
   useEffect(() => {
