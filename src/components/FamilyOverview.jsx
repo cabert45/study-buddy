@@ -10,6 +10,69 @@ function pct(c, t) {
   return t > 0 ? Math.round((c / t) * 100) : 0;
 }
 
+function GuestStats() {
+  const [g, setG] = useState(null);
+  useEffect(() => {
+    fetch('/api/guest/stats').then((r) => r.json()).then(setG).catch(() => setG({ error: true }));
+  }, []);
+  if (!g) return null;
+  if (g.error) return <p className="text-xs text-s4 font-semibold">Compteur des invités indisponible.</p>;
+  const maxDay = Math.max(1, ...g.daily.map((d) => d.devices));
+  const mods = [['univers_social', '🏺 Univers social'], ['sciences_labo', '🧪 Sciences'], ['verbes', '📗 Verbes']];
+  const sPct = pct(g.sessions.correct, g.sessions.questions);
+  return (
+    <div className="bg-white rounded-2xl p-4 border-2 border-s1" style={{ borderLeftWidth: 6, borderLeftColor: '#3a5bc7' }}>
+      <div className="flex items-center gap-3 mb-3">
+        <div className="text-3xl">👋</div>
+        <div className="flex-1">
+          <div className="font-heading text-lg font-extrabold text-stone">Invités — lien /laval</div>
+          <div className="text-xs font-bold text-s4">Camarades de classe · appareils anonymes{g.since ? ` · depuis le ${g.since}` : ''}</div>
+        </div>
+        <div className="text-right">
+          <div className="font-heading text-2xl font-extrabold" style={{ color: '#3a5bc7' }}>{g.devices}</div>
+          <div className="text-[10px] font-bold text-s4 uppercase">appareils</div>
+        </div>
+      </div>
+      <div className="grid grid-cols-4 gap-2 mb-3">
+        {[[g.today, "Aujourd'hui"], [g.week, '7 jours'], [g.returning, 'Revenus'], [g.visits, 'Visites']].map(([v, l]) => (
+          <div key={l} className="bg-cream rounded-lg p-2 text-center border border-s1">
+            <div className="font-heading text-base font-extrabold text-stone">{v}</div>
+            <div className="text-[9px] font-bold text-s4 uppercase">{l}</div>
+          </div>
+        ))}
+      </div>
+      <p className="text-[10px] font-bold text-s4 uppercase mb-1">Modules ouverts (appareils)</p>
+      <div className="space-y-1 mb-3">
+        {mods.map(([id, label]) => (
+          <div key={id} className="flex justify-between text-xs">
+            <span className="text-s6 font-bold">{label}</span>
+            <span className="text-stone font-bold">{g.modules[id]?.devices || 0} <span className="text-s4 font-semibold">({g.modules[id]?.opens || 0} ouvertures)</span></span>
+          </div>
+        ))}
+      </div>
+      <p className="text-xs text-s6 font-semibold mb-3">
+        Sessions terminées: <b>{g.sessions.count}</b> par {g.sessions.devices} appareil{g.sessions.devices > 1 ? 's' : ''}
+        {g.sessions.questions > 0 && <> · {g.sessions.questions} questions · {sPct}% de réussite</>}
+      </p>
+      {g.daily.length > 0 && (
+        <>
+          <p className="text-[10px] font-bold text-s4 uppercase mb-1">Appareils par jour (14 jours)</p>
+          <div className="flex items-end gap-1 h-16">
+            {g.daily.map((d) => (
+              <div key={d.date} className="flex-1 flex flex-col items-center justify-end h-full" title={`${d.date}: ${d.devices}`}>
+                <div className="text-[9px] font-bold text-s6">{d.devices}</div>
+                <div className="w-full rounded-t" style={{ height: `${(d.devices / maxDay) * 100}%`, minHeight: 3, background: '#3a5bc7' }} />
+                <div className="text-[8px] text-s4 font-bold mt-0.5">{d.date.slice(8)}</div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+      <p className="text-[10px] text-s4 font-semibold mt-2">Un appareil ≈ une personne: un élève sur 2 appareils, ou en navigation privée, compte plus d'une fois.</p>
+    </div>
+  );
+}
+
 export default function FamilyOverview({ onClose }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -36,6 +99,7 @@ export default function FamilyOverview({ onClose }) {
 
         {!loading && data && (
           <div className="space-y-3">
+            <GuestStats />
             {Object.entries(data).map(([profileId, d]) => {
               const meta = profileMeta[profileId];
               if (!meta) return null;

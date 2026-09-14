@@ -38,6 +38,21 @@ export function isGuest() {
   try { return !!localStorage.getItem(GUEST_KEY); } catch { return false; }
 }
 
+// Compteur anonyme: « open » une fois par chargement de l'app, puis chaque module ouvert
+let openedPinged = false;
+export function pingGuest(event) {
+  if (!isGuest()) return;
+  if (event === 'open') { if (openedPinged) return; openedPinged = true; }
+  try {
+    fetch('/api/guest/ping', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: guestProfile(), event }),
+      keepalive: true,
+    }).catch(() => {});
+  } catch {}
+}
+
 export function guestProfile() {
   try {
     let p = localStorage.getItem(PROFILE_KEY) || '';

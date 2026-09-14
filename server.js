@@ -78,6 +78,20 @@ async function initDb() {
       }
     }
 
+    // Mode invité (/laval): compteur anonyme par appareil. Aucun nom, aucune IP,
+    // aucun navigateur enregistré — seulement l'identifiant aléatoire invite-xxxx.
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS guest_visits (
+        guest_id TEXT NOT NULL,
+        date TEXT NOT NULL,
+        event TEXT NOT NULL,
+        count INTEGER NOT NULL DEFAULT 1,
+        first_at TIMESTAMP DEFAULT NOW(),
+        last_at TIMESTAMP DEFAULT NOW(),
+        PRIMARY KEY (guest_id, date, event)
+      )
+    `);
+
     console.log('Database tables ready');
   } finally {
     client.release();
@@ -425,6 +439,51 @@ app.post('/api/reset', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('Reset error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// ---------------------------------------------------------------- Invités (/laval)
+const GUEST_ID_RE = /^invite-[a-z0-9]{4,16}$/;
+const GUEST_EVENTS = new Set(['open', 'module:univers_social', 'module:sciences_labo', 'module:verbes']);
+const TODAY_SQL = `to_char(NOW() AT TIME ZONE 'America/Toronto', 'YYYY-MM-DD')`;
+
+app.post('/api/guest/ping', async (req, res) => {
+  try {
+    const { id, event } = req.body || {};
+    if (!GUEST_ID_RE.test(String(id || '')) || !GUEST_EVENTS.has(event)) return res.status(400).json({ ok: false });
+    await pool.query(`
+      INSERT INTO guest_visits (guest_id, date, event) VALUES ($1, ${TODAY_SQL}, $2)
+      ON CONFLICT (guest_id, date, event) DO UPDATE SET count = guest_visits.count + 1, last_at = NOW()
+    `, [id, event]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Guest ping error:', err);
+    res.status(500).json({ ok: false });
+  }
+});
+
+// Chiffres agrégés seulement (jamais les identifiants)
+app.get('/api/guest/stats', async (req, res) => {
+  try {
+    const n = (r, k = 'n') => parseInt(r?.[k]) || 0;
+    const weekAgo = `to_char((NOW() AT TIME ZONE 'America/Toronto') - INTERVAL '6 days', 'YYYY-MM-DD')`;
+    const total = await queryOne(`SELECT COUNT(DISTINCT guest_id) AS n, COALESCE(SUM(count) FILTER (WHERE event='open'),0) AS visits, MIN(date) AS first FROM guest_visits`);
+    const today = await queryOne(`SELECT COUNT(DISTINCT guest_id) AS n FROM guest_visits WHERE date = ${TODAY_SQL}`);
+    const week = await queryOne(`SELECT COUNT(DISTINCT guest_id) AS n FROM guest_visits WHERE date >= ${weekAgo}`);
+    const back = await queryOne(`SELECT COUNT(*) AS n FROM (SELECT guest_id FROM guest_visits GROUP BY guest_id HAVING COUNT(DISTINCT date) > 1) t`);
+    const modules = await queryAll(`SELECT event, COUNT(DISTINCT guest_id) AS devices, SUM(count) AS opens FROM guest_visits WHERE event LIKE 'module:%' GROUP BY event`);
+    const daily = await queryAll(`SELECT date, COUNT(DISTINCT guest_id) AS devices FROM guest_visits WHERE date >= to_char((NOW() AT TIME ZONE 'America/Toronto') - INTERVAL '13 days', 'YYYY-MM-DD') GROUP BY date ORDER BY date`);
+    const sessions = await queryOne(`SELECT COUNT(*) AS n, COUNT(DISTINCT profile) AS devices, COALESCE(SUM(total),0) AS questions, COALESCE(SUM(correct),0) AS correct FROM sessions WHERE profile LIKE 'invite-%'`);
+    res.json({
+      devices: n(total), visits: n(total, 'visits'), since: total?.first || null,
+      today: n(today), week: n(week), returning: n(back),
+      modules: Object.fromEntries(modules.map((m) => [m.event.replace('module:', ''), { devices: parseInt(m.devices) || 0, opens: parseInt(m.opens) || 0 }])),
+      daily: daily.map((d) => ({ date: d.date, devices: parseInt(d.devices) || 0 })),
+      sessions: { count: n(sessions), devices: n(sessions, 'devices'), questions: n(sessions, 'questions'), correct: n(sessions, 'correct') },
+    });
+  } catch (err) {
+    console.error('Guest stats error:', err);
     res.status(500).json({ error: 'Database error' });
   }
 });
