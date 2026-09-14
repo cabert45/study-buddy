@@ -475,12 +475,27 @@ app.get('/api/guest/stats', async (req, res) => {
     const modules = await queryAll(`SELECT event, COUNT(DISTINCT guest_id) AS devices, SUM(count) AS opens FROM guest_visits WHERE event LIKE 'module:%' GROUP BY event`);
     const daily = await queryAll(`SELECT date, COUNT(DISTINCT guest_id) AS devices FROM guest_visits WHERE date >= to_char((NOW() AT TIME ZONE 'America/Toronto') - INTERVAL '13 days', 'YYYY-MM-DD') GROUP BY date ORDER BY date`);
     const sessions = await queryOne(`SELECT COUNT(*) AS n, COUNT(DISTINCT profile) AS devices, COALESCE(SUM(total),0) AS questions, COALESCE(SUM(correct),0) AS correct FROM sessions WHERE profile LIKE 'invite-%'`);
+    // Heures (Montréal) — les horodatages sont en UTC (NOW() du serveur Neon)
+    const LOCAL = (col) => `((${col} AT TIME ZONE 'UTC') AT TIME ZONE 'America/Toronto')`;
+    const hourly = await queryAll(`
+      SELECT EXTRACT(HOUR FROM ${LOCAL('f')})::int AS hour, COUNT(*) AS devices
+      FROM (SELECT guest_id, MIN(first_at) AS f FROM guest_visits WHERE date = ${TODAY_SQL} GROUP BY guest_id) t
+      GROUP BY 1 ORDER BY 1`);
+    const sinceHour = Math.min(23, Math.max(0, parseInt(req.query.since, 10) || 0));
+    const since = await queryOne(`
+      SELECT
+        COUNT(DISTINCT guest_id) FILTER (WHERE EXTRACT(HOUR FROM ${LOCAL('last_at')}) >= $1) AS active,
+        (SELECT COUNT(*) FROM (SELECT guest_id FROM guest_visits WHERE date = ${TODAY_SQL} GROUP BY guest_id
+           HAVING EXTRACT(HOUR FROM ${LOCAL('MIN(first_at)')}) >= $1) x) AS new
+      FROM guest_visits WHERE date = ${TODAY_SQL}`, [sinceHour]);
     res.json({
       devices: n(total), visits: n(total, 'visits'), since: total?.first || null,
       today: n(today), week: n(week), returning: n(back),
       modules: Object.fromEntries(modules.map((m) => [m.event.replace('module:', ''), { devices: parseInt(m.devices) || 0, opens: parseInt(m.opens) || 0 }])),
       daily: daily.map((d) => ({ date: d.date, devices: parseInt(d.devices) || 0 })),
       sessions: { count: n(sessions), devices: n(sessions, 'devices'), questions: n(sessions, 'questions'), correct: n(sessions, 'correct') },
+      hourlyToday: hourly.map((h) => ({ hour: h.hour, newDevices: parseInt(h.devices) || 0 })),
+      sinceHourToday: { hour: sinceHour, activeDevices: n(since, 'active'), newDevices: n(since, 'new') },
     });
   } catch (err) {
     console.error('Guest stats error:', err);
