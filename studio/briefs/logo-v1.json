@@ -1,0 +1,10 @@
+[
+  { "out": "logo-1-livre-bulle", "aspect": "1:1", "size": "1K", "style": "LOGO.md",
+    "brief": "An open book seen from the front whose two pages curve up to form the shape of a friendly speech bubble — study plus a buddy talking with you. Orange book, cream pages, a tiny warm smile hinted by the page curve." },
+  { "out": "logo-2-deux-bulles", "aspect": "1:1", "size": "1K", "style": "LOGO.md",
+    "brief": "Two overlapping rounded speech bubbles, one burnt orange and one bright orange, arranged so the space where they overlap forms a small open book or a star — two buddies learning together. Very simple, symmetrical, bold." },
+  { "out": "logo-3-renard", "aspect": "1:1", "size": "1K", "style": "LOGO.md",
+    "brief": "A minimal geometric fox head built from a few clean triangles and circles in oranges and cream, friendly calm eyes, wearing a tiny graduation cap tilted to one side. Flat symbol, not a cartoon illustration, readable as an app icon." },
+  { "out": "logo-4-ampoule-crayon", "aspect": "1:1", "size": "1K", "style": "LOGO.md",
+    "brief": "A rounded app-icon style mark: a warm orange rounded square badge containing a simple cream lightbulb whose filament is drawn as a small pencil tip, with two short spark lines — the idea of 'I get it!'. Bold, simple, iconic." }
+]

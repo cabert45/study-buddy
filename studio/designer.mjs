@@ -44,7 +44,8 @@ const name = opt('out', 'img-' + new Date().toISOString().replace(/[:.]/g, '-').
 if (!brief) { console.error('usage: node studio/designer.mjs "<brief>" [--aspect 4:3] [--size 1K] [--out name] [--ref page.jpg]'); process.exit(1); }
 if (!KEY) { console.error('GEMINI_API_KEY introuvable (studio/.env ou le .env de Spotlight)'); process.exit(1); }
 
-const styleMd = fs.readFileSync(path.join(here, 'style', 'STYLE.md'), 'utf8');
+// --style LOGO.md → autre guide de style (le défaut STYLE.md = images de questions)
+const styleMd = fs.readFileSync(path.join(here, 'style', opt('style', 'STYLE.md')), 'utf8');
 const block = styleMd.split('## Prompt block (prepend to every generation)')[1]?.split('## Rules')[0]?.trim() || '';
 const prompt = `${block}\n\nBrief: ${brief}\n\nOutput one illustration only.`;
 

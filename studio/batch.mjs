@@ -18,7 +18,7 @@ const briefs = JSON.parse(fs.readFileSync(file, 'utf8'));
 
 const run = (b) => new Promise((resolve) => {
   if (fs.existsSync(path.join(here, 'out', `${b.out}.jpg`))) { console.log(`skip ${b.out} (déjà là)`); return resolve(true); }
-  const p = spawn(process.execPath, [path.join(here, 'designer.mjs'), b.brief, '--aspect', b.aspect || '4:3', '--size', b.size || '1K', '--out', b.out, ...refs], { stdio: ['ignore', 'pipe', 'pipe'] });
+  const p = spawn(process.execPath, [path.join(here, 'designer.mjs'), b.brief, '--aspect', b.aspect || '4:3', '--size', b.size || '1K', '--out', b.out, ...(b.style ? ['--style', b.style] : []), ...refs], { stdio: ['ignore', 'pipe', 'pipe'] });
   let log = '';
   p.stdout.on('data', (d) => { log += d; });
   p.stderr.on('data', (d) => { log += d; });
