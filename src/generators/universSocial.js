@@ -1,6 +1,7 @@
 import { fillOptions } from './options.js';
 import { MOTS, IMAGES, motById } from '../data/universSocialD1.js';
 import { getUsStats, usPriority, getVariants } from '../data/universSocialStats.js';
+import { isGuest } from '../utils/guest.js';
 // Univers social — Dossier 1 (Cayla, secondaire 1) — choix multiple
 // Reproduit les 3 formats « objectifs » de l'examen:
 //   1. associer le mot à une définition (dans les 2 sens)
@@ -70,7 +71,7 @@ function trouFor(m) {
 const base = (m, extra) => ({
   category: 'univers_social',
   ...extra,
-  explanation: `${m.mot}: ${m.cle}${m.note ? ` (ta note: « ${m.note} »)` : ''}`,
+  explanation: `${m.mot}: ${m.cle}${m.note && !isGuest() ? ` (ta note: « ${m.note} »)` : ''}`,
 });
 
 // Les formats tournent (au lieu du hasard pur) pour que chaque Test montre

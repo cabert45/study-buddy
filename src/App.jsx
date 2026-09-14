@@ -20,6 +20,8 @@ import BiographieFlashcard from './components/BiographieFlashcard';
 import VerbesAvoirEtre from './components/VerbesAvoirEtre';
 import UniversSocial from './components/UniversSocial';
 import SciencesLabo from './components/SciencesLabo';
+import GuestMenu from './components/GuestMenu';
+import { isGuest, guestProfile } from './utils/guest';
 import StudyReminderSettings from './components/StudyReminderSettings';
 import FamilyOverview from './components/FamilyOverview';
 import Journal from './components/Journal';
@@ -40,10 +42,11 @@ import NylaAddition from './components/NylaAddition';
 import NylaCompare from './components/NylaCompare';
 
 export default function App() {
-  const [screen, setScreen] = useState('profile');
+  const guest = isGuest(); // camarade de classe via /laval: jamais les profils de la famille
+  const [screen, setScreen] = useState(() => (guest ? 'guest' : 'profile'));
   const [mode, setMode] = useState(null);
   const [sessionResults, setSessionResults] = useState(null);
-  const [profile, setProfile] = useState(null); // 'ryan' or 'cayla'
+  const [profile, setProfile] = useState(() => (guest ? guestProfile() : null)); // 'ryan', 'cayla', 'nyla' ou 'invite-…'
   const [darkMode, setDarkMode] = useState(false);
   const [showNotifs, setShowNotifs] = useState(false);
   const [showStudyReminder, setShowStudyReminder] = useState(false);
@@ -177,7 +180,7 @@ export default function App() {
   }
 
   function goHome() {
-    setScreen('menu');
+    setScreen(guest ? 'guest' : 'menu');
     setMode(null);
     setActiveBloc(null);
     setSessionResults(null);
@@ -186,6 +189,7 @@ export default function App() {
   }
 
   function switchProfile() {
+    if (guest) { setScreen('guest'); return; }
     setScreen('profile');
     setProfile(null);
     setMode(null);
@@ -198,8 +202,11 @@ export default function App() {
 
   return (
     <div className={`min-h-screen pb-8 ${darkMode ? 'dark-mode' : ''}`}>
-      <InstallPrompt />
-      {screen === 'profile' && (() => {
+      {!guest && <InstallPrompt />}
+      {screen === 'guest' && guest && (
+        <GuestMenu onOpen={(id) => setScreen(id === 'verbes' ? 'verbes' : id)} />
+      )}
+      {screen === 'profile' && !guest && (() => {
         // Le code PIN « mode parent » a été retiré le 13 sept. 2026: Cayla ne
         // pouvait pas entrer sur son iPad. Les 3 profils sont toujours visibles.
         return (

@@ -5,6 +5,10 @@ import { notifySessionResult } from '../utils/notifications';
 import { buildSmartQueue, recordAnswer, getWeekSummary } from '../utils/wordMastery';
 import { DOSSIER, MOTS, ASPECTS, masteryItems } from '../data/universSocialD1';
 import { syncFromServer, weakWords, fetchVariants } from '../data/universSocialStats';
+import { isGuest } from '../utils/guest';
+
+// Les pastilles et les notes manuscrites viennent de la feuille de Cayla: on ne les montre qu'à elle
+const PERSO = !isGuest();
 
 // Univers social — Dossier 1 (Cayla, secondaire 1)
 //   📖 Liste  — les 30 mots, définition du prof + idée-clé + ses notes
@@ -143,12 +147,12 @@ function Liste() {
   const [open, setOpen] = useState(null);
   return (
     <div className="space-y-2">
-      <p className="text-xs font-semibold text-s4 text-center">Les pastilles sont celles de ta feuille: 🔴 difficile · 🟡 moyen · 🟢 facile. Touche un mot pour voir la définition complète.</p>
+      <p className="text-xs font-semibold text-s4 text-center">{PERSO ? 'Les pastilles sont celles de ta feuille: 🔴 difficile · 🟡 moyen · 🟢 facile. ' : ''}Touche un mot pour voir la définition complète.</p>
       {MOTS.map((m) => (
         <div key={m.id} className="bg-white rounded-2xl border-2 border-s1 p-3">
           <button onClick={() => setOpen(open === m.id ? null : m.id)} className="w-full text-left">
             <div className="flex items-center gap-2 flex-wrap">
-              <Pastille confiance={m.confiance} />
+              {PERSO && <Pastille confiance={m.confiance} />}
               <span className="font-heading font-extrabold text-stone">{m.mot}</span>
               {m.page && <span className="text-[10px] text-s4 font-bold">p.{m.page}</span>}
               <AspectTag aspect={m.aspect} />
@@ -160,7 +164,7 @@ function Liste() {
             <div className="mt-2 pt-2 border-t border-s1 text-sm">
               <p className="text-xs font-bold text-s4 uppercase">Définition du prof</p>
               <p className="text-stone font-medium">{m.def}</p>
-              {m.note && <p className="mt-1 text-pink-600 font-semibold">✍️ Ta note: {m.note}</p>}
+              {PERSO && m.note && <p className="mt-1 text-pink-600 font-semibold">✍️ Ta note: {m.note}</p>}
               <div className="flex gap-3 mt-1">
                 <button onClick={() => speak(`${m.mot}. ${m.cle}`)} className="text-xs font-bold text-fox-d">🔊 Écouter l'idée simple</button>
                 <button onClick={() => speak(`${m.mot}. ${m.def}`)} className="text-xs font-bold text-s4">🔊 Définition du prof</button>
@@ -267,7 +271,7 @@ function Cartes({ profile, onAnswer, onHome }) {
 
       <div className="bg-white rounded-2xl p-6 border-2 border-s1 border-l-4 border-l-lava min-h-[220px]">
         <div className="flex items-center gap-2 mb-3">
-          <Pastille confiance={m.confiance} />
+          {PERSO && <Pastille confiance={m.confiance} />}
           <AspectTag aspect={m.aspect} />
           {m.page && <span className="text-[10px] text-s4 font-bold">p.{m.page}</span>}
         </div>
@@ -299,7 +303,7 @@ function Cartes({ profile, onAnswer, onHome }) {
                 <button onClick={() => speak(`${m.mot}. ${m.cle}`)} className="text-xs font-bold text-fox-d">🔊 Écouter l'idée simple</button>
               </div>
               <p className="font-heading text-lg font-bold text-stone">{m.cle}</p>
-              {m.note && <p className="mt-1 text-sm text-pink-600 font-semibold">✍️ Ta note: {m.note}</p>}
+              {PERSO && m.note && <p className="mt-1 text-sm text-pink-600 font-semibold">✍️ Ta note: {m.note}</p>}
               <details className="mt-2">
                 <summary className="text-xs font-bold text-s4 cursor-pointer">Voir la définition du prof (pour référence seulement)</summary>
                 <p className="text-sm text-stone font-medium mt-1">{m.def}</p>

@@ -4,6 +4,7 @@ import { saveSession } from '../utils/storage';
 import { notifySessionResult } from '../utils/notifications';
 import { buildSmartQueue, recordAnswer, getWeekSummary } from '../utils/wordMastery';
 import { INSTRUMENTS, MONTAGES, EXTRA, ALL_NAMES, byId, isNameCorrect, masteryItems } from '../data/sciencesLabo';
+import { isGuest } from '../utils/guest';
 
 // Sciences — Instruments de laboratoire (Cayla, secondaire 1). Test le 14 sept. 2026.
 //   🃏 Cartes — photo → elle dit le NOM et l'UTILITÉ à voix haute → retourne → s'auto-évalue
@@ -162,7 +163,7 @@ function Cartes({ profile, onAnswer, onHome }) {
               </div>
               <p className="text-xs font-bold text-fox-d uppercase mt-2">Utilité</p>
               <p className="text-sm font-semibold text-stone">{m.utilite}</p>
-              {m.piege && <p className="mt-2 text-xs font-bold text-red-600">⚠️ Sur ta feuille tu avais écrit « {m.piege} » — le bon nom est « {m.nom} ».</p>}
+              {m.piege && <p className="mt-2 text-xs font-bold text-red-600">⚠️ {isGuest() ? `Erreur fréquente: « ${m.piege} »` : `Sur ta feuille tu avais écrit « ${m.piege} »`} — le bon nom est « {m.nom} ».</p>}
             </div>
             <p className="text-xs font-bold text-s4 text-center mb-2">Tu avais le nom ET l'utilité?</p>
             <div className="flex gap-2">
