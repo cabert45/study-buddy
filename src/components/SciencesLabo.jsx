@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { FlaskConical, Layers, PenLine, ClipboardCheck, Info } from 'lucide-react';
+import { SecHeader, Segmented, MasteryBar, Callout, IconTile } from './sec/SecUi';
+import { Volume2, HelpCircle, Trophy, Target } from 'lucide-react';
 import { speak } from '../utils/speech';
 import { saveSession } from '../utils/storage';
 import { notifySessionResult } from '../utils/notifications';
@@ -36,37 +39,22 @@ export default function SciencesLabo({ onHome }) {
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-4 pb-10">
-      <div className="flex items-center justify-between mb-1">
-        <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
-        <span className="text-[10px] font-extrabold text-pink-600 bg-pink-50 border border-pink-200 rounded-full px-2 py-0.5">Secondaire 1</span>
-      </div>
-      <h2 className="font-heading font-extrabold text-stone text-xl leading-tight">🧪 Instruments de laboratoire</h2>
-      <p className="text-xs font-semibold text-s4 mb-3">Sciences · Labo d'introduction · 14 instruments + les montages</p>
+      <SecHeader onBack={onHome} icon={FlaskConical} tone="teal"
+        eyebrow="Sciences et technologie · Labo d'introduction" title="Instruments de laboratoire"
+        subtitle="14 instruments, leur utilité, et les montages" />
 
-      <div className="bg-orange-50 rounded-xl p-3 mb-3 border-2 border-orange-200 text-xs font-semibold text-stone">
-        <p className="font-extrabold text-fox-d uppercase tracking-wide mb-1">À savoir pour le test</p>
-        <p>Pour chaque photo: le <b>nom exact</b> (balance <b>électronique</b>, pince <b>universelle</b>, <b>nacelle</b>, papier <b>pH</b>) et son <b>utilité</b>. Et reconnaître les instruments dans un montage.</p>
-      </div>
+      <Callout tone="indigo" icon={Info} title="À savoir pour l'examen">
+        Pour chaque photo: le <b className="text-stone">nom exact</b> (balance électronique, pince universelle, nacelle, papier pH) et son <b className="text-stone">utilité</b>. Et reconnaître les instruments dans un montage.
+      </Callout>
 
-      <div className="bg-white rounded-xl p-3 mb-3 border-2 border-s1">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-bold text-s4 uppercase tracking-wide">Instruments maîtrisés</p>
-          <p className="text-xs font-bold text-stone">{summary.mastered}/{summary.total}</p>
-        </div>
-        <div className="w-full bg-s1 rounded-full h-3 overflow-hidden flex">
-          <div className="h-3" style={{ width: `${(summary.mastered / summary.total) * 100}%`, background: '#2d7a3a' }} />
-          <div className="h-3" style={{ width: `${(summary.practicing / summary.total) * 100}%`, background: '#fdcb6e' }} />
-          <div className="h-3" style={{ width: `${(summary.learning / summary.total) * 100}%`, background: '#e8622a' }} />
-        </div>
-      </div>
+      <MasteryBar label="Instruments maîtrisés" summary={summary} />
 
-      <div className="flex gap-2 mb-4">
-        {[['cartes', '🃏 Cartes'], ['ecrire', '✍️ Écrire'], ['quiz', '▶ Quiz']].map(([id, label]) => (
-          <button key={id} onClick={() => setView(id)}
-            className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-bold ${view === id ? 'bg-stone text-white' : 'bg-white border-2 border-s2 text-s6'}`}>
-            {label}
-          </button>
-        ))}
+      <div className="mt-5">
+        <Segmented value={view} onChange={setView} items={[
+          { id: 'cartes', label: 'Cartes', icon: Layers },
+          { id: 'ecrire', label: 'Écrire', icon: PenLine },
+          { id: 'quiz', label: 'Quiz', icon: ClipboardCheck },
+        ]} />
       </div>
 
       {view === 'cartes' && <Cartes profile={profile} onAnswer={bump} onHome={onHome} />}
@@ -121,7 +109,7 @@ function Cartes({ profile, onAnswer, onHome }) {
   if (!started) {
     return (
       <div className="bg-white rounded-2xl border-2 border-s1 p-5 text-center">
-        <div className="text-4xl mb-2">🃏</div>
+        <div className="flex justify-center mb-3"><IconTile icon={Layers} tone="teal" size={56} /></div>
         <h3 className="font-heading text-xl font-extrabold text-stone mb-1">Nomme l'instrument et dis à quoi il sert</h3>
         <p className="text-sm font-semibold text-s4 mb-4">
           Tu vois la photo. Dis le <b>nom</b> et l'<b>utilité</b> à voix haute (rien à écrire), puis retourne la carte.
@@ -151,7 +139,7 @@ function Cartes({ profile, onAnswer, onHome }) {
             <button onClick={() => { setFlipped(true); speak(`${m.nom}. ${m.cle}`); }} className="w-full py-3 rounded-xl font-bold text-white" style={grad()}>Retourner la carte</button>
             <button onClick={() => { setFlipped(true); speak(`${m.nom}. ${m.cle}`); }}
               className="w-full mt-2 py-3 rounded-xl font-bold text-s6 bg-white border-2 border-s2 hover:border-lava">
-              ❓ Je ne le connais pas → écouter la réponse
+              <span className="inline-flex items-center gap-2"><HelpCircle size={16} /> Je ne le connais pas — écouter la réponse</span>
             </button>
           </>
         ) : (
@@ -159,7 +147,7 @@ function Cartes({ profile, onAnswer, onHome }) {
             <div className="bg-cream rounded-xl border-2 border-s1 p-3 mb-3">
               <div className="flex items-center gap-2">
                 <p className="font-heading text-2xl font-extrabold text-stone">{m.nom}</p>
-                <button onClick={() => speak(`${m.nom}. ${m.cle}`)} className="text-lg">🔊</button>
+                <button onClick={() => speak(`${m.nom}. ${m.cle}`)} className="text-fox-d"><Volume2 size={20} /></button>
               </div>
               <p className="text-xs font-bold text-fox-d uppercase mt-2">Utilité</p>
               <p className="text-sm font-semibold text-stone">{m.utilite}</p>
@@ -235,7 +223,7 @@ function Ecrire({ profile, onAnswer, onHome }) {
   if (!started) {
     return (
       <div className="bg-white rounded-2xl border-2 border-s1 p-5 text-center">
-        <div className="text-4xl mb-2">✍️</div>
+        <div className="flex justify-center mb-3"><IconTile icon={PenLine} tone="teal" size={56} /></div>
         <h3 className="font-heading text-xl font-extrabold text-stone mb-1">Écris le nom de l'instrument</h3>
         <p className="text-sm font-semibold text-s4 mb-4">
           Comme au test: la photo, et tu tapes le nom. Les accents sont tolérés, mais les lettres comptent:
@@ -278,7 +266,7 @@ function Ecrire({ profile, onAnswer, onHome }) {
             </div>
           ) : (
             <button type="button" onClick={next} className="w-full mt-3 py-3 rounded-xl font-bold text-white" style={grad()}>
-              {idx + 1 < queue.length ? 'Suivant →' : (missed.length === 0 ? 'Terminer 🏆' : `Tour suivant (${missed.length} à revoir)`)}
+              {idx + 1 < queue.length ? 'Suivant →' : (missed.length === 0 ? 'Terminer' : `Tour suivant (${missed.length} à revoir)`)}
             </button>
           )}
         </form>
@@ -356,7 +344,7 @@ function Quiz({ profile, onAnswer, onHome }) {
   if (!started) {
     return (
       <div className="bg-white rounded-2xl border-2 border-s1 p-5 text-center">
-        <div className="text-4xl mb-2">▶</div>
+        <div className="flex justify-center mb-3"><IconTile icon={ClipboardCheck} tone="teal" size={56} /></div>
         <h3 className="font-heading text-xl font-extrabold text-stone mb-1">Quiz à choix multiples</h3>
         <p className="text-sm font-semibold text-s4 mb-4">{QUIZ_SIZE} questions avec photos: le nom, l'utilité, et les instruments dans les montages. Les mauvais noms de ta feuille sont dans les choix — attention!</p>
         <button onClick={start} className="w-full py-3 rounded-xl font-bold text-white text-lg" style={grad()}>Commencer</button>
@@ -397,7 +385,7 @@ function Quiz({ profile, onAnswer, onHome }) {
               <b>{q.item?.nom}</b> — {q.item?.utilite}
               {q.item?.piege && selected === q.item.piege && <p className="text-red-600 font-bold mt-1">⚠️ « {q.item.piege} » n'existe pas dans la banque de mots. C'est « {q.item.nom} ».</p>}
             </div>
-            <button onClick={next} className="w-full mt-3 py-3 rounded-xl font-bold text-white" style={grad()}>{idx + 1 < qs.length ? 'Suivant →' : 'Terminer 🏆'}</button>
+            <button onClick={next} className="w-full mt-3 py-3 rounded-xl font-bold text-white" style={grad()}>{idx + 1 < qs.length ? 'Suivant →' : 'Terminer'}</button>
           </>
         )}
       </div>
@@ -409,7 +397,7 @@ function Done({ stats, round, onAgain, onHome }) {
   const pct = stats.total ? Math.round((stats.correct / stats.total) * 100) : 0;
   return (
     <div className="bg-white rounded-2xl border-2 border-s1 p-6 text-center">
-      <div className="text-6xl mb-3">{pct >= 80 ? '🏆' : '💪'}</div>
+      <div className="flex justify-center mb-3"><IconTile icon={pct >= 80 ? Trophy : Target} tone={pct >= 80 ? 'emerald' : 'indigo'} size={60} /></div>
       <h3 className="font-heading text-2xl font-extrabold text-ok mb-1">{stats.correct}/{stats.total} ({pct}%)</h3>
       <p className="text-stone font-semibold mb-5">{round > 1 ? `${round} tours` : 'Bien joué!'}</p>
       <button onClick={onAgain} className="w-full py-3 rounded-xl font-bold text-white mb-2" style={grad()}>Encore</button>

@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { BookOpenText, Table2, PenLine, ClipboardCheck } from 'lucide-react';
+import { SecHeader, Segmented, MasteryBar, IconTile } from './sec/SecUi';
+import { Volume2, Trophy } from 'lucide-react';
 import { speak } from '../utils/speech';
 import { saveSession } from '../utils/storage';
 import { notifySessionResult } from '../utils/notifications';
@@ -72,11 +75,9 @@ export default function VerbesAvoirEtre({ onHome, onStartPractice }) {
   return (
     <div className="max-w-3xl mx-auto px-4 pt-4 pb-10">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
-        <h2 className="font-heading font-extrabold text-stone text-lg">Verbes avoir &amp; être</h2>
-        <span className="text-[10px] font-extrabold text-pink-600 bg-pink-50 border border-pink-200 rounded-full px-2 py-0.5">Secondaire 1</span>
-      </div>
+      <SecHeader onBack={onHome} icon={BookOpenText} tone="indigo"
+        eyebrow="Français · Conjugaison" title="Verbes avoir et être"
+        subtitle="Tous les modes et tous les temps" />
 
       {/* Sélection verbes + temps */}
       <div className="bg-white rounded-2xl border-2 border-s1 p-4 mb-3">
@@ -129,42 +130,20 @@ export default function VerbesAvoirEtre({ onHome, onStartPractice }) {
         )}
       </div>
 
-      {/* Maîtrise */}
-      <div className="bg-white rounded-xl p-3 mb-3 border-2 border-s1">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-bold text-s4 uppercase tracking-wide">Maîtrise des formes sélectionnées</p>
-          <p className="text-xs font-bold text-stone">{summary.mastered}/{summary.total}</p>
-        </div>
-        <div className="w-full bg-s1 rounded-full h-3 overflow-hidden flex">
-          <div className="h-3" style={{ width: `${(summary.mastered / Math.max(1, summary.total)) * 100}%`, background: '#2d7a3a' }} />
-          <div className="h-3" style={{ width: `${(summary.practicing / Math.max(1, summary.total)) * 100}%`, background: '#fdcb6e' }} />
-          <div className="h-3" style={{ width: `${(summary.learning / Math.max(1, summary.total)) * 100}%`, background: '#e8622a' }} />
-        </div>
-        <div className="flex flex-wrap gap-3 mt-2 text-[10px] font-bold text-s4">
-          <span><span className="inline-block w-2 h-2 rounded-full bg-green-700 mr-1" />Maîtrisées: {summary.mastered}</span>
-          <span><span className="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-1" />Bonnes: {summary.practicing}</span>
-          <span><span className="inline-block w-2 h-2 rounded-full bg-orange-500 mr-1" />Difficiles: {summary.learning}</span>
-          <span><span className="inline-block w-2 h-2 rounded-full bg-gray-300 mr-1" />Nouvelles: {summary.new}</span>
-        </div>
-      </div>
+      <MasteryBar label="Formes maîtrisées (sélection)" summary={summary} />
 
       {/* Onglets */}
-      <div className="flex gap-2 mb-4">
-        <button onClick={() => setView('tableau')}
-          className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-bold ${view === 'tableau' ? 'bg-stone text-white' : 'bg-white border-2 border-s2 text-s6'}`}>
-          📖 Tableau
-        </button>
-        <button onClick={() => { setView('ecrire'); setShowPicker(false); }}
-          className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-bold ${view === 'ecrire' ? 'bg-stone text-white' : 'bg-white border-2 border-s2 text-s6'}`}>
-          ✍️ Écrire
-        </button>
-        {onStartPractice && (
-          <button onClick={() => onStartPractice('verbes_avoir_etre')}
-            className="flex-1 rounded-xl px-3 py-2.5 text-sm font-bold bg-white border-2 border-s2 text-s6 hover:border-lava hover:text-lava">
-            ▶ Choix multiple
-          </button>
-        )}
-      </div>
+      <Segmented value={view}
+        onChange={(id) => {
+          if (id === 'qcm') return onStartPractice && onStartPractice('verbes_avoir_etre');
+          if (id === 'ecrire') setShowPicker(false);
+          setView(id);
+        }}
+        items={[
+          { id: 'tableau', label: 'Tableau', icon: Table2 },
+          { id: 'ecrire', label: 'Écrire', icon: PenLine },
+          ...(onStartPractice ? [{ id: 'qcm', label: 'Choix multiple', icon: ClipboardCheck }] : []),
+        ]} />
 
       {view === 'tableau' && <Tableau verbs={sel.verbs} tenses={orderedTenses} />}
       {view === 'ecrire' && (
@@ -178,7 +157,7 @@ export default function VerbesAvoirEtre({ onHome, onStartPractice }) {
 function Tableau({ verbs, tenses }) {
   return (
     <div className="space-y-3">
-      <p className="text-xs font-semibold text-s4 text-center">Touche une forme pour l'entendre. 🔊</p>
+      <p className="text-xs font-semibold text-s4 text-center">Touche une forme pour l'entendre.</p>
       {tenses.map((tid) => {
         const t = tenseById[tid];
         return (
@@ -318,7 +297,7 @@ function Drill({ profile, items, onHome, onAnswer }) {
   if (!started) {
     return (
       <div className="bg-white rounded-2xl border-2 border-s1 p-5 text-center">
-        <div className="text-4xl mb-2">✍️</div>
+        <div className="flex justify-center mb-3"><IconTile icon={PenLine} tone="indigo" size={56} /></div>
         <h3 className="font-heading text-xl font-extrabold text-stone mb-1">Écris la bonne forme</h3>
         <p className="text-sm font-semibold text-s4 mb-4">
           Comme au test: on te donne le verbe, le temps et la personne, tu écris la forme.
@@ -350,7 +329,7 @@ function Drill({ profile, items, onHome, onAnswer }) {
     const pct = stats.total ? Math.round((stats.correct / stats.total) * 100) : 0;
     return (
       <div className="bg-white rounded-2xl border-2 border-s1 p-6 text-center">
-        <div className="text-6xl mb-3">🏆</div>
+        <div className="flex justify-center mb-3"><IconTile icon={Trophy} tone="emerald" size={60} /></div>
         <h3 className="font-heading text-2xl font-extrabold text-ok mb-1">Toutes les formes réussies!</h3>
         <p className="text-stone font-semibold mb-5">
           {stats.correct}/{stats.total} du premier coup ({pct}%) · {round} tour{round > 1 ? 's' : ''}
@@ -414,7 +393,7 @@ function Drill({ profile, items, onHome, onAnswer }) {
               <p className="text-xs font-bold text-s4 uppercase mb-1">Réponse:</p>
               <div className="font-heading text-2xl font-extrabold text-stone flex items-center gap-2">
                 {item.correct}
-                <button type="button" onClick={() => speak(item.correct)} className="text-base">🔊</button>
+                <button type="button" onClick={() => speak(item.correct)} className="text-fox-d"><Volume2 size={18} /></button>
               </div>
               {ok ? (
                 <p className="text-xs font-bold text-ok mt-2">✓ Bravo!</p>
@@ -457,7 +436,7 @@ function Drill({ profile, items, onHome, onAnswer }) {
             <button type="button" onClick={next}
               className="w-full mt-3 py-3 rounded-xl font-bold text-white"
               style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
-              {idx + 1 < queue.length ? 'Suivante →' : (missed.length === 0 ? 'Terminer 🏆' : `Tour suivant (${missed.length} à revoir)`)}
+              {idx + 1 < queue.length ? 'Suivante →' : (missed.length === 0 ? 'Terminer' : `Tour suivant (${missed.length} à revoir)`)}
             </button>
           )}
         </form>

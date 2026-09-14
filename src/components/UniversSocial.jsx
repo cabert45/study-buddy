@@ -1,4 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { Landmark, Layers, List, ClipboardCheck, Target, Info } from 'lucide-react';
+import { SecHeader, Segmented, MasteryBar, Callout, StartCard, IconTile } from './sec/SecUi';
+import { Volume2, HelpCircle, Trophy, PenLine } from 'lucide-react';
 import { speak } from '../utils/speech';
 import { saveSession } from '../utils/storage';
 import { notifySessionResult } from '../utils/notifications';
@@ -60,37 +63,21 @@ export default function UniversSocial({ onHome, onStartPractice }) {
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-4 pb-10">
-      <div className="flex items-center justify-between mb-1">
-        <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
-        <span className="text-[10px] font-extrabold text-pink-600 bg-pink-50 border border-pink-200 rounded-full px-2 py-0.5">Secondaire 1</span>
-      </div>
-      <h2 className="font-heading font-extrabold text-stone text-xl leading-tight">🏺 {DOSSIER.titre}</h2>
-      <p className="text-xs font-semibold text-s4 mb-3">{DOSSIER.matiere} · 29 mots de vocabulaire</p>
+      <SecHeader onBack={onHome} icon={Landmark} tone="amber"
+        eyebrow="Univers social · Histoire · Dossier 1" title="La sédentarisation"
+        subtitle="29 notions de vocabulaire, du Paléolithique au troc" />
 
-      {/* Ce que l'examen demande */}
-      <div className="bg-orange-50 rounded-xl p-3 mb-3 border-2 border-orange-200 text-xs font-semibold text-stone">
-        <p className="font-extrabold text-fox-d uppercase tracking-wide mb-1">L'examen demande de</p>
-        <p>1. associer le mot à une définition · 2. trouver le mot qui résume un texte · 3. placer un mot dans un texte · 4. <b>donner une définition dans tes mots</b></p>
-        <p className="mt-1 text-green-700">✅ Pas besoin d'apprendre les définitions par cœur: il faut juste pouvoir <b>expliquer l'idée dans tes mots</b>.</p>
-      </div>
+      <Callout tone="indigo" icon={Info} title="Ce que l'examen demande">
+        Associer un mot à sa définition · trouver le mot qui résume un texte · placer un mot dans un texte · <b className="text-stone">définir un mot dans tes mots</b>.
+        <span className="block mt-1.5 text-emerald-700 font-medium">Pas besoin d'apprendre par cœur: explique l'idée dans tes mots.</span>
+      </Callout>
 
-      {/* Maîtrise */}
-      <div className="bg-white rounded-xl p-3 mb-3 border-2 border-s1">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-bold text-s4 uppercase tracking-wide">Mots maîtrisés (cartes)</p>
-          <p className="text-xs font-bold text-stone">{summary.mastered}/{summary.total}</p>
-        </div>
-        <div className="w-full bg-s1 rounded-full h-3 overflow-hidden flex">
-          <div className="h-3" style={{ width: `${(summary.mastered / summary.total) * 100}%`, background: '#2d7a3a' }} />
-          <div className="h-3" style={{ width: `${(summary.practicing / summary.total) * 100}%`, background: '#fdcb6e' }} />
-          <div className="h-3" style={{ width: `${(summary.learning / summary.total) * 100}%`, background: '#e8622a' }} />
-        </div>
-      </div>
+      <MasteryBar label="Notions maîtrisées" summary={summary} />
 
       {/* Où elle se trompe (d'après ses Tests) */}
       {weak.length > 0 && (
-        <div className="bg-red-50 rounded-xl p-3 mb-3 border-2 border-red-200">
-          <p className="text-xs font-extrabold text-red-700 uppercase tracking-wide mb-1">🎯 Tes mots à travailler (d'après tes tests)</p>
+        <div className="bg-white rounded-2xl p-4 mb-3 border border-s1" style={{ boxShadow: 'inset 3px 0 0 #fb7185, 0 1px 2px rgba(15,23,42,.04)' }}>
+          <p className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.06em] text-rose-700 mb-2"><Target size={14} /> À travailler, d'après tes tests</p>
           <div className="space-y-1">
             {weak.map((w) => (
               <div key={w.id} className="text-sm text-stone">
@@ -106,21 +93,14 @@ export default function UniversSocial({ onHome, onStartPractice }) {
         </div>
       )}
 
-      <div className="flex gap-2 mb-4">
-        <button onClick={() => setView('cartes')}
-          className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-bold ${view === 'cartes' ? 'bg-stone text-white' : 'bg-white border-2 border-s2 text-s6'}`}>
-          🃏 Cartes
-        </button>
-        <button onClick={() => setView('liste')}
-          className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-bold ${view === 'liste' ? 'bg-stone text-white' : 'bg-white border-2 border-s2 text-s6'}`}>
-          📖 Liste
-        </button>
-        {onStartPractice && (
-          <button onClick={() => onStartPractice('univers_social')}
-            className="flex-1 rounded-xl px-3 py-2.5 text-sm font-bold bg-white border-2 border-s2 text-s6 hover:border-lava hover:text-lava">
-            ▶ Test
-          </button>
-        )}
+      <div className="mt-5">
+        <Segmented value={view}
+          onChange={(id) => (id === 'test' ? onStartPractice && onStartPractice('univers_social') : setView(id))}
+          items={[
+            { id: 'cartes', label: 'Cartes', icon: Layers },
+            { id: 'liste', label: 'Liste', icon: List },
+            ...(onStartPractice ? [{ id: 'test', label: 'Test', icon: ClipboardCheck }] : []),
+          ]} />
       </div>
 
       {view === 'liste' && <Liste />}
@@ -159,15 +139,15 @@ function Liste() {
             </div>
             <p className="text-sm font-semibold text-stone mt-1">{m.cle}</p>
           </button>
-          <button onClick={() => speak(`${m.mot}. ${m.cle}`)} className="mt-1 text-xs font-bold text-fox-d">🔊 Écouter le mot et l'idée simple</button>
+          <button onClick={() => speak(`${m.mot}. ${m.cle}`)} className="mt-1 text-xs font-bold text-fox-d">Écouter le mot et l'idée simple</button>
           {open === m.id && (
             <div className="mt-2 pt-2 border-t border-s1 text-sm">
               <p className="text-xs font-bold text-s4 uppercase">Définition du prof</p>
               <p className="text-stone font-medium">{m.def}</p>
-              {PERSO && m.note && <p className="mt-1 text-pink-600 font-semibold">✍️ Ta note: {m.note}</p>}
+              {PERSO && m.note && <p className="mt-1 text-pink-600 font-semibold">Ta note: {m.note}</p>}
               <div className="flex gap-3 mt-1">
-                <button onClick={() => speak(`${m.mot}. ${m.cle}`)} className="text-xs font-bold text-fox-d">🔊 Écouter l'idée simple</button>
-                <button onClick={() => speak(`${m.mot}. ${m.def}`)} className="text-xs font-bold text-s4">🔊 Définition du prof</button>
+                <button onClick={() => speak(`${m.mot}. ${m.cle}`)} className="text-xs font-bold text-fox-d">Écouter l'idée simple</button>
+                <button onClick={() => speak(`${m.mot}. ${m.def}`)} className="text-xs font-bold text-s4">Écouter la définition du prof</button>
               </div>
             </div>
           )}
@@ -229,7 +209,7 @@ function Cartes({ profile, onAnswer, onHome }) {
   if (!started) {
     return (
       <div className="bg-white rounded-2xl border-2 border-s1 p-5 text-center">
-        <div className="text-4xl mb-2">🃏</div>
+        <div className="flex justify-center mb-3"><IconTile icon={Layers} tone="indigo" size={56} /></div>
         <h3 className="font-heading text-xl font-extrabold text-stone mb-1">Explique chaque mot dans tes mots</h3>
         <p className="text-sm font-semibold text-s4 mb-2">
           <b>Rien à écrire ni à taper.</b> Tu vois le mot, tu l'expliques <b>à voix haute</b> comme à une amie, puis tu retournes la carte et tu compares avec l'idée-clé.
@@ -249,7 +229,7 @@ function Cartes({ profile, onAnswer, onHome }) {
   if (done) {
     return (
       <div className="bg-white rounded-2xl border-2 border-s1 p-6 text-center">
-        <div className="text-6xl mb-3">🏆</div>
+        <div className="flex justify-center mb-3"><IconTile icon={Trophy} tone="emerald" size={60} /></div>
         <h3 className="font-heading text-2xl font-extrabold text-ok mb-1">Les 29 mots sont passés!</h3>
         <p className="text-stone font-semibold mb-5">{stats.correct}/{stats.total} du premier coup · {round} tour{round > 1 ? 's' : ''}</p>
         <button onClick={start} className="w-full py-3 rounded-xl font-bold text-white mb-2"
@@ -278,7 +258,7 @@ function Cartes({ profile, onAnswer, onHome }) {
         <div className="flex items-center gap-3 mb-2">
           <p className="font-heading text-3xl font-extrabold text-stone">{m.mot}</p>
           <button onClick={() => speak(m.mot)} aria-label="Écouter le mot"
-            className="w-10 h-10 rounded-full bg-orange-50 border-2 border-orange-200 text-lg flex-shrink-0">🔊</button>
+            className="w-10 h-10 rounded-full bg-orange-50 border border-orange-200 text-fox-d flex items-center justify-center flex-shrink-0"><Volume2 size={18} /></button>
         </div>
         {m.alias && <p className="text-xs font-semibold text-s4 mb-2">aussi: {m.alias}</p>}
 
@@ -292,7 +272,7 @@ function Cartes({ profile, onAnswer, onHome }) {
             </button>
             <button onClick={() => { setUnknown(true); setFlipped(true); speak(`${m.mot}. ${m.cle}`); }}
               className="w-full mt-2 py-3 rounded-xl font-bold text-s6 bg-white border-2 border-s2 hover:border-lava">
-              ❓ Je ne le connais pas → écouter l'explication
+              <span className="inline-flex items-center gap-2"><HelpCircle size={16} /> Je ne le connais pas — écouter l'explication</span>
             </button>
           </>
         ) : (
@@ -300,10 +280,10 @@ function Cartes({ profile, onAnswer, onHome }) {
             <div className="bg-cream rounded-xl border-2 border-s1 p-3 mb-3">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-bold text-fox-d uppercase">L'idée à avoir</p>
-                <button onClick={() => speak(`${m.mot}. ${m.cle}`)} className="text-xs font-bold text-fox-d">🔊 Écouter l'idée simple</button>
+                <button onClick={() => speak(`${m.mot}. ${m.cle}`)} className="text-xs font-bold text-fox-d">Écouter l'idée simple</button>
               </div>
               <p className="font-heading text-lg font-bold text-stone">{m.cle}</p>
-              {PERSO && m.note && <p className="mt-1 text-sm text-pink-600 font-semibold">✍️ Ta note: {m.note}</p>}
+              {PERSO && m.note && <p className="mt-1 text-sm text-pink-600 font-semibold">Ta note: {m.note}</p>}
               <details className="mt-2">
                 <summary className="text-xs font-bold text-s4 cursor-pointer">Voir la définition du prof (pour référence seulement)</summary>
                 <p className="text-sm text-stone font-medium mt-1">{m.def}</p>

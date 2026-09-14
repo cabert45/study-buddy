@@ -21,10 +21,31 @@
   --s3: #b8a898;
   --s2: #d6ccc0;
   --s1: #ebe4db;
+
+  /* Couleurs Tailwind (triplets RGB) — un skin les redéfinit sous [data-skin] */
+  --c-cream: 254 250 246;
+  --c-peach: 253 240 229;
+  --c-sand: 245 222 206;
+  --c-lava: 199 74 21;
+  --c-lava-l: 232 98 42;
+  --c-fox: 226 118 43;
+  --c-fox-d: 184 90 26;
+  --c-fox-belly: 253 232 204;
+  --c-stone: 44 32 23;
+  --c-s6: 92 74 58;
+  --c-s4: 154 136 120;
+  --c-s3: 184 168 152;
+  --c-s2: 214 204 192;
+  --c-s1: 235 228 219;
+  --c-ok: 45 122 58;
+  --c-ok-bg: 232 245 234;
+  --c-info: 58 91 199;
+  --font-heading: 'Baloo 2', cursive;
+  --font-body: 'Quicksand', system-ui, sans-serif;
 }
 
 body {
-  font-family: 'Quicksand', system-ui, sans-serif;
+  font-family: var(--font-body);
   background: var(--cream);
   min-height: 100vh;
   margin: 0;
@@ -44,7 +65,7 @@ body::before {
 }
 
 h1, h2, h3, .heading {
-  font-family: 'Baloo 2', cursive;
+  font-family: var(--font-heading);
 }
 
 button {

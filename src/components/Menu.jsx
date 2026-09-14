@@ -459,17 +459,17 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
         style={{ background: 'linear-gradient(135deg, #fff3e0, #ffe6c4 55%, #ffd8b0)' }}>
         <div className="flex-1 p-6 z-[1]">
           <div className="font-heading text-sm font-bold text-fox-d mb-0.5 tracking-wide">
-            {ryanGraded ? '🦁 3e année · Try again' : '🍁 Rentrée'}
+            {ryanGraded ? '🦁 3e année · Try again' : isCayla ? 'Secondaire 1 · Collège Laval' : '🍁 Rentrée'}
           </div>
           <h1 className="font-heading text-3xl font-extrabold text-stone leading-tight mb-1">Bonjour {name}!</h1>
           <p className="text-sm font-semibold text-s4">
             {pct >= 70 ? 'Nouvelle année, tu es en feu! 🔥' :
              totalQuestions > 0 ? 'On repart du bon pied — tu progresses! 📗' :
-             'Nouvelle année, nouveau départ. On commence? 🍁'}
+             isCayla ? 'Tes révisions d’examens t’attendent.' : 'Nouvelle année, nouveau départ. On commence? 🍁'}
           </p>
         </div>
         <div className="flex-shrink-0 mr-2 z-[1]">
-          {ryanGraded ? <LionMascot /> : <FoxMascot />}
+          {ryanGraded ? <LionMascot /> : isCayla ? null : <FoxMascot />}
         </div>
       </div>
 

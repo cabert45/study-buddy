@@ -22,6 +22,7 @@ import UniversSocial from './components/UniversSocial';
 import SciencesLabo from './components/SciencesLabo';
 import GuestMenu from './components/GuestMenu';
 import { isGuest, guestProfile } from './utils/guest';
+import { applySkin, skinForProfile } from './utils/skin';
 import StudyReminderSettings from './components/StudyReminderSettings';
 import FamilyOverview from './components/FamilyOverview';
 import Journal from './components/Journal';
@@ -62,6 +63,7 @@ export default function App() {
 
   // Auto-resume study reminders on app load
   React.useEffect(() => { autoResume(); }, []);
+  React.useEffect(() => { applySkin(skinForProfile(profile)); }, [profile]);
 
   function selectProfile(p) {
     setProfile(p);
@@ -308,7 +310,18 @@ export default function App() {
           onFinish={() => setNylaDeck(null)}
         />
       )}
-      {screen === 'menu' && !nylaDeck && !flashcardWeek && (
+      {screen === 'menu' && !nylaDeck && !flashcardWeek && profile === 'cayla' && (
+        <GuestMenu variant="cayla" name="Cayla" profileId="cayla"
+          onOpen={(id) => setScreen(id)}
+          onLaunchMode={startPractice}
+          onStartJournal={startJournal}
+          onStartChores={startChores}
+          onStartReading={startReading}
+          onStartCoach={startCoach}
+          onOpenNotifications={() => setShowNotifs(true)}
+          onSwitchProfile={switchProfile} />
+      )}
+      {screen === 'menu' && !nylaDeck && !flashcardWeek && profile !== 'cayla' && (
         <Menu
           profile={profile}
           onStartPractice={startPractice}
