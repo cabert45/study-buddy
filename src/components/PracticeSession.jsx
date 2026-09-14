@@ -52,6 +52,7 @@ import { generateAccordEtre } from '../generators/accordEtre';
 import { generateVerbesAvoirEtre } from '../generators/verbesAvoirEtre';
 import { generateUniversSocial } from '../generators/universSocial';
 import { recordUsAnswer } from '../data/universSocialStats';
+import { recordSkillAnswer } from '../utils/skillStats';
 import {
   generateT1Nom, generateT1Determinant, generateT1Adjectif, generateT1Verbe,
   generateT1Pronom, generateT1Dialogue, generateT1Voc, generateT1Revision,
@@ -395,6 +396,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
     const result = {
       question: question.text,
       category: question.category,
+      type: question.type || null,
       correct: isCorrect,
       userAnswer: value,
       correctAnswer: question.correct,
@@ -412,6 +414,8 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
     if (question.category === 'pemdas' && question.pemdasCategory) {
       recordPemdasAnswer(question.pemdasCategory, isCorrect);
     }
+    // Par type de question: les cahiers de Ryan ramènent plus souvent ce qu'il rate
+    if (question.type) recordSkillAnswer(question.category, question.type, isCorrect);
     if (question.category === 'univers_social') {
       recordUsAnswer(question.correct, value, isCorrect);
     }
@@ -424,11 +428,16 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
 
     if (!wasCorrect && !retryInserted) {
       const gen = getGenerator(mode);
+      // Try again: une question de la MÊME sorte (même type), sinon de la même catégorie
       let retry;
-      for (let i = 0; i < 10; i++) {
-        retry = gen();
-        if (retry.category === question.category) break;
+      let sameCategory = null;
+      for (let i = 0; i < 40; i++) {
+        const q = gen();
+        if (q.category !== question.category) continue;
+        if (!sameCategory) sameCategory = q;
+        if (!question.type || q.type === question.type) { retry = q; break; }
       }
+      retry = retry || sameCategory || gen();
       const newQuestions = [...questions];
       newQuestions.splice(currentIndex + 1, 0, retry);
       setQuestions(newQuestions);
@@ -458,7 +467,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
 
   function finishSession() {
     const correct = results.filter((r) => r.correct).length;
-    const details = results.map((r) => ({ category: r.category, correct: r.correct, question: r.question, userAnswer: r.userAnswer, correctAnswer: r.correctAnswer }));
+    const details = results.map((r) => ({ category: r.category, type: r.type, correct: r.correct, question: r.question, userAnswer: r.userAnswer, correctAnswer: r.correctAnswer }));
     saveSession(mode, results.length, correct, details);
     incrementStudyRounds(mode);
     const profile = localStorage.getItem('sb_profile') || 'ryan';

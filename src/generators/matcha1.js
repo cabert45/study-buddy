@@ -8,8 +8,8 @@
 //   p. 4  — 5 014 choisi pour « cinq mille cent quarante » (chiffres dans le désordre)
 //   p. 6  — « ajoute 1 centaine » raté
 //   p. 9  — 4 feuilles de 100 + 3 bandes de 10 + 19 à l'unité = 449 (le piège: 439)
-import { withFresh } from '../utils/antiRepeat';
 import { getStudyRounds } from '../utils/studyRounds';
+import { pickAdaptive } from '../utils/skillStats';
 
 function shuffle(arr) {
   const a = [...arr];
@@ -211,14 +211,14 @@ const POSITIONS = [
   { cle: 'u', nom: 'unités', valeur: 1 },
 ];
 
-function valeurPosition() {
+function valeurPosition(kind) {
   // un nombre dont les chiffres sont tous différents, pour qu'on sache de quel chiffre on parle
   let n;
   do { n = rand(1023, 9876); } while (new Set(String(n)).size < 4);
   const ch = chiffres(n);
   const pos = pick(POSITIONS.filter((p) => ch[p.cle] !== 0));
   const chiffre = ch[pos.cle];
-  if (Math.random() < 0.5) {
+  if (kind === 'nom') {
     return {
       category: CATEGORY,
       rule: ruleFor(),
@@ -313,20 +313,24 @@ function faireDesSacs() {
   };
 }
 
+// Poids de base = ses erreurs du cahier + ce qui s'en vient; pickAdaptive ajuste selon ses réponses.
 function buildOne() {
-  const r = Math.random();
-  if (r < 0.22) return blocsEchange();
-  if (r < 0.34) return tableauZero();
-  if (r < 0.48) return lettresEnChiffres();
-  if (r < 0.56) return chiffresEnLettres();
-  if (r < 0.72) return valeurPosition();
-  if (r < 0.80) return ajouter();
-  if (r < 0.92) return groupements();
-  return faireDesSacs();
+  return pickAdaptive(CATEGORY, [
+    { type: 'blocs', w: 22, build: blocsEchange },
+    { type: 'tableau_zero', w: 12, build: tableauZero },
+    { type: 'lettres_chiffres', w: 14, build: lettresEnChiffres },
+    { type: 'chiffres_lettres', w: 8, build: chiffresEnLettres },
+    // valeurPosition rend « position_nom » ou « position_valeur »
+    { type: 'position_nom', w: 8, build: () => valeurPosition('nom') },
+    { type: 'position_valeur', w: 8, build: () => valeurPosition('valeur') },
+    { type: 'ajouter', w: 8, build: ajouter },
+    { type: 'groupements', w: 12, build: groupements },
+    { type: 'sacs', w: 8, build: faireDesSacs },
+  ]);
 }
 
 export function generateMatchaNombres() {
-  const q = withFresh(CATEGORY, buildOne, 100, 25, (x) => `${x.type}|${x.text}`);
+  const q = buildOne(); // pickAdaptive gère l'anti-répétition dans le type choisi
   // Les boutons affichent « 1 626 » comme dans le cahier; la réponse reste un nombre.
   if (q.options.every((o) => typeof o === 'number')) {
     q.optionLabels = Object.fromEntries(q.options.map((o) => [o, fmt(o)]));

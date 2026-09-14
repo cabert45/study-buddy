@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
 import { nylaWeekList } from '../data/nylaFlashcards';
 import { CAHIER_THEMES, CAHIER_SEMAINES, moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data/cahierFrancais';
+import { syncSkillStats, weakSkills } from '../utils/skillStats';
 import { NotificationBell } from './Notifications';
 import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, GraduationCap, ChevronRight, Send, Calendar, Trophy, RefreshCw } from 'lucide-react';
 
@@ -303,6 +304,7 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
   const [dicteesOpen, setDicteesOpen] = useState(false);
   const [nylaWordsOpen, setNylaWordsOpen] = useState(false);
   const [cahierOpen, setCahierOpen] = useState(false);
+  const [defis, setDefis] = useState(() => weakSkills(['t1_', 'matcha_']));
   const [refreshing, setRefreshing] = useState(false);
   const openGroup = (m) => (m.groupKind === 'nylawords' ? setNylaWordsOpen(true)
     : m.groupKind === 'cahier' ? setCahierOpen(true)
@@ -356,6 +358,8 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
 
   useEffect(() => {
     getProgress().then(setStats).catch(() => {});
+    // Stats par type de question → les cahiers ramènent ce qu'il rate (tous appareils)
+    if (profile === 'ryan') syncSkillStats().then(() => setDefis(weakSkills(['t1_', 'matcha_']))).catch(() => {});
   }, []);
 
   const totalCorrect = stats?.totals?.correct || 0;
@@ -739,6 +743,21 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
             <p className="text-xs font-bold text-fox-d bg-orange-50 border-2 border-orange-200 rounded-xl p-3 mb-4 text-center">
               Pratique ce que tu fais en classe cette semaine, puis prends un pas d'avance sur la semaine prochaine. 🦁
             </p>
+            {defis.length > 0 && (
+              <div className="bg-white border-2 border-s1 rounded-xl p-3 mb-4">
+                <div className="text-xs font-extrabold text-stone mb-1">🔁 Tes défis du moment</div>
+                <p className="text-[11px] font-semibold text-s4 mb-2">
+                  Ces questions reviennent plus souvent jusqu'à ce que tu les réussisses. Try again — tu es capable!
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {defis.map((d) => (
+                    <span key={d.key} className="text-[11px] font-bold bg-orange-50 text-fox-d border border-orange-200 rounded-full px-2 py-0.5">
+                      {d.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
             {CAHIER_THEMES.map((theme) => (
               <div key={theme.id} className="mb-4">
                 <div className="text-xs font-extrabold text-s4 uppercase tracking-wide mb-2 px-1">

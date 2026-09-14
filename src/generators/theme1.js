@@ -8,6 +8,7 @@
 // Les phrases sont écrites pour l'app (pas copiées du cahier).
 import { withFresh } from '../utils/antiRepeat';
 import { getStudyRounds } from '../utils/studyRounds';
+import { pickAdaptive, categoryPriority } from '../utils/skillStats';
 
 function shuffle(arr) {
   const a = [...arr];
@@ -428,18 +429,20 @@ function trouvePropre(category, rule) {
   return null;
 }
 
+// Poids de base = le programme; pickAdaptive les multiplie selon ce que Ryan rate.
 function buildNom() {
   const rule = ruleFor('t1_nom', NOM_RULE);
-  const r = Math.random();
-  if (r < 0.22) return trouve('n', 't1_nom', rule);
-  if (r < 0.40) return nomGenreNombre();
-  if (r < 0.52) return nomRemplace();
-  if (r < 0.62) return nomTest();
-  if (r < 0.70) return nomSorte();
-  if (r < 0.78) return nomPropre();
-  if (r < 0.86) return trouvePropre('t1_nom', rule);
-  if (r < 0.93) return manipulation('n', 't1_nom', rule);
-  return combien('n', 't1_nom', rule);
+  return pickAdaptive('t1_nom', [
+    { type: 'trouve_n', w: 22, build: () => trouve('n', 't1_nom', rule) },
+    { type: 'nom_genre_nombre', w: 18, build: nomGenreNombre },
+    { type: 'nom_remplace', w: 12, build: nomRemplace },
+    { type: 'nom_test', w: 10, build: nomTest },
+    { type: 'nom_sorte', w: 8, build: nomSorte },
+    { type: 'nom_propre', w: 8, build: nomPropre },
+    { type: 'trouve_np', w: 8, build: () => trouvePropre('t1_nom', rule) },
+    { type: 'manip_n', w: 7, build: () => manipulation('n', 't1_nom', rule) },
+    { type: 'combien_n', w: 7, build: () => combien('n', 't1_nom', rule) },
+  ]);
 }
 
 // ===== DÉTERMINANT =====
@@ -529,15 +532,16 @@ function detAccord() {
 
 function buildDeterminant() {
   const rule = ruleFor('t1_determinant', DET_RULE);
-  const r = Math.random();
-  if (r < 0.28) return trouve('d', 't1_determinant', rule);
-  if (r < 0.43) return detAjoutNom();
-  if (r < 0.58) return detRemplace();
-  if (r < 0.72) return detAccord();
-  if (r < 0.80) return manipulation('d', 't1_determinant', rule);
-  if (r < 0.88) return detNombre();
-  if (r < 0.95) return combien('d', 't1_determinant', rule);
-  return classe('t1_determinant', rule, 'd');
+  return pickAdaptive('t1_determinant', [
+    { type: 'trouve_d', w: 28, build: () => trouve('d', 't1_determinant', rule) },
+    { type: 'det_ajout', w: 15, build: detAjoutNom },
+    { type: 'det_remplace', w: 15, build: detRemplace },
+    { type: 'det_accord', w: 14, build: detAccord },
+    { type: 'manip_d', w: 8, build: () => manipulation('d', 't1_determinant', rule) },
+    { type: 'det_nombre', w: 8, build: detNombre },
+    { type: 'combien_d', w: 7, build: () => combien('d', 't1_determinant', rule) },
+    { type: 'classe', w: 5, build: () => classe('t1_determinant', rule, 'd') },
+  ]);
 }
 
 // ===== ADJECTIF =====
@@ -590,12 +594,13 @@ function adjQuelNom() {
 
 function buildAdjectif() {
   const rule = ruleFor('t1_adjectif', ADJ_RULE);
-  const r = Math.random();
-  if (r < 0.35) return trouve('a', 't1_adjectif', rule);
-  if (r < 0.55) return adjTres();
-  if (r < 0.75) return adjQuelNom();
-  if (r < 0.90) return combien('a', 't1_adjectif', rule);
-  return classe('t1_adjectif', rule, 'a');
+  return pickAdaptive('t1_adjectif', [
+    { type: 'trouve_a', w: 35, build: () => trouve('a', 't1_adjectif', rule) },
+    { type: 'adj_tres', w: 20, build: adjTres },
+    { type: 'adj_quel_nom', w: 20, build: adjQuelNom },
+    { type: 'combien_a', w: 15, build: () => combien('a', 't1_adjectif', rule) },
+    { type: 'classe', w: 10, build: () => classe('t1_adjectif', rule, 'a') },
+  ]);
 }
 
 // ===== VERBE =====
@@ -638,10 +643,11 @@ function verbeNePas() {
 
 function buildVerbe() {
   const rule = ruleFor('t1_verbe', VERBE_RULE);
-  const r = Math.random();
-  if (r < 0.45) return trouve('v', 't1_verbe', rule);
-  if (r < 0.80) return verbeNePas();
-  return classe('t1_verbe', rule, 'v');
+  return pickAdaptive('t1_verbe', [
+    { type: 'trouve_v', w: 45, build: () => trouve('v', 't1_verbe', rule) },
+    { type: 'verbe_ne_pas', w: 35, build: verbeNePas },
+    { type: 'classe', w: 20, build: () => classe('t1_verbe', rule, 'v') },
+  ]);
 }
 
 // ===== PRONOM DE CONJUGAISON =====
@@ -695,11 +701,12 @@ function pronomForme() {
 
 function buildPronom() {
   const rule = ruleFor('t1_pronom', PRONOM_RULE);
-  const r = Math.random();
-  if (r < 0.35) return trouve('p', 't1_pronom', rule);
-  if (r < 0.60) return pronomRemplace();
-  if (r < 0.85) return pronomForme();
-  return classe('t1_pronom', rule, 'p');
+  return pickAdaptive('t1_pronom', [
+    { type: 'trouve_p', w: 35, build: () => trouve('p', 't1_pronom', rule) },
+    { type: 'pronom_remplace', w: 25, build: pronomRemplace },
+    { type: 'pronom_forme', w: 25, build: pronomForme },
+    { type: 'classe', w: 15, build: () => classe('t1_pronom', rule, 'p') },
+  ]);
 }
 
 // ===== DES CLÉS: LES PERSONNAGES & LE DIALOGUE =====
@@ -799,14 +806,14 @@ const COMPARAISONS = [
   { debut: 'Être long et mince comme une', mot: 'asperge', sens: 'très grand et mince' },
 ];
 
-function comparaisonQ() {
+function comparaisonQ(kind) {
   const c = pick(COMPARAISONS);
   // échalote et asperge ont le même sens: jamais les deux dans les mêmes choix
   const autres = [];
   for (const x of shuffle(COMPARAISONS)) {
     if (x.sens !== c.sens && !autres.some((a) => a.sens === x.sens)) autres.push(x);
   }
-  if (Math.random() < 0.6) {
+  if (kind === 'mot') {
     // Même petit mot devant (un / une) d'abord, pour que l'article ne donne pas la réponse
     const article = c.debut.split(' ').pop();
     const memeArticle = autres.filter((x) => x.debut.split(' ').pop() === article);
@@ -846,8 +853,8 @@ function dialogueQ() {
   };
 }
 
-function dialogueSignes() {
-  if (Math.random() < 0.5) {
+function dialogueSignes(kind) {
+  if (kind === 'tiret') {
     return {
       category: 't1_dialogue',
       rule: ruleFor('t1_dialogue', DIALOGUE_RULE),
@@ -887,18 +894,21 @@ function traitQ() {
 }
 
 function buildDialogue() {
-  const r = Math.random();
-  if (r < 0.35) return dialogueQ();
-  if (r < 0.50) return dialogueSignes();
-  if (r < 0.75) return portraitQ();
-  return traitQ();
+  return pickAdaptive('t1_dialogue', [
+    { type: 'dialogue', w: 35, build: dialogueQ },
+    { type: 'dialogue_tiret', w: 8, build: () => dialogueSignes('tiret') },
+    { type: 'dialogue_verbe_parole', w: 7, build: () => dialogueSignes('parole') },
+    { type: 'portrait', w: 25, build: portraitQ },
+    { type: 'trait', w: 25, build: traitQ },
+  ]);
 }
 
 // ===== Exports =====
 // Clé anti-répétition: le portrait mélange ses phrases à chaque fois, donc son texte
 // serait toujours « nouveau » et il prendrait toute la place — on le repère par sa réponse.
 const freshKey = (q) => (q.type === 'portrait' ? `portrait|${q.correct}` : `${q.type}|${q.text}`);
-const fresh = (category, build) => withFresh(category, () => build() || classe(category), 100, 25, freshKey);
+// pickAdaptive évite déjà les répétitions dans le type choisi (voir utils/skillStats)
+const fresh = (category, build) => build() || withFresh(category, () => classe(category), 100, 25, freshKey);
 
 export const generateT1Nom = () => fresh('t1_nom', buildNom);
 export const generateT1Determinant = () => fresh('t1_determinant', buildDeterminant);
@@ -906,19 +916,28 @@ export const generateT1Adjectif = () => fresh('t1_adjectif', buildAdjectif);
 export const generateT1Verbe = () => fresh('t1_verbe', buildVerbe);
 export const generateT1Pronom = () => fresh('t1_pronom', buildPronom);
 export const generateT1Dialogue = () => fresh('t1_dialogue', buildDialogue);
-export const generateT1Voc = () => withFresh('t1_voc', comparaisonQ, 12, 25, (q) => `${q.type}|${q.text}`);
+export const generateT1Voc = () => pickAdaptive('t1_voc', [
+  { type: 'comparaison_mot', w: 60, build: () => comparaisonQ('mot') },
+  { type: 'comparaison_sens', w: 40, build: () => comparaisonQ('sens') },
+]);
 
 // Révision du thème: les 5 classes de mots + « Dans cette phrase, X est un… »
+// La révision penche vers les NOTIONS que Ryan rate le plus.
 export function generateT1Revision() {
-  const r = Math.random();
-  if (r < 0.25) return fresh('t1_revision', () => classe('t1_revision'));
-  if (r < 0.40) return generateT1Nom();
-  if (r < 0.55) return generateT1Determinant();
-  if (r < 0.70) return generateT1Adjectif();
-  if (r < 0.82) return generateT1Verbe();
-  if (r < 0.92) return generateT1Pronom();
-  if (r < 0.96) return generateT1Dialogue();
-  return generateT1Voc();
+  const w = (cat, base) => ({ type: cat, w: base * categoryPriority(cat), build: null });
+  const cats = [
+    { ...w('t1_revision', 25), build: () => fresh('t1_revision', () => classe('t1_revision')) },
+    { ...w('t1_nom', 15), build: generateT1Nom },
+    { ...w('t1_determinant', 15), build: generateT1Determinant },
+    { ...w('t1_adjectif', 15), build: generateT1Adjectif },
+    { ...w('t1_verbe', 12), build: generateT1Verbe },
+    { ...w('t1_pronom', 10), build: generateT1Pronom },
+    { ...w('t1_dialogue', 4), build: generateT1Dialogue },
+    { ...w('t1_voc', 4), build: generateT1Voc },
+  ];
+  const total = cats.reduce((t, c) => t + c.w, 0);
+  let r = Math.random() * total;
+  return (cats.find((c) => (r -= c.w) <= 0) || cats[0]).build();
 }
 
 // Pour les tests: toutes les phrases de la banque, rendues
