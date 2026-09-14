@@ -50,7 +50,7 @@ registerRoute(
 // que les questions avec image marchent aussi sans Wi-Fi. Un nom de fichier = une
 // image approuvée; pour la remplacer, on change le nom.
 registerRoute(
-  ({ url }) => url.origin === self.location.origin && url.pathname.startsWith('/visuels/'),
+  ({ url }) => url.origin === self.location.origin && (url.pathname.startsWith('/visuels/') || url.pathname.startsWith('/sciences/')),
   new CacheFirst({
     cacheName: 'visuels',
     plugins: [new ExpirationPlugin({ maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 180 })],

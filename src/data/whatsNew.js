@@ -3,6 +3,13 @@
 
 export const whatsNew = [
   {
+    id: '2026-09-13-cayla-sciences-labo',
+    date: '2026-09-13',
+    profile: 'cayla',
+    title: 'Sciences: les instruments de laboratoire 🧪',
+    body: "Les 14 instruments de ta feuille, avec les mêmes photos. Cartes (nom + utilité à voix haute), Écrire (le nom exact), et un Quiz avec les montages.",
+  },
+  {
     id: '2026-09-13-ryan-cahier-jazz',
     date: '2026-09-13',
     profile: 'ryan',

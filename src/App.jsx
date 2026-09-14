@@ -19,6 +19,7 @@ import DicteeFlashcard from './components/DicteeFlashcard';
 import BiographieFlashcard from './components/BiographieFlashcard';
 import VerbesAvoirEtre from './components/VerbesAvoirEtre';
 import UniversSocial from './components/UniversSocial';
+import SciencesLabo from './components/SciencesLabo';
 import StudyReminderSettings from './components/StudyReminderSettings';
 import FamilyOverview from './components/FamilyOverview';
 import Journal from './components/Journal';
@@ -287,6 +288,7 @@ export default function App() {
       {screen === 'journal' && <Journal onHome={goHome} profile={profile} />}
       {screen === 'verbes' && <VerbesAvoirEtre onHome={goHome} onStartPractice={startPractice} />}
       {screen === 'univers_social' && <UniversSocial onHome={goHome} onStartPractice={startPractice} />}
+      {screen === 'sciences_labo' && <SciencesLabo onHome={goHome} />}
       {screen === 'reading' && <Reading onHome={goHome} profile={profile} />}
       {screen === 'nylaspeed' && <NylaSpeed onHome={goHome} />}
       {screen === 'nylasongs' && <NylaSongs onHome={goHome} />}
@@ -306,6 +308,7 @@ export default function App() {
           onOpenBlocs={() => setScreen('blocs')}
           onOpenVerbes={() => setScreen('verbes')}
           onOpenUniversSocial={() => setScreen('univers_social')}
+          onOpenSciences={() => setScreen('sciences_labo')}
           onStartTutor={startTutor}
           onStartAquarium={startAquarium}
           onStartSpeed={startSpeed}

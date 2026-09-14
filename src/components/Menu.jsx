@@ -167,6 +167,7 @@ const caylaMathModes = [
 // Cayla — secondaire 1 depuis sept. 2026. Priorité de la rentrée: les verbes.
 const caylaFrenchModes = [
   { id: 'univers_social', label: '🏺 Univers social — Dossier 1', desc: 'La sédentarisation: 29 mots de vocabulaire — TEST bientôt', featured: true, badge: 'Priorité' },
+  { id: 'sciences_labo', label: '🧪 Sciences — Instruments de labo', desc: 'Nom + utilité de 14 instruments, les montages — TEST', badge: 'Priorité' },
   { id: 'verbes_avoir_etre', label: '📗 Verbes avoir & être', desc: 'Tous les modes et temps — tableau, écrire, choix multiple' },
   { id: 'conjugaison', label: 'Conjugaison — autres verbes', desc: 'manger, finir, prendre, venir, pouvoir...' },
   { id: 'classe_de_mots', label: '📝 Classe de mots', desc: 'Nom, verbe, adjectif, déterminant, pronom' },
@@ -282,12 +283,13 @@ function FoxMascot() {
   );
 }
 
-export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerbes, onOpenUniversSocial, onStartTutor, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onStartNylaAddition, onStartNylaCompare, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerbes, onOpenUniversSocial, onOpenSciences, onStartTutor, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onStartNylaAddition, onStartNylaCompare, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
   // Dispatch a tile click — special-case modes that open their own screen instead of the practice flow
   const launchMode = (id) => {
     if (id === 'biographie_jr_flashcard') return onOpenBioFlashcard && onOpenBioFlashcard();
     if (id === 'verbes_avoir_etre' && onOpenVerbes) return onOpenVerbes();
     if (id === 'univers_social' && onOpenUniversSocial) return onOpenUniversSocial();
+    if (id === 'sciences_labo' && onOpenSciences) return onOpenSciences();
     if (id === 'nyla_boukili') return onOpenBoukili && onOpenBoukili();
     if (id === 'nyla_logiciel') return window.open('https://www.logicieleducatif.fr/', '_blank', 'noopener,noreferrer');
     if (id === 'nyla_letters_flash') return onStartNylaFlashcard && onStartNylaFlashcard('letters_upper');
