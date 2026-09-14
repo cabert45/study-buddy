@@ -97,12 +97,6 @@ function blocsEchange() {
   if (total < 100) return blocsEchange();
   // L'erreur de Ryan: garder seulement le dernier chiffre des dizaines / unités
   const sansEchange = um * 1000 + c * 100 + (d % 10) * 10 + (u % 10);
-  const lignes = [
-    um ? `🟧 ${um} gros cube${um > 1 ? 's' : ''} (unités de mille)` : null,
-    c ? `🟦 ${c} plaque${c > 1 ? 's' : ''} (centaines)` : null,
-    d ? `🟩 ${d} bâtonnet${d > 1 ? 's' : ''} (dizaines)` : null,
-    u ? `🟨 ${u} petit${u > 1 ? 's' : ''} cube${u > 1 ? 's' : ''} (unités)` : null,
-  ].filter(Boolean);
   const etapes = [];
   if (um) etapes.push(`${um} × 1 000 = ${fmt(um * 1000)}`);
   if (c) etapes.push(`${c} × 100 = ${fmt(c * 100)}`);
@@ -112,7 +106,9 @@ function blocsEchange() {
     category: CATEGORY,
     rule: ruleFor(),
     type: 'blocs',
-    text: `Quel nombre est représenté?\n\n${lignes.join('\n')}`,
+    // Le dessin (components/Numeration) montre les blocs: Ryan doit les COMPTER, comme au cahier
+    text: 'Compte les blocs. Quel nombre est représenté?',
+    blocs: { um, c, d, u },
     correct: total,
     options: options(total, [sansEchange, total + 100, total - 100, total + 10, total - 10], (k) => total + 1000 * k),
     explanation: `${etapes.join('\n')}\nEn tout: ${fmt(total)}.`
@@ -134,11 +130,46 @@ function tableauZero() {
     category: CATEGORY,
     rule: ruleFor(),
     type: 'tableau_zero',
-    text: `Quel nombre est écrit dans le tableau?\n\num: ${um}  ·  c: ${c}  ·  d: ${d}  ·  u: ${u}`,
+    text: 'Quel nombre est écrit dans le tableau de numération?',
+    tableau: { um, c, d, u },
     correct: total,
     options: options(total, [sansZero, Number(`${um}${c}${u}${d}`), total + 10, Number(`${um}${d}${c}${u}`)], (k) => total + 100 * k),
     explanation: `${um} unités de mille, ${c} centaine${c > 1 ? 's' : ''}, ${d} dizaine${d > 1 ? 's' : ''}, ${u} unité${u > 1 ? 's' : ''} → ${fmt(total)}.\nLe 0 garde la place de la colonne vide. Sans lui, on lirait ${fmt(sansZero)}!`,
     hint: 'Écris un chiffre pour CHAQUE colonne, même celle qui est vide (0).',
+  };
+}
+
+// ===== p. 2 et 5 — Jetons dans un tableau de numération / p. 6 — l'abaque =====
+// Souvent une colonne vide: c'est là que Ryan oublie le zéro.
+function chiffresAvecTrou() {
+  const um = rand(1, 9);
+  const trou = pick(['c', 'd', 'u', null]);
+  const ch = { um, c: rand(1, 9), d: rand(1, 9), u: rand(1, 9) };
+  if (trou) ch[trou] = 0;
+  return ch;
+}
+
+function representation(kind) {
+  const ch = chiffresAvecTrou();
+  const total = ch.um * 1000 + ch.c * 100 + ch.d * 10 + ch.u;
+  const s = String(total);
+  const sansZero = Number(s.replace(/0/g, '')) || total + 1;
+  const inverse = Number(s.slice(0, -2) + s.slice(-1) + s.slice(-2, -1));
+  const jetons = kind === 'jetons';
+  return {
+    category: CATEGORY,
+    rule: ruleFor(),
+    type: kind,
+    text: jetons
+      ? 'Compte les jetons dans chaque colonne. Quel nombre est représenté?'
+      : "Compte les anneaux sur chaque tige de l'abaque. Quel nombre est représenté?",
+    ...(jetons ? { tableau: { ...ch, jetons: true } } : { abaque: ch }),
+    correct: total,
+    options: options(total, [sansZero, inverse, total + 1, total + 10, total - 1], (k) => total + 100 * k),
+    explanation: `um: ${ch.um} · c: ${ch.c} · d: ${ch.d} · u: ${ch.u} → ${fmt(total)}.`
+      + (s.includes('0') ? `\n${jetons ? 'Une colonne sans jeton' : 'Une tige sans anneau'} = un 0 dans le nombre. Sans lui, on lirait ${fmt(sansZero)}!` : '')
+      + `\nCompte lentement, une ${jetons ? 'colonne' : 'tige'} à la fois, de gauche à droite.`,
+    hint: jetons ? 'Chaque colonne donne UN chiffre: le nombre de jetons. Aucun jeton? Écris 0.' : 'Chaque tige donne UN chiffre: le nombre d\'anneaux. Aucun anneau? Écris 0.',
   };
 }
 
@@ -317,7 +348,9 @@ function faireDesSacs() {
 function buildOne() {
   return pickAdaptive(CATEGORY, [
     { type: 'blocs', w: 22, build: blocsEchange },
-    { type: 'tableau_zero', w: 12, build: tableauZero },
+    { type: 'tableau_zero', w: 8, build: tableauZero },
+    { type: 'jetons', w: 8, build: () => representation('jetons') },
+    { type: 'abaque', w: 7, build: () => representation('abaque') },
     { type: 'lettres_chiffres', w: 14, build: lettresEnChiffres },
     { type: 'chiffres_lettres', w: 8, build: chiffresEnLettres },
     // valeurPosition rend « position_nom » ou « position_valeur »

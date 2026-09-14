@@ -710,16 +710,23 @@ function buildPronom() {
 }
 
 // ===== DES CLÉS: LES PERSONNAGES & LE DIALOGUE =====
+// Illustrations: dessinées par le graphiste (studio/), vérifiées, dans public/visuels/jazz/
+const VISUEL = (nom) => `/visuels/jazz/${nom}.jpg`;
+
 const DIALOGUES = [
   {
+    image: VISUEL('dialogue-lunettes'),
     lignes: ['— Gaston, as-tu vu mes lunettes? demande Grand-maman.', "— Non, je dormais dans ma cage! répond le cochon d'Inde."],
     questions: [
+      // Trouver un détail: au cahier (p. 7-8), Ryan ne trouvait pas la bonne information
+      { q: "Regarde bien l'image. Où sont les lunettes de Grand-maman?", correct: 'sur sa tête', options: ['sur sa tête', 'dans la cage', 'sur le meuble'], why: 'Elles sont sur sa tête! Grand-maman ne les a pas vues. Regarder les détails, c\'est comme relire le texte.' },
       { q: 'Qui parle en PREMIER?', correct: 'Grand-maman', options: ['Grand-maman', 'Gaston', 'Personne'], why: '« demande Grand-maman »: le verbe de parole dit que c\'est elle qui parle.' },
       { q: 'Dans la 2e ligne, quel mot est le VERBE DE PAROLE?', correct: 'répond', options: ['répond', 'dormais', 'cage'], why: '« répond » dit comment Gaston parle: c\'est le verbe de parole.' },
       { q: 'Qui cherche ses lunettes?', correct: 'Grand-maman', options: ['Grand-maman', 'Gaston', 'On ne le sait pas'], why: 'Grand-maman demande « as-tu vu MES lunettes? »' },
     ],
   },
   {
+    image: VISUEL('dialogue-ballon'),
     lignes: ["— Attention, le ballon arrive! crie l'entraîneuse.", "— Je l'attrape! s'exclame Maya."],
     questions: [
       { q: 'Qui dit « Attention »?', correct: "l'entraîneuse", options: ["l'entraîneuse", 'Maya', 'le ballon'], why: '« crie l\'entraîneuse »: c\'est elle qui parle.' },
@@ -727,6 +734,7 @@ const DIALOGUES = [
     ],
   },
   {
+    image: VISUEL('dialogue-tresor'),
     lignes: ['— Où est le trésor? chuchote le petit pirate.', '— Sous le vieux chêne, murmure le capitaine.'],
     questions: [
       { q: 'Qui sait où est le trésor?', correct: 'le capitaine', options: ['le capitaine', 'le petit pirate', 'le chêne'], why: 'Le capitaine répond: « Sous le vieux chêne ».' },
@@ -735,6 +743,7 @@ const DIALOGUES = [
     ],
   },
   {
+    image: VISUEL('dialogue-reve'),
     lignes: ["— J'ai fait un rêve bizarre, raconte Léo.", '— Dis-moi tout! dit sa sœur.'],
     questions: [
       { q: 'Qui a fait un rêve?', correct: 'Léo', options: ['Léo', 'sa sœur', 'On ne le sait pas'], why: '« raconte Léo »: c\'est Léo qui parle de son rêve.' },
@@ -756,19 +765,29 @@ const TRAITS = [
 // Au cahier (p. 8, Q6 et Q8), Ryan a mêlé les deux et n'a pas trouvé la bonne phrase.
 const PORTRAITS = [
   {
+    nom: 'Maya',
+    image: VISUEL('portrait-maya'),
+    physique: ['Maya a les cheveux frisés.', 'Elle porte un chandail de soccer jaune.'],
+    caractere: ['Maya est courageuse.', 'Elle aide toujours ses amis.'],
+    autre: ['Maya joue au soccer le samedi.'],
+  },
+  {
     nom: 'Gaston',
+    image: VISUEL('portrait-gaston'),
     physique: ['Gaston a de petites oreilles roses.', 'Son pelage est tout doux.'],
     caractere: ['Gaston est très poli.', 'Il range toujours sa cage.'],
     autre: ['Gaston habite dans la classe.'],
   },
   {
     nom: 'Mademoiselle Rose',
+    image: VISUEL('portrait-rose'),
     physique: ['Mademoiselle Rose est grande comme une girafe.', 'Elle porte un chapeau à plumes.'],
     caractere: ['Elle ne se fâche jamais.', 'Mademoiselle Rose est drôle et patiente.'],
     autre: ["Elle entraîne l'équipe de hockey."],
   },
   {
     nom: 'Capitaine Barbe-Grise',
+    image: VISUEL('portrait-barbe-grise'),
     physique: ['Le capitaine a une longue barbe grise.', 'Il a une jambe de bois.'],
     caractere: ['Il est très courageux.', 'Il partage toujours son trésor.'],
     autre: ['Son bateau s\'appelle La Mouette.'],
@@ -785,6 +804,8 @@ function portraitQ() {
     category: 't1_dialogue',
     rule: ruleFor('t1_dialogue', DIALOGUE_RULE),
     type: 'portrait',
+    image: p.image,
+    imageAlt: `Portrait de ${p.nom}`,
     text: `Lis le texte:\n\n« ${texte} »\n\nQuelle phrase parle ${cherchePhysique ? "de l'ASPECT PHYSIQUE" : "d'un TRAIT DE CARACTÈRE"} de ${p.nom}?`,
     correct,
     options: shuffle([correct, ...faux]),
@@ -794,24 +815,61 @@ function portraitQ() {
   };
 }
 
+// Avec l'image seulement: l'aspect physique = ce qu'on VOIT; le caractère = ce qu'on ne voit pas
+function portraitImageQ() {
+  const p = pick(PORTRAITS);
+  const voit = Math.random() < 0.5;
+  const correct = pick(voit ? p.physique : p.caractere);
+  const faux = [pick(voit ? p.caractere : p.physique), ...p.autre];
+  return {
+    category: 't1_dialogue',
+    rule: ruleFor('t1_dialogue', DIALOGUE_RULE),
+    type: 'portrait_image',
+    image: p.image,
+    imageAlt: `Portrait de ${p.nom}`,
+    text: voit
+      ? `Regarde ${p.nom}. Quelle phrase décrit ce qu'on VOIT sur l'image (son aspect physique)?`
+      : `Regarde ${p.nom}. Quelle phrase décrit un trait de CARACTÈRE — quelque chose qu'on ne peut PAS voir sur l'image?`,
+    correct,
+    options: shuffle([correct, ...faux]),
+    explanation: voit
+      ? `« ${correct} » — tu peux le voir sur l'image: c'est l'aspect physique.`
+      : `« ${correct} » — l'image ne peut pas le montrer: on le découvre par ce que ${p.nom} fait ou dit. C'est un trait de caractère.`,
+  };
+}
+
 // Voc en vrac (p. 19): les expressions avec « comme »
 const COMPARAISONS = [
-  { debut: 'Être grand comme une', mot: 'échalote', sens: 'très grand et mince' },
-  { debut: 'Être haut comme trois', mot: 'pommes', sens: 'très petit' },
-  { debut: 'Être fort comme un', mot: 'bœuf', sens: 'très fort' },
-  { debut: 'Être têtu comme une', mot: 'mule', sens: 'très têtu (qui ne change pas d\'idée)' },
-  { debut: 'Avoir le visage rouge comme une', mot: 'tomate', sens: 'avoir le visage très rouge' },
-  { debut: 'Nager comme un', mot: 'poisson', sens: 'nager très bien' },
-  { debut: 'Être rusé comme un', mot: 'renard', sens: 'très rusé (malin)' },
+  { debut: 'Être grand comme une', mot: 'échalote', sens: 'très grand et mince', image: VISUEL('voc-echalote') },
+  { debut: 'Être haut comme trois', mot: 'pommes', sens: 'très petit', image: VISUEL('voc-trois-pommes') },
+  { debut: 'Être fort comme un', mot: 'bœuf', sens: 'très fort', image: VISUEL('voc-boeuf') },
+  { debut: 'Être têtu comme une', mot: 'mule', sens: 'très têtu (qui ne change pas d\'idée)', image: VISUEL('voc-mule') },
+  { debut: 'Avoir le visage rouge comme une', mot: 'tomate', sens: 'avoir le visage très rouge', image: VISUEL('voc-tomate') },
+  { debut: 'Nager comme un', mot: 'poisson', sens: 'nager très bien', image: VISUEL('voc-poisson') },
+  { debut: 'Être rusé comme un', mot: 'renard', sens: 'très rusé (malin)', image: VISUEL('voc-renard') },
   { debut: 'Être long et mince comme une', mot: 'asperge', sens: 'très grand et mince' },
 ];
 
 function comparaisonQ(kind) {
-  const c = pick(COMPARAISONS);
+  const c = pick(kind === 'image' ? COMPARAISONS.filter((x) => x.image) : COMPARAISONS);
   // échalote et asperge ont le même sens: jamais les deux dans les mêmes choix
   const autres = [];
   for (const x of shuffle(COMPARAISONS)) {
     if (x.sens !== c.sens && !autres.some((a) => a.sens === x.sens)) autres.push(x);
+  }
+  if (kind === 'image') {
+    const expr = (x) => `${x.debut} ${x.mot}`;
+    return {
+      category: 't1_voc',
+      rule: ruleFor('t1_voc', VOC_RULE),
+      type: 'comparaison_image',
+      image: c.image,
+      imageAlt: 'Illustration d\'une expression',
+      text: "Regarde l'image. Quelle expression la décrit?",
+      correct: expr(c),
+      options: shuffle([expr(c), ...autres.slice(0, 2).map(expr)]),
+      explanation: `« ${expr(c)} » = ${c.sens}.`,
+    };
   }
   if (kind === 'mot') {
     // Même petit mot devant (un / une) d'abord, pour que l'article ne donne pas la réponse
@@ -846,6 +904,8 @@ function dialogueQ() {
     category: 't1_dialogue',
     rule: ruleFor('t1_dialogue', DIALOGUE_RULE),
     type: 'dialogue',
+    image: d.image,
+    imageAlt: 'Illustration du dialogue',
     text: `Lis le dialogue:\n\n${d.lignes.join('\n')}\n\n${q.q}`,
     correct: q.correct,
     options: shuffle(q.options),
@@ -898,8 +958,9 @@ function buildDialogue() {
     { type: 'dialogue', w: 35, build: dialogueQ },
     { type: 'dialogue_tiret', w: 8, build: () => dialogueSignes('tiret') },
     { type: 'dialogue_verbe_parole', w: 7, build: () => dialogueSignes('parole') },
-    { type: 'portrait', w: 25, build: portraitQ },
-    { type: 'trait', w: 25, build: traitQ },
+    { type: 'portrait', w: 20, build: portraitQ },
+    { type: 'portrait_image', w: 15, build: portraitImageQ },
+    { type: 'trait', w: 15, build: traitQ },
   ]);
 }
 
@@ -917,8 +978,9 @@ export const generateT1Verbe = () => fresh('t1_verbe', buildVerbe);
 export const generateT1Pronom = () => fresh('t1_pronom', buildPronom);
 export const generateT1Dialogue = () => fresh('t1_dialogue', buildDialogue);
 export const generateT1Voc = () => pickAdaptive('t1_voc', [
-  { type: 'comparaison_mot', w: 60, build: () => comparaisonQ('mot') },
-  { type: 'comparaison_sens', w: 40, build: () => comparaisonQ('sens') },
+  { type: 'comparaison_image', w: 35, build: () => comparaisonQ('image') },
+  { type: 'comparaison_mot', w: 40, build: () => comparaisonQ('mot') },
+  { type: 'comparaison_sens', w: 25, build: () => comparaisonQ('sens') },
 ]);
 
 // Révision du thème: les 5 classes de mots + « Dans cette phrase, X est un… »

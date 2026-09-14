@@ -5,3 +5,7 @@ data/*.db
 data/backups/
 .env
 .env.local
+
+# Studio graphiste: images brutes et clé (seules les images approuvées vont dans public/visuels/)
+studio/out/
+studio/.env

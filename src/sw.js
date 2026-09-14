@@ -46,6 +46,17 @@ registerRoute(
   })
 );
 
+// Illustrations des cahiers (public/visuels): gardées après le 1er affichage, pour
+// que les questions avec image marchent aussi sans Wi-Fi. Un nom de fichier = une
+// image approuvée; pour la remplacer, on change le nom.
+registerRoute(
+  ({ url }) => url.origin === self.location.origin && url.pathname.startsWith('/visuels/'),
+  new CacheFirst({
+    cacheName: 'visuels',
+    plugins: [new ExpirationPlugin({ maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 180 })],
+  })
+);
+
 // API: network first
 registerRoute(
   ({ url }) => url.pathname.startsWith('/api/'),

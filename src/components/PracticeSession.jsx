@@ -66,6 +66,7 @@ import TensOnes from './TensOnes';
 import CountingBoxes from './CountingBoxes';
 import InteractiveTenFrames from './InteractiveTenFrames';
 import { BarChart, Pictogram, DataTable } from './Diagramme';
+import { BlocsBase10, TableauNumeration, Abaque } from './Numeration';
 import { getVideosForCategory } from '../data/videoLinks';
 
 const TOTAL_QUESTIONS = 15;
@@ -699,6 +700,16 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
             <CountingBoxes a={question.visual.a} b={question.visual.b} op={question.visual.op} showExchange />
           </>
         )}
+
+        {/* Cahiers de Ryan: illustration du graphiste (Jazz) + représentations Matcha dessinées par l'app */}
+        {question.image && (
+          <img src={question.image} alt={question.imageAlt || ''} loading="lazy"
+            className="block mx-auto mb-4 rounded-xl border-2 border-s1 bg-white"
+            style={{ maxHeight: 260, maxWidth: '100%', objectFit: 'contain' }} />
+        )}
+        {question.blocs && <BlocsBase10 {...question.blocs} />}
+        {question.tableau && <TableauNumeration {...question.tableau} />}
+        {question.abaque && <Abaque {...question.abaque} />}
 
         {/* Statistique visuals — bar chart, pictogram, data table */}
         {question.category === 'statistique' && question.chartData && (question.type === 'bar_chart' || question.type === 'weekly_chart') && (
