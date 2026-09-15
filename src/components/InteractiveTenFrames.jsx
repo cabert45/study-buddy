@@ -10,14 +10,14 @@ function TenFrameGrid({ cells, onToggle, color = 'bg-red-500' }) {
         <button
           key={i}
           onClick={() => onToggle(i)}
-          className="w-8 h-8 border border-gray-500/30 rounded-sm flex items-center justify-center active:bg-white/10 transition-all"
+          className="w-[26px] h-[26px] sm:w-8 sm:h-8 border border-gray-500/30 rounded-sm flex items-center justify-center active:bg-white/10 transition-all"
         >
           {filled === 'dot' && (
-            <div className={`w-5 h-5 rounded-full ${color} shadow-sm`} />
+            <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full ${color} shadow-sm`} />
           )}
           {filled === 'cross' && (
             <div className="relative">
-              <div className={`w-5 h-5 rounded-full ${color} opacity-30`} />
+              <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full ${color} opacity-30`} />
               <span className="absolute inset-0 flex items-center justify-center text-red-400 font-bold text-sm">✕</span>
             </div>
           )}
@@ -71,7 +71,7 @@ export default function InteractiveTenFrames({ onClose }) {
           onClick={() => setMode('dot')}
           className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
             mode === 'dot'
-              ? 'bg-red-500/30 text-red-300 border border-red-500/40'
+              ? 'bg-red-100 text-red-700 border border-red-300'
               : 'bg-white text-s4 border-2 border-s2'
           }`}
         >
@@ -81,7 +81,7 @@ export default function InteractiveTenFrames({ onClose }) {
           onClick={() => setMode('cross')}
           className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
             mode === 'cross'
-              ? 'bg-orange-500/30 text-orange-300 border border-orange-500/40'
+              ? 'bg-orange-100 text-orange-700 border border-orange-300'
               : 'bg-white text-s4 border-2 border-s2'
           }`}
         >
@@ -103,7 +103,7 @@ export default function InteractiveTenFrames({ onClose }) {
 
       {/* Counter */}
       <div className="flex justify-between mt-3 text-xs font-bold">
-        <span className="text-red-300">● Points: {totalDots}</span>
+        <span className="text-red-600">● Points: {totalDots}</span>
         {totalCrossed > 0 && <span className="text-orange-300">✕ Barres: {totalCrossed}</span>}
         {totalCrossed > 0 && (
           <span className="text-green-300">Reste: {totalDots - totalCrossed}</span>

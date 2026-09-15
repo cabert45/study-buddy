@@ -202,6 +202,11 @@ function lettresEnChiffres() {
     explanation: `« ${enLettres(n)} » = ${fmt(n)}.`
       + `\n⚠ Piège: ${fmt(n * 10)} — un zéro en trop. Compte les chiffres: ${n >= 1000 ? 'mille… = 4 chiffres' : 'cent… = 3 chiffres'}.`,
     hint: n >= 1000 ? 'Un nombre avec « mille » a 4 chiffres, pas plus.' : 'Un nombre avec « cent » (sans mille) a 3 chiffres.',
+    aide: {
+      titre: 'Place chaque partie dans sa colonne',
+      tableauVide: true,
+      note: '« mille » → colonne um · « cent(s) » → colonne c · puis les dizaines et les unités. Une colonne vide? Écris 0!',
+    },
   };
 }
 
@@ -291,6 +296,11 @@ function ajouter() {
     options: options(correct, [n + 1, n + 10, n + 100, n + 300, n + 1000, n + quoi.v * 3], (k) => correct + k),
     explanation: `${quoi.mot} = ${fmt(quoi.v)}. ${fmt(n)} + ${fmt(quoi.v)} = ${fmt(correct)}.\nSeul le chiffre des ${quoi.v >= 1000 ? 'unités de mille' : quoi.v >= 100 ? 'centaines' : 'dizaines'} change (sauf s'il faut échanger).`,
     hint: `Trouve la bonne colonne, puis ajoute seulement dans cette colonne.`,
+    aide: {
+      titre: `${fmt(n)} dans le tableau`,
+      tableau: chiffres(n),
+      note: `Trouve la colonne de « ${quoi.mot} » et ajoute seulement là. Si ça fait 10, échange!`,
+    },
   };
 }
 
@@ -317,6 +327,11 @@ function groupements() {
     type: 'groupements',
     text: `${ctx.qui} ${accorde(c, ctx.cent)} de 100, ${accorde(d, ctx.dix)} de 10 et ${u} ${ctx.un}.\nCombien de ${ctx.quoi} en tout?`,
     correct: total,
+    aide: {
+      titre: 'Le problème en blocs',
+      blocs: { um: 0, c, d, u },
+      note: '10 petits cubes = 1 bâtonnet · 10 bâtonnets = 1 plaque. Fais les échanges, puis lis le nombre.',
+    },
     options: options(total, [piege, Number(`${c}${d}${u}`), total + 10, total - 10], (k) => total + 100 * k),
     explanation: `${c} × 100 = ${fmt(c * 100)}\n${d} × 10 = ${fmt(d * 10)}\n${u} × 1 = ${u}\n${fmt(c * 100)} + ${fmt(d * 10)} + ${u} = ${fmt(total)}.\n⚠ ${u} unités, c'est plus que 10: ça fait 1 dizaine de plus!`,
     hint: 'Calcule la valeur de chaque groupe, puis additionne. Attention aux unités: 10 ou plus = une dizaine de plus.',
@@ -341,6 +356,14 @@ function faireDesSacs() {
       ? `${fmt(n)} = ${correct} centaines et ${n % 100} de plus. Chaque centaine remplit 1 sac de 100 → ${correct} sacs pleins (le chiffre des unités de mille ET celui des centaines: ${correct}).`
       : `${fmt(n)} = ${correct} dizaines et ${n % 10} de plus. Chaque dizaine remplit 1 sac de 10 → ${correct} sacs pleins.`,
     hint: deCent ? 'Combien de CENTAINES en tout dans le nombre? (pas seulement le chiffre des centaines!)' : 'Combien de DIZAINES en tout dans le nombre?',
+    // « Mes boîtes de travail » → les blocs du nombre (les cadres de 10 ne vont que jusqu'à 40)
+    aide: {
+      titre: `${fmt(n)} ${quoi} en blocs`,
+      blocs: chiffres(n),
+      note: deCent
+        ? 'Chaque plaque (100) remplit 1 sac de 100. Un gros cube = 10 plaques = 10 sacs. Compte les sacs!'
+        : 'Chaque bâtonnet (10) remplit 1 sac de 10. Une plaque = 10 bâtonnets = 10 sacs. Compte les sacs!',
+    },
   };
 }
 

@@ -71,6 +71,45 @@ import { getVideosForCategory } from '../data/videoLinks';
 
 const TOTAL_QUESTIONS = 15;
 
+// « Mes boîtes de travail » = 4 cadres de 10 (40 points max). Utile pour les petits nombres
+// seulement: une question peut fournir sa propre aide (question.aide: blocs / tableau);
+// sinon on cache le bouton quand les nombres dépassent 100, et pour les cahiers Matcha
+// (leurs questions ont déjà leurs dessins).
+function biggestNumber(text) {
+  const nums = String(text || '').replace(/(\d)[\s\u00a0\u202f](?=\d{3}\b)/g, '$1').match(/\d+/g) || [];
+  return nums.reduce((m, x) => Math.max(m, Number(x)), 0);
+}
+function scratchPadUseful(q) {
+  const cat = q.category || '';
+  if (cat.startsWith('nyla')) return false;
+  if (q.aide) return true;
+  if (cat.startsWith('matcha_')) return false;
+  return biggestNumber(q.text) <= 100;
+}
+
+// Aide visuelle pour les grands nombres (blocs base 10 ou tableau de numération dessinés par l'app)
+function AideNombre({ aide, onClose }) {
+  return (
+    <div className="bg-orange-50 rounded-xl p-4 mt-3 mb-4 border-2 border-s1">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-bold text-fox-d">📝 {aide.titre || 'Boîte de travail'}</span>
+        <button onClick={onClose} className="text-xs text-s4 font-semibold">Fermer ✕</button>
+      </div>
+      {aide.note && <p className="text-sm font-semibold text-stone mb-3">{aide.note}</p>}
+      {aide.blocs && <BlocsBase10 {...aide.blocs} />}
+      {aide.tableau && <TableauNumeration {...aide.tableau} />}
+      {aide.tableauVide && (
+        <div className="overflow-x-auto mb-1">
+          <table className="mx-auto border-2 border-stone text-center" style={{ borderCollapse: 'collapse' }}>
+            <thead><tr>{['um', 'c', 'd', 'u'].map((k) => <th key={k} className="px-5 py-1.5 border-2 border-stone bg-white font-heading font-extrabold">{k}</th>)}</tr></thead>
+            <tbody><tr>{['um', 'c', 'd', 'u'].map((k) => <td key={k} className="border-2 border-stone bg-white" style={{ width: 60, height: 52 }} />)}</tr></tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function getGenerator(mode) {
   switch (mode) {
     case 'calcul': return generateCalcul;
@@ -646,7 +685,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           >
             🔊 {question.spokenLang === 'en' ? 'Écouter en anglais' : (question.category || '').startsWith('nyla') ? 'Réécouter' : question.spokenWord ? 'Réécouter le mot' : 'Écouter'}
           </button>
-          {!showResult && !(question.category || '').startsWith('nyla') && (
+          {!showResult && scratchPadUseful(question) && (
             <button
               onClick={() => setShowScratchPad((v) => !v)}
               className="text-sm text-fox font-semibold"
@@ -690,7 +729,9 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
 
         {/* Interactive scratch pad */}
         {showScratchPad && !showResult && (
-          <InteractiveTenFrames onClose={() => setShowScratchPad(false)} />
+          question.aide
+            ? <AideNombre aide={question.aide} onClose={() => setShowScratchPad(false)} />
+            : <InteractiveTenFrames onClose={() => setShowScratchPad(false)} />
         )}
 
         {/* Visual for calcul questions — show both tens/ones AND counting boxes */}
