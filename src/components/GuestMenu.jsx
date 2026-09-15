@@ -4,7 +4,7 @@ import {
   Layers, PenLine, RotateCcw, CalendarClock, BookMarked, ListChecks, BookOpen, Target,
   RefreshCw, Sigma, Shapes, Type, Repeat, ChevronRight,
 } from 'lucide-react';
-import { pingGuest, guestProfile } from '../utils/guest';
+import { pingGuest, guestProfile, leaveGuestMode } from '../utils/guest';
 import { getWeekSummary } from '../utils/wordMastery';
 import { IconTile } from './sec/SecUi';
 import { NotificationBell } from './Notifications';
@@ -64,6 +64,18 @@ export default function GuestMenu({
   useEffect(() => { if (isGuest) pingGuest('open'); }, [isGuest]);
   const open = (id) => { if (isGuest) pingGuest(`module:${id}`); onOpen(id); };
   const [refreshing, setRefreshing] = useState(false);
+  const taps = React.useRef({ n: 0, t: 0 });
+  // 5 touches rapides sur le logo (invité seulement) → code « famille » → retour au mode famille
+  const onLogoTap = () => {
+    if (!isGuest) return;
+    const now = Date.now();
+    taps.current = { n: now - taps.current.t < 1500 ? taps.current.n + 1 : 1, t: now };
+    if (taps.current.n >= 5) {
+      taps.current = { n: 0, t: 0 };
+      const code = window.prompt('Appareil de la famille? Tape le code pour quitter le mode invité:');
+      if (code && code.trim().toLowerCase() === 'famille') leaveGuestMode();
+    }
+  };
 
   const profile = profileId || guestProfile();
   const progress = useMemo(() => MODULES.map((m) => {
@@ -102,7 +114,7 @@ export default function GuestMenu({
     <div className="max-w-3xl mx-auto px-5 pt-6 pb-16">
       {/* Barre du haut */}
       <nav className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 select-none" onClick={onLogoTap}>
           <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white"
             style={{ background: 'var(--sb-grad)', boxShadow: '0 6px 16px var(--sb-grad-shadow)' }}>
             <GraduationCap size={19} />

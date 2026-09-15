@@ -34,6 +34,16 @@ export function initGuestFromUrl() {
   } catch {}
 }
 
+// Sortie du mode invité depuis l'app (appareil de la famille ouvert sur /laval par erreur).
+// Déclenchée en touchant 5 fois le logo de l'accueil invité, puis en tapant « famille ».
+export function leaveGuestMode() {
+  try {
+    localStorage.removeItem(GUEST_KEY);
+    if ((localStorage.getItem(PROFILE_KEY) || '').startsWith('invite-')) localStorage.removeItem(PROFILE_KEY);
+  } catch {}
+  window.location.replace('/');
+}
+
 export function isGuest() {
   try { return !!localStorage.getItem(GUEST_KEY); } catch { return false; }
 }
