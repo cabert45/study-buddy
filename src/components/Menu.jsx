@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
 import { nylaWeekList } from '../data/nylaFlashcards';
 import { CAHIER_THEMES, CAHIER_SEMAINES, moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data/cahierFrancais';
+import { listeCetteSemaine, semaineCourante } from '../data/orthographeQuotidien';
+import { strategiesCetteSemaine } from '../data/tablesStrategies';
 import { syncSkillStats, weakSkills } from '../utils/skillStats';
 import { NotificationBell } from './Notifications';
 import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, GraduationCap, ChevronRight, Send, Calendar, Trophy, RefreshCw, Settings } from 'lucide-react';
@@ -232,6 +234,7 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
   const [dicteesOpen, setDicteesOpen] = useState(false);
   const [nylaWordsOpen, setNylaWordsOpen] = useState(false);
   const [cahierOpen, setCahierOpen] = useState(false);
+  const [plusOpen, setPlusOpen] = useState(false);
   const [defis, setDefis] = useState(() => weakSkills(['t1_', 'matcha_']));
   const [refreshing, setRefreshing] = useState(false);
   const mascot = mascotFor(profile, useSettings(profile));
@@ -240,6 +243,24 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
     : m.isGroup ? setDicteesOpen(true) : launchMode(m.id));
 
   // Cahier Jazz: module en classe cette semaine / la semaine prochaine / déjà vus
+  // Le dimanche soir, on affiche déjà la semaine qui commence (comme le Coach).
+  const refSemaine = (() => {
+    const d = new Date();
+    return d.getDay() === 0 ? new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1) : d;
+  })();
+  const listeSemaine = listeCetteSemaine(refSemaine);
+  const stratsSemaine = strategiesCetteSemaine(refSemaine);
+  const remiseSemaine = (() => {
+    const w = semaineCourante(refSemaine);
+    if (!w || !w.remise) return null;
+    const jour = new Date(w.remise[0], w.remise[1] - 1, w.remise[2]);
+    const t = new Date(refSemaine.getFullYear(), refSemaine.getMonth(), refSemaine.getDate());
+    const j = Math.round((jour - t) / 86400000);
+    if (j < 0) return null;
+    const JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+    return j === 0 ? "à remettre aujourd'hui" : j === 1 ? 'à remettre demain' : `à remettre ${JOURS[jour.getDay()]}`;
+  })();
+
   const cahierActuel = moduleCetteSemaine();
   const cahierProchain = moduleSemaineProchaine();
   const cahierFaits = new Set();
@@ -454,20 +475,6 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
         </button>
       )}
 
-      {/* Mes lectures — read-to-earn, encourage books over screens */}
-      {onStartReading && !isDemo && (
-        <button onClick={onStartReading}
-          className="w-full rounded-2xl p-4 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
-          style={{ background: 'linear-gradient(135deg, #2d7a3a, #6cc24a)', boxShadow: '0 5px 22px rgba(45,122,58,0.18)' }}>
-          <div className="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white text-2xl">📚</div>
-          <div className="text-left flex-1">
-            <div className="font-heading text-lg font-extrabold text-white leading-tight">Mes lectures · 20$/livre</div>
-            <div className="text-xs font-semibold text-white/85">Lis un livre, gagne de l'argent! 💰</div>
-          </div>
-          <ChevronRight className="text-white/40" size={20} strokeWidth={3} />
-        </button>
-      )}
-
       {/* Grade / saison "fenêtres" — Ryan seulement */}
       {ryanGraded && (
         <div className="flex gap-2 mb-4 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
@@ -530,8 +537,16 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
               style={{ background: 'linear-gradient(135deg, #c74a15, #e8a33a)', boxShadow: '0 6px 24px rgba(199,74,21,0.22)' }}>
               <div className="w-12 h-12 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white text-2xl">🍁</div>
               <div className="text-left flex-1">
-                <div className="font-heading text-xl font-extrabold text-white leading-tight">Mon Coach — 3e année</div>
-                <div className="text-xs font-semibold text-white/90">Le plan du jour · ~35 min après l'école</div>
+                <div className="font-heading text-xl font-extrabold text-white leading-tight">Ma semaine — le plan du jour</div>
+                <div className="text-xs font-semibold text-white/90 leading-snug">
+                  Liste {listeSemaine.numero} · {listeSemaine.titre.toLowerCase()}<br />
+                  Stratégie{stratsSemaine.length > 1 ? 's' : ''} {stratsSemaine.map((x) => x.id).join(' et ')} · {cahierActuel ? cahierActuel.notions[0].toLowerCase() : 'cahier Jazz'}
+                </div>
+                {remiseSemaine && (
+                  <div className="inline-block mt-1.5 text-[11px] font-extrabold bg-white/25 text-white rounded-full px-2.5 py-0.5">
+                    📌 Feuille {remiseSemaine}
+                  </div>
+                )}
               </div>
               <ChevronRight className="text-white/60" size={24} strokeWidth={3} />
             </button>
@@ -747,6 +762,63 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
         </div>
       )}
 
+      {/* Panneau « Plus » — ce qui ne sert pas tous les jours */}
+      {plusOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4"
+          onClick={() => setPlusOpen(false)}>
+          <div onClick={(e) => e.stopPropagation()}
+            className="bg-cream rounded-2xl p-5 max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl border-2 border-s1">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-heading text-xl font-extrabold text-stone">✨ Plus</h3>
+              <button onClick={() => setPlusOpen(false)}
+                className="w-9 h-9 rounded-full bg-white border-2 border-s2 text-s4 font-bold hover:border-lava hover:text-lava">
+                ✕
+              </button>
+            </div>
+            <div className="space-y-2.5">
+              {onStartReading && !isDemo && (
+                <button onClick={() => { setPlusOpen(false); onStartReading(); }}
+                  className="w-full rounded-2xl p-4 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+                  style={{ background: 'linear-gradient(135deg, #2d7a3a, #6cc24a)' }}>
+                  <div className="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white text-2xl">📚</div>
+                  <div className="text-left flex-1">
+                    <div className="font-heading text-lg font-extrabold text-white leading-tight">Mes lectures · 20$/livre</div>
+                    <div className="text-xs font-semibold text-white/85">Lis un livre, gagne de l'argent! 💰</div>
+                  </div>
+                  <ChevronRight className="text-white/40" size={20} strokeWidth={3} />
+                </button>
+              )}
+              {isRyan && onStartTutor && (
+                <button onClick={() => { setPlusOpen(false); onStartTutor(); }}
+                  className="w-full flex items-center gap-4 bg-white border-2 border-s1 rounded-2xl p-4 transition-all hover:border-info hover:shadow-md">
+                  <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm text-white"
+                    style={{ background: 'linear-gradient(135deg, #3a5bc7, #5b4ad4)' }}>
+                    <GraduationCap size={22} />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-heading text-lg font-bold text-stone leading-tight">Tuteur personnel</div>
+                    <div className="text-xs font-semibold text-s4">Apprends pas à pas avec ton professeur</div>
+                  </div>
+                </button>
+              )}
+              {isRyan && onStartPresentation && (
+                <button onClick={() => { setPlusOpen(false); onStartPresentation(); }}
+                  className="w-full flex items-center gap-4 bg-white border-2 border-s1 rounded-2xl p-4 transition-all hover:border-fox hover:shadow-md">
+                  <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm text-white"
+                    style={{ background: 'linear-gradient(135deg, #b85d1a, #e2762b)' }}>
+                    <Mic2 size={22} />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-heading text-lg font-bold text-stone leading-tight">Présentation orale</div>
+                    <div className="text-xs font-semibold text-s4">Pratique pour ta prochaine présentation</div>
+                  </div>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Dictées sub-menu modal */}
       {dicteesOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4"
@@ -806,35 +878,18 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
         </div>
       )}
 
-      {/* AI Tutor */}
-      {isRyan && (
-        <button onClick={onStartTutor}
-          className="w-full flex items-center gap-4 bg-white border-2 border-s1 rounded-2xl p-4 mb-3 transition-all hover:border-info hover:shadow-md">
-          <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm text-white"
-            style={{ background: 'linear-gradient(135deg, #3a5bc7, #5b4ad4)' }}>
-            <GraduationCap size={22} />
-          </div>
-          <div className="text-left">
-            <div className="font-heading text-lg font-bold text-stone leading-tight">Tuteur personnel</div>
-            <div className="text-xs font-semibold text-s4">Apprends pas à pas avec ton professeur</div>
-          </div>
-        </button>
-      )}
-
-      {/* Presentation tool — discreet, available for next presentation */}
-      {isRyan && onStartPresentation && (
-        <button onClick={onStartPresentation}
-          className="w-full flex items-center gap-4 bg-white border-2 border-s1 rounded-2xl p-4 mb-6 transition-all hover:border-fox hover:shadow-md">
-          <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm text-white"
-            style={{ background: 'linear-gradient(135deg, #b85d1a, #e2762b)' }}>
-            <Mic2 size={22} />
-          </div>
-          <div className="text-left">
-            <div className="font-heading text-lg font-bold text-stone leading-tight">Présentation orale</div>
-            <div className="text-xs font-semibold text-s4">Pratique pour ta prochaine présentation</div>
-          </div>
-        </button>
-      )}
+      {/* Tout le reste tient dans un seul bouton: le menu de Ryan doit rester
+          court. Lectures, tuteur et présentation orale servent quelques fois
+          par mois, pas tous les jours. */}
+      <button onClick={() => setPlusOpen(true)}
+        className="w-full flex items-center gap-3 bg-white border-2 border-s1 rounded-2xl p-3.5 mb-6 transition-all hover:border-fox hover:shadow-md">
+        <div className="w-10 h-10 rounded-xl bg-s1 flex items-center justify-center flex-shrink-0 text-xl">✨</div>
+        <div className="text-left flex-1">
+          <div className="font-heading text-base font-bold text-stone leading-tight">Plus</div>
+          <div className="text-xs font-semibold text-s4">{isRyan ? 'Mes lectures, tuteur, présentation orale' : 'Mes lectures'}</div>
+        </div>
+        <ChevronRight className="text-s3" size={20} strokeWidth={3} />
+      </button>
 
       <div className="text-center text-[10px] font-semibold text-s3 mt-8 mb-2 select-none">
         version {typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : 'dev'}
