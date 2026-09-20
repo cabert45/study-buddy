@@ -57,6 +57,18 @@ registerRoute(
   })
 );
 
+// Voix ElevenLabs: un mot déjà entendu ne redescend plus jamais du serveur.
+// CacheFirst AVANT la règle /api/ ci-dessous (Workbox prend la première qui
+// correspond). L'URL contient le texte et la voix, donc le MP3 d'une URL donnée
+// ne change jamais — et la dictée de la semaine marche sans Wi-Fi dès la 2e fois.
+registerRoute(
+  ({ url }) => url.pathname === '/api/tts',
+  new CacheFirst({
+    cacheName: 'voix',
+    plugins: [new ExpirationPlugin({ maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 120 })],
+  })
+);
+
 // API: network first
 registerRoute(
   ({ url }) => url.pathname.startsWith('/api/'),

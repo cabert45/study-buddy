@@ -2,8 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   GraduationCap, Landmark, FlaskConical, BookOpenText, ArrowRight, ShieldCheck,
   Layers, PenLine, RotateCcw, CalendarClock, BookMarked, ListChecks, BookOpen, Target,
-  RefreshCw, Sigma, Shapes, Type, Repeat, ChevronRight,
+  RefreshCw, Sigma, Shapes, Type, Repeat, ChevronRight, Settings,
 } from 'lucide-react';
+import Mascot from './Mascots';
+import { useSettings, mascotFor } from '../utils/settings';
 import { pingGuest, guestProfile, leaveGuestMode } from '../utils/guest';
 import { getWeekSummary } from '../utils/wordMastery';
 import { IconTile } from './sec/SecUi';
@@ -58,7 +60,7 @@ const card = { boxShadow: '0 1px 2px rgba(15,23,42,.04), 0 4px 16px rgba(15,23,4
 export default function GuestMenu({
   onOpen, variant = 'guest', name, profileId,
   onLaunchMode, onStartJournal, onStartChores, onStartReading, onStartCoach,
-  onOpenNotifications, onSwitchProfile,
+  onOpenNotifications, onOpenSettings, onSwitchProfile,
 }) {
   const isGuest = variant === 'guest';
   useEffect(() => { if (isGuest) pingGuest('open'); }, [isGuest]);
@@ -78,6 +80,7 @@ export default function GuestMenu({
   };
 
   const profile = profileId || guestProfile();
+  const mascot = mascotFor(profile, useSettings(profile));
   const progress = useMemo(() => MODULES.map((m) => {
     const s = getWeekSummary(profile, m.key, itemsFor(m));
     const seen = s.total - s.new;
@@ -111,7 +114,7 @@ export default function GuestMenu({
   ].filter(Boolean);
 
   return (
-    <div className="max-w-3xl mx-auto px-5 pt-6 pb-16">
+    <div className="relative z-[1] max-w-3xl mx-auto px-5 pt-6 pb-16">
       {/* Barre du haut */}
       <nav className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-2.5 select-none" onClick={onLogoTap}>
@@ -122,7 +125,15 @@ export default function GuestMenu({
           <span className="font-heading text-lg font-bold text-stone">Study Buddy</span>
         </div>
         {isGuest ? (
-          <span className="text-xs font-semibold text-fox-d bg-white rounded-full px-3 py-1.5 border border-s1">Secondaire 1</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-fox-d bg-white rounded-full px-3 py-1.5 border border-s1">Secondaire 1</span>
+            {onOpenSettings && (
+              <button onClick={onOpenSettings} aria-label="Réglages" title="Réglages"
+                className="w-9 h-9 rounded-xl bg-white border border-s1 text-s4 hover:text-stone flex items-center justify-center">
+                <Settings size={16} />
+              </button>
+            )}
+          </div>
         ) : (
           <div className="flex items-center gap-2">
             <button onClick={refresh} aria-label="Rafraîchir" title="Rafraîchir l'app"
@@ -130,6 +141,12 @@ export default function GuestMenu({
               <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
             </button>
             {onOpenNotifications && <NotificationBell onClick={onOpenNotifications} />}
+            {onOpenSettings && (
+              <button onClick={onOpenSettings} aria-label="Réglages" title="Réglages: voix, couleur, mascotte, écriture"
+                className="w-9 h-9 rounded-xl bg-white border border-s1 text-s4 hover:text-stone flex items-center justify-center">
+                <Settings size={16} />
+              </button>
+            )}
             {onSwitchProfile && (
               <button onClick={onSwitchProfile} title="Changer de profil"
                 className="h-9 pl-1 pr-3 rounded-xl bg-white border border-s1 flex items-center gap-2 text-sm font-semibold text-stone">
@@ -147,6 +164,11 @@ export default function GuestMenu({
         style={{ background: 'var(--sb-hero)', boxShadow: '0 20px 50px var(--sb-hero-shadow)' }}>
         <div aria-hidden className="absolute -right-16 -top-16 w-64 h-64 rounded-full" style={{ background: 'radial-gradient(circle, var(--sb-glow-1), transparent 70%)' }} />
         <div aria-hidden className="absolute right-10 -bottom-20 w-56 h-56 rounded-full" style={{ background: 'radial-gradient(circle, var(--sb-glow-2), transparent 70%)' }} />
+        {mascot !== 'aucun' && (
+          <div aria-hidden className="hidden sm:block absolute right-6 bottom-0 pointer-events-none">
+            <Mascot id={mascot} width={96} />
+          </div>
+        )}
         <div className="relative">
           <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.1em] mb-3" style={{ color: 'var(--sb-hero-eyebrow)' }}>
             <CalendarClock size={14} /> {name ? `Bonjour ${name} · Révision d’examens` : 'Révision d’examens'}
@@ -165,6 +187,10 @@ export default function GuestMenu({
             <span className="text-sm" style={{ color: 'var(--sb-hero-muted)' }}>
               <span className="font-semibold text-white">{mastered}</span> / {total} notions maîtrisées
             </span>
+            {/* Téléphone: la mascotte suit la ligne du bas, sans cacher le bouton */}
+            {mascot !== 'aucun' && (
+              <span aria-hidden className="sm:hidden ml-auto -mb-6 -mr-2"><Mascot id={mascot} width={56} /></span>
+            )}
           </div>
         </div>
       </section>

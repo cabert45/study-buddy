@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Pencil, Save, RotateCcw, Trash2, Plus, ArrowUp, ArrowDown, Volume2 } from 'lucide-react';
+import { speak as speakVoice } from '../utils/speech';
 
 const STORAGE_KEY = 'sb_presentation_ryan';
 
@@ -132,13 +133,9 @@ function format(secs) {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
+// Même voix que le reste de l'app: respecte ⚙️ Réglages (voix coupée, accent)
 function speak(text) {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'fr-FR';
-  u.rate = 0.85;
-  window.speechSynthesis.speak(u);
+  speakVoice(text, 'fr', 0.85);
 }
 
 function Section({ section, idx }) {

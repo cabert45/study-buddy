@@ -23,6 +23,8 @@ import SciencesLabo from './components/SciencesLabo';
 import GuestMenu from './components/GuestMenu';
 import { isGuest, guestProfile } from './utils/guest';
 import { applySkin, skinForProfile } from './utils/skin';
+import { applySettings, loadSettings } from './utils/settings';
+import Settings from './components/Settings';
 import { stopSpeech } from './utils/speech';
 import StudyReminderSettings from './components/StudyReminderSettings';
 import FamilyOverview from './components/FamilyOverview';
@@ -61,14 +63,17 @@ export default function App() {
   const [showBioFlashcard, setShowBioFlashcard] = useState(false);
   const [showTestResults, setShowTestResults] = useState(false);
   const [showBoukili, setShowBoukili] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Auto-resume study reminders on app load
   React.useEffect(() => { autoResume(); }, []);
   React.useEffect(() => { applySkin(skinForProfile(profile)); }, [profile]);
+  // ⚙️ Réglages du profil (voix, couleur, écriture) — après le skin, pour passer par-dessus
+  React.useEffect(() => { applySettings(loadSettings(profile)); }, [profile]);
   // Quitter un écran (ou fermer une carte/un panneau) coupe la voix. useLayoutEffect:
   // passe AVANT les useEffect du nouvel écran, pour ne pas couper sa première phrase.
   React.useLayoutEffect(() => { stopSpeech(); },
-    [screen, flashcardWeek, nylaDeck, showBioFlashcard, showAgenda, showTestResults, showBoukili, showFamily]);
+    [screen, flashcardWeek, nylaDeck, showBioFlashcard, showAgenda, showTestResults, showBoukili, showFamily, showSettings]);
 
   function selectProfile(p) {
     setProfile(p);
@@ -211,7 +216,8 @@ export default function App() {
     <div className={`min-h-screen pb-8 ${darkMode ? 'dark-mode' : ''}`}>
       {!guest && <InstallPrompt />}
       {screen === 'guest' && guest && (
-        <GuestMenu onOpen={(id) => setScreen(id === 'verbes' ? 'verbes' : id)} />
+        <GuestMenu onOpen={(id) => setScreen(id === 'verbes' ? 'verbes' : id)}
+          onOpenSettings={() => setShowSettings(true)} />
       )}
       {screen === 'profile' && !guest && (() => {
         // Le code PIN « mode parent » a été retiré le 13 sept. 2026: Cayla ne
@@ -270,6 +276,10 @@ export default function App() {
         );
       })()}
 
+      {showSettings && profile && (
+        <Settings profile={profile} onClose={() => setShowSettings(false)}
+          name={profile === 'ryan' ? 'Ryan' : profile === 'cayla' ? 'Cayla' : profile === 'nyla' ? 'Nyla' : ''} />
+      )}
       {showNotifs && <NotificationsPanel onClose={() => setShowNotifs(false)} />}
       {showStudyReminder && <StudyReminderSettings onClose={() => setShowStudyReminder(false)} profile={profile} />}
       {showBioFlashcard && (
@@ -324,6 +334,7 @@ export default function App() {
           onStartReading={startReading}
           onStartCoach={startCoach}
           onOpenNotifications={() => setShowNotifs(true)}
+          onOpenSettings={() => setShowSettings(true)}
           onSwitchProfile={switchProfile} />
       )}
       {screen === 'menu' && !nylaDeck && !flashcardWeek && profile !== 'cayla' && (
@@ -369,6 +380,7 @@ export default function App() {
           onStartNylaAddition={startNylaAddition}
           onStartNylaCompare={startNylaCompare}
           onOpenCompose={() => setShowCompose(true)}
+          onOpenSettings={() => setShowSettings(true)}
           onSwitchProfile={switchProfile}
           darkMode={darkMode}
           onToggleDark={() => setDarkMode(d => !d)}

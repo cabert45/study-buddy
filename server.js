@@ -2,6 +2,8 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import pg from 'pg';
 import Anthropic from '@anthropic-ai/sdk';
@@ -557,6 +559,143 @@ Quand il se trompe, explique avec des exemples concrets (billes, bonbons, doigts
   } catch (err) {
     console.error('Tutor API error:', err);
     res.json({ message: "Hmm, je n'ai pas pu reflechir cette fois. Reessaie! 🤔" });
+  }
+});
+
+// --- Voix ElevenLabs -------------------------------------------------------
+// La voix de l'appareil (Siri, Microsoft) lit mal le français: elle hache les
+// mots de dictée et sonne robotique. ElevenLabs lit à sa place.
+//
+// La clé reste ICI, sur le serveur: l'app ne la voit jamais. Elle demande
+// /api/tts?... et reçoit un MP3.
+//
+// Chaque clip est gardé sur le disque (data/tts-cache). Les mots reviennent
+// sans arrêt — la même dictée, les mêmes encouragements du Coach, les mêmes
+// consignes — donc on ne paie un mot qu'une seule fois, et à la 2e écoute le
+// son part instantanément. L'app retombe sur la voix de l'appareil si le
+// serveur ne répond pas: aucun écran ne devient muet.
+const TTS_KEY = process.env.ELEVENLABS_API_KEY || '';
+// flash_v2_5: ~2x moins cher et beaucoup plus rapide que multilingual_v2, pour
+// un français très correct. Mettre ELEVENLABS_MODEL=eleven_multilingual_v2
+// dans les variables d'environnement si on veut la qualité maximale.
+const TTS_MODEL = process.env.ELEVENLABS_MODEL || 'eleven_flash_v2_5';
+const TTS_DEFAULT_VOICE = process.env.ELEVENLABS_VOICE_ID || '';
+const TTS_DIR = path.join(__dirname, 'data', 'tts-cache');
+const TTS_MAX_CHARS = 600;
+
+fs.mkdirSync(TTS_DIR, { recursive: true });
+
+// Est-ce que la voix premium est disponible? L'app le demande au démarrage.
+app.get('/api/tts/status', (req, res) => {
+  res.json({ enabled: !!TTS_KEY, defaultVoice: TTS_DEFAULT_VOICE, model: TTS_MODEL });
+});
+
+// Les voix proposées dans ⚙️ Réglages quand le compte ne peut pas être listé.
+// La clé d'ElevenLabs est « scoped »: elle a le droit de faire parler, pas celui
+// de lire la liste des voix du compte (401 sur /v1/voices). Plutôt que de laisser
+// l'écran vide, on offre ces voix du catalogue commun, vérifiées en français.
+const TTS_FALLBACK_VOICES = [
+  { id: 'XB0fDUnXU5powFXDhCwa', name: 'Charlotte', description: 'femme · douce · raconte bien' },
+  { id: 'Xb7hH8MSUJpSbSDYk0k2', name: 'Alice', description: 'femme · claire · articule chaque mot' },
+  { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lily', description: 'femme · chaleureuse · calme' },
+  { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah', description: 'femme · posée · lit lentement' },
+  { id: 'FGY2WhTYpPnrIDTdsKH5', name: 'Laura', description: 'femme · jeune · enjouée' },
+  { id: 'XrExE9yKIg1WjnnlVkGX', name: 'Matilda', description: 'femme · amicale · rassurante' },
+  { id: 'JBFqnCBsd6RMkjVDRZzb', name: 'George', description: 'homme · grave · tranquille' },
+  { id: 'nPczCjzI2devNBz1zQrb', name: 'Brian', description: 'homme · net · sérieux' },
+];
+
+// Les voix du compte ElevenLabs, pour la liste de ⚙️ Réglages.
+// Gardées 10 min en mémoire: la liste ne bouge presque jamais.
+let voicesCache = { at: 0, list: null };
+app.get('/api/tts/voices', async (req, res) => {
+  if (!TTS_KEY) return res.json({ enabled: false, voices: [] });
+  if (voicesCache.list && Date.now() - voicesCache.at < 10 * 60 * 1000) {
+    return res.json({ enabled: true, voices: voicesCache.list });
+  }
+  try {
+    const r = await fetch('https://api.elevenlabs.io/v1/voices', {
+      headers: { 'xi-api-key': TTS_KEY },
+    });
+    if (!r.ok) throw new Error(`ElevenLabs ${r.status}`);
+    const data = await r.json();
+    const list = (data.voices || []).map((v) => ({
+      id: v.voice_id,
+      name: v.name,
+      // « female · young · french »: ce qu'on montre sous le nom
+      description: [v.labels?.gender, v.labels?.age, v.labels?.accent, v.labels?.use_case]
+        .filter(Boolean).join(' · '),
+      category: v.category,
+    }));
+    voicesCache = { at: Date.now(), list: list.length ? list : TTS_FALLBACK_VOICES };
+    res.json({ enabled: true, voices: voicesCache.list });
+  } catch (err) {
+    // 401 = clé « scoped » sans le droit de lister. Ce n'est pas une panne: elle
+    // peut toujours faire parler, donc on renvoie la liste de secours.
+    console.error('ElevenLabs voices error:', err.message, '→ liste de secours');
+    res.json({ enabled: true, voices: TTS_FALLBACK_VOICES, fallback: true });
+  }
+});
+
+// Le MP3 d'une phrase. GET (et pas POST) exprès: l'URL devient la clé de cache
+// du navigateur ET du service worker, donc un mot déjà entendu ne repasse même
+// plus par le réseau.
+app.get('/api/tts', async (req, res) => {
+  if (!TTS_KEY) return res.status(503).json({ error: 'tts_disabled' });
+
+  const text = String(req.query.text || '').slice(0, TTS_MAX_CHARS).trim();
+  const voice = String(req.query.voice || TTS_DEFAULT_VOICE).trim();
+  // Dictée: on demande à ElevenLabs de ralentir, plutôt que d'étirer le MP3
+  // dans le navigateur, ce qui déforme la voix.
+  const slow = req.query.slow === '1';
+  if (!text) return res.status(400).json({ error: 'no_text' });
+  if (!/^[A-Za-z0-9]{10,40}$/.test(voice)) return res.status(400).json({ error: 'no_voice' });
+
+  const settings = slow
+    ? { stability: 0.6, similarity_boost: 0.8, speed: 0.8 }
+    : { stability: 0.5, similarity_boost: 0.75, speed: 1.0 };
+
+  const key = crypto.createHash('sha1')
+    .update([TTS_MODEL, voice, slow ? 'slow' : 'normal', text].join('\u0000'))
+    .digest('hex');
+  const file = path.join(TTS_DIR, `${key}.mp3`);
+
+  // Immuable: l'URL contient le texte et la voix, donc le son ne change jamais.
+  res.set('Cache-Control', 'public, max-age=31536000, immutable');
+  res.type('audio/mpeg');
+
+  if (fs.existsSync(file)) return res.sendFile(file);
+
+  try {
+    const r = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${voice}?output_format=mp3_44100_64`,
+      {
+        method: 'POST',
+        headers: {
+          'xi-api-key': TTS_KEY,
+          'content-type': 'application/json',
+          accept: 'audio/mpeg',
+        },
+        body: JSON.stringify({ text, model_id: TTS_MODEL, voice_settings: settings }),
+      }
+    );
+    if (!r.ok) {
+      const body = await r.text().catch(() => '');
+      console.error(`ElevenLabs ${r.status}: ${body.slice(0, 200)}`);
+      res.set('Cache-Control', 'no-store');
+      return res.status(502).json({ error: 'tts_failed' });
+    }
+    const buf = Buffer.from(await r.arrayBuffer());
+    // Écriture atomique: deux enfants qui cliquent en même temps ne peuvent pas
+    // laisser un demi-fichier dans le cache.
+    const tmp = `${file}.${process.pid}.tmp`;
+    fs.writeFileSync(tmp, buf);
+    fs.renameSync(tmp, file);
+    res.send(buf);
+  } catch (err) {
+    console.error('ElevenLabs TTS error:', err.message);
+    res.set('Cache-Control', 'no-store');
+    res.status(502).json({ error: 'tts_failed' });
   }
 });
 

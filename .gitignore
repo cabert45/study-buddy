@@ -9,3 +9,6 @@ data/backups/
 # Studio graphiste: images brutes et clé (seules les images approuvées vont dans public/visuels/)
 studio/out/
 studio/.env
+
+# Clips de voix ElevenLabs deja payes (regeneres a la demande)
+data/tts-cache/

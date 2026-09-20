@@ -1,20 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getDashboard } from '../utils/storage';
+import { speak as speakVoice } from '../utils/speech';
 import { EXAMS, dicteeWeekForDate, dicteeActiveOn, daysBetween } from '../data/examSchedule';
 import { moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data/cahierFrancais';
+import { listeCetteSemaine, semaineCourante } from '../data/orthographeQuotidien';
+import { strategiesCetteSemaine } from '../data/tablesStrategies';
 
 // The Coach decides what Ryan does and when.
 // Given the time of day and what's coming up this week,
 // it builds a plan, runs timers, and voice-coaches transitions.
 
+// Même voix que le reste de l'app: respecte ⚙️ Réglages (voix coupée, accent)
 function speak(text, rate = 0.9) {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'fr-FR';
-  u.rate = rate;
-  u.pitch = 1.0;
-  window.speechSynthesis.speak(u);
+  speakVoice(text, 'fr', rate);
 }
 
 function playDing() {
@@ -135,39 +133,79 @@ function cahierStep(today, mins) {
   return { type: 'app', mode, label: `📒 En classe cette semaine — ${titreModule(actuel)}`, mins, icon: '📒' };
 }
 
+// Les devoirs à remettre cette semaine (feuille de l'enseignant(e))
+function remiseDeLaSemaine(today) {
+  const w = semaineCourante(today);
+  if (!w || !w.remise) return null;
+  const jour = new Date(w.remise[0], w.remise[1] - 1, w.remise[2]);
+  const t = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const jours = Math.round((jour - t) / 86400000);
+  if (jours < 0) return null;
+  const liste = listeCetteSemaine(today);
+  return {
+    jours,
+    quoi: `feuille Liste ${liste.numero} + feuille de maths`,
+    quand: jours === 0 ? "aujourd'hui" : jours === 1 ? 'demain' : `dans ${jours} jours`,
+  };
+}
+
+// Le plan du jour suit la FEUILLE DE DEVOIRS de la semaine, pas une rotation
+// générique. Trois choses à mémoriser chaque semaine — les mots de la liste,
+// les stratégies de calcul, et la notion de grammaire du cahier Jazz — plus le
+// cahier Matcha en maths. La rotation de la rentrée ne sert plus que de 2e
+// exercice de français les jours où le cahier ne prend pas la place.
 function buildRentreePlan(today) {
   const day = today.getDay();
   const r = RENTREE_ROTATION[day];
   const isWeekend = day === 0 || day === 6;
-  // 60/40 français / maths, même en version courte de fin de semaine.
-  const frenchMins = isWeekend ? 10 : 15;
-  const mathMins = isWeekend ? 7 : 10;
-  // Le cahier prend la plus grosse part du bloc de français; le maillon faible
-  // de juin garde quelques minutes pour ne pas perdre les acquis.
-  const cahier = cahierStep(today, isWeekend ? 6 : 10);
-  // Maths: mercredi, vendredi, dimanche = le cahier Matcha (nombres jusqu'à 9 999, échanges
-  // de blocs — les erreurs rouges du cahier). Lundi garde les problèmes à étapes (priorité
-  // de juin); les autres jours gardent la rotation.
-  const math = [0, 3, 5].includes(day)
-    ? { mode: 'matcha_nombres', label: 'Cahier Matcha — les nombres jusqu\'à 9 999', icon: '📘' }
-    : r.math;
-  const frenchSteps = cahier
-    ? [cahier, { type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: frenchMins - cahier.mins, icon: r.french.icon }]
-    : [{ type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: frenchMins, icon: r.french.icon }];
+  // Le dimanche soir, on prépare la semaine qui COMMENCE: le plan bascule déjà
+  // sur la liste, les stratégies et le module de lundi. Sinon Ryan réviserait
+  // la liste de la semaine finie la veille du jour où la nouvelle sort.
+  const ref = day === 0
+    ? new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
+    : today;
+  const liste = listeCetteSemaine(ref);
+  const strats = strategiesCetteSemaine(ref);
+  const remise = remiseDeLaSemaine(ref);
+  const cahier = cahierStep(ref, isWeekend ? 6 : 7);
+
+  // L'échauffement, c'est maintenant les stratégies de la semaine: c'est ce qui
+  // s'effondre quand Ryan recompte au lieu de reconnaître (12/30 en mai).
+  const stratLabel = strats.length
+    ? `⚡ Tables +/− · Stratégie${strats.length > 1 ? 's' : ''} ${strats.map((x) => x.id).join(' et ')} — ${strats[0].court}`
+    : '⚡ Calcul rapide';
+
+  // 2e exercice de français: le cahier Jazz les jours où il y a un module,
+  // les verbes à l'infinitif les autres jours.
+  const deuxieme = cahier
+    || { type: 'app', mode: 'infinitif', label: "✏️ Les 5 verbes à l'infinitif", mins: isWeekend ? 6 : 7, icon: '✏️' };
+
+
+  // Pas de message d'accueil ni de pause d'eau: Ryan clique sur Coach et le
+  // premier exercice est là, tout de suite. Un message n'apparaît que si la
+  // feuille se remet aujourd'hui ou demain — là, ça vaut l'interruption.
+  const rappelRemise = remise && remise.jours <= 1 && !isWeekend
+    ? [{ type: 'message', label: `📌 La feuille (${remise.quoi}) se remet ${remise.quand}!`, mins: 1, icon: '📌' }]
+    : [];
+
   return [
+    ...rappelRemise,
+    { type: 'app', mode: 'strategies', label: stratLabel, mins: isWeekend ? 4 : 5, icon: '⚡' },
+    { type: 'app', mode: 'orthographe', label: `🐱 Orthographe — Liste ${liste.numero}: ${liste.titre}`, mins: isWeekend ? 5 : 6, icon: '🐱' },
+    deuxieme,
+    {
+      type: 'app', mode: 'matcha_nombres',
+      label: '📘 Cahier Matcha — valeur de position et comparaison',
+      mins: isWeekend ? 7 : 10, icon: '📘',
+    },
+    ...(isWeekend ? [] : [{ type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: 4, icon: r.french.icon }]),
     {
       type: 'message',
-      label: isWeekend
-        ? `🍁 ${r.theme}. Un bloc tranquille — le français d'abord, puis les maths.`
-        : `🍁 3e année! ${r.theme}. Le français en premier: c'est lui qui compte le plus pour l'école privée. 💪`,
-      mins: 1,
-      icon: '🍁',
+      label: remise && remise.jours === 0
+        ? 'Bravo Ryan! Vérifie que ta feuille est dans ton sac. 🎒'
+        : 'Bravo Ryan! Bloc terminé — va jouer! 🎉',
+      mins: 1, icon: '🌳',
     },
-    { type: 'app', mode: 'mental', label: 'Échauffement — Calcul rapide ⚡', mins: 5, icon: '⚡' },
-    ...frenchSteps,
-    { type: 'break', label: "Pause — bois de l'eau! 💧", mins: isWeekend ? 3 : 5, icon: '💧' },
-    { type: 'app', mode: math.mode, label: `${math.icon} ${math.label}`, mins: mathMins, icon: math.icon },
-    { type: 'message', label: 'Bravo Ryan! Bloc terminé — va jouer! 🎉', mins: 1, icon: '🌳' },
   ];
 }
 

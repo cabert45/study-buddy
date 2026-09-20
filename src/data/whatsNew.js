@@ -3,6 +3,48 @@
 
 export const whatsNew = [
   {
+    id: '2026-09-20-voix-elevenlabs-ryan',
+    date: '2026-09-20',
+    profile: 'ryan',
+    title: 'Une nouvelle voix, beaucoup plus claire 🎙️',
+    body: "La voix de l'app a changé! Avant, c'était la voix de l'iPad — celle qui hachait les mots. Maintenant c'est une vraie voix, la même partout, qui lit la dictée et les questions pour de vrai. Tu peux en choisir une autre dans ⚙️ Réglages: touche la roue en haut, puis « Qui lit? ». 🎙️",
+  },
+  {
+    id: '2026-09-20-voix-elevenlabs-cayla',
+    date: '2026-09-20',
+    profile: 'cayla',
+    title: 'Une nouvelle voix, beaucoup plus claire 🎙️',
+    body: "La voix de l'app a changé! Avant, c'était la voix de l'iPad — celle qui hachait les mots. Maintenant c'est une vraie voix, la même partout, qui lit la dictée et les questions pour de vrai. Tu peux en choisir une autre dans ⚙️ Réglages: touche la roue en haut, puis « Qui lit? ». 🎙️",
+  },
+  {
+    id: '2026-09-20-voix-elevenlabs-nyla',
+    date: '2026-09-20',
+    profile: 'nyla',
+    title: 'Une nouvelle voix, beaucoup plus claire 🎙️',
+    body: "La voix de l'app a changé! Avant, c'était la voix de l'iPad — celle qui hachait les mots. Maintenant c'est une vraie voix, la même partout, qui lit la dictée et les questions pour de vrai. Tu peux en choisir une autre dans ⚙️ Réglages: touche la roue en haut, puis « Qui lit? ». 🎙️",
+  },
+  {
+    id: '2026-09-14-reglages-cayla',
+    date: '2026-09-14',
+    profile: 'cayla',
+    title: 'Nouveau: ⚙️ Réglages — ton app, ton style!',
+    body: "Touche la roue ⚙️ en haut: coupe la voix ou change son accent (Québec, France…), choisis ta couleur (rose, bleu, toutes les couleurs de l'arc-en-ciel), ta mascotte (ours, panda, chat, lapin, licorne…) et ton écriture. Une idée de Cayla! 🌈",
+  },
+  {
+    id: '2026-09-14-reglages-ryan',
+    date: '2026-09-14',
+    profile: 'ryan',
+    title: 'Nouveau: ⚙️ Réglages — ton app, ton style!',
+    body: "Touche la roue ⚙️ en haut: coupe la voix ou change son accent (Québec, France…), choisis ta couleur (rose, bleu, toutes les couleurs de l'arc-en-ciel), ta mascotte (ours, panda, chat, lapin, licorne…) et ton écriture. Une idée de Cayla! 🌈",
+  },
+  {
+    id: '2026-09-14-reglages-nyla',
+    date: '2026-09-14',
+    profile: 'nyla',
+    title: 'Nouveau: ⚙️ Réglages — ton app, ton style!',
+    body: "Touche la roue ⚙️ en haut: coupe la voix ou change son accent (Québec, France…), choisis ta couleur (rose, bleu, toutes les couleurs de l'arc-en-ciel), ta mascotte (ours, panda, chat, lapin, licorne…) et ton écriture. Une idée de Cayla! 🌈",
+  },
+  {
     id: '2026-09-13-cayla-sciences-labo',
     date: '2026-09-13',
     profile: 'cayla',

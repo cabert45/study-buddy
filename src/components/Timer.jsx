@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { speak as speakVoice } from '../utils/speech';
 
 const presets = [
   { mins: 5, label: '5 min', desc: 'Pause rapide' },
@@ -34,12 +35,9 @@ function playDoneSound() {
   });
 }
 
+// Même voix que le reste de l'app: respecte ⚙️ Réglages (voix coupée, accent)
 function speak(text) {
-  if (!window.speechSynthesis) return;
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'fr-FR';
-  u.rate = 0.9;
-  window.speechSynthesis.speak(u);
+  speakVoice(text, 'fr', 0.9);
 }
 
 export default function Timer({ onHome }) {

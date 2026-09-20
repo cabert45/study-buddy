@@ -111,3 +111,25 @@ html[data-skin='indigo'] [style*='255, 243, 224'] {
 }
 html[data-skin='indigo'] input:focus { box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15); }
 html[data-skin='indigo'] ::selection { background: #c7d2fe; }
+
+/* =====================================================================
+   ⚙️ RÉGLAGES — couleur choisie par l'enfant (utils/settings.js pose les
+   variables sur <html style> + data-color). Ici: ce qui n'est pas déjà en
+   variable — le fond de page, et les dégradés orange écrits en style inline
+   (le navigateur les note en rgb: 199, 74, 21 = #c74a15).
+   ===================================================================== */
+html[data-color] body { background: var(--cream); }
+/* z-index -1: le halo reste DERRIÈRE tous les écrans (sinon il voile les cartes blanches) */
+html[data-color] body::before { background: var(--sb-page-glow); z-index: -1; }
+html[data-color] [style*='linear-gradient'][style*='199, 74, 21'],
+html[data-color] [style*='linear-gradient'][style*='184, 93, 26'],
+html[data-color] [style*='linear-gradient'][style*='232, 98, 42'] {
+  background: var(--sb-grad) !important;
+}
+html[data-color] [style*='255, 243, 224'] { background: var(--sb-banner) !important; }
+html[data-color] .bg-orange-50 { background-color: var(--peach); }
+html[data-color] .border-orange-200 { border-color: var(--sand); }
+html[data-color] .text-orange-500,
+html[data-color] .text-orange-600,
+html[data-color] .text-orange-700 { color: var(--fox-d); }
+html[data-color] ::selection { background: var(--sand); }

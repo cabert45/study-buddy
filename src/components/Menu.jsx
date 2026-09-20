@@ -4,7 +4,9 @@ import { nylaWeekList } from '../data/nylaFlashcards';
 import { CAHIER_THEMES, CAHIER_SEMAINES, moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data/cahierFrancais';
 import { syncSkillStats, weakSkills } from '../utils/skillStats';
 import { NotificationBell } from './Notifications';
-import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, GraduationCap, ChevronRight, Send, Calendar, Trophy, RefreshCw } from 'lucide-react';
+import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, GraduationCap, ChevronRight, Send, Calendar, Trophy, RefreshCw, Settings } from 'lucide-react';
+import Mascot from './Mascots';
+import { useSettings, mascotFor } from '../utils/settings';
 
 // SVG icons for modules — clean, no emojis
 const icons = {
@@ -205,85 +207,9 @@ const nylaFrenchModes = [
   { id: 'nyla_logiciel', label: '🎮 Logiciel Éducatif', desc: 'Jeux pour apprendre' },
 ];
 
-// Skin « courage » de Ryan pour la 3e année. Le renard reste pour Cayla et Nyla.
-// Un lion: le symbole du courage — regard déterminé, sourcils décidés. Il va avec
-// la devise de l'année (« try again »), parce qu'on a besoin d'être brave surtout
-// quand on vient de se tromper.
-function LionMascot() {
-  const criniere = Array.from({ length: 12 }, (_, i) => {
-    const a = (i / 12) * Math.PI * 2;
-    return { cx: 65 + Math.cos(a) * 30, cy: 72 + Math.sin(a) * 28 };
-  });
-  return (
-    <svg className="fox-svg" viewBox="0 0 130 160" width="120" height="150" fill="none"
-      style={{ animation: 'bounce 3s ease-in-out infinite' }}>
-      {/* queue */}
-      <g style={{ transformOrigin: '25px 45px', animation: 'tailwag 1.5s ease-in-out infinite' }}>
-        <path d="M26 112Q6 96 13 78" stroke="#e0a341" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="13" cy="74" r="7.5" fill="#a75d12" />
-      </g>
-      {/* corps */}
-      <ellipse cx="65" cy="115" rx="31" ry="27" fill="#f0b350" />
-      <ellipse cx="65" cy="120" rx="21" ry="19" fill="#ffe3b0" />
-      <rect x="48" y="128" width="10" height="22" rx="5" fill="#f0b350" />
-      <rect x="72" y="128" width="10" height="22" rx="5" fill="#f0b350" />
-      <ellipse cx="53" cy="150" rx="7" ry="3.5" fill="#8a4b0d" />
-      <ellipse cx="77" cy="150" rx="7" ry="3.5" fill="#8a4b0d" />
-      {/* crinière */}
-      <g fill="#c9760f">
-        {criniere.map((c, i) => <circle key={i} cx={c.cx} cy={c.cy} r="11" />)}
-      </g>
-      <circle cx="65" cy="72" r="28" fill="#e09a3c" />
-      {/* oreilles */}
-      <circle cx="45" cy="53" r="8" fill="#e09a3c" /><circle cx="45" cy="53" r="4" fill="#ffd39b" />
-      <circle cx="85" cy="53" r="8" fill="#e09a3c" /><circle cx="85" cy="53" r="4" fill="#ffd39b" />
-      {/* tête */}
-      <ellipse cx="65" cy="74" rx="24" ry="22" fill="#f7c46e" />
-      <ellipse cx="65" cy="81" rx="16" ry="12" fill="#ffe9c6" />
-      {/* yeux */}
-      <ellipse cx="56" cy="71" rx="4" ry="4.5" fill="#2c2017" />
-      <ellipse cx="57.3" cy="69.6" rx="1.4" ry="1.6" fill="white" />
-      <ellipse cx="74" cy="71" rx="4" ry="4.5" fill="#2c2017" />
-      <ellipse cx="75.3" cy="69.6" rx="1.4" ry="1.6" fill="white" />
-      {/* sourcils décidés */}
-      <path d="M51 64.5L60 65.8" stroke="#8a4b0d" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M79 64.5L70 65.8" stroke="#8a4b0d" strokeWidth="2.2" strokeLinecap="round" />
-      {/* museau */}
-      <path d="M61 79L69 79L65 83Z" fill="#2c2017" />
-      <path d="M65 83V86" stroke="#2c2017" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M59.5 88Q65 92.5 70.5 88" stroke="#2c2017" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-    </svg>
-  );
-}
+// Les mascottes (lion de Ryan, renard, ours…) sont dans ./Mascots — choisies dans ⚙️ Réglages.
 
-function FoxMascot() {
-  return (
-    <svg className="fox-svg" viewBox="0 0 130 160" width="120" height="150" fill="none" style={{ animation: 'bounce 3s ease-in-out infinite' }}>
-      <g style={{ transformOrigin: '25px 45px', animation: 'tailwag 1.5s ease-in-out infinite' }}>
-        <path d="M25 110Q5 95 10 75Q15 60 30 70Q20 80 28 95Z" fill="#e2762b"/>
-        <path d="M10 75Q13 65 22 68Q15 73 18 82Z" fill="white" opacity=".7"/>
-      </g>
-      <ellipse cx="65" cy="115" rx="32" ry="28" fill="#e2762b"/>
-      <ellipse cx="65" cy="120" rx="22" ry="20" fill="#fde8cc"/>
-      <rect x="48" y="128" width="10" height="22" rx="5" fill="#e2762b"/>
-      <rect x="72" y="128" width="10" height="22" rx="5" fill="#e2762b"/>
-      <ellipse cx="53" cy="150" rx="7" ry="3.5" fill="#2c2017"/>
-      <ellipse cx="77" cy="150" rx="7" ry="3.5" fill="#2c2017"/>
-      <ellipse cx="65" cy="72" rx="28" ry="24" fill="#e2762b"/>
-      <ellipse cx="65" cy="76" rx="20" ry="16" fill="#fde8cc"/>
-      <path d="M40 60L35 35L52 52Z" fill="#e2762b"/><path d="M42 57L38 40L50 52Z" fill="#ffc68a"/>
-      <path d="M90 60L95 35L78 52Z" fill="#e2762b"/><path d="M88 57L92 40L80 52Z" fill="#ffc68a"/>
-      <ellipse cx="55" cy="68" rx="4.5" ry="5" fill="#2c2017"/><ellipse cx="56.5" cy="66.5" rx="1.5" ry="1.8" fill="white"/>
-      <ellipse cx="75" cy="68" rx="4.5" ry="5" fill="#2c2017"/><ellipse cx="76.5" cy="66.5" rx="1.5" ry="1.8" fill="white"/>
-      <ellipse cx="65" cy="78" rx="3.5" ry="2.5" fill="#2c2017"/>
-      <path d="M62 81Q65 85 68 81" stroke="#2c2017" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
-      <ellipse cx="48" cy="76" rx="5" ry="3" fill="#f4a84a" opacity=".35"/>
-      <ellipse cx="82" cy="76" rx="5" ry="3" fill="#f4a84a" opacity=".35"/>
-    </svg>
-  );
-}
-
-export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerbes, onOpenUniversSocial, onOpenSciences, onStartTutor, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onStartNylaAddition, onStartNylaCompare, onOpenCompose, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerbes, onOpenUniversSocial, onOpenSciences, onStartTutor, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onStartNylaAddition, onStartNylaCompare, onOpenCompose, onOpenSettings, onSwitchProfile, darkMode, onToggleDark }) {
   // Dispatch a tile click — special-case modes that open their own screen instead of the practice flow
   const launchMode = (id) => {
     if (id === 'biographie_jr_flashcard') return onOpenBioFlashcard && onOpenBioFlashcard();
@@ -308,6 +234,7 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
   const [cahierOpen, setCahierOpen] = useState(false);
   const [defis, setDefis] = useState(() => weakSkills(['t1_', 'matcha_']));
   const [refreshing, setRefreshing] = useState(false);
+  const mascot = mascotFor(profile, useSettings(profile));
   const openGroup = (m) => (m.groupKind === 'nylawords' ? setNylaWordsOpen(true)
     : m.groupKind === 'cahier' ? setCahierOpen(true)
     : m.isGroup ? setDicteesOpen(true) : launchMode(m.id));
@@ -447,6 +374,12 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
             className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all">
             <BarChart3 size={18} />
           </button>
+          {onOpenSettings && (
+            <button onClick={onOpenSettings} aria-label="Réglages" title="Réglages: voix, couleur, mascotte, écriture"
+              className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all">
+              <Settings size={18} />
+            </button>
+          )}
           <button onClick={onSwitchProfile}
             className="bg-white border-2 border-s2 rounded-xl px-3 py-2 text-sm font-bold text-s6 hover:border-lava hover:text-lava transition-all">
             👤 {name}
@@ -469,7 +402,7 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
           </p>
         </div>
         <div className="flex-shrink-0 mr-2 z-[1]">
-          {ryanGraded ? <LionMascot /> : isCayla ? null : <FoxMascot />}
+          <Mascot id={mascot} />
         </div>
       </div>
 
