@@ -68,6 +68,13 @@ function autresMots(liste, motCorrect, n = 3) {
 
 const LETTRES_MUETTES = ['t', 'd', 's', 'x', 'p', 'g', 'l', 'e'];
 
+// Illustrations déjà dessinées par le graphiste et approuvées (public/visuels/).
+// On n'en ajoute jamais une qui n'a pas été regardée par le parent d'abord.
+const IMAGES = {
+  renard: { src: '/visuels/jazz/voc-renard.jpg', alt: 'Un renard' },
+};
+const imagePour = (mot) => IMAGES[mot] || null;
+
 // ===== Lettre muette (listes 2, 3, 10) =====
 function lettreMuette(liste) {
   const cands = liste.mots.filter((m) => m.muette);
@@ -118,7 +125,9 @@ function maleFemelle(liste) {
   const correct = versFemelle ? m.fem : m.mot;
   const opts = [...new Set([correct, ...faux])].slice(0, 4);
   if (opts.length < 3) return null;
+  const img = imagePour(m.mot);
   return {
+    ...(img ? { image: img.src, imageAlt: img.alt } : {}),
     category: CATEGORY, rule: ruleFor(liste), type: 'male_femelle',
     text: versFemelle
       ? `Le ${m.mot} est le mâle de la ___`
