@@ -51,7 +51,25 @@ export default function TestResults({ onClose }) {
           </button>
         </div>
 
+        {/* La 3e année repart à zéro (20 sept. 2026). Sans état vide, l'écran
+            affichait « 0 test · 0 % · 0 win », ce qui ressemble à un échec
+            plutôt qu'à une page blanche. */}
+        {testResults.length === 0 && (
+          <div className="p-6 text-center">
+            <div className="text-4xl mb-3">🍁</div>
+            <h3 className="font-heading text-lg font-extrabold text-stone mb-1">
+              La 3e année commence!
+            </h3>
+            <p className="text-sm font-semibold text-s4 max-w-md mx-auto leading-relaxed">
+              Aucun test enregistré pour l'instant. Les résultats de 2e année sont
+              archivés — ils servent encore à choisir les exercices, mais ils ne
+              comptent plus dans le bulletin.
+            </p>
+          </div>
+        )}
+
         {/* Summary strip */}
+        {testResults.length > 0 && (
         <div className="grid grid-cols-4 gap-2 p-4 border-b border-s1">
           <div className="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-2.5 text-center">
             <div className="text-xs font-bold text-emerald-700 uppercase">Total tests</div>
@@ -70,6 +88,7 @@ export default function TestResults({ onClose }) {
             <div className="text-2xl font-extrabold text-red-900">{criticals}</div>
           </div>
         </div>
+        )}
 
         {/* Filters */}
         <div className="px-4 py-3 border-b border-s1 flex gap-1.5 flex-wrap text-xs">

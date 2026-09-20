@@ -64,6 +64,7 @@ import { generateMatchaNombres } from '../generators/matcha1';
 import { saveSession } from '../utils/storage';
 import { incrementStudyRounds } from '../utils/studyRounds';
 import { getLevel, recordSession, aideProblemes, NIVEAU_LABELS } from '../utils/mastery';
+import AideMemoire from './AideMemoire';
 import { notifySessionResult } from '../utils/notifications';
 import { speak, speakSlow } from '../utils/speech';
 import TensOnes from './TensOnes';
@@ -257,6 +258,11 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
   // a problem needs 1 step vs 2.
   const [finalAnswerGate, setFinalAnswerGate] = useState(null); // null | 'asking' | 'teach-more' | 'teach-done' | 'done'
   const [showVideos, setShowVideos] = useState(false);
+  // L'aide-mémoire (la liste de mots / le tableau de faits) s'ouvre AVANT les
+  // questions: on ne mémorise pas ce qu'on ne nous a pas montré.
+  const aMemoire = mode === 'orthographe' || mode === 'strategies';
+  const [memoireOuvert, setMemoireOuvert] = useState(aMemoire);
+  const [memoireVu, setMemoireVu] = useState(false);
 
   const generate = useCallback(() => getGenerator(mode), [mode]);
 
@@ -307,6 +313,24 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
         <div className="text-4xl mb-4 animate-bounce">🌋</div>
         <p className="text-lg font-semibold text-s4">Chargement...</p>
       </div>
+    );
+  }
+
+  if (aMemoire && memoireOuvert) {
+    return (
+      <>
+        <div className="max-w-3xl mx-auto px-4 pt-4">
+          <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">
+            ← Menu
+          </button>
+        </div>
+        <AideMemoire
+          mode={mode}
+          dejaCommence={memoireVu}
+          onStart={() => { setMemoireOuvert(false); setMemoireVu(true); }}
+          onClose={() => setMemoireOuvert(false)}
+        />
+      </>
     );
   }
 
@@ -557,8 +581,16 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
         <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">
           ← Menu
         </button>
-        <div className="text-sm font-bold text-s4">
-          {currentIndex + 1} / {questions.length}
+        <div className="flex items-center gap-3">
+          {aMemoire && (
+            <button onClick={() => setMemoireOuvert(true)}
+              className="text-xs font-bold text-lava bg-orange-50 border border-orange-200 rounded-lg px-2.5 py-1 hover:bg-orange-100">
+              📋 {mode === 'orthographe' ? 'La liste' : 'Le tableau'}
+            </button>
+          )}
+          <div className="text-sm font-bold text-s4">
+            {currentIndex + 1} / {questions.length}
+          </div>
         </div>
         {streak >= 2 && (
           <div className="text-sm font-bold text-fox">🌟 {streak}</div>

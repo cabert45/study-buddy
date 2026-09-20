@@ -181,31 +181,58 @@ function buildRentreePlan(today) {
     || { type: 'app', mode: 'infinitif', label: "✏️ Les 5 verbes à l'infinitif", mins: isWeekend ? 6 : 7, icon: '✏️' };
 
 
-  // Pas de message d'accueil ni de pause d'eau: Ryan clique sur Coach et le
-  // premier exercice est là, tout de suite. Un message n'apparaît que si la
+  // Pas de message d'accueil ni de pause d'eau en semaine: Ryan clique sur
+  // Coach et le premier exercice est là. Un message n'apparaît que si la
   // feuille se remet aujourd'hui ou demain — là, ça vaut l'interruption.
   const rappelRemise = remise && remise.jours <= 1 && !isWeekend
     ? [{ type: 'message', label: `📌 La feuille (${remise.quoi}) se remet ${remise.quand}!`, mins: 1, icon: '📌' }]
     : [];
 
+  // Lecture: 15 min par jour, c'est la première ligne de la feuille de
+  // l'enseignante. Un vrai livre, pas un écran — d'où le type « chore »
+  // (minuterie + bouton « Fait! ») plutôt qu'un exercice de l'app.
+  const lecture = (mins) => ({
+    type: 'chore', mins, icon: '📖',
+    label: `Lecture — ${mins} minutes dans ton livre`,
+  });
+
+  const fin = {
+    type: 'message',
+    label: remise && remise.jours === 0
+      ? 'Bravo Ryan! Vérifie que ta feuille est dans ton sac. 🎒'
+      : 'Bravo Ryan! Bloc terminé — va jouer! 🎉',
+    mins: 1, icon: '🌳',
+  };
+
+  // ===== Fin de semaine: 2 heures, en deux moitiés =====
+  // Deux heures d'affilée sans rien, ça n'existe pas à 8 ans: une seule pause
+  // collation sépare les deux moitiés. (En semaine, il n'y en a aucune.)
+  if (isWeekend) {
+    return [
+      { type: 'app', mode: 'strategies', label: stratLabel, mins: 8, icon: '⚡' },
+      { type: 'app', mode: 'orthographe', label: `🐱 Orthographe — Liste ${liste.numero}: ${liste.titre}`, mins: 15, icon: '🐱' },
+      { ...deuxieme, mins: 12 },
+      { type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: 8, icon: r.french.icon },
+      { type: 'break', label: 'Pause + collation 🍎', mins: 10, icon: '🍎' },
+      { type: 'app', mode: 'matcha_nombres', label: '📘 Cahier Matcha — valeur de position et comparaison', mins: 18, icon: '📘' },
+      { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 15, icon: '🧩' },
+      { type: 'app', mode: 'calcul_rapide_3', label: '⚡ Calcul rapide 3 chiffres', mins: 10, icon: '⚡' },
+      lecture(20),
+      fin,
+    ];
+  }
+
+  // ===== Semaine: 1 heure après l'école =====
   return [
     ...rappelRemise,
-    { type: 'app', mode: 'strategies', label: stratLabel, mins: isWeekend ? 4 : 5, icon: '⚡' },
-    { type: 'app', mode: 'orthographe', label: `🐱 Orthographe — Liste ${liste.numero}: ${liste.titre}`, mins: isWeekend ? 5 : 6, icon: '🐱' },
-    deuxieme,
-    {
-      type: 'app', mode: 'matcha_nombres',
-      label: '📘 Cahier Matcha — valeur de position et comparaison',
-      mins: isWeekend ? 7 : 10, icon: '📘',
-    },
-    ...(isWeekend ? [] : [{ type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: 4, icon: r.french.icon }]),
-    {
-      type: 'message',
-      label: remise && remise.jours === 0
-        ? 'Bravo Ryan! Vérifie que ta feuille est dans ton sac. 🎒'
-        : 'Bravo Ryan! Bloc terminé — va jouer! 🎉',
-      mins: 1, icon: '🌳',
-    },
+    { type: 'app', mode: 'strategies', label: stratLabel, mins: 6, icon: '⚡' },
+    { type: 'app', mode: 'orthographe', label: `🐱 Orthographe — Liste ${liste.numero}: ${liste.titre}`, mins: 8, icon: '🐱' },
+    { ...deuxieme, mins: 8 },
+    { type: 'app', mode: 'matcha_nombres', label: '📘 Cahier Matcha — valeur de position et comparaison', mins: 11, icon: '📘' },
+    { type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: 6, icon: r.french.icon },
+    { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 5, icon: '🧩' },
+    lecture(15),
+    fin,
   ];
 }
 

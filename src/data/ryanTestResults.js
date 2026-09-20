@@ -1,8 +1,23 @@
-// Ryan's school test results — manually captured from physical tests.
-// Used by TestResults.jsx to give the parent a quick scorecard view
-// alongside the in-app progress charts.
+// Résultats d'examens de Ryan — saisis à la main d'après les tests papier.
+// Affichés par TestResults.jsx comme bulletin rapide à côté des graphiques.
+//
+// REMISE À ZÉRO le 20 sept. 2026: les 29 tests ci-dessous sont ceux de la
+// 2e année (avril-mai 2026). Ils faussaient la lecture de la 3e année — un
+// écran plein de « 🔴 Critique » de l'an dernier, alors que Ryan repart à neuf
+// avec une nouvelle enseignante et un nouveau programme.
+//
+// Ils restent ici en archive: ce sont eux qui expliquent pourquoi les
+// générateurs ciblent ce qu'ils ciblent (calcul rapide 12/30, passé composé
+// 9/17, situation-problèmes 2.95/11). Ne pas les effacer.
+//
+// `testResults` = la 3e année, et elle recommence vide.
 
 export const testResults = [
+  // Rien encore en 3e année. Chaque test rapporté par l'enseignante s'ajoute ici.
+];
+
+// ===== ARCHIVE — 2e année (Mme Bertheau, 2025-2026) =====
+export const RESULTATS_2E_ANNEE = [
   // ===== WEEK ENDING MAY 25 (captured 2026-05-28) =====
   { date: '2026-05-25', subject: 'français', test: "L'apostrophe", score: 8.8, total: 9, teacherNote: 'Excellent', tag: 'win' },
   { date: '2026-05-25', subject: 'math', test: 'Terme manquant (calcul rapide)', score: 18, total: 20, teacherNote: 'Excellent', tag: 'win' },
