@@ -60,6 +60,16 @@ async function initDb() {
       )
     `);
 
+    // Un rappel ne part qu'UNE fois par jour, même si le serveur redémarre.
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS push_log (
+        kind TEXT NOT NULL,
+        jour DATE NOT NULL,
+        sent_at TIMESTAMP DEFAULT NOW(),
+        PRIMARY KEY (kind, jour)
+      )
+    `);
+
     // --- Migrations: add profile column for multi-user support ---
     await client.query(`ALTER TABLE sessions ADD COLUMN IF NOT EXISTS profile TEXT NOT NULL DEFAULT 'ryan'`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_sessions_profile ON sessions(profile, id DESC)`);
@@ -188,6 +198,149 @@ app.post('/api/push/send', async (req, res) => {
     console.error('Push send error:', err);
     res.status(500).json({ error: err.message });
   }
+});
+
+// --- Rappels automatiques (push) ---
+//
+// Toute la plomberie push existait (VAPID, /subscribe, /send) mais RIEN ne la
+// déclenchait: il fallait appuyer sur « test » à la main. Voici ce qui manquait.
+//
+// Trois rappels, heure de Montréal:
+//   16h30 en semaine / 10h00 la fin de semaine → Ryan: son bloc l'attend
+//   19h00 tous les jours → le parent, seulement si Ryan n'a rien fait
+//   17h00 le jeudi → tout le monde: la feuille se remet demain
+//
+// `push_log` garantit un seul envoi par jour et par rappel, même si Railway
+// redémarre le serveur trois fois dans l'après-midi.
+
+const TZ = 'America/Toronto';
+
+function maintenantMontreal() {
+  const f = new Intl.DateTimeFormat('en-CA', {
+    timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', weekday: 'short', hour12: false,
+  });
+  const p = Object.fromEntries(f.formatToParts(new Date()).map((x) => [x.type, x.value]));
+  const JOURS = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  return {
+    jour: `${p.year}-${p.month}-${p.day}`,
+    minutes: parseInt(p.hour, 10) * 60 + parseInt(p.minute, 10),
+    jourSemaine: JOURS[p.weekday],
+  };
+}
+
+async function dejaEnvoye(kind, jour) {
+  const r = await queryOne('SELECT 1 AS x FROM push_log WHERE kind = $1 AND jour = $2', [kind, jour]);
+  return !!r;
+}
+
+async function marquerEnvoye(kind, jour) {
+  await pool.query(
+    'INSERT INTO push_log (kind, jour) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+    [kind, jour],
+  );
+}
+
+async function envoyerPush({ profile, title, body, url }) {
+  const subs = profile && profile !== 'all'
+    ? await queryAll('SELECT * FROM push_subscriptions WHERE profile = $1', [profile])
+    : await queryAll('SELECT * FROM push_subscriptions');
+  const payload = JSON.stringify({ title, body, url: url || '/' });
+  let sent = 0;
+  for (const sub of subs) {
+    try {
+      await webpush.sendNotification({
+        endpoint: sub.endpoint,
+        keys: typeof sub.keys === 'string' ? JSON.parse(sub.keys) : sub.keys,
+      }, payload);
+      sent++;
+    } catch (err) {
+      if (err.statusCode === 410 || err.statusCode === 404) {
+        await pool.query('DELETE FROM push_subscriptions WHERE endpoint = $1', [sub.endpoint]);
+      }
+    }
+  }
+  return sent;
+}
+
+// Ryan a-t-il pratiqué aujourd'hui? (heure de Montréal)
+async function aPratiqueAujourdhui(jour) {
+  try {
+    const r = await queryOne(
+      `SELECT COUNT(*)::int AS n FROM sessions
+       WHERE profile = 'ryan'
+         AND (created_at AT TIME ZONE 'UTC' AT TIME ZONE $2)::date = $1::date`,
+      [jour, TZ],
+    );
+    return (r && r.n > 0);
+  } catch {
+    return false; // en cas de doute, on rappelle: un rappel de trop vaut mieux qu'un oubli
+  }
+}
+
+async function verifierRappels() {
+  if (!VAPID_PUBLIC || !VAPID_PRIVATE) return;
+  const { jour, minutes, jourSemaine } = maintenantMontreal();
+  const finDeSemaine = jourSemaine === 0 || jourSemaine === 6;
+
+  // On tolère un retard de 20 min: le serveur peut dormir ou redémarrer.
+  const cEstLHeure = (h, m) => {
+    const cible = h * 60 + m;
+    return minutes >= cible && minutes < cible + 20;
+  };
+
+  try {
+    // 1. Le bloc de Ryan
+    if (cEstLHeure(finDeSemaine ? 10 : 16, finDeSemaine ? 0 : 30)
+        && !(await dejaEnvoye('bloc_ryan', jour))) {
+      await marquerEnvoye('bloc_ryan', jour);
+      await envoyerPush({
+        profile: 'ryan',
+        title: "Ma semaine t'attend 🍁",
+        body: finDeSemaine
+          ? "Deux heures aujourd'hui — on commence par les doubles!"
+          : "Ton bloc d'une heure: les stratégies, la liste, et le cahier.",
+        url: '/',
+      });
+    }
+
+    // 2. Le parent, seulement si rien n'a été fait
+    if (cEstLHeure(19, 0) && !(await dejaEnvoye('rappel_parent', jour))) {
+      const fait = await aPratiqueAujourdhui(jour);
+      await marquerEnvoye('rappel_parent', jour);
+      if (!fait) {
+        await envoyerPush({
+          profile: 'parent',
+          title: "Ryan n'a pas encore pratiqué",
+          body: "Son bloc du jour n'est pas commencé. Il reste du temps avant le dodo.",
+          url: '/',
+        });
+      }
+    }
+
+    // 3. La feuille à remettre (jeudi 17h, pour la remise du vendredi)
+    if (jourSemaine === 4 && cEstLHeure(17, 0) && !(await dejaEnvoye('remise', jour))) {
+      await marquerEnvoye('remise', jour);
+      await envoyerPush({
+        profile: 'all',
+        title: '📌 La feuille se remet demain',
+        body: "Feuille d'orthographe + feuille de maths, à remettre vendredi.",
+        url: '/',
+      });
+    }
+  } catch (err) {
+    console.error('Rappels push:', err.message);
+  }
+}
+
+// Toutes les 10 minutes. Léger: une requête SELECT quand ce n'est pas l'heure.
+setInterval(verifierRappels, 10 * 60 * 1000);
+setTimeout(verifierRappels, 30 * 1000);
+
+// Déclenchement manuel, pour tester sans attendre 16h30
+app.post('/api/push/check-now', async (req, res) => {
+  await verifierRappels();
+  res.json({ ok: true, maintenant: maintenantMontreal() });
 });
 
 // --- API Routes ---

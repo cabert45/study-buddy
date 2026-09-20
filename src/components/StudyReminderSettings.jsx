@@ -49,13 +49,18 @@ export default function StudyReminderSettings({ onClose, profile }) {
     setActive(false);
   }
 
-  async function handleSubscribePush() {
+  // Le serveur envoie les rappels par « profil ». Un téléphone de parent
+  // s'enregistre donc sous 'parent': c'est lui qui reçoit « Ryan n'a pas
+  // encore pratiqué », pas la tablette de Ryan.
+  async function handleSubscribePush(commeParent = false) {
     setPushBusy(true);
     setPushMsg('');
     try {
-      await subscribeToPush(profile);
+      await subscribeToPush(commeParent ? 'parent' : profile);
       setPushSubscribed(true);
-      setPushMsg('✓ Notifications activées sur cet appareil');
+      setPushMsg(commeParent
+        ? "✓ Cet appareil recevra les rappels de parent"
+        : '✓ Notifications activées sur cet appareil');
     } catch (err) {
       setPushMsg('Erreur: ' + err.message);
     }
@@ -152,6 +157,32 @@ export default function StudyReminderSettings({ onClose, profile }) {
               </p>
             </>
           )}
+        </div>
+
+        {/* === RAPPELS AUTOMATIQUES (serveur) === */}
+        <div className="bg-white rounded-2xl p-4 border-2 border-s1 mb-3">
+          <h4 className="font-heading text-base font-bold text-stone mb-2">🔔 Rappels automatiques</h4>
+          <ul className="text-xs text-s5 font-semibold space-y-1 mb-3 leading-relaxed">
+            <li>• <b>16 h 30</b> en semaine (<b>10 h</b> la fin de semaine) — Ryan: son bloc l'attend</li>
+            <li>• <b>19 h</b> — le parent, <i>seulement si Ryan n'a rien fait</i> de la journée</li>
+            <li>• <b>Jeudi 17 h</b> — la feuille se remet demain</li>
+          </ul>
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => handleSubscribePush(false)} disabled={pushBusy}
+              className="py-2.5 rounded-xl font-bold text-white text-xs disabled:opacity-50"
+              style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
+              📱 Cet appareil = l'enfant
+            </button>
+            <button onClick={() => handleSubscribePush(true)} disabled={pushBusy}
+              className="py-2.5 rounded-xl font-bold text-white text-xs disabled:opacity-50"
+              style={{ background: 'linear-gradient(90deg, #3a5bc7, #5b4ad4)' }}>
+              👤 Cet appareil = le parent
+            </button>
+          </div>
+          <p className="text-[11px] text-s4 font-semibold mt-2 leading-snug">
+            Sur iPhone, il faut d'abord <b>ajouter l'app à l'écran d'accueil</b> —
+            Safari n'envoie pas de notifications autrement.
+          </p>
         </div>
 
         {/* === LOCAL STUDY REMINDERS (in-app, while open) === */}
