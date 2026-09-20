@@ -33,6 +33,14 @@ export const ETATS = {
 
 // rangee 1 = tout en bas du mur (le plus porteur)
 export const BLOCS = [
+  // ================= MATHS (stratégies de calcul) =================
+  {
+    id: 'ma_strategies', matiere: 'math', rangee: 1, mode: 'strategies',
+    nom: 'Mes stratégies de calcul',
+    aide: 'Les stratégies du cahier Tables +/- : doubles, faire 10, presque doubles…',
+    debloque: 'Le calcul rapide, les additions à 3 chiffres, et tout ce qui se fait de tête.',
+  },
+
   // ================= FRANÇAIS =================
   {
     id: 'fr_verbe', matiere: 'francais', rangee: 1, mode: 'verbes',

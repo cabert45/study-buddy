@@ -11,6 +11,7 @@ import { generateDeterminant } from '../generators/determinant';
 import { generateVerbes } from '../generators/verbes';
 import { generateInfinitif } from '../generators/infinitif';
 import { generateOrthographe } from '../generators/orthographe';
+import { generateStrategies } from '../generators/strategies';
 import { generateAdjectif } from '../generators/adjectif';
 import { generatePemdas } from '../generators/pemdas';
 import { generateConjugaison } from '../generators/conjugaison';
@@ -182,6 +183,7 @@ function getGenerator(mode) {
     case 't1_voc': return generateT1Voc;
     case 'infinitif': return generateInfinitif;
     case 'orthographe': return generateOrthographe;
+    case 'strategies': return generateStrategies;
     case 'matcha_nombres': return generateMatchaNombres;
     case 't1_revision': return generateT1Revision;
     case 'francais_mix':
@@ -614,6 +616,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           {question.category === 't1_revision' && '📒 Jazz · Révision du thème 1'}
           {question.category === 'infinitif' && "✏️ Verbes de la semaine — à l'infinitif"}
           {question.category === 'orthographe' && `🐱 Orthographe au quotidien — Liste ${question.listeNumero}`}
+          {question.category === 'strategies' && `⚡ Tables +/- · Stratégies ${question.strategies}`}
         </div>
 
         {/* Persistent rule reminder — for tricky conjugation/spelling modes */}
