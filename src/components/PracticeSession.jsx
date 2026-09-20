@@ -9,6 +9,8 @@ import { generatePairImpair } from '../generators/pairImpair';
 import { generateStatistique } from '../generators/statistique';
 import { generateDeterminant } from '../generators/determinant';
 import { generateVerbes } from '../generators/verbes';
+import { generateInfinitif } from '../generators/infinitif';
+import { generateOrthographe } from '../generators/orthographe';
 import { generateAdjectif } from '../generators/adjectif';
 import { generatePemdas } from '../generators/pemdas';
 import { generateConjugaison } from '../generators/conjugaison';
@@ -178,6 +180,8 @@ function getGenerator(mode) {
     case 't1_pronom': return generateT1Pronom;
     case 't1_dialogue': return generateT1Dialogue;
     case 't1_voc': return generateT1Voc;
+    case 'infinitif': return generateInfinitif;
+    case 'orthographe': return generateOrthographe;
     case 'matcha_nombres': return generateMatchaNombres;
     case 't1_revision': return generateT1Revision;
     case 'francais_mix':
@@ -608,6 +612,8 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           {question.category === 't1_voc' && '📒 Jazz · Voc en vrac — Les comparaisons'}
           {question.category === 'matcha_nombres' && '📘 Matcha · Thème 1 — Les nombres jusqu\'à 9 999'}
           {question.category === 't1_revision' && '📒 Jazz · Révision du thème 1'}
+          {question.category === 'infinitif' && "✏️ Verbes de la semaine — à l'infinitif"}
+          {question.category === 'orthographe' && `🐱 Orthographe au quotidien — Liste ${question.listeNumero}`}
         </div>
 
         {/* Persistent rule reminder — for tricky conjugation/spelling modes */}

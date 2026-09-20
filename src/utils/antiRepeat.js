@@ -54,6 +54,9 @@ export function withFresh(category, generate, capacity = 80, maxAttempts = 30, k
   let key = null;
   while (attempts < maxAttempts) {
     q = generate();
+    // Un générateur a le droit de rendre null sur un mauvais tirage (pas assez
+    // de distracteurs, par ex.). On retente plutôt que de planter dans keyFn.
+    if (!q) { attempts++; continue; }
     key = getKey(q);
     if (!key) break; // can't track without a key — accept whatever
     if (!recent.has(key)) break; // fresh!

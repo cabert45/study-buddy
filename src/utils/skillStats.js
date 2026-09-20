@@ -146,6 +146,22 @@ export const SKILL_LABELS = {
   'matcha_nombres|position_nom': 'Nom de la position', 'matcha_nombres|position_valeur': "Valeur d'un chiffre",
   'matcha_nombres|ajouter': 'Ajouter 1 centaine / dizaine', 'matcha_nombres|groupements': 'Problèmes de groupements',
   'matcha_nombres|sacs': 'Faire des sacs de 10 / 100',
+  'matcha_nombres|comparer': 'Comparer avec < > =', 'matcha_nombres|plus_grand_petit': 'Le plus grand / le plus petit',
+  'matcha_nombres|ordre': 'Ranger en ordre croissant / décroissant',
+  'infinitif|trouver_infinitif': "Trouver l'infinitif d'un verbe conjugué",
+  'infinitif|reconnaitre': "Reconnaître la forme infinitive",
+  'infinitif|piege_er': 'Après un 2e verbe: -ER', 'infinitif|piege_er_inverse': 'Après avoir: -É',
+  'infinitif|groupe': 'Le groupe du verbe', 'infinitif|quel_verbe': 'La bonne forme dans la phrase',
+  'orthographe|muette': 'La lettre muette', 'orthographe|feminin': 'Le féminin révèle la muette',
+  'orthographe|male_femelle': 'Le mâle et la femelle', 'orthographe|son_c': 'Le « c »: [s] ou [k]',
+  'orthographe|son_g': 'Le « g »: [g] ou [j]', 'orthographe|son_s': 'Le « s »: [s] ou [z]',
+  'orthographe|deux_sons': 'La lettre qui fait deux sons', 'orthographe|devinette': 'Qui suis-je?',
+  'orthographe|famille': 'Mots de la même famille', 'orthographe|synonyme': 'Les synonymes',
+  'orthographe|lien': 'Le mot qui a un lien', 'orthographe|charivari': 'Charivari (lettres mêlées)',
+  'orthographe|lettres_manquantes': 'Les lettres manquantes', 'orthographe|alphabetique': 'Ordre alphabétique',
+  'orthographe|classe': 'Nom commun ou verbe?', 'orthographe|jumelles': 'Les consonnes jumelles',
+  'orthographe|homophone': 'Les homophones', 'orthographe|intrus': "L'intrus dans la famille",
+  'orthographe|n_ou_m': 'n ou m devant b et p',
 };
 
 // Les types les plus ratés d'un groupe de catégories (préfixe), pour le parent

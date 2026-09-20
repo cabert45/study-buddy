@@ -367,6 +367,155 @@ function faireDesSacs() {
   };
 }
 
+// ===== Comparaison de nombres naturels =====
+// Leçon de la semaine du 21 au 25 sept. 2026: « La valeur de position et la
+// comparaison de nombres naturels » (Aide-mémoire Matcha p. 8).
+//
+// Les paires ne sont pas au hasard — chacune rejoue une erreur connue de Ryan:
+//   a) mêmes chiffres, autre ordre (5 140 / 5 014) → il lit les chiffres, pas les positions
+//   b) le plus court commence par un gros chiffre (987 / 1 024) → « 9 > 1 donc 987 gagne »
+//   c) même début, ça se joue à la fin (3 476 / 3 467) → il s'arrête trop tôt
+//   d) un zéro au milieu (4 087 / 4 807) → la colonne vide
+
+// Deux nombres différents, selon le piège voulu
+function pairePiegee() {
+  const kind = pick(['ordre', 'longueur', 'fin', 'zero']);
+  if (kind === 'longueur') {
+    // 3 chiffres qui « a l'air gros » contre 4 chiffres
+    const court = rand(700, 999);
+    const long = rand(1000, 1999);
+    return { a: court, b: long, kind };
+  }
+  if (kind === 'ordre') {
+    const um = rand(1, 9), c = rand(0, 9), d = rand(0, 9);
+    let u = rand(0, 9);
+    while (u === d) u = rand(0, 9);
+    return { a: um * 1000 + c * 100 + d * 10 + u, b: um * 1000 + c * 100 + u * 10 + d, kind };
+  }
+  if (kind === 'zero') {
+    const um = rand(1, 9), x = rand(1, 9);
+    return { a: um * 1000 + 0 * 100 + x * 10 + rand(0, 9), b: um * 1000 + x * 100 + rand(0, 9) * 10 + rand(0, 9), kind };
+  }
+  // 'fin' — même millier et même centaine, ça se décide sur les dizaines
+  const tete = rand(1, 9) * 1000 + rand(0, 9) * 100;
+  const d1 = rand(0, 8);
+  const d2 = d1 + rand(1, 9 - d1);
+  return { a: tete + d1 * 10 + rand(0, 9), b: tete + d2 * 10 + rand(0, 9), kind };
+}
+
+const POURQUOI = {
+  ordre: "Attention: les deux nombres ont exactement les MÊMES chiffres. Ce qui compte, c'est la POSITION de chaque chiffre.",
+  longueur: "Attention au piège: un nombre de 4 chiffres est toujours plus grand qu'un nombre de 3 chiffres, même si celui-ci commence par 9.",
+  fin: "Le début est pareil des deux côtés — il faut continuer jusqu'à la première position qui diffère.",
+  zero: 'Un 0 dans une colonne, ça veut dire « rien » à cette position — pas « on saute la colonne ».',
+};
+
+// Compare position par position et explique où ça se joue
+function ouCaSeJoue(a, b) {
+  const sa = String(a).padStart(4, '0');
+  const sb = String(b).padStart(4, '0');
+  const noms = ['unités de mille', 'centaines', 'dizaines', 'unités'];
+  if (String(a).length !== String(b).length) {
+    return `${fmt(Math.max(a, b))} a ${String(Math.max(a, b)).length} chiffres et ${fmt(Math.min(a, b))} en a ${String(Math.min(a, b)).length} → le plus long gagne.`;
+  }
+  for (let i = 0; i < 4; i++) {
+    if (sa[i] !== sb[i]) {
+      return `On compare de GAUCHE à DROITE. Ça se décide aux ${noms[i]}: ${sa[i]} contre ${sb[i]} → ${sa[i] > sb[i] ? fmt(a) : fmt(b)} est le plus grand.`;
+    }
+  }
+  return 'Les deux nombres sont identiques.';
+}
+
+function comparer() {
+  const egal = Math.random() < 0.12;
+  let a, b, kind;
+  if (egal) {
+    a = nombreAuHasard(); b = a; kind = 'egal';
+  } else {
+    ({ a, b, kind } = pairePiegee());
+  }
+  const correct = a > b ? '>' : a < b ? '<' : '=';
+  return {
+    category: CATEGORY,
+    rule: ruleFor(),
+    type: 'comparer',
+    text: `${fmt(a)} ___ ${fmt(b)}
+
+Quel signe va dans la case?`,
+    correct,
+    options: ['<', '>', '='],
+    explanation: `${fmt(a)} ${correct} ${fmt(b)}
+${egal ? 'Les deux nombres sont pareils → le signe =.' : ouCaSeJoue(a, b)}
+${egal ? '' : POURQUOI[kind]}`,
+    hint: 'La pointe du signe montre toujours le PLUS PETIT. Compare de gauche à droite, une position à la fois.',
+  };
+}
+
+function plusGrandPlusPetit() {
+  const cherchePlusGrand = Math.random() < 0.5;
+  // 4 nombres proches pour que la comparaison soit réelle
+  const base = rand(1, 8) * 1000 + rand(0, 9) * 100;
+  const set = new Set();
+  while (set.size < 4) set.add(base + rand(0, 9) * 10 + rand(0, 9));
+  const nombres = [...set];
+  const correct = cherchePlusGrand ? Math.max(...nombres) : Math.min(...nombres);
+  const tries = [...nombres].sort((x, y) => x - y);
+  return {
+    category: CATEGORY,
+    rule: ruleFor(),
+    type: 'plus_grand_petit',
+    text: `${nombres.map(fmt).join('   ·   ')}
+
+Quel est le nombre le plus ${cherchePlusGrand ? 'GRAND' : 'PETIT'}?`,
+    correct,
+    options: shuffle(nombres),
+    explanation: `Du plus petit au plus grand: ${tries.map(fmt).join(' < ')}
+Le plus ${cherchePlusGrand ? 'grand' : 'petit'} est ${fmt(correct)}.
+Ici les milliers et les centaines sont pareils partout — tout se joue sur les dizaines et les unités.`,
+    hint: cherchePlusGrand
+      ? 'Compare les positions de gauche à droite. Si le début est pareil, descends aux dizaines.'
+      : 'Compare les positions de gauche à droite et garde le plus petit à la première différence.',
+  };
+}
+
+function ordreCroissant() {
+  const croissant = Math.random() < 0.5;
+  const set = new Set();
+  const base = rand(1, 8) * 1000;
+  while (set.size < 3) set.add(base + rand(0, 9) * 100 + rand(0, 9) * 10 + rand(0, 9));
+  const nombres = [...set];
+  const bon = [...nombres].sort((x, y) => (croissant ? x - y : y - x));
+  const mauvais = [
+    [...nombres].sort((x, y) => (croissant ? y - x : x - y)),
+    // trié sur le chiffre des unités: l'erreur « je regarde la fin »
+    [...nombres].sort((x, y) => (croissant ? (x % 10) - (y % 10) : (y % 10) - (x % 10))),
+    // trié sur le chiffre des centaines seulement
+    [...nombres].sort((x, y) => {
+      const cx = Math.floor(x / 100) % 10, cy = Math.floor(y / 100) % 10;
+      return croissant ? cx - cy : cy - cx;
+    }),
+  ];
+  const label = (arr) => arr.map(fmt).join(' , ');
+  const vus = new Set([label(bon)]);
+  const choix = [label(bon)];
+  for (const m of mauvais) {
+    const l = label(m);
+    if (!vus.has(l)) { vus.add(l); choix.push(l); }
+  }
+  return {
+    category: CATEGORY,
+    rule: ruleFor(),
+    type: 'ordre',
+    text: `Range ces nombres du plus ${croissant ? 'PETIT au plus GRAND' : 'GRAND au plus PETIT'}:
+${nombres.map(fmt).join('   ·   ')}`,
+    correct: label(bon),
+    options: shuffle(choix),
+    explanation: `Ordre ${croissant ? 'croissant' : 'décroissant'}: ${label(bon)}
+On compare toujours à partir de la GAUCHE (les unités de mille), pas par le dernier chiffre.`,
+    hint: croissant ? 'Croissant = ça monte. Commence par le plus petit.' : 'Décroissant = ça descend. Commence par le plus grand.',
+  };
+}
+
 // Poids de base = ses erreurs du cahier + ce qui s'en vient; pickAdaptive ajuste selon ses réponses.
 function buildOne() {
   return pickAdaptive(CATEGORY, [
@@ -382,6 +531,10 @@ function buildOne() {
     { type: 'ajouter', w: 8, build: ajouter },
     { type: 'groupements', w: 12, build: groupements },
     { type: 'sacs', w: 8, build: faireDesSacs },
+    // Comparaison — leçon de la semaine du 21 au 25 sept.
+    { type: 'comparer', w: 16, build: comparer },
+    { type: 'plus_grand_petit', w: 9, build: plusGrandPlusPetit },
+    { type: 'ordre', w: 9, build: ordreCroissant },
   ]);
 }
 

@@ -44,7 +44,7 @@ export const CAHIER_THEMES = [
       { id: 't3m1', numero: 1, lecture: "L'automobile · La Ford T", pages: '80-87', notions: ['Le féminin des noms', 'Voc en vrac'], mode: 'pluriels_ryan' },
       { id: 't3m2', numero: 2, lecture: 'La télévision de grand-papa', pages: '88-95', notions: ['Le pluriel des noms', 'Voc en vrac'], mode: 'pluriels_ryan' },
       { id: 't3_cles2', label: 'Des clés — Les mots de substitution', pages: '96', notions: ['Mots de substitution'], mode: null },
-      { id: 't3m3', numero: 3, lecture: "D'hier à aujourd'hui · Les pets-de-sœurs", pages: '98-103', notions: ["Le verbe à l'infinitif"], mode: null },
+      { id: 't3m3', numero: 3, lecture: "D'hier à aujourd'hui · Les pets-de-sœurs", pages: '98-103', notions: ["Le verbe à l'infinitif"], mode: 'infinitif' },
       { id: 't3m4', numero: 4, lecture: 'Le vieux tourne-disque', pages: '104-106', notions: ['Phrase à plus d\'un verbe conjugué', 'Phrase sans verbe conjugué'], mode: null },
       { id: 't3rev', label: 'Révision du thème 3', pages: '108', notions: [], mode: null },
     ],
@@ -60,14 +60,20 @@ export const CAHIER_THEMES = [
   },
 ];
 
-// Semaine de classe (lundi) → module travaillé. ESTIMATION — voir l'en-tête.
+// Semaine de classe (lundi) → module travaillé.
+// CONFIRMÉ pour le 21 sept par la feuille « Du 21 au 25 septembre 2026 » de
+// l'enseignant(e) (MAHaidar@csslaval.gouv.qc.ca): la ligne « Grammaire : L'adjectif »
+// est BARRÉE et remplacée à la main par « le déterminant ». La classe reste donc
+// une 2e semaine sur le déterminant — tout le reste du calendrier recule d'une
+// semaine. Les semaines suivantes redeviennent une ESTIMATION (voir l'en-tête).
 export const CAHIER_SEMAINES = [
   { debut: [2026, 9, 7], module: 't1m1' },   // fait — p. 6-12 remplies et corrigées (photos du 13 sept)
   { debut: [2026, 9, 14], module: 't1m2' },
-  { debut: [2026, 9, 21], module: 't1m3' },  // + Des clés: le dialogue (p. 20)
-  { debut: [2026, 9, 28], module: 't1m4' },
-  { debut: [2026, 10, 5], module: 't1rev' },
-  { debut: [2026, 10, 13], module: 't2m1' }, // mardi — lundi 12 = Action de grâce
+  { debut: [2026, 9, 21], module: 't1m2' },  // confirmé: déterminant (Aide-mémoire Jazz p. 5)
+  { debut: [2026, 9, 28], module: 't1m3' },  // + Des clés: le dialogue (p. 20)
+  { debut: [2026, 10, 5], module: 't1m4' },
+  { debut: [2026, 10, 13], module: 't1rev' }, // mardi — lundi 12 = Action de grâce
+  { debut: [2026, 10, 19], module: 't2m1' },
 ];
 
 const moduleIndex = {};

@@ -41,6 +41,18 @@ export const BLOCS = [
     debloque: 'Le radical et la terminaison, et TOUS les temps: imparfait, futur, conditionnel.',
   },
   {
+    id: 'fr_ortho', matiere: 'francais', rangee: 1, mode: 'orthographe',
+    nom: "L'orthographe au quotidien",
+    aide: 'Les mots de la liste de la semaine (cartable d’étude).',
+    debloque: 'La dictée, la rédaction — et les 20 mots de la feuille à remettre le vendredi.',
+  },
+  {
+    id: 'fr_infinitif', matiere: 'francais', rangee: 1, mode: 'infinitif',
+    nom: "Le verbe à l'infinitif",
+    aide: 'être, avoir, aimer, aller, finir — et le piège -é / -er.',
+    debloque: 'Tous les temps: on conjugue à partir de l’infinitif. (Leçon de la semaine du 21 sept.)',
+  },
+  {
     id: 'fr_classes', matiere: 'francais', rangee: 1, mode: 'classe_de_mots',
     nom: 'Les classes de mots',
     aide: 'Nom, déterminant, adjectif, verbe, pronom.',
