@@ -26,10 +26,58 @@ function shuffle(arr) {
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
 const CATEGORY = 'strategies';
+const BR = String.fromCharCode(10);
+
+// La règle du cahier est écrite pour l'enseignante (« élément neutre »,
+// « inévitablement un jumeau »). Ryan a 8 ans: on garde l'idée, pas la phrase.
+const EN_CLAIR = {
+  A: `Ajouter 0, ça ne change rien.
+5 + 0 = 5`,
+  B: `Enlever 0, ça ne change rien.
+5 − 0 = 5`,
+  C: `Des jumeaux: le même nombre deux fois.
+4 + 4 = 8`,
+  D: `Si tu enlèves un jumeau, il reste l'autre jumeau.
+12 − 6 = 6`,
+  E: `Ajouter 1, c'est le nombre juste après.
+9 + 1 = 10`,
+  F: `Enlever 1, c'est le nombre juste avant.
+8 − 1 = 7`,
+  G: `Ce qu'il manque pour faire 5.
+2 + 3 = 5`,
+  H: `Une soustraction, c'est une addition à l'envers.
+5 − 2 = 3, parce que 2 + 3 = 5`,
+  I: `Un nombre moins lui-même, ça fait toujours 0.
+7 − 7 = 0`,
+  J: `Enlever le nombre juste avant, ça fait toujours 1.
+7 − 6 = 1`,
+  K: `Ajouter 2, c'est deux pas plus loin.
+7 + 2 = 9`,
+  L: `Enlever 2, c'est deux pas en arrière.
+9 − 2 = 7`,
+  M: `Ce qu'il manque pour faire 10.
+6 + 4 = 10`,
+  N: `10 moins un nombre: cherche son complément.
+10 − 4 = 6`,
+  O: `Ajouter 10: le chiffre des unités ne bouge pas.
+3 + 10 = 13`,
+  P: `Enlever 10: le chiffre des unités ne bouge pas.
+19 − 10 = 9`,
+  Q: `Trois pas en avant, ou trois pas en arrière.
+Pars toujours du plus GRAND nombre.`,
+  R: `Presque des jumeaux: fais le double, puis ajoute 1.
+4 + 5 → 4 + 4 = 8, puis 8 + 1 = 9`,
+  S: `Presque des jumeaux: fais le double, puis enlève 1.
+11 − 6 → 12 − 6 = 6, puis 6 − 1 = 5`,
+  T: `Passe par 10.
+9 + 6 → 9 + 1 = 10, puis 10 + 5 = 15`,
+};
 
 function ruleFor(strats) {
   if (getStudyRounds(CATEGORY) >= 3) return undefined;
-  return strats.map((s) => `Stratégie ${s.id} — ${s.titre}\n${s.regle}\nExemple: ${s.exemple}`).join('\n\n');
+  return strats
+    .map((s) => s.court.toUpperCase() + BR + (EN_CLAIR[s.id] || s.regle))
+    .join(BR + BR);
 }
 
 // Les stratégies de la semaine 70 % du temps, les anciennes 30 % (le répertoire
@@ -64,28 +112,15 @@ function leFait(pool) {
     correct: f.r,
     options: optionsNum(f.r),
     explanation: `${ecrireFait(f)}\n\nStratégie ${s.id} — ${s.titre}: ${s.regle}`,
-    hint: `Pense à la stratégie ${s.id}: ${s.court}. ${s.exemple}`,
+    hint: `${s.court} — ${s.exemple}`,
   };
 }
 
-// ===== 2. Quelle stratégie t'aide ici? =====
-function quelleStrategie(pool, semaine) {
-  const s = pick(pool);
-  const f = pick(s.faits);
-  const autres = shuffle(STRATEGIES.filter((x) => x.id !== s.id && x.op === s.op))
-    .slice(0, 3)
-    .map((x) => `${x.id} — ${x.titre}`);
-  if (autres.length < 2) return null;
-  const correct = `${s.id} — ${s.titre}`;
-  return {
-    category: CATEGORY, rule: ruleFor(semaine), type: 'quelle_strategie',
-    text: `${ecrireQuestion(f)}\n\nQuelle stratégie t'aide à répondre vite?`,
-    correct,
-    options: shuffle([correct, ...autres]),
-    explanation: `${ecrireFait(f)}\nStratégie ${s.id} — ${s.titre}.\n${s.regle}`,
-    hint: 'Regarde la FORME de l\'opération, pas juste les nombres.',
-  };
-}
+// Le type « Quelle strategie t'aide ici? » a ete retire le 20 sept. 2026:
+// on demandait a un enfant de 8 ans de choisir entre « L - 2 de moins » et
+// « S - Les presque doubles ». Les lettres sont un classement pour
+// l'enseignante, pas une notion a apprendre. Ce qui compte, c'est qu'il
+// RECONNAISSE la forme: c'est ce que font les autres types.
 
 // ===== 3. Le double qui aide (stratégies C, D, R, S) =====
 function leDoubleQuiAide(pool, semaine) {
@@ -218,7 +253,6 @@ function vraiOuFaux(pool, semaine) {
 
 const TYPES = [
   { type: 'fait', w: 30, build: (p, s) => leFait(p, s) },
-  { type: 'quelle_strategie', w: 14, build: quelleStrategie },
   { type: 'double', w: 18, build: leDoubleQuiAide },
   { type: 'complement', w: 14, build: complement },
   { type: 'inverse', w: 12, build: operationInverse },

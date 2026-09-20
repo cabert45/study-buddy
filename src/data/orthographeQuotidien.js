@@ -271,7 +271,18 @@ export const listeById = (id) => LISTES.find((l) => l.id === id) || null;
 
 const dateOf = ([y, m, d]) => new Date(y, m - 1, d);
 
-function semaineIndex(date) {
+// Le dimanche soir appartient à la semaine qui COMMENCE, pas à celle qui finit.
+// C'est le soir où on prépare lundi: si on ne décale pas, Ryan révise la liste
+// terminée la veille du jour où la nouvelle sort. Le décalage vit ici pour que
+// le Coach, le menu ET l'exercice disent tous la même chose.
+function refScolaire(date) {
+  return date.getDay() === 0
+    ? new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)
+    : date;
+}
+
+function semaineIndex(rawDate) {
+  const date = refScolaire(rawDate);
   let idx = -1;
   LISTE_SEMAINES.forEach((w, i) => { if (dateOf(w.debut) <= date) idx = i; });
   return idx;

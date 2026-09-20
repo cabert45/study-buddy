@@ -25,12 +25,27 @@ function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
 const CATEGORY = 'orthographe';
 
-const RULE = `Les mots de la semaine s'apprennent en les REGARDANT, pas juste en les écoutant.
-Lettre muette: mets le mot au féminin et tu l'entends → court / courte = un « t » muet.
-Le « c » devant e, i, y = [s] (glace) · devant a, o, u = [k] (cause).
-Le « g » devant e, i, y = [j] (nuage) · devant a, o, u = [g] (gagner).
-Un seul « s » entre deux voyelles = [z] (église) · deux « ss » = [s] (pousser).`;
-const ruleFor = () => (getStudyRounds(CATEGORY) < 3 ? RULE : undefined);
+// Une seule règle à la fois: celle que la liste travaille vraiment. Avant, le
+// cadre affichait les cinq règles (c, g, s, lettre muette…) même pour la
+// liste 1 qui n'en utilise aucune — un mur de texte que l'enfant saute.
+const REGLES = {
+  general: `Les mots de la semaine s'apprennent en les REGARDANT, pas juste en les écoutant.
+Regarde le mot, ferme les yeux, revois-le, puis écris-le.`,
+  muette: `Une lettre muette, c'est une lettre qu'on écrit mais qu'on n'entend pas.
+Le truc: mets le mot au FÉMININ et elle se met à parler.
+court → courte, donc il y a un « t ».`,
+  son_c: `Le « c » devant e, i, y se dit [s] — glace, cinéma.
+Le « c » devant a, o, u se dit [k] — cause, écouter.
+Regarde la lettre juste APRÈS le c.`,
+  son_g: `Le « g » devant e, i, y se dit [j] — nuage, genre.
+Le « g » devant a, o, u se dit [g] — gagner, goutte.
+Regarde la lettre juste APRÈS le g.`,
+  son_s: `Un seul « s » entre deux voyelles se dit [z] — église, poser.
+Deux « ss » se disent [s] — pousser, vitesse.`,
+  mbp: `Devant un « b » ou un « p », le « n » devient « m ».
+ombre, jambe, important, septembre.`,
+};
+const ruleFor = (liste) => (getStudyRounds(CATEGORY) < 3 ? (REGLES[liste.kind] || REGLES.general) : undefined);
 
 // La liste de la semaine 70 % du temps, une liste déjà vue 30 % (rétention).
 function listeActive() {
@@ -63,7 +78,7 @@ function lettreMuette(liste) {
     ? `Au féminin, on écrit « ${m.fem} » — et là, on l'entend!`
     : 'Cherche la dernière lettre qu\'on écrit mais qu\'on n\'entend pas.';
   return {
-    category: CATEGORY, rule: ruleFor(), type: 'muette',
+    category: CATEGORY, rule: ruleFor(liste), type: 'muette',
     text: `« ${m.mot} »\n\nQuelle est la lettre muette à la fin de ce mot?`,
     correct: m.muette,
     options: shuffle([m.muette, ...faux]),
@@ -80,7 +95,7 @@ function feminin(liste) {
   const faux = shuffle(cands.filter((x) => x.mot !== m.mot)).slice(0, 3).map((x) => x.fem);
   if (faux.length < 2) return null;
   return {
-    category: CATEGORY, rule: ruleFor(), type: 'feminin',
+    category: CATEGORY, rule: ruleFor(liste), type: 'feminin',
     text: `Quel est le FÉMININ de « ${m.mot} »?`,
     correct: m.fem,
     options: shuffle([m.fem, ...faux]),
@@ -104,7 +119,7 @@ function maleFemelle(liste) {
   const opts = [...new Set([correct, ...faux])].slice(0, 4);
   if (opts.length < 3) return null;
   return {
-    category: CATEGORY, rule: ruleFor(), type: 'male_femelle',
+    category: CATEGORY, rule: ruleFor(liste), type: 'male_femelle',
     text: versFemelle
       ? `Le ${m.mot} est le mâle de la ___`
       : `La ${m.fem} est la femelle du ___`,
@@ -141,7 +156,7 @@ function sonDeLaLettre(liste) {
   const m = pick(cands);
   const correct = `[${m[conf.champ]}]`;
   return {
-    category: CATEGORY, rule: ruleFor(), type: liste.kind,
+    category: CATEGORY, rule: ruleFor(liste), type: liste.kind,
     text: `« ${m.mot} »\n\nComment se prononce le « ${conf.lettre} » dans ce mot?`,
     correct,
     options: [...conf.choix],
@@ -160,7 +175,7 @@ function deuxSons(liste) {
   const autres = autresMots(liste, m.mot, 3);
   if (autres.length < 3) return null;
   return {
-    category: CATEGORY, rule: ruleFor(), type: 'deux_sons',
+    category: CATEGORY, rule: ruleFor(liste), type: 'deux_sons',
     text: `Dans quel mot le « ${conf.lettre} » se prononce-t-il des DEUX façons (${conf.choix.join(' et ')})?`,
     correct: m.mot,
     options: shuffle([m.mot, ...autres]),
@@ -177,7 +192,7 @@ function devinette(liste) {
   const autres = autresMots(liste, m.mot, 3);
   if (autres.length < 3) return null;
   return {
-    category: CATEGORY, rule: ruleFor(), type: 'devinette',
+    category: CATEGORY, rule: ruleFor(liste), type: 'devinette',
     text: `Qui suis-je?\n\n« ${m.dev} »`,
     correct: m.mot,
     options: shuffle([m.mot, ...autres]),
@@ -194,7 +209,7 @@ function famille(liste) {
   const autres = autresMots(liste, m.mot, 3);
   if (autres.length < 3) return null;
   return {
-    category: CATEGORY, rule: ruleFor(), type: 'famille',
+    category: CATEGORY, rule: ruleFor(liste), type: 'famille',
     text: `Quel mot de la liste est de la MÊME FAMILLE que « ${m.fam} »?`,
     correct: m.mot,
     options: shuffle([m.mot, ...autres]),
@@ -211,7 +226,7 @@ function synonyme(liste) {
   const autres = autresMots(liste, m.mot, 3);
   if (autres.length < 3) return null;
   return {
-    category: CATEGORY, rule: ruleFor(), type: 'synonyme',
+    category: CATEGORY, rule: ruleFor(liste), type: 'synonyme',
     text: `Quel mot de la liste veut dire la même chose que « ${m.syn} »?`,
     correct: m.mot,
     options: shuffle([m.mot, ...autres]),
@@ -228,7 +243,7 @@ function lienMot(liste) {
   const autres = autresMots(liste, m.mot, 3);
   if (autres.length < 3) return null;
   return {
-    category: CATEGORY, rule: ruleFor(), type: 'lien',
+    category: CATEGORY, rule: ruleFor(liste), type: 'lien',
     text: `Quel mot de la liste a un LIEN avec « ${m.lien} »?`,
     correct: m.mot,
     options: shuffle([m.mot, ...autres]),
@@ -245,7 +260,7 @@ function charivari(liste) {
   const autres = autresMots(liste, m.mot, 3);
   if (autres.length < 3) return null;
   return {
-    category: CATEGORY, rule: ruleFor(), type: 'charivari',
+    category: CATEGORY, rule: ruleFor(liste), type: 'charivari',
     text: `Charivari! Remets les lettres en ordre:\n\n${m.chari.split('').join(' ')}`,
     correct: m.mot,
     options: shuffle([m.mot, ...autres]),
@@ -276,7 +291,7 @@ function lettresManquantes(liste) {
   }
   if (faux.size < 2) return null;
   return {
-    category: CATEGORY, rule: ruleFor(), type: 'lettres_manquantes',
+    category: CATEGORY, rule: ruleFor(liste), type: 'lettres_manquantes',
     text: `Trouve les lettres manquantes:\n\n${affiche}`,
     correct,
     options: shuffle([correct, ...[...faux].slice(0, 3)]),
@@ -306,7 +321,7 @@ function alphabetique(liste) {
   }
   if (opts.length < 3) return null;
   return {
-    category: CATEGORY, rule: ruleFor(), type: 'alphabetique',
+    category: CATEGORY, rule: ruleFor(liste), type: 'alphabetique',
     text: `Place ces mots en ORDRE ALPHABÉTIQUE:\n\n${choisis.join('   ·   ')}`,
     correct: label(bon),
     options: shuffle(opts),
@@ -324,7 +339,7 @@ function classeDuMot(liste) {
   const m = pick(bons);
   const faux = shuffle(mauvais).slice(0, 3).map((x) => x.mot);
   return {
-    category: CATEGORY, rule: ruleFor(), type: 'classe',
+    category: CATEGORY, rule: ruleFor(liste), type: 'classe',
     text: `Parmi ces mots de la liste, lequel est ${chercheVerbe ? "un VERBE (à l'infinitif)" : 'un NOM COMMUN'}?`,
     correct: m.mot,
     options: shuffle([m.mot, ...faux]),
@@ -343,7 +358,7 @@ function jumelles(liste) {
   const m = pick(bons);
   const faux = shuffle(mauvais).slice(0, 3).map((x) => x.mot);
   return {
-    category: CATEGORY, rule: ruleFor(), type: 'jumelles',
+    category: CATEGORY, rule: ruleFor(liste), type: 'jumelles',
     text: 'Quel mot contient des CONSONNES JUMELLES (deux fois la même lettre collée)?',
     correct: m.mot,
     options: shuffle([m.mot, ...faux]),
@@ -361,7 +376,7 @@ function homophone(liste) {
   const faux = [...new Set([m.mot, ...autres, `${m.mot}e`])].filter((x) => x !== m.homo.mot).slice(0, 3);
   if (faux.length < 2) return null;
   return {
-    category: CATEGORY, rule: ruleFor(), type: 'homophone',
+    category: CATEGORY, rule: ruleFor(liste), type: 'homophone',
     text: `« ${m.mot} » a un homophone: un mot qui se dit PAREIL mais s'écrit autrement.\n\nLequel veut dire « ${m.homo.sens} »?`,
     correct: m.homo.mot,
     options: shuffle([m.homo.mot, ...faux]),
@@ -377,7 +392,7 @@ function intrus(liste) {
   const m = pick(cands);
   const faux = m.intrus[m.intrus.length - 1]; // le dernier est l'intrus
   return {
-    category: CATEGORY, rule: ruleFor(), type: 'intrus',
+    category: CATEGORY, rule: ruleFor(liste), type: 'intrus',
     text: `Un seul de ces mots n'est PAS de la même famille que « ${m.mot} ».\n\nLequel est l'intrus?`,
     correct: faux,
     options: shuffle(m.intrus),
@@ -396,7 +411,7 @@ function nOuM(liste) {
   const suivante = m.mot[i + 1];
   const trou = `${m.mot.slice(0, i)}__${m.mot.slice(i + 1)}`;
   return {
-    category: CATEGORY, rule: ruleFor(), type: 'n_ou_m',
+    category: CATEGORY, rule: ruleFor(liste), type: 'n_ou_m',
     text: `${trou}\n\nOn écrit « n » ou « m »?`,
     correct: 'm',
     options: ['m', 'n'],

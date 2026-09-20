@@ -35,7 +35,31 @@ export const videoLinks = {
     { title: 'Pictogrammes', url: 'https://www.youtube.com/results?search_query=pictogramme+math+CE1+2e+ann%C3%A9e', channel: 'Recherche' },
   ],
 
+  // Stratégies de calcul — cahier « Tables +/- » (CSSMI)
+  // Les stratégies A et B (l'effet du zéro) n'ont pas de vidéo dédiée: il n'y a
+  // pas 4 minutes de contenu dans « 5 + 0 = 5 ». La page d'Alloprof donne le
+  // vocabulaire exact du cahier (« élément neutre »), c'est ce qui sert.
+  strategies: [
+    { title: "L'élément neutre (0) — les propriétés des opérations", url: 'https://www.alloprof.qc.ca/fr/eleves/bv/mathematiques/les-proprietes-des-operations-m1060', channel: 'Alloprof' },
+    { title: 'Additionner des nombres (3e et 4e année)', url: 'https://www.youtube.com/watch?v=HFX5M2ichsA', channel: 'Primaire · Québec' },
+    { title: 'Soustraire des nombres (3e et 4e année)', url: 'https://www.youtube.com/watch?v=9Iy3QDe5Ve8', channel: 'Primaire · Québec' },
+    { title: 'Mathématiques — Primaire 3e et 4e année (playlist)', url: 'https://www.youtube.com/playlist?list=PL1mP_vkqPB7HKU8anrgahOMXb9HbfOAEm', channel: 'Playlist' },
+  ],
+
+  // Cahier Matcha — valeur de position et comparaison
+  matcha_nombres: [
+    { title: 'La valeur de position', url: 'https://www.alloprof.qc.ca/fr/eleves/bv/mathematiques/la-valeur-de-position-1er-cycle-m1641p12', channel: 'Alloprof' },
+    { title: 'Comparer et ordonner des nombres', url: 'https://www.alloprof.qc.ca/fr/eleves/bv/mathematiques/comparer-des-nombres-1er-cycle-m1648p12', channel: 'Alloprof' },
+  ],
+
   // FRENCH
+  orthographe: [
+    { title: "Les lettres muettes à la fin d'un mot", url: 'https://www.alloprof.qc.ca/fr/eleves/bv/francais/les-lettres-muettes-f1014', channel: 'Alloprof' },
+  ],
+  infinitif: [
+    { title: "Les groupes de verbes et leurs modèles", url: 'https://www.alloprof.qc.ca/fr/eleves/bv/francais/les-groupes-de-verbes-et-leurs-verbes-modeles-f1210', channel: 'Alloprof' },
+    { title: 'É, er, ez et ai — lequel écrire?', url: 'https://www.alloprof.qc.ca/fr/eleves/bv/francais/e-er-ez-et-ai-f1336', channel: 'Alloprof' },
+  ],
   determinant: [
     { title: 'Les déterminants', url: 'https://www.youtube.com/results?search_query=les+d%C3%A9terminants+CE1+le+la+les+un+une', channel: 'Recherche' },
     { title: 'Le genre des noms', url: 'https://www.youtube.com/results?search_query=genre+noms+masculin+f%C3%A9minin+CE1', channel: 'Recherche' },

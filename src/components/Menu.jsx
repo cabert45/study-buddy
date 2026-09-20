@@ -551,30 +551,7 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
               <ChevronRight className="text-white/60" size={24} strokeWidth={3} />
             </button>
           )}
-          {onOpenBlocs && (
-            <button onClick={onOpenBlocs}
-              className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
-              style={{ background: 'linear-gradient(135deg, #1b7f4b, #46b877)', boxShadow: '0 6px 24px rgba(27,127,75,0.22)' }}>
-              <div className="w-12 h-12 rounded-2xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white text-2xl">🧱</div>
-              <div className="text-left flex-1">
-                <div className="font-heading text-xl font-extrabold text-white leading-tight">Mes blocs</div>
-                <div className="text-xs font-semibold text-white/90">Construis ta fondation — un bloc à la fois</div>
-              </div>
-              <ChevronRight className="text-white/60" size={24} strokeWidth={3} />
-            </button>
-          )}
 
-          <div className="bg-white border-2 border-s1 rounded-2xl p-4 mb-4 flex items-start gap-3">
-            <div className="text-2xl flex-shrink-0">🎯</div>
-            <div>
-              <div className="text-xs font-extrabold text-stone mb-1">Objectif&nbsp;: l'école privée</div>
-              <p className="text-xs font-semibold text-s5 leading-relaxed">
-                Aux examens d'admission, le <b>français compte 60&nbsp;%</b> et les maths 40&nbsp;% —
-                et il faut <b>au moins 60&nbsp;% dans les deux</b>. C'est pour ça qu'on fait
-                du français en premier chaque jour. 💪
-              </p>
-            </div>
-          </div>
         </>
       )}
 
@@ -776,6 +753,18 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
               </button>
             </div>
             <div className="space-y-2.5">
+              {onOpenBlocs && (
+                <button onClick={() => { setPlusOpen(false); onOpenBlocs(); }}
+                  className="w-full rounded-2xl p-4 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+                  style={{ background: 'linear-gradient(135deg, #1b7f4b, #46b877)' }}>
+                  <div className="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white text-2xl">🧱</div>
+                  <div className="text-left flex-1">
+                    <div className="font-heading text-lg font-extrabold text-white leading-tight">Mes blocs</div>
+                    <div className="text-xs font-semibold text-white/85">Construis ta fondation — un bloc à la fois</div>
+                  </div>
+                  <ChevronRight className="text-white/40" size={20} strokeWidth={3} />
+                </button>
+              )}
               {onStartReading && !isDemo && (
                 <button onClick={() => { setPlusOpen(false); onStartReading(); }}
                   className="w-full rounded-2xl p-4 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
@@ -815,6 +804,16 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
                 </button>
               )}
             </div>
+            {isRyan && (
+              <div className="mt-4 bg-white border-2 border-s1 rounded-xl p-3 flex items-start gap-2.5">
+                <div className="text-xl flex-shrink-0">🎯</div>
+                <p className="text-[11px] font-semibold text-s5 leading-relaxed">
+                  <b>L'école privée:</b> le français compte <b>60&nbsp;%</b> et les maths 40&nbsp;%,
+                  et il faut au moins 60&nbsp;% dans les deux. C'est pour ça qu'on fait du français
+                  en premier chaque jour. 💪
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -886,7 +885,7 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
         <div className="w-10 h-10 rounded-xl bg-s1 flex items-center justify-center flex-shrink-0 text-xl">✨</div>
         <div className="text-left flex-1">
           <div className="font-heading text-base font-bold text-stone leading-tight">Plus</div>
-          <div className="text-xs font-semibold text-s4">{isRyan ? 'Mes lectures, tuteur, présentation orale' : 'Mes lectures'}</div>
+          <div className="text-xs font-semibold text-s4">{isRyan ? 'Mes blocs, mes lectures, tuteur, présentation' : 'Mes lectures'}</div>
         </div>
         <ChevronRight className="text-s3" size={20} strokeWidth={3} />
       </button>

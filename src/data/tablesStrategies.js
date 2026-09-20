@@ -186,7 +186,13 @@ export const STRATEGIE_SEMAINES = [
 
 const dateOf = ([y, m, d]) => new Date(y, m - 1, d);
 
-function semaineIndex(date) {
+// Même décalage du dimanche que pour l'orthographe: le dimanche prépare lundi.
+function refScolaire(d) {
+  return d.getDay() === 0 ? new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1) : d;
+}
+
+function semaineIndex(rawDate) {
+  const date = refScolaire(rawDate);
   let idx = -1;
   STRATEGIE_SEMAINES.forEach((w, i) => { if (dateOf(w.debut) <= date) idx = i; });
   return idx;

@@ -63,6 +63,7 @@ import {
 import { generateMatchaNombres } from '../generators/matcha1';
 import { saveSession } from '../utils/storage';
 import { incrementStudyRounds } from '../utils/studyRounds';
+import { getLevel, recordSession, aideProblemes, NIVEAU_LABELS } from '../utils/mastery';
 import { notifySessionResult } from '../utils/notifications';
 import { speak, speakSlow } from '../utils/speech';
 import TensOnes from './TensOnes';
@@ -310,7 +311,12 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
   }
 
   const isWordProblem = question.type === 'word_problem';
-  const hasSteps = isWordProblem && Array.isArray(question.stepCalcs) && question.stepCalcs.length > 0;
+  // L'échafaudage se retire tout seul quand Ryan maîtrise (voir utils/mastery).
+  // Niveau 3+: plus de démarche guidée du tout, il lit et il répond.
+  const niveau = getLevel(question.category || mode);
+  const aide = aideProblemes(niveau);
+  const hasSteps = isWordProblem && Array.isArray(question.stepCalcs)
+    && question.stepCalcs.length > 0 && aide.etapesGuidees;
 
   // Pool of numbers Ryan can pick from for the operand-picker phase: every number
   // mentioned in the problem text + any intermediate result from a prior step.
@@ -516,10 +522,31 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
     const details = results.map((r) => ({ category: r.category, type: r.type, correct: r.correct, question: r.question, userAnswer: r.userAnswer, correctAnswer: r.correctAnswer }));
     saveSession(mode, results.length, correct, details);
     incrementStudyRounds(mode);
+    // La catégorie dominante de la session décide du niveau (une session « mixte »
+    // ne doit pas faire monter un seul générateur sur le dos des autres).
+    const parCategorie = {};
+    results.forEach((r) => { if (r.category) parCategorie[r.category] = (parCategorie[r.category] || 0) + 1; });
+    const dominante = Object.keys(parCategorie).sort((a, b) => parCategorie[b] - parCategorie[a])[0];
+    const niveauInfo = dominante && parCategorie[dominante] >= results.length * 0.6
+      ? recordSession(dominante, correct, results.length)
+      : null;
     const profile = localStorage.getItem('sb_profile') || 'ryan';
     notifySessionResult({ profile, mode, correct, total: results.length, streak, results });
-    onFinish({ results, correct, total: results.length, mode, streak });
+    onFinish({ results, correct, total: results.length, mode, streak, niveauInfo });
   }
+
+  // Une seule taille de texte pour TOUTES les réponses d'une question, choisie
+  // d'après la plus longue. Sinon la bonne réponse (souvent la plus longue)
+  // s'affiche plus petite que les autres et se repère sans lire.
+  const optionSizeClass = (() => {
+    const labels = (question.options || []).map((o) =>
+      String(question.optionLabels ? question.optionLabels[o] : o));
+    const max = labels.reduce((m, l) => Math.max(m, l.length), 0);
+    if (max > 34) return 'text-sm leading-snug';
+    if (max > 22) return 'text-base leading-snug';
+    if (max > 14) return 'text-lg leading-snug';
+    return 'text-2xl';
+  })();
 
   const progress = Math.min(((currentIndex + 1) / questions.length) * 100, 100);
 
@@ -841,7 +868,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
 
         {/* PICKER PHASE — Ryan picks the operands + operator from the problem.
             Forces him to decide WHAT to compute, not just compute what's given. */}
-        {hasSteps && !showResult && stepIdx < question.stepCalcs.length && !setupConfirmed && finalAnswerGate === null && (
+        {hasSteps && aide.choisirLesNombres && !showResult && stepIdx < question.stepCalcs.length && !setupConfirmed && finalAnswerGate === null && (
           <div className="bg-blue-50 rounded-xl p-4 border-2 border-blue-200 mb-4">
             <p className="text-sm font-bold text-blue-800 mb-1">
               Calcul {stepIdx + 1} — {question.stepCalcs[stepIdx].label}
@@ -906,7 +933,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
         )}
 
         {/* COMPUTE PHASE — calculator with picked operands. Ryan computes. */}
-        {hasSteps && !showResult && stepIdx < question.stepCalcs.length && setupConfirmed && finalAnswerGate === null && (
+        {hasSteps && (setupConfirmed || !aide.choisirLesNombres) && !showResult && stepIdx < question.stepCalcs.length && finalAnswerGate === null && (
           <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200 mb-4">
             <p className="text-sm font-bold text-fox-d mb-2">
               Calcul {stepIdx + 1} — calcule maintenant
@@ -1043,9 +1070,13 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           </div>
         )}
 
+        {/* Toutes les réponses s'affichent à la MÊME taille. Avant, chaque bouton
+            se redimensionnait tout seul: la bonne réponse, souvent la plus
+            longue (« quatre mille quatre-vingt-dix »), s'affichait en tout
+            petit à côté des autres — Ryan pouvait la repérer sans lire. */}
         {/* Answer options — skipped for word problems with stepCalcs (handled by step UI above) or digit-pad mode */}
         {(!isWordProblem || operationAnswer !== null) && !operationPhase && !hasSteps && !question.useDigitPad && (
-          <div className={`grid gap-3 mt-4 ${question.isCompare || question.options.length === 3 ? 'grid-cols-3' : question.options.length === 2 ? 'grid-cols-2' : 'grid-cols-2'}`}>
+          <div className={`grid gap-3 mt-4 items-stretch ${question.isCompare || question.options.length === 3 ? 'grid-cols-3' : question.options.length === 2 ? 'grid-cols-2' : 'grid-cols-2'}`}>
             {question.options.map((opt, i) => {
               let btnClass = 'bg-white border-2 border-s2 text-stone hover:border-fox';
               if (showResult) {
@@ -1068,7 +1099,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
                   key={i}
                   onClick={() => !showResult && handleAnswer(opt)}
                   disabled={showResult}
-                  className={`py-4 rounded-xl font-extrabold transition-all ${String(displayLabel).length > 28 ? 'text-sm px-3 text-left leading-snug' : 'text-2xl'} ${btnClass}`}
+                  className={`py-4 px-3 rounded-xl font-extrabold transition-all text-center break-words ${optionSizeClass} ${btnClass}`}
                   style={{ minHeight: '60px' }}
                 >
                   <span className="flex items-center justify-center gap-2">
