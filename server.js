@@ -579,6 +579,11 @@ const TTS_KEY = process.env.ELEVENLABS_API_KEY || '';
 // un français très correct. Mettre ELEVENLABS_MODEL=eleven_multilingual_v2
 // dans les variables d'environnement si on veut la qualité maximale.
 const TTS_MODEL = process.env.ELEVENLABS_MODEL || 'eleven_flash_v2_5';
+// La dictée, elle, passe par le gros modèle. C'est le seul moment où l'enfant
+// écrit d'après le son seul: une liaison avalée ou un « ent » final mal rendu
+// lui coûte le mot. Ces mots-là sont courts et reviennent toute la semaine,
+// donc la seconde et demie de génération n'est payée qu'une fois par mot.
+const TTS_MODEL_SLOW = process.env.ELEVENLABS_MODEL_SLOW || 'eleven_multilingual_v2';
 const TTS_DEFAULT_VOICE = process.env.ELEVENLABS_VOICE_ID || '';
 const TTS_DIR = path.join(__dirname, 'data', 'tts-cache');
 const TTS_MAX_CHARS = 600;
@@ -587,7 +592,7 @@ fs.mkdirSync(TTS_DIR, { recursive: true });
 
 // Est-ce que la voix premium est disponible? L'app le demande au démarrage.
 app.get('/api/tts/status', (req, res) => {
-  res.json({ enabled: !!TTS_KEY, defaultVoice: TTS_DEFAULT_VOICE, model: TTS_MODEL });
+  res.json({ enabled: !!TTS_KEY, defaultVoice: TTS_DEFAULT_VOICE, model: TTS_MODEL, modelSlow: TTS_MODEL_SLOW });
 });
 
 // Les voix proposées dans ⚙️ Réglages quand le compte ne peut pas être listé.
@@ -651,12 +656,13 @@ app.get('/api/tts', async (req, res) => {
   if (!text) return res.status(400).json({ error: 'no_text' });
   if (!/^[A-Za-z0-9]{10,40}$/.test(voice)) return res.status(400).json({ error: 'no_voice' });
 
+  const model = slow ? TTS_MODEL_SLOW : TTS_MODEL;
   const settings = slow
     ? { stability: 0.6, similarity_boost: 0.8, speed: 0.8 }
     : { stability: 0.5, similarity_boost: 0.75, speed: 1.0 };
 
   const key = crypto.createHash('sha1')
-    .update([TTS_MODEL, voice, slow ? 'slow' : 'normal', text].join('\u0000'))
+    .update([model, voice, slow ? 'slow' : 'normal', text].join('\u0000'))
     .digest('hex');
   const file = path.join(TTS_DIR, `${key}.mp3`);
 
@@ -676,7 +682,7 @@ app.get('/api/tts', async (req, res) => {
           'content-type': 'application/json',
           accept: 'audio/mpeg',
         },
-        body: JSON.stringify({ text, model_id: TTS_MODEL, voice_settings: settings }),
+        body: JSON.stringify({ text, model_id: model, voice_settings: settings }),
       }
     );
     if (!r.ok) {
