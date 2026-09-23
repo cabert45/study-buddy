@@ -52,17 +52,21 @@ const L1 = [
 
 // ===== LISTE 2 — Mots se terminant par une lettre muette =====
 // Le féminin révèle la lettre muette: court → courte, donc le « t » est muet.
+// `adj` = adjectif au masculin. La question 5 de la feuille demande
+// « 3 adjectifs MASCULINS en ordre alphabétique » — Ryan a répondu
+// « gentille » (féminin) et hors ordre. Il faut donc pouvoir distinguer
+// l'adjectif du nom (renard, rat) ET le masculin du féminin.
 const L2 = [
-  { mot: 'court', muette: 't', fem: 'courte' },
-  { mot: 'gentil', muette: 'l', fem: 'gentille', jum: 1 },
-  { mot: 'méchant', muette: 't', fem: 'méchante' },
-  { mot: 'ouvert', muette: 't', fem: 'ouverte' },
+  { mot: 'court', muette: 't', fem: 'courte', adj: 1 },
+  { mot: 'gentil', muette: 'l', fem: 'gentille', jum: 1, adj: 1 },
+  { mot: 'méchant', muette: 't', fem: 'méchante', adj: 1 },
+  { mot: 'ouvert', muette: 't', fem: 'ouverte', adj: 1 },
   { mot: 'renard', muette: 'd', fem: 'renarde', nom: 1, male: 1 },
-  { mot: 'droit', muette: 't', fem: 'droite', son_oi: 1 },
-  { mot: 'haut', muette: 't', fem: 'haute' },
-  { mot: 'mort', muette: 't', fem: 'morte' },
+  { mot: 'droit', muette: 't', fem: 'droite', son_oi: 1, adj: 1 },
+  { mot: 'haut', muette: 't', fem: 'haute', adj: 1 },
+  { mot: 'mort', muette: 't', fem: 'morte', adj: 1 },
   { mot: 'rat', muette: 't', fem: 'rate', nom: 1, male: 1 },
-  { mot: 'rond', muette: 'd', fem: 'ronde' },
+  { mot: 'rond', muette: 'd', fem: 'ronde', adj: 1 },
 ];
 
 // ===== LISTE 3 — Lettre muette (bloc 2) =====

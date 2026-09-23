@@ -453,11 +453,133 @@ function nOuM(liste) {
   };
 }
 
+// ===========================================================================
+// LES QUESTIONS DE LA FEUILLE — celles que Ryan a vraiment eues
+//
+// Photo de sa feuille Liste 2 corrigée, 23 sept. 2026. Ce qu'il a manqué:
+//   Q1  « Quels mots ont un "t" comme lettre muette? » → 3/6. Il a écrit
+//       gentil (l), rond (d), renard (d): il repère UNE lettre muette, mais
+//       pas LAQUELLE. L'app ne posait que l'inverse (« quelle est la lettre
+//       muette de ce mot? »), jamais la sélection.
+//   Q3  « Dans quels mots entends-tu le son "oi"? » → bon, mais aucun
+//       générateur ne s'en servait: l'annotation `son_oi` dormait.
+//   Q5  « 3 adjectifs MASCULINS en ordre alphabétique » → il a donné
+//       « gentille » (féminin) et dans le désordre. Deux savoirs distincts,
+//       donc deux questions distinctes.
+// ===========================================================================
+
+// ===== Q1 — Lequel a un « t » muet? (la sélection, pas l'identification) =====
+// On ne demande plus « quelle lettre est muette dans court? » (il le sait)
+// mais « parmi ces quatre, lequel finit par un t muet? » — les distracteurs
+// sont des mots à lettre muette D'UNE AUTRE lettre. C'est exactement le tri
+// qu'il a raté.
+function quelleLettreMuette(liste) {
+  const parLettre = {};
+  for (const m of liste.mots) {
+    if (!m.muette) continue;
+    (parLettre[m.muette] ||= []).push(m);
+  }
+  const lettres = Object.keys(parLettre);
+  if (lettres.length < 2) return null; // il faut de quoi se tromper
+  const cible = pick(lettres);
+  const bon = pick(parLettre[cible]);
+  const faux = shuffle(liste.mots.filter((m) => m.muette && m.muette !== cible))
+    .slice(0, 3).map((m) => m.mot);
+  if (faux.length < 2) return null;
+  const detail = faux.slice(0, 2)
+    .map((f) => {
+      const m = liste.mots.find((x) => x.mot === f);
+      return `${f} finit par un « ${m.muette} » muet`;
+    }).join(', ');
+  return {
+    category: CATEGORY, rule: ruleFor(liste), type: 'quelle_muette',
+    text: `Lequel de ces mots se termine par un « ${cible} » MUET?`,
+    correct: bon.mot,
+    options: shuffle([bon.mot, ...faux]),
+    explanation: `${bon.mot} → ${bon.fem || bon.mot + 'e'}: on entend le « ${cible} ».\n`
+      + `Les autres ont aussi une lettre muette, mais pas la même — ${detail}.`,
+    hint: `Mets chaque mot au féminin dans ta tête. Celui qui fait entendre un « ${cible} », c'est lui.`,
+  };
+}
+
+// ===== Q3 — Le son « oi » =====
+function sonOi(liste) {
+  const cands = liste.mots.filter((m) => m.son_oi);
+  if (!cands.length) return null;
+  const m = pick(cands);
+  // Au masculin ou au féminin: les deux contiennent le son, comme sur la
+  // feuille (droit ET droite).
+  const auFeminin = m.fem && Math.random() < 0.5;
+  const correct = auFeminin ? m.fem : m.mot;
+  const faux = shuffle(liste.mots.filter((x) => !x.son_oi))
+    .slice(0, 3).map((x) => (auFeminin ? x.fem : x.mot)).filter(Boolean);
+  if (faux.length < 2) return null;
+  return {
+    category: CATEGORY, rule: ruleFor(liste), type: 'son_oi',
+    text: 'Dans quel mot entends-tu le son « oi »?',
+    correct,
+    options: shuffle([correct, ...faux]),
+    explanation: `« ${correct} » — on entend [wa], comme dans moi, toi, boire.\n`
+      + `Le son « oi » s'écrit toujours avec les deux lettres o et i, collées.`,
+    hint: 'Dis les mots tout haut. Cherche celui qui fait « wa ».',
+  };
+}
+
+// ===== Q5a — Masculin ou féminin? =====
+// Il a proposé « gentille » comme adjectif masculin. La forme de base, celle
+// du dictionnaire, c'est le masculin; le féminin est celle qui a reçu le « e ».
+function adjectifMasculin(liste) {
+  const adjs = liste.mots.filter((m) => m.adj && m.fem);
+  if (adjs.length < 4) return null;
+  const choisis = shuffle(adjs).slice(0, 4);
+  const bon = choisis[0];
+  const faux = choisis.slice(1).map((m) => m.fem);
+  return {
+    category: CATEGORY, rule: ruleFor(liste), type: 'adj_masculin',
+    text: 'Lequel de ces adjectifs est au MASCULIN?',
+    correct: bon.mot,
+    options: shuffle([bon.mot, ...faux]),
+    explanation: `« ${bon.mot} » (masculin) → « ${bon.fem} » (féminin).\n`
+      + `Les trois autres finissent déjà par un « e »: ce sont les féminins.\n`
+      + `Le masculin, c'est la forme du dictionnaire — celle SANS le « e ».`,
+    hint: 'Le féminin a presque toujours un « e » de plus à la fin. Le masculin, non.',
+  };
+}
+
+// ===== Q5b — 3 adjectifs masculins en ordre alphabétique =====
+function alphabetiqueAdjectifs(liste) {
+  const adjs = liste.mots.filter((m) => m.adj).map((m) => m.mot);
+  if (adjs.length < 3) return null;
+  const choisis = shuffle(adjs).slice(0, 3);
+  const bon = [...choisis].sort((a, b) => a.localeCompare(b, 'fr'));
+  const label = (arr) => arr.join(' , ');
+  const opts = new Set([label(bon)]);
+  opts.add(label([...bon].reverse()));
+  opts.add(label([...choisis].sort((a, b) => a.length - b.length)));
+  opts.add(label([...choisis].sort((a, b) => (a[1] || '').localeCompare(b[1] || '', 'fr'))));
+  const liste4 = [...opts].slice(0, 4);
+  if (liste4.length < 3) return null;
+  return {
+    category: CATEGORY, rule: ruleFor(liste), type: 'alpha_adjectifs',
+    text: `Voici 3 adjectifs MASCULINS.\nPlace-les en ORDRE ALPHABÉTIQUE:\n\n${choisis.join('   ·   ')}`,
+    correct: label(bon),
+    options: shuffle(liste4),
+    explanation: `${label(bon)}\n`
+      + `On regarde la 1re lettre: ${bon.map((m) => m[0]).join(' , ')}. `
+      + `Si deux mots commencent pareil, on compare la 2e lettre.`,
+    hint: 'Récite l\'alphabet dans ta tête et trouve celui qui vient en premier.',
+  };
+}
+
 // Tous les constructeurs; ceux qui ne s'appliquent pas à la liste rendent null
 // et pickAdaptive passe simplement au suivant.
 const TYPES = [
   { type: 'muette', w: 20, build: lettreMuette },
+  { type: 'quelle_muette', w: 22, build: quelleLettreMuette },
   { type: 'feminin', w: 12, build: feminin },
+  { type: 'son_oi', w: 8, build: sonOi },
+  { type: 'adj_masculin', w: 12, build: adjectifMasculin },
+  { type: 'alpha_adjectifs', w: 10, build: alphabetiqueAdjectifs },
   { type: 'male_femelle', w: 6, build: maleFemelle },
   { type: 'son_c', w: 18, build: sonDeLaLettre },
   { type: 'son_g', w: 18, build: sonDeLaLettre },

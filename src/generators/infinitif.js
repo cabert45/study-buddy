@@ -226,6 +226,60 @@ function quelVerbe() {
   };
 }
 
+// ===== 7. La question 6 de la feuille: le bon verbe dans la phrase =====
+// Ryan a laissé cette question VIDE sur sa feuille du 23 sept. C'est la plus
+// dure de la page: il ne s'agit plus de reconnaître un infinitif déjà écrit,
+// mais de CHOISIR lequel des cinq a du sens dans la phrase. Les trois
+// premières phrases sont mot pour mot celles du cahier; les autres ont la
+// même forme, pour qu'il s'entraîne sans apprendre les réponses par cœur.
+const PHRASES_FEUILLE = [
+  { avant: '___', apres: "un gentil renard, j'aurais bien peur de ce méchant rat.", rep: 'Être',
+    pourquoi: "« Être un gentil renard » = « si j'étais un gentil renard ». C'est ce qu'on EST." },
+  { avant: 'Vous devez', apres: 'votre travail avant d’aller jouer dehors.', rep: 'finir',
+    pourquoi: "Après « vous devez », le verbe reste à l'infinitif. Ce qu'on termine, on le FINIT." },
+  { avant: 'Vous devez finir votre travail avant d’', apres: 'jouer dehors.', rep: 'aller', colle: true,
+    pourquoi: "Après « avant de », infinitif. Et on va quelque part: ALLER." },
+  { avant: '___', apres: 'une grande maison veut aussi dire faire beaucoup de ménage.', rep: 'Avoir',
+    pourquoi: "Posséder une maison, c'est l'AVOIR." },
+  { avant: 'Tu vas', apres: 'ton assiette avant le dessert.', rep: 'finir',
+    pourquoi: "Après « tu vas », infinitif. Terminer son assiette = la FINIR." },
+  { avant: 'Il faut', apres: 'poli avec tout le monde.', rep: 'être',
+    pourquoi: "« Poli » décrit ce qu'on EST, pas ce qu'on a." },
+  { avant: 'Je voudrais', apres: 'un chien, mais maman dit non.', rep: 'avoir',
+    pourquoi: "Posséder un chien, c'est l'AVOIR." },
+  { avant: 'On va', apres: 'au parc après l’école.', rep: 'aller',
+    pourquoi: "Se rendre quelque part, c'est y ALLER." },
+  { avant: 'Ryan adore', apres: 'les fraises et le hockey.', rep: 'aimer',
+    pourquoi: "« Adorer » et « AIMER » disent la même chose." },
+  { avant: 'Il faut', apres: 'ses amis comme ils sont.', rep: 'aimer',
+    pourquoi: "Bien vouloir à quelqu'un, c'est l'AIMER." },
+];
+
+function verbeDansLaPhrase() {
+  const p = pick(PHRASES_FEUILLE);
+  // Les choix sont toujours les 5 verbes de la semaine, dans la casse de la
+  // réponse: une seule majuscule au milieu de quatre minuscules, et l'enfant
+  // trouve sans lire la phrase.
+  const majuscule = p.rep[0] === p.rep[0].toUpperCase();
+  const options = infinitifs.map((v) => (majuscule ? v[0].toUpperCase() + v.slice(1) : v));
+  const trou = p.colle ? `${p.avant}___ ${p.apres}` : `${p.avant} ___ ${p.apres}`;
+  const complete = p.colle ? `${p.avant}${p.rep} ${p.apres}` : `${p.avant} ${p.rep} ${p.apres}`;
+  return {
+    category: CATEGORY,
+    rule: ruleFor(),
+    type: 'verbe_phrase',
+    text: `Complète avec le bon verbe à l'infinitif:
+
+${trou}`,
+    correct: p.rep,
+    options: shuffle(options),
+    explanation: `${complete}
+${p.pourquoi}
+Les cinq verbes de la semaine: être · avoir · aimer · aller · finir.`,
+    hint: 'Lis la phrase en entier avec chaque verbe. Un seul a du sens.',
+  };
+}
+
 function buildOne() {
   return pickAdaptive(CATEGORY, [
     { type: 'trouver_infinitif', w: 24, build: trouverInfinitif },
@@ -234,6 +288,7 @@ function buildOne() {
     { type: 'piege_er_inverse', w: 14, build: piegeErInverse },
     { type: 'groupe', w: 10, build: groupeDuVerbe },
     { type: 'quel_verbe', w: 16, build: quelVerbe },
+    { type: 'verbe_phrase', w: 22, build: verbeDansLaPhrase },
   ]);
 }
 
