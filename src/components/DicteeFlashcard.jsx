@@ -178,6 +178,11 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
   const [revealed, setRevealed] = useState(false);
   const [allDone, setAllDone] = useState(false);
   const [stats, setStats] = useState({ correct: 0, total: 0 });
+  // Le journal de CHAQUE essai. Sans lui, le serveur ne recevait qu'une
+  // seule ligne bidon par dictée ({ category: 'dictee_semaine', correct: true }):
+  // il connaissait le score, jamais le mot raté. Impossible de dire ensuite
+  // « refais celui-là » plutôt que « refais tout ».
+  const [journal, setJournal] = useState([]);
   const [summary, setSummary] = useState(() => getWeekSummary(profile, weekKey, week.words));
   const [aiSentence, setAiSentence] = useState(null);
   const [loadingSentence, setLoadingSentence] = useState(false);
@@ -264,6 +269,10 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
     if (showResult) return nextWord();
     const isCorrect = typed.trim().toLowerCase() === word.correct.toLowerCase();
     setStats(s => ({ correct: s.correct + (isCorrect ? 1 : 0), total: s.total + 1 }));
+    setJournal((j) => [...j, {
+      category: 'dictee_semaine', type: 'mot', correct: isCorrect, tour: round,
+      question: sentenceWithBlank, correctAnswer: word.correct, userAnswer: typed.trim(),
+    }]);
     // Record into spaced-repetition memory
     recordAnswer(profile, weekKey, word.correct, isCorrect);
     setSummary(getWeekSummary(profile, weekKey, week.words));
@@ -286,14 +295,15 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
     if (missedThisRound.length === 0) {
       // All correct → done!
       setAllDone(true);
-      // Save session
-      saveSession(`dictee_flashcard_${weekKey}`, stats.total + 1, stats.correct + (typed.trim().toLowerCase() === word.correct.toLowerCase() ? 1 : 0),
-        [{ category: 'dictee_semaine', correct: true }]);
+      // `stats` est déjà à jour ici: handleSubmit l'a incrémenté au rendu
+      // précédent. L'ancien « + 1 » comptait donc le dernier mot deux fois et
+      // gonflait chaque dictée d'un essai ET d'une bonne réponse (11/12
+      // affiché pour un vrai 10/11). On envoie le compte réel.
+      saveSession(`dictee_flashcard_${weekKey}`, stats.total, stats.correct, journal);
       const profile = localStorage.getItem('sb_profile') || 'cayla';
       notifySessionResult({
         profile, mode: `dictée flashcard ${week.name}`,
-        correct: stats.correct + (typed.trim().toLowerCase() === word.correct.toLowerCase() ? 1 : 0),
-        total: stats.total + 1, streak: 0, results: [],
+        correct: stats.correct, total: stats.total, streak: 0, results: journal,
       });
       return;
     }
@@ -310,6 +320,10 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
   function skip() {
     setMissedThisRound(prev => [...prev, word]);
     setStats(s => ({ ...s, total: s.total + 1 }));
+    setJournal((j) => [...j, {
+      category: 'dictee_semaine', type: 'mot', correct: false, tour: round, saute: true,
+      question: sentenceWithBlank, correctAnswer: word.correct, userAnswer: '',
+    }]);
     nextWord();
   }
 
