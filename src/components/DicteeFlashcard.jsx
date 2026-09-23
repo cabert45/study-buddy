@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { speak, speakSlow, speakAfter } from '../utils/speech';
 import { saveSession, generateAISentence } from '../utils/storage';
 import { dicteeWeeks } from '../data/dicteeWeekly';
+import { dicteeDeLaListe } from '../data/orthographeQuotidien';
+import AideMemoire from './AideMemoire';
 import { notifySessionResult } from '../utils/notifications';
 import { buildSmartQueue, recordAnswer, getWeekSummary } from '../utils/wordMastery';
 
@@ -155,7 +157,13 @@ function shuffle(arr) {
 }
 
 export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
-  const week = dicteeWeeks[weekKey];
+  // Deux sources: les dictées hebdomadaires de 2e année (et de Cayla), et —
+  // depuis la 3e année — les listes du cahier « L'orthographe au quotidien ».
+  // Même écran, même moteur: la voix dit le mot dans une phrase, il l'écrit,
+  // les lettres fautives s'allument, et les mots ratés reviennent au tour
+  // suivant jusqu'à ce que la liste soit propre.
+  const estListeOrtho = String(weekKey || '').startsWith('ortho_');
+  const week = dicteeWeeks[weekKey] || (estListeOrtho ? dicteeDeLaListe(weekKey) : null);
   if (!week) return null;
 
   const profile = localStorage.getItem('sb_profile') || 'ryan';
@@ -173,6 +181,11 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
   const [summary, setSummary] = useState(() => getWeekSummary(profile, weekKey, week.words));
   const [aiSentence, setAiSentence] = useState(null);
   const [loadingSentence, setLoadingSentence] = useState(false);
+  // « Donne-lui la liste au complet, qu'il puisse regarder les mots avant. »
+  // (parent, 20 sept. 2026) — la liste s'ouvre en premier, comme dans le
+  // cahier, et le bouton « 📋 La liste » la rouvre pendant la dictée.
+  const [memoireOuvert, setMemoireOuvert] = useState(estListeOrtho);
+  const [memoireVu, setMemoireVu] = useState(false);
   const inputRef = useRef(null);
 
   // Reset AI sentence when word changes
@@ -181,7 +194,7 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
   async function getNewSentence() {
     if (!word) return;
     setLoadingSentence(true);
-    const grade = profile === 'cayla' ? 'sec1' : '2';
+    const grade = profile === 'cayla' ? 'sec1' : estListeOrtho ? '3' : '2';
     const s = await generateAISentence(word.correct, grade);
     if (s) setAiSentence(s);
     setLoadingSentence(false);
@@ -189,13 +202,14 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
 
   const word = queue[idx];
 
-  // Speak the word when shown
+  // Speak the word when shown — mais jamais par-dessus l'aide-mémoire: tant
+  // que la liste est affichée, il la REGARDE, il n'écrit pas encore.
   useEffect(() => {
-    if (word) {
+    if (word && !memoireOuvert) {
       speakAfter(400, () => speakSlow(word.correct));
       setTimeout(() => inputRef.current?.focus(), 800);
     }
-  }, [word]);
+  }, [word, memoireOuvert]);
 
   if (allDone) {
     return (
@@ -218,9 +232,30 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
     );
   }
 
+  // La page du cahier avant les questions — d'abord à l'ouverture, puis à la
+  // demande avec « 📋 La liste ».
+  if (estListeOrtho && memoireOuvert) {
+    return (
+      <>
+        <div className="max-w-3xl mx-auto px-4 pt-4">
+          <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">
+            ← Menu
+          </button>
+        </div>
+        <AideMemoire
+          mode="orthographe"
+          listeNumero={week.listeNumero}
+          dejaCommence={memoireVu}
+          onStart={() => { setMemoireOuvert(false); setMemoireVu(true); }}
+          onClose={() => setMemoireOuvert(false)}
+        />
+      </>
+    );
+  }
+
   if (!word) return null;
 
-  const baseSentence = sentenceContexts[word.correct] || `Écris le mot que tu entends.`;
+  const baseSentence = word.phrase || sentenceContexts[word.correct] || `Écris le mot que tu entends.`;
   const sentence = aiSentence || baseSentence;
   const sentenceWithBlank = sentence.replace('_____', '______');
 
@@ -287,7 +322,15 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
       <div className="flex items-center justify-between mb-3">
         <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
         <h2 className="font-heading font-bold text-stone text-sm">{week.name}</h2>
-        <div className="text-xs font-bold text-s4">Tour {round} · {idx + 1}/{queue.length}</div>
+        <div className="flex items-center gap-2">
+          {estListeOrtho && (
+            <button onClick={() => setMemoireOuvert(true)}
+              className="text-xs font-bold text-lava bg-orange-50 border border-orange-200 rounded-lg px-2.5 py-1 hover:bg-orange-100">
+              📋 La liste
+            </button>
+          )}
+          <div className="text-xs font-bold text-s4">Tour {round} · {idx + 1}/{queue.length}</div>
+        </div>
       </div>
 
       {/* Mastery progress */}
@@ -372,7 +415,11 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
                     ))}
                   </div>
                   <p className="text-xs text-s4 font-semibold mt-2">
-                    💡 Truc: lis bien la règle ci-dessus. Tu reverras ce mot au prochain tour!
+                    {/* Sur les listes à lettre muette, l'indice générique ne sert
+                        à rien: c'est le féminin du mot RATÉ qui règle l'erreur. */}
+                    {word.fem && word.muette
+                      ? `💡 ${word.correct} → ${word.fem}. Tu entends le « ${word.muette} »? C'est lui qu'on écrit, même si on ne l'entend pas au masculin. Tu reverras ce mot au prochain tour!`
+                      : '💡 Truc: lis bien la règle ci-dessus. Tu reverras ce mot au prochain tour!'}
                   </p>
                 </>
               )}

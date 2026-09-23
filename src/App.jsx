@@ -16,12 +16,13 @@ import { setProfile as persistProfile } from './utils/storage';
 import InstallPrompt from './components/InstallPrompt';
 import NotificationsPanel from './components/Notifications';
 import DicteeFlashcard from './components/DicteeFlashcard';
+import { listeCetteSemaine, cleDictee } from './data/orthographeQuotidien';
 import BiographieFlashcard from './components/BiographieFlashcard';
 import VerbesAvoirEtre from './components/VerbesAvoirEtre';
 import UniversSocial from './components/UniversSocial';
 import SciencesLabo from './components/SciencesLabo';
 import GuestMenu from './components/GuestMenu';
-import { isGuest, guestProfile } from './utils/guest';
+import { isGuest, guestProfile, markFamilyDevice } from './utils/guest';
 import { applySkin, skinForProfile } from './utils/skin';
 import { applySettings, loadSettings } from './utils/settings';
 import Settings from './components/Settings';
@@ -76,6 +77,7 @@ export default function App() {
     [screen, flashcardWeek, nylaDeck, showBioFlashcard, showAgenda, showTestResults, showBoukili, showFamily, showSettings]);
 
   function selectProfile(p) {
+    if (p === 'ryan' || p === 'cayla' || p === 'nyla') markFamilyDevice(); // cet appareil est à la famille
     setProfile(p);
     persistProfile(p);
     setScreen('menu');
@@ -93,6 +95,16 @@ export default function App() {
   }
 
   function startPractice(selectedMode) {
+    // La dictee de la semaine n'est pas un exercice a choix multiple: elle se
+    // tape. Le menu ET le Coach demandent le meme mode `dictee_liste`, et on
+    // le renvoie vers la flashcard, sur la liste du cahier en cours.
+    if (selectedMode === 'dictee_liste') {
+      setNylaDeck(null);
+      setMode(null);
+      setScreen('menu');
+      setFlashcardWeek(cleDictee(listeCetteSemaine().id));
+      return;
+    }
     setNylaDeck(null);
     setFlashcardWeek(null);
     setMode(selectedMode);

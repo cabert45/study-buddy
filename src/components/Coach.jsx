@@ -180,6 +180,20 @@ function buildRentreePlan(today) {
   const deuxieme = cahier
     || { type: 'app', mode: 'infinitif', label: "✏️ Les 5 verbes à l'infinitif", mins: isWeekend ? 6 : 7, icon: '✏️' };
 
+  // Le créneau d'orthographe alterne entre les DEUX façons d'étudier la même
+  // liste. Les exercices du cahier (choix multiple: lettre muette, féminin,
+  // charivari) font RECONNAÎTRE le mot; la dictée le fait ÉCRIRE, la phrase
+  // dans l'oreille et les lettres sous les doigts. En 2e année, c'est la
+  // dictée tapée qui a débloqué Ryan — le choix multiple seul l'avait laissé
+  // à 3/10. Lundi, mercredi et vendredi: dictée (la feuille se remet le
+  // vendredi). Mardi et jeudi: le cahier. Le créneau garde la même durée:
+  // l'heure par jour ne bouge pas.
+  const orthoStep = (mins) => (day === 1 || day === 3 || day === 5
+    ? { type: 'app', mode: 'dictee_liste', mins, icon: '🎧',
+        label: `🎧 Dictée — Liste ${liste.numero}: ${liste.titre}` }
+    : { type: 'app', mode: 'orthographe', mins, icon: '🐱',
+        label: `🐱 Orthographe — Liste ${liste.numero}: ${liste.titre}` });
+
 
   // Pas de message d'accueil ni de pause d'eau en semaine: Ryan clique sur
   // Coach et le premier exercice est là. Un message n'apparaît que si la
@@ -210,7 +224,8 @@ function buildRentreePlan(today) {
   if (isWeekend) {
     return [
       { type: 'app', mode: 'strategies', label: stratLabel, mins: 8, icon: '⚡' },
-      { type: 'app', mode: 'orthographe', label: `🐱 Orthographe — Liste ${liste.numero}: ${liste.titre}`, mins: 15, icon: '🐱' },
+      { type: 'app', mode: 'orthographe', label: `🐱 Orthographe — Liste ${liste.numero}: ${liste.titre}`, mins: 8, icon: '🐱' },
+      { type: 'app', mode: 'dictee_liste', label: `🎧 Dictée — Liste ${liste.numero}`, mins: 7, icon: '🎧' },
       { ...deuxieme, mins: 12 },
       { type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: 8, icon: r.french.icon },
       { type: 'break', label: 'Pause + collation 🍎', mins: 10, icon: '🍎' },
@@ -226,7 +241,7 @@ function buildRentreePlan(today) {
   return [
     ...rappelRemise,
     { type: 'app', mode: 'strategies', label: stratLabel, mins: 6, icon: '⚡' },
-    { type: 'app', mode: 'orthographe', label: `🐱 Orthographe — Liste ${liste.numero}: ${liste.titre}`, mins: 8, icon: '🐱' },
+    orthoStep(8),
     { ...deuxieme, mins: 8 },
     { type: 'app', mode: 'matcha_nombres', label: '📘 Cahier Matcha — valeur de position et comparaison', mins: 11, icon: '📘' },
     { type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: 6, icon: r.french.icon },

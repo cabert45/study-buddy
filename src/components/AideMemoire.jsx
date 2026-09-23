@@ -1,5 +1,5 @@
 import React from 'react';
-import { listeCetteSemaine } from '../data/orthographeQuotidien';
+import { listeCetteSemaine, LISTES } from '../data/orthographeQuotidien';
 import { strategiesCetteSemaine, ecrireFait } from '../data/tablesStrategies';
 
 // L'aide-mémoire de la semaine — la page du cahier, à l'écran.
@@ -111,9 +111,14 @@ function TableauStrategies({ strats }) {
   );
 }
 
-export default function AideMemoire({ mode, onStart, onClose, dejaCommence }) {
+export default function AideMemoire({ mode, onStart, onClose, dejaCommence, listeNumero }) {
   const estOrtho = mode === 'orthographe';
-  const liste = estOrtho ? listeCetteSemaine() : null;
+  // Par defaut la liste de la semaine. `listeNumero` sert quand on revient sur
+  // une liste deja vue (revision) : la page du cahier doit montrer CES mots-la,
+  // pas ceux de cette semaine.
+  const liste = estOrtho
+    ? (listeNumero ? LISTES.find((l) => l.numero === listeNumero) : null) || listeCetteSemaine()
+    : null;
   const strats = estOrtho ? null : strategiesCetteSemaine();
   if (estOrtho ? !liste : !strats?.length) return null;
 

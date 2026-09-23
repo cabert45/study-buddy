@@ -122,6 +122,7 @@ const grade3MathModes = [
 
 const grade3FrenchModes = [
   { id: 'cahier_jazz', label: '📒 Mon cahier Jazz', desc: 'Ce que tu fais en classe — et un pas d\'avance', featured: true, groupKind: 'cahier' },
+  { id: 'dictee_liste', label: '🎧 Dictée de la liste', desc: 'La liste, puis tu tapes chaque mot que tu entends', badge: 'Cette semaine' },
   { id: 't1_revision', label: '📝 Classes de mots', desc: 'Nom, déterminant, adjectif, verbe, pronom — Thème 1', badge: 'En classe' },
   { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs' },
   { id: 'passe_compose', label: '⏪ Passé composé', desc: 'Auxiliaire être/avoir — 9/17 au dernier examen', badge: 'Priorité' },

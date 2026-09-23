@@ -3,6 +3,13 @@
 
 export const whatsNew = [
   {
+    id: '2026-09-22-dictee-liste-ryan',
+    date: '2026-09-22',
+    profile: 'ryan',
+    title: '🎧 La dictée est de retour — pour tes listes de 3e année',
+    body: "Comme l'an passé: l'app te dit un mot dans une phrase, et toi tu l'écris. Si tu te trompes, tu vois exactement QUELLE lettre manquait — et le mot revient au tour suivant, jusqu'à ce que tu l'aies. Ça marche avec la liste de ta semaine (Liste 2: court, gentil, méchant, renard…). Tu regardes la liste en premier, puis on commence. Français → « 🎧 Dictée de la liste ».",
+  },
+  {
     id: '2026-09-20-voix-elevenlabs-ryan',
     date: '2026-09-20',
     profile: 'ryan',
