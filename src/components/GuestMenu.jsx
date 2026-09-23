@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import Mascot from './Mascots';
 import { useSettings, mascotFor } from '../utils/settings';
-import { pingGuest, guestProfile, leaveGuestMode } from '../utils/guest';
+import { pingGuest, guestProfile, leaveGuestMode, isFamilyDevice } from '../utils/guest';
 import { getWeekSummary } from '../utils/wordMastery';
 import { IconTile } from './sec/SecUi';
 import { NotificationBell } from './Notifications';
@@ -126,7 +126,14 @@ export default function GuestMenu({
         </div>
         {isGuest ? (
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-fox-d bg-white rounded-full px-3 py-1.5 border border-s1">Secondaire 1</span>
+            {isFamilyDevice() ? (
+              <button onClick={leaveGuestMode}
+                className="text-xs font-semibold text-fox-d bg-white rounded-full px-3 py-1.5 border border-s1 hover:border-lava">
+                👨‍👩‍👧 Mode famille
+              </button>
+            ) : (
+              <span className="text-xs font-semibold text-fox-d bg-white rounded-full px-3 py-1.5 border border-s1">Secondaire 1</span>
+            )}
             {onOpenSettings && (
               <button onClick={onOpenSettings} aria-label="Réglages" title="Réglages"
                 className="w-9 h-9 rounded-xl bg-white border border-s1 text-s4 hover:text-stone flex items-center justify-center">
