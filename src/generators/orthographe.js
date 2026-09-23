@@ -360,18 +360,42 @@ function classeDuMot(liste) {
 }
 
 // ===== Consonnes jumelles =====
+// Attention au piège de la liste 2: les jumelles de « gentil » ne sont PAS
+// dans « gentil », elles sont dans « gentille ». La bonne réponse du cahier
+// à « quel mot a des consonnes jumelles? », c'est le féminin. On ne se fie
+// donc plus à l'annotation seule: on REGARDE la forme, et on pose la question
+// sur celle qui a vraiment les deux lettres collées.
+const DOUBLE = /([bcdfglmnprstz])\1/;
+// Rend la forme du mot qui contient réellement des jumelles, ou null.
+function formeJumelle(m) {
+  if (DOUBLE.test(m.mot)) return { forme: m.mot, auFeminin: false };
+  if (m.fem && DOUBLE.test(m.fem)) return { forme: m.fem, auFeminin: true };
+  return null;
+}
+
 function jumelles(liste) {
-  const bons = liste.mots.filter((m) => m.jum);
-  const mauvais = liste.mots.filter((m) => !m.jum);
-  if (!bons.length || mauvais.length < 3) return null;
-  const m = pick(bons);
-  const faux = shuffle(mauvais).slice(0, 3).map((x) => x.mot);
+  const bons = liste.mots.map((m) => ({ m, j: formeJumelle(m) })).filter((x) => x.j);
+  if (!bons.length) return null;
+  const { m, j } = pick(bons);
+  // Les distracteurs doivent être dans la MÊME forme que la bonne réponse:
+  // un seul féminin au milieu de trois masculins se repère sans lire le mot.
+  const mauvais = liste.mots
+    .filter((x) => x.mot !== m.mot && !formeJumelle(x))
+    .map((x) => (j.auFeminin ? x.fem : x.mot))
+    .filter(Boolean);
+  const faux = shuffle([...new Set(mauvais)]).slice(0, 3);
+  if (faux.length < 2) return null;
+  const doublee = j.forme.match(DOUBLE)[0];
   return {
     category: CATEGORY, rule: ruleFor(liste), type: 'jumelles',
     text: 'Quel mot contient des CONSONNES JUMELLES (deux fois la même lettre collée)?',
-    correct: m.mot,
-    options: shuffle([m.mot, ...faux]),
-    explanation: `« ${m.mot} » a deux consonnes pareilles côte à côte. C'est un piège d'orthographe classique: il faut le voir avec les yeux.`,
+    correct: j.forme,
+    options: shuffle([j.forme, ...faux]),
+    explanation: j.auFeminin
+      ? `« ${j.forme} » a deux lettres pareilles collées: ${doublee}.
+Au masculin « ${m.mot} », on ne les voit pas — c'est le FÉMININ qui les fait apparaître.`
+      : `« ${j.forme} » a deux lettres pareilles collées: ${doublee}.
+C'est un piège d'orthographe classique: il faut le voir avec les yeux.`,
     hint: 'Cherche deux lettres identiques collées: ll, ss, mm, tt, rr, pp…',
   };
 }
