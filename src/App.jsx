@@ -21,6 +21,7 @@ import BiographieFlashcard from './components/BiographieFlashcard';
 import VerbesAvoirEtre from './components/VerbesAvoirEtre';
 import UniversSocial from './components/UniversSocial';
 import SciencesLabo from './components/SciencesLabo';
+import Jeux from './components/Jeux';
 import GuestMenu from './components/GuestMenu';
 import { isGuest, guestProfile, markFamilyDevice } from './utils/guest';
 import { applySkin, skinForProfile } from './utils/skin';
@@ -325,6 +326,7 @@ export default function App() {
       {screen === 'verbes' && <VerbesAvoirEtre onHome={goHome} onStartPractice={startPractice} />}
       {screen === 'univers_social' && <UniversSocial onHome={goHome} onStartPractice={startPractice} />}
       {screen === 'sciences_labo' && <SciencesLabo onHome={goHome} />}
+      {screen === 'jeux' && <Jeux onHome={goHome} />}
       {screen === 'reading' && <Reading onHome={goHome} profile={profile} />}
       {screen === 'nylaspeed' && <NylaSpeed onHome={goHome} />}
       {screen === 'nylasongs' && <NylaSongs onHome={goHome} />}
@@ -347,6 +349,7 @@ export default function App() {
           onStartCoach={startCoach}
           onOpenNotifications={() => setShowNotifs(true)}
           onOpenSettings={() => setShowSettings(true)}
+          onStartJeux={() => setScreen('jeux')}
           onSwitchProfile={switchProfile} />
       )}
       {screen === 'menu' && !nylaDeck && !flashcardWeek && profile !== 'cayla' && (
@@ -357,6 +360,7 @@ export default function App() {
           onOpenVerbes={() => setScreen('verbes')}
           onOpenUniversSocial={() => setScreen('univers_social')}
           onOpenSciences={() => setScreen('sciences_labo')}
+          onOpenJeux={() => setScreen('jeux')}
           onStartTutor={startTutor}
           onStartAquarium={startAquarium}
           onStartSpeed={startSpeed}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { X, Volume2, VolumeX, Palette, PawPrint, Type, Play, Check, RotateCcw } from 'lucide-react';
 import Mascot, { MASCOTS } from './Mascots';
 import {
-  ACCENTS, COLORS, FONTS, DEFAULT_SETTINGS, loadFonts, saveSettings, useSettings, mascotFor,
+  ACCENTS, COLORS, DEBITS, FONTS, DEFAULT_SETTINGS, loadFonts, saveSettings, useSettings, mascotFor,
 } from '../utils/settings';
 import { listFrenchVoices, onVoicesChanged, normLang, speak, stopSpeech, listPremiumVoices } from '../utils/speech';
 
@@ -161,6 +161,16 @@ export default function Settings({ profile, name, onClose }) {
             </>
           )}
 
+          <p className="text-sm font-semibold text-stone mb-2">La vitesse</p>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {DEBITS.map((d) => (
+              <Chip key={d.id} on={(s.debit || 'normal') === d.id} disabled={s.muted}
+                onClick={() => { set({ debit: d.id }); setTimeout(tryVoice, 60); }}>
+                <span>{d.emoji}</span> {d.label}
+              </Chip>
+            ))}
+          </div>
+
           <button onClick={tryVoice}
             className="sb-btn-primary inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold">
             <Play size={16} /> Essayer la voix
@@ -172,8 +182,9 @@ export default function Settings({ profile, name, onClose }) {
 
         {/* ---- Couleur ---- */}
         <Section icon={Palette} title="La couleur">
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
-            {COLORS.map((c) => {
+          <p className="text-sm font-semibold text-stone mb-2">Les couleurs</p>
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-5">
+            {COLORS.filter((c) => c.groupe !== 'gourmandise').map((c) => {
               const on = s.color === c.id;
               return (
                 <button key={c.id} onClick={() => set({ color: c.id })}
@@ -186,6 +197,29 @@ export default function Settings({ profile, name, onClose }) {
                     {on && <Check size={22} strokeWidth={3} />}
                   </span>
                   <span className={`text-[12px] ${on ? 'font-bold text-stone' : 'font-medium text-s4'}`}>{c.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <p className="text-sm font-semibold text-stone mb-1">Les gourmandises</p>
+          <p className="text-[12px] text-s4 mb-3">La couleur ET des petits dessins qui flottent derrière l’app.</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            {COLORS.filter((c) => c.groupe === 'gourmandise').map((c) => {
+              const on = s.color === c.id;
+              return (
+                <button key={c.id} onClick={() => set({ color: c.id })}
+                  className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-all active:scale-[0.98] ${on ? 'border-transparent' : 'border-s1 hover:border-fox'}`}
+                  style={on ? { background: 'var(--sb-brand-bg)', boxShadow: 'inset 0 0 0 2px var(--fox)' } : undefined}>
+                  <span className="w-10 h-10 rounded-xl flex items-center justify-center text-white flex-shrink-0 text-lg"
+                    style={{ background: `linear-gradient(135deg, ${c.lava}, ${c.lavaL})` }}>
+                    {c.deco[0]}
+                  </span>
+                  <span className="min-w-0">
+                    <span className={`block text-[13px] leading-tight ${on ? 'font-bold text-stone' : 'font-semibold text-s6'}`}>{c.label}</span>
+                    <span className="block text-[13px] tracking-wide">{c.deco.join(' ')}</span>
+                  </span>
+                  {on && <Check size={16} className="ml-auto flex-shrink-0" style={{ color: 'var(--fox)' }} />}
                 </button>
               );
             })}

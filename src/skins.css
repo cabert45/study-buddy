@@ -121,6 +121,17 @@ html[data-skin='indigo'] ::selection { background: #c7d2fe; }
 html[data-color] body { background: var(--cream); }
 /* z-index -1: le halo reste DERRIÈRE tous les écrans (sinon il voile les cartes blanches) */
 html[data-color] body::before { background: var(--sb-page-glow); z-index: -1; }
+/* 🍫 Les gourmandises: leurs dessins flottent derrière la page (voir COLORS.deco) */
+html[data-color] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--sb-page-deco, none);
+  background-size: 220px 220px;
+  opacity: 0.16;
+}
 html[data-color] [style*='linear-gradient'][style*='199, 74, 21'],
 html[data-color] [style*='linear-gradient'][style*='184, 93, 26'],
 html[data-color] [style*='linear-gradient'][style*='232, 98, 42'] {

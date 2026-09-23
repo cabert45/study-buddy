@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   GraduationCap, Landmark, FlaskConical, BookOpenText, ArrowRight, ShieldCheck,
   Layers, PenLine, RotateCcw, CalendarClock, BookMarked, ListChecks, BookOpen, Target,
-  RefreshCw, Sigma, Shapes, Type, Repeat, ChevronRight, Settings,
+  RefreshCw, Sigma, Shapes, Type, Repeat, ChevronRight, Settings, Gamepad2,
 } from 'lucide-react';
 import Mascot from './Mascots';
 import { useSettings, mascotFor } from '../utils/settings';
@@ -60,7 +60,7 @@ const card = { boxShadow: '0 1px 2px rgba(15,23,42,.04), 0 4px 16px rgba(15,23,4
 export default function GuestMenu({
   onOpen, variant = 'guest', name, profileId,
   onLaunchMode, onStartJournal, onStartChores, onStartReading, onStartCoach,
-  onOpenNotifications, onOpenSettings, onSwitchProfile,
+  onOpenNotifications, onOpenSettings, onStartJeux, onSwitchProfile,
 }) {
   const isGuest = variant === 'guest';
   useEffect(() => { if (isGuest) pingGuest('open'); }, [isGuest]);
@@ -111,6 +111,7 @@ export default function GuestMenu({
     onStartChores && { icon: ListChecks, tone: 'emerald', title: 'Tâches du jour', desc: 'Coche au fur et à mesure', on: onStartChores },
     onStartReading && { icon: BookOpen, tone: 'amber', title: 'Mes lectures', desc: '20 $ par livre terminé', on: onStartReading },
     onStartCoach && { icon: Target, tone: 'indigo', title: 'Mon coach', desc: 'Le plan du jour', on: onStartCoach },
+    onStartJeux && { icon: Gamepad2, tone: 'teal', title: 'Les jeux', desc: 'Tic-tac-toe, Puissance 4, échecs', on: onStartJeux },
   ].filter(Boolean);
 
   return (

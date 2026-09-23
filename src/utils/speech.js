@@ -8,16 +8,18 @@ let prefVoice = '';
 // Voix ElevenLabs choisie: 'auto' (celle réglée sur le serveur), 'appareil'
 // (la voix de l'iPad / du PC, comme avant) ou l'identifiant d'une voix du compte.
 let prefTtsVoice = 'auto';
+let prefSpeed = 1; // ⚙️ Réglages: 🐢 doucement · 🙂 normal · 🐇 vite
 
 export function setSpeechEnabled(enabled) {
   speechEnabled = enabled;
 }
 
-export function setVoicePrefs({ enabled = true, accent = 'auto', voice = '', ttsVoice = 'auto' } = {}) {
+export function setVoicePrefs({ enabled = true, accent = 'auto', voice = '', ttsVoice = 'auto', speed = 1 } = {}) {
   speechEnabled = enabled;
   prefAccent = accent || 'auto';
   prefVoice = voice || '';
   prefTtsVoice = ttsVoice || 'auto';
+  prefSpeed = Number(speed) > 0 ? Number(speed) : 1;
   cachedVoice = null;
   if (!enabled) stopSpeech();
   if (typeof window !== 'undefined' && window.speechSynthesis) loadBestVoice();
@@ -311,11 +313,12 @@ function speakDevice(cleaned, lang, rate) {
   window.speechSynthesis.speak(u);
 }
 
-export function speak(text, lang = 'fr', rate = 0.85) {
+export function speak(text, lang = 'fr', baseRate = 0.85) {
+  const rate = baseRate * prefSpeed;
   if (!speechEnabled || !window.speechSynthesis) return;
   const cleaned = cleanForSpeech(text);
   if (!cleaned) return;
-  if (deferUntilProbed(lang, () => speak(text, lang, rate))) return;
+  if (deferUntilProbed(lang, () => speak(text, lang, baseRate))) return;
 
   // L'anglais reste sur la voix de l'appareil (accent).
   if (lang !== 'en' && ttsReady()) {
@@ -340,11 +343,11 @@ export function speakSlow(text) {
   if (ttsReady()) {
     const gen = speechGen;
     window.speechSynthesis.cancel();
-    playPremium(cleaned, { slow: true }).catch(() => {
-      if (gen === speechGen && speechEnabled) speakDevice(cleaned, 'fr', 0.6);
+    playPremium(cleaned, { slow: true, rate: TTS_BASELINE_RATE * prefSpeed }).catch(() => {
+      if (gen === speechGen && speechEnabled) speakDevice(cleaned, 'fr', 0.6 * prefSpeed);
     });
     return;
   }
 
-  speakDevice(cleaned, 'fr', 0.6);
+  speakDevice(cleaned, 'fr', 0.6 * prefSpeed);
 }

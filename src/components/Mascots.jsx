@@ -3,7 +3,7 @@ import React from 'react';
 // Les mascottes de l'accueil. Toutes dans le même cadre (130 × 160) pour qu'on
 // puisse les échanger dans ⚙️ Réglages sans rien décaler.
 // Le lion = skin « courage » de Ryan (devise « try again »); le renard = mascotte
-// d'origine de l'app. Ours, panda, chat, lapin et licorne: demandés par Cayla, 14 sept. 2026.
+// d'origine de l'app. Ours, panda, chat, lapin: demandés par Cayla le 14 sept. 2026; les 10 autres le 22 sept.
 
 const eye = (cx, cy) => (
   <>
@@ -188,35 +188,176 @@ function Bunny({ width, animated }) {
   );
 }
 
-function Unicorn({ width, animated }) {
-  const fur = '#fbf8ff';
-  const line = '#ddd3ee';
-  const mane = ['#f472b6', '#c084fc', '#60a5fa', '#34d399', '#facc15'];
+
+// ===== 10 nouvelles mascottes — demandées par Cayla le 22 sept. 2026 =====
+// Même cadre que les autres (130 × 160): tête posée sur le corps commun.
+const Head = ({ cx = 65, cy = 72, rx = 27, ry = 24, fill, stroke }) => (
+  <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={fill} stroke={stroke} strokeWidth={stroke ? 1.5 : 0} />
+);
+const Smile = (y = 86) => <path d={`M58 ${y}Q65 ${y + 5} 72 ${y}`} stroke="#2c2017" strokeWidth="2" fill="none" strokeLinecap="round" />;
+const Snout = (fill = '#2c2017', cy = 80, rx = 5, ry = 4) => <ellipse cx="65" cy={cy} rx={rx} ry={ry} fill={fill} />;
+
+function Dog({ width, animated }) {
   return (
     <Frame width={width} animated={animated}>
-      <Tail animated={animated}>
-        {mane.slice(0, 3).map((c, i) => (
-          <path key={c} d={`M32 ${112 + i * 3}Q${8 + i * 3} ${100 + i * 2} ${14 + i * 4} ${78 + i * 3}`}
-            stroke={c} strokeWidth="5" strokeLinecap="round" fill="none" />
-        ))}
-      </Tail>
-      <Body fur={fur} belly="white" feet="#c4b5fd" stroke={line} />
-      {/* crinière arc-en-ciel derrière la tête */}
-      {mane.map((c, i) => <circle key={c} cx={40 + i * 3} cy={54 + i * 8} r="9" fill={c} />)}
-      <path d="M44 60L44 40L58 52Z" fill={fur} stroke={line} strokeWidth="1.5" />
-      <path d="M86 60L86 40L72 52Z" fill={fur} stroke={line} strokeWidth="1.5" />
-      <ellipse cx="65" cy="72" rx="27" ry="24" fill={fur} stroke={line} strokeWidth="1.5" />
-      <path d="M65 22L58.5 52H71.5Z" fill="#f6c945" stroke="#e0a82e" strokeWidth="1.2" strokeLinejoin="round" />
-      <path d="M61.5 43L68 40M60.5 48L69.5 45M63 36L67 34" stroke="#e0a82e" strokeWidth="1.2" strokeLinecap="round" />
-      {mane.slice(0, 3).map((c, i) => <circle key={c} cx={52 + i * 7} cy={50 - (i === 1 ? 2 : 0)} r="5" fill={c} />)}
-      {/* yeux souriants + cils */}
-      <path d="M50 70Q55 64 60 70" stroke="#2c2017" strokeWidth="2.2" fill="none" strokeLinecap="round" />
-      <path d="M70 70Q75 64 80 70" stroke="#2c2017" strokeWidth="2.2" fill="none" strokeLinecap="round" />
-      <path d="M49 68L46.5 66.5M81 68L83.5 66.5" stroke="#2c2017" strokeWidth="1.4" strokeLinecap="round" />
-      <ellipse cx="60" cy="83" rx="1.6" ry="1.2" fill="#c9a3c9" />
-      <ellipse cx="70" cy="83" rx="1.6" ry="1.2" fill="#c9a3c9" />
-      <path d="M61 88Q65 91 69 88" stroke="#2c2017" strokeWidth="1.4" fill="none" strokeLinecap="round" />
-      {cheeks(78, '#f472b6', 0.35)}
+      <Tail animated={animated}><path d="M28 108Q12 96 18 84Q26 78 30 88Q24 96 33 102Z" fill="#c98a4b" /></Tail>
+      <Body fur="#d9a05b" belly="#f6e3c8" feet="#8b5e3c" />
+      <ellipse cx="41" cy="74" rx="9" ry="15" fill="#a9703b" />
+      <ellipse cx="89" cy="74" rx="9" ry="15" fill="#a9703b" />
+      <Head fill="#d9a05b" />
+      <ellipse cx="65" cy="84" rx="13" ry="10" fill="#f6e3c8" />
+      {Snout('#2c2017', 79, 5, 4)}
+      {eye(55, 68)}{eye(75, 68)}
+      <path d="M65 83L65 88" stroke="#2c2017" strokeWidth="1.6" strokeLinecap="round" />
+      {Smile(88)}{cheeks(80)}
+    </Frame>
+  );
+}
+
+function Koala({ width, animated }) {
+  return (
+    <Frame width={width} animated={animated}>
+      <Body fur="#9ca3af" belly="#e5e7eb" feet="#6b7280" />
+      <circle cx="38" cy="62" r="14" fill="#9ca3af" /><circle cx="38" cy="62" r="8" fill="#d1d5db" />
+      <circle cx="92" cy="62" r="14" fill="#9ca3af" /><circle cx="92" cy="62" r="8" fill="#d1d5db" />
+      <Head fill="#9ca3af" />
+      {eye(55, 70)}{eye(75, 70)}
+      <ellipse cx="65" cy="82" rx="8" ry="6.5" fill="#3f3f46" />
+      {Smile(92)}{cheeks(84, '#f9a8d4', 0.35)}
+    </Frame>
+  );
+}
+
+function Penguin({ width, animated }) {
+  return (
+    <Frame width={width} animated={animated}>
+      <ellipse cx="65" cy="112" rx="33" ry="30" fill="#1f2937" />
+      <ellipse cx="65" cy="118" rx="23" ry="23" fill="#f8fafc" />
+      <ellipse cx="34" cy="108" rx="7" ry="17" fill="#111827" />
+      <ellipse cx="96" cy="108" rx="7" ry="17" fill="#111827" />
+      <ellipse cx="54" cy="150" rx="9" ry="4" fill="#f59e0b" />
+      <ellipse cx="76" cy="150" rx="9" ry="4" fill="#f59e0b" />
+      <Head fill="#1f2937" />
+      <ellipse cx="65" cy="78" rx="19" ry="17" fill="#f8fafc" />
+      {eye(57, 70)}{eye(73, 70)}
+      <path d="M58 80L72 80L65 89Z" fill="#f59e0b" />
+    </Frame>
+  );
+}
+
+function Frog({ width, animated }) {
+  return (
+    <Frame width={width} animated={animated}>
+      <Body fur="#4ade80" belly="#dcfce7" feet="#16a34a" />
+      <circle cx="48" cy="52" r="12" fill="#4ade80" /><circle cx="82" cy="52" r="12" fill="#4ade80" />
+      <circle cx="48" cy="52" r="7" fill="white" /><circle cx="82" cy="52" r="7" fill="white" />
+      <circle cx="48" cy="53" r="3.6" fill="#14532d" /><circle cx="82" cy="53" r="3.6" fill="#14532d" />
+      <Head fill="#4ade80" cy="76" ry="22" />
+      <path d="M50 84Q65 96 80 84" stroke="#14532d" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+      <circle cx="56" cy="74" r="2" fill="#14532d" /><circle cx="74" cy="74" r="2" fill="#14532d" />
+      {cheeks(82, '#fda4af', 0.4)}
+    </Frame>
+  );
+}
+
+function Turtle({ width, animated }) {
+  return (
+    <Frame width={width} animated={animated}>
+      <ellipse cx="65" cy="112" rx="38" ry="30" fill="#16a34a" />
+      <ellipse cx="65" cy="112" rx="30" ry="23" fill="#65a30d" />
+      {[[52, 104], [78, 104], [65, 120]].map(([x, y]) => <circle key={x + '' + y} cx={x} cy={y} r="8" fill="#a3e635" />)}
+      <ellipse cx="34" cy="132" rx="9" ry="6" fill="#4ade80" />
+      <ellipse cx="96" cy="132" rx="9" ry="6" fill="#4ade80" />
+      <Head fill="#4ade80" cy="70" rx="24" ry="21" />
+      {eye(56, 66)}{eye(74, 66)}
+      {Smile(80)}{cheeks(74, '#fca5a5', 0.4)}
+    </Frame>
+  );
+}
+
+function Owl({ width, animated }) {
+  return (
+    <Frame width={width} animated={animated}>
+      <ellipse cx="65" cy="112" rx="33" ry="32" fill="#a16207" />
+      <ellipse cx="65" cy="118" rx="22" ry="24" fill="#fde68a" />
+      <path d="M32 100Q24 118 34 134Q40 120 38 104Z" fill="#854d0e" />
+      <path d="M98 100Q106 118 96 134Q90 120 92 104Z" fill="#854d0e" />
+      <ellipse cx="55" cy="150" rx="7" ry="3.5" fill="#f59e0b" />
+      <ellipse cx="75" cy="150" rx="7" ry="3.5" fill="#f59e0b" />
+      <Head fill="#a16207" ry="25" />
+      <path d="M42 56L50 44L56 54Z" fill="#a16207" />
+      <path d="M88 56L80 44L74 54Z" fill="#a16207" />
+      <circle cx="55" cy="72" r="11" fill="#fde68a" /><circle cx="75" cy="72" r="11" fill="#fde68a" />
+      {eye(55, 72)}{eye(75, 72)}
+      <path d="M60 82L70 82L65 90Z" fill="#f59e0b" />
+    </Frame>
+  );
+}
+
+function Pig({ width, animated }) {
+  return (
+    <Frame width={width} animated={animated}>
+      <Tail animated={animated}><path d="M30 108Q18 104 22 96Q28 92 28 100Q24 104 32 104Z" stroke="#f9a8d4" strokeWidth="3" fill="none" /></Tail>
+      <Body fur="#f9a8d4" belly="#fce7f3" feet="#db2777" />
+      <path d="M44 56L40 44L56 52Z" fill="#f9a8d4" />
+      <path d="M86 56L90 44L74 52Z" fill="#f9a8d4" />
+      <Head fill="#f9a8d4" />
+      {eye(55, 68)}{eye(75, 68)}
+      <ellipse cx="65" cy="83" rx="11" ry="8" fill="#f472b6" />
+      <ellipse cx="61" cy="83" rx="2" ry="2.6" fill="#be185d" /><ellipse cx="69" cy="83" rx="2" ry="2.6" fill="#be185d" />
+      {cheeks(76, '#fb7185', 0.4)}
+    </Frame>
+  );
+}
+
+function Monkey({ width, animated }) {
+  return (
+    <Frame width={width} animated={animated}>
+      <Tail animated={animated}><path d="M30 110Q10 104 14 88Q18 78 28 82Q20 90 26 100Z" stroke="#a16207" strokeWidth="4" fill="none" strokeLinecap="round" /></Tail>
+      <Body fur="#a16207" belly="#fde68a" feet="#78350f" />
+      <circle cx="40" cy="70" r="11" fill="#a16207" /><circle cx="40" cy="70" r="6.5" fill="#fcd9a0" />
+      <circle cx="90" cy="70" r="11" fill="#a16207" /><circle cx="90" cy="70" r="6.5" fill="#fcd9a0" />
+      <Head fill="#a16207" />
+      <ellipse cx="65" cy="80" rx="19" ry="15" fill="#fcd9a0" />
+      <ellipse cx="65" cy="62" rx="16" ry="9" fill="#fcd9a0" opacity=".55" />
+      {eye(56, 69)}{eye(74, 69)}
+      <ellipse cx="61" cy="78" rx="1.6" ry="1.2" fill="#78350f" /><ellipse cx="69" cy="78" rx="1.6" ry="1.2" fill="#78350f" />
+      {Smile(85)}
+    </Frame>
+  );
+}
+
+function Elephant({ width, animated }) {
+  return (
+    <Frame width={width} animated={animated}>
+      <Body fur="#94a3b8" belly="#e2e8f0" feet="#64748b" />
+      <ellipse cx="38" cy="72" rx="15" ry="18" fill="#94a3b8" />
+      <ellipse cx="92" cy="72" rx="15" ry="18" fill="#94a3b8" />
+      <ellipse cx="38" cy="72" rx="9" ry="12" fill="#cbd5e1" />
+      <ellipse cx="92" cy="72" rx="9" ry="12" fill="#cbd5e1" />
+      <Head fill="#94a3b8" />
+      {eye(55, 68)}{eye(75, 68)}
+      <path d="M59 82Q59 104 70 106Q78 106 76 98" stroke="#94a3b8" strokeWidth="9" fill="none" strokeLinecap="round" />
+      {cheeks(76, '#fda4af', 0.35)}
+    </Frame>
+  );
+}
+
+function Dragon({ width, animated }) {
+  return (
+    <Frame width={width} animated={animated}>
+      <Tail animated={animated}><path d="M28 112Q8 100 16 84Q24 76 30 86Q20 94 32 104Z" fill="#34d399" /></Tail>
+      <Body fur="#34d399" belly="#fef08a" feet="#047857" />
+      <path d="M50 124L60 116L70 124L80 116" stroke="#047857" strokeWidth="3" fill="none" strokeLinecap="round" />
+      <path d="M46 54L52 40L58 52Z" fill="#fbbf24" />
+      <path d="M84 54L78 40L72 52Z" fill="#fbbf24" />
+      <Head fill="#34d399" />
+      <path d="M52 50L58 34L64 50Z" fill="#10b981" />
+      <path d="M66 50L72 34L78 50Z" fill="#10b981" />
+      {eye(55, 68)}{eye(75, 68)}
+      <ellipse cx="65" cy="84" rx="12" ry="9" fill="#6ee7b7" />
+      <ellipse cx="61" cy="82" rx="1.6" ry="1.2" fill="#065f46" /><ellipse cx="69" cy="82" rx="1.6" ry="1.2" fill="#065f46" />
+      {Smile(90)}
     </Frame>
   );
 }
@@ -228,7 +369,16 @@ export const MASCOTS = [
   { id: 'panda', label: 'Panda', C: Panda },
   { id: 'chat', label: 'Chat', C: Cat },
   { id: 'lapin', label: 'Lapin', C: Bunny },
-  { id: 'licorne', label: 'Licorne', C: Unicorn },
+  { id: 'chien', label: 'Chien', C: Dog },
+  { id: 'koala', label: 'Koala', C: Koala },
+  { id: 'pingouin', label: 'Pingouin', C: Penguin },
+  { id: 'grenouille', label: 'Grenouille', C: Frog },
+  { id: 'tortue', label: 'Tortue', C: Turtle },
+  { id: 'hibou', label: 'Hibou', C: Owl },
+  { id: 'cochon', label: 'Cochon', C: Pig },
+  { id: 'singe', label: 'Singe', C: Monkey },
+  { id: 'elephant', label: 'Éléphant', C: Elephant },
+  { id: 'dragon', label: 'Dragon', C: Dragon },
 ];
 
 export default function Mascot({ id, width = 120, animated = true }) {

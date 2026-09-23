@@ -212,7 +212,7 @@ const nylaFrenchModes = [
 
 // Les mascottes (lion de Ryan, renard, ours…) sont dans ./Mascots — choisies dans ⚙️ Réglages.
 
-export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerbes, onOpenUniversSocial, onOpenSciences, onStartTutor, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onStartNylaAddition, onStartNylaCompare, onOpenCompose, onOpenSettings, onSwitchProfile, darkMode, onToggleDark }) {
+export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerbes, onOpenUniversSocial, onOpenSciences, onOpenJeux, onStartTutor, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onStartNylaAddition, onStartNylaCompare, onOpenCompose, onOpenSettings, onSwitchProfile, darkMode, onToggleDark }) {
   // Dispatch a tile click — special-case modes that open their own screen instead of the practice flow
   const launchMode = (id) => {
     if (id === 'biographie_jr_flashcard') return onOpenBioFlashcard && onOpenBioFlashcard();
@@ -754,6 +754,18 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
               </button>
             </div>
             <div className="space-y-2.5">
+              {onOpenJeux && !isDemo && (
+                <button onClick={() => { setPlusOpen(false); onOpenJeux(); }}
+                  className="w-full rounded-2xl p-4 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+                  style={{ background: 'linear-gradient(135deg, #0f766e, #14b8a6)' }}>
+                  <div className="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center flex-shrink-0 text-white text-2xl">🎮</div>
+                  <div className="text-left flex-1">
+                    <div className="font-heading text-lg font-extrabold text-white leading-tight">Les jeux</div>
+                    <div className="text-xs font-semibold text-white/85">Tic-tac-toe, Puissance 4, échecs</div>
+                  </div>
+                  <ChevronRight className="text-white/40" size={20} strokeWidth={3} />
+                </button>
+              )}
               {onOpenBlocs && (
                 <button onClick={() => { setPlusOpen(false); onOpenBlocs(); }}
                   className="w-full rounded-2xl p-4 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
