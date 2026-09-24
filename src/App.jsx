@@ -16,6 +16,7 @@ import { setProfile as persistProfile } from './utils/storage';
 import InstallPrompt from './components/InstallPrompt';
 import NotificationsPanel from './components/Notifications';
 import DicteeFlashcard from './components/DicteeFlashcard';
+import Feuille from './components/Feuille';
 import { listeCetteSemaine, cleDictee } from './data/orthographeQuotidien';
 import BiographieFlashcard from './components/BiographieFlashcard';
 import VerbesAvoirEtre from './components/VerbesAvoirEtre';
@@ -99,6 +100,15 @@ export default function App() {
     // La dictee de la semaine n'est pas un exercice a choix multiple: elle se
     // tape. Le menu ET le Coach demandent le meme mode `dictee_liste`, et on
     // le renvoie vers la flashcard, sur la liste du cahier en cours.
+    // « Ma feuille » n'est pas un générateur de questions: c'est la feuille du
+    // cahier reproduite à l'écran, avec son propre écran.
+    if (selectedMode === 'feuille_l2') {
+      setNylaDeck(null);
+      setFlashcardWeek(null);
+      setMode(null);
+      setScreen('feuille');
+      return;
+    }
     if (selectedMode === 'dictee_liste') {
       setNylaDeck(null);
       setMode(null);
@@ -448,6 +458,9 @@ export default function App() {
       )}
       {screen === 'coach' && (
         <Coach onHome={goHome} onStartPractice={startPractice} />
+      )}
+      {screen === 'feuille' && (
+        <Feuille onHome={goHome} onFinish={goHome} />
       )}
       {screen === 'blocs' && (
         <Blocs onHome={goHome} onTestBloc={startBlocTest} />

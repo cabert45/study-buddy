@@ -122,6 +122,7 @@ const grade3MathModes = [
 
 const grade3FrenchModes = [
   { id: 'cahier_jazz', label: '📒 Mon cahier Jazz', desc: 'Ce que tu fais en classe — et un pas d\'avance', featured: true, groupKind: 'cahier' },
+  { id: 'feuille_l2', label: '📄 Ma feuille — Liste 2', desc: 'La vraie feuille du cahier, question par question', badge: 'À remettre' },
   { id: 'dictee_liste', label: '🎧 Dictée de la liste', desc: 'La liste, puis tu tapes chaque mot que tu entends', badge: 'Cette semaine' },
   { id: 'dictees_group', label: '🎴 Toutes mes dictées', desc: 'Les listes déjà vues + les dictées de 2e année', isGroup: true },
   { id: 't1_revision', label: '📝 Classes de mots', desc: 'Nom, déterminant, adjectif, verbe, pronom — Thème 1', badge: 'En classe' },
