@@ -368,16 +368,21 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
 
   return (
     <div className="relative z-[1] max-w-3xl mx-auto px-4 pt-4 pb-12">
-      {/* Top bar */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm text-white"
+      {/* Top bar
+          Onze à treize boutons dans une rangée qui ne passait jamais à la ligne:
+          sur un téléphone de 390 px, la page faisait 695 px de large. Tout le
+          reste se retrouvait écrasé dans 320 px avec une bande morte à droite,
+          et il fallait scroller de côté pour voir son propre menu.
+          La rangée passe à la ligne, et le logo rétrécit sur petit écran. */}
+      <div className="flex justify-between items-center gap-2 flex-wrap gap-y-2 mb-4">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm text-white flex-shrink-0"
             style={{ background: 'linear-gradient(135deg, #c74a15, #ffc24d)' }}>
             <Sun size={20} />
           </div>
-          <span className="font-heading text-2xl font-extrabold text-stone tracking-tight">Study Buddy</span>
+          <span className="font-heading text-xl sm:text-2xl font-extrabold text-stone tracking-tight truncate">Study Buddy</span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap justify-end gap-2 min-w-0">
           <button onClick={hardRefresh} disabled={refreshing} aria-label="Rafraîchir l'app"
             title="Rafraîchir — va chercher la dernière version"
             className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all disabled:opacity-50">
@@ -635,9 +640,14 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
           <button key={mode.id}
             onClick={() => openGroup(mode)}
             className="bg-white border-2 border-s1 rounded-2xl p-4 text-left transition-all
-              hover:border-fox hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97] relative">
+              hover:border-fox hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97]">
+            {/* La pastille était en `absolute` dans le coin: sur les cartes sans
+                icône elle se posait PAR-DESSUS le titre (« Classes de mots »,
+                « Dictée de la liste »). Elle prend maintenant sa place dans le
+                flux, donc elle ne peut plus rien recouvrir, quelle que soit la
+                largeur de l'écran. */}
             {mode.badge && (
-              <span className={`absolute top-2.5 right-2.5 text-[10px] font-bold px-2 py-0.5 rounded-lg ${
+              <span className={`inline-block mb-1.5 text-[10px] font-bold px-2 py-0.5 rounded-lg ${
                 mode.badge === 'Priorité' ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600'
               }`}>{mode.badge}</span>
             )}

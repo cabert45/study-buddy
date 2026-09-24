@@ -334,12 +334,12 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
     <div className="max-w-3xl mx-auto px-4 pt-4 pb-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
-        <h2 className="font-heading font-bold text-stone text-sm">{week.name}</h2>
+        <button onClick={onHome} className="min-h-[44px] -ml-2 px-2 text-s4 font-bold text-sm hover:text-lava">← Menu</button>
+        <h2 className="font-heading font-bold text-stone text-sm truncate">{week.name}</h2>
         <div className="flex items-center gap-2">
           {estListeOrtho && (
             <button onClick={() => setMemoireOuvert(true)}
-              className="text-xs font-bold text-lava bg-orange-50 border border-orange-200 rounded-lg px-2.5 py-1 hover:bg-orange-100">
+              className="min-h-[44px] text-xs font-bold text-lava bg-orange-50 border-2 border-orange-200 rounded-xl px-3 hover:bg-orange-100">
               📋 La liste
             </button>
           )}
@@ -377,14 +377,17 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
         <p className="text-xs font-bold text-fox-d uppercase tracking-wide mb-2">Écoute et écris le mot</p>
         <p className="text-base font-semibold text-stone leading-relaxed mb-3">{sentenceWithBlank}</p>
 
-        <div className="flex flex-wrap gap-3 mb-4">
+        {/* Ces deux boutons faisaient 20 px de haut. « Réécouter » est celui
+            qu'il touche le plus souvent pendant une dictée, avec des doigts de
+            8 ans, sur un téléphone: il lui faut une vraie cible (44 px). */}
+        <div className="flex flex-wrap gap-2 mb-4">
           <button onClick={() => speakSlow(word.correct)}
-            className="text-sm text-fox-d font-bold hover:text-lava">
+            className="min-h-[44px] px-3 py-2 rounded-xl bg-orange-50 border-2 border-orange-200 text-sm text-fox-d font-bold hover:border-fox">
             🔊 Réécouter le mot
           </button>
           <button onClick={getNewSentence} disabled={loadingSentence}
-            className="text-sm text-info font-bold hover:text-lava disabled:opacity-50">
-            {loadingSentence ? '⏳ Génération...' : '🤖 Nouvelle phrase'}
+            className="min-h-[44px] px-3 py-2 rounded-xl bg-white border-2 border-s2 text-sm text-info font-bold hover:border-lava disabled:opacity-50">
+            {loadingSentence ? '⏳ Génération...' : '🤖 Une autre phrase'}
           </button>
         </div>
 
@@ -452,7 +455,7 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
               </button>
               <button type="button" onClick={skip}
                 className="px-4 py-3 rounded-xl font-bold text-s4 bg-white border-2 border-s2">
-                Skip
+                Passer
               </button>
             </div>
           ) : (
