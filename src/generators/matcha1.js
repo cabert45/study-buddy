@@ -304,6 +304,51 @@ function ajouter() {
   };
 }
 
+// ===== Ajouter DEUX choses à la fois (AS.1.02 n° 5) =====
+// Sur la feuille: « Ajoute 2 unités de mille ET 4 dizaines au nombre
+// représenté dans le tableau. » Ryan avait entouré 2 358 au lieu de 2 398:
+// il a fait les unités de mille et laissé tomber les dizaines. Exactement
+// 40 d'écart — la moitié de la consigne.
+//
+// Le générateur `ajouter` ne posait QUE des consignes à une étape, donc
+// l'app ne pouvait pas voir ce trou: 88 % en pratique, 4/13 sur le papier.
+// Le distracteur principal est donc le piège lui-même: le résultat quand on
+// n'a fait que la première moitié.
+function ajouterDeux() {
+  const n = rand(1100, 6899);
+  const paires = [
+    [{ mot: '2 unités de mille', v: 2000 }, { mot: '4 dizaines', v: 40 }],
+    [{ mot: '1 unité de mille', v: 1000 }, { mot: '3 centaines', v: 300 }],
+    [{ mot: '2 centaines', v: 200 }, { mot: '5 dizaines', v: 50 }],
+    [{ mot: '3 unités de mille', v: 3000 }, { mot: '2 unités', v: 2 }],
+    [{ mot: '1 centaine', v: 100 }, { mot: '6 unités', v: 6 }],
+  ];
+  const [a, b] = pick(paires);
+  const correct = n + a.v + b.v;
+  // Les deux mi-chemins: il en a fait une et oublié l'autre.
+  const moitieA = n + a.v;
+  const moitieB = n + b.v;
+  return {
+    category: CATEGORY,
+    rule: ruleFor(),
+    type: 'ajouter_deux',
+    text: `Ajoute ${a.mot} ET ${b.mot} au nombre ${fmt(n)}.`,
+    correct,
+    options: options(correct, [moitieA, moitieB, n + a.v * 2 + b.v], (k) => correct + k),
+    explanation: `${a.mot} = ${fmt(a.v)} et ${b.mot} = ${fmt(b.v)}.
+`
+      + `${fmt(n)} + ${fmt(a.v)} = ${fmt(moitieA)}, puis ${fmt(moitieA)} + ${fmt(b.v)} = ${fmt(correct)}.
+`
+      + `⚠️ Il y a DEUX choses à ajouter. ${fmt(moitieA)}, c'est la réponse si on oublie les ${b.mot}.`,
+    hint: 'Il y a deux consignes dans la phrase. Fais la première, écris le résultat, PUIS fais la deuxième.',
+    aide: {
+      titre: `${fmt(n)} dans le tableau`,
+      tableau: chiffres(n),
+      note: `Deux colonnes changent: celle de « ${a.mot} » et celle de « ${b.mot} ». Coche-les une par une.`,
+    },
+  };
+}
+
 // ===== p. 9 — Problèmes de groupements =====
 // [singulier, pluriel] — « 1 caisse de 100 » mais « 4 caisses de 100 »
 const CONTEXTES = [
@@ -529,6 +574,7 @@ function buildOne() {
     { type: 'position_nom', w: 8, build: () => valeurPosition('nom') },
     { type: 'position_valeur', w: 8, build: () => valeurPosition('valeur') },
     { type: 'ajouter', w: 8, build: ajouter },
+    { type: 'ajouter_deux', w: 12, build: ajouterDeux },
     { type: 'groupements', w: 12, build: groupements },
     { type: 'sacs', w: 8, build: faireDesSacs },
     // Comparaison — leçon de la semaine du 21 au 25 sept.
