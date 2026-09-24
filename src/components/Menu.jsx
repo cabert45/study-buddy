@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
 import { nylaWeekList } from '../data/nylaFlashcards';
 import { CAHIER_THEMES, CAHIER_SEMAINES, moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data/cahierFrancais';
-import { listeCetteSemaine, semaineCourante } from '../data/orthographeQuotidien';
+import { listeCetteSemaine, semaineCourante, listesVues, cleDictee } from '../data/orthographeQuotidien';
 import { strategiesCetteSemaine } from '../data/tablesStrategies';
 import { syncSkillStats, weakSkills } from '../utils/skillStats';
 import { NotificationBell } from './Notifications';
@@ -123,6 +123,7 @@ const grade3MathModes = [
 const grade3FrenchModes = [
   { id: 'cahier_jazz', label: '📒 Mon cahier Jazz', desc: 'Ce que tu fais en classe — et un pas d\'avance', featured: true, groupKind: 'cahier' },
   { id: 'dictee_liste', label: '🎧 Dictée de la liste', desc: 'La liste, puis tu tapes chaque mot que tu entends', badge: 'Cette semaine' },
+  { id: 'dictees_group', label: '🎴 Toutes mes dictées', desc: 'Les listes déjà vues + les dictées de 2e année', isGroup: true },
   { id: 't1_revision', label: '📝 Classes de mots', desc: 'Nom, déterminant, adjectif, verbe, pronom — Thème 1', badge: 'En classe' },
   { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs' },
   { id: 'passe_compose', label: '⏪ Passé composé', desc: 'Auxiliaire être/avoir — 9/17 au dernier examen', badge: 'Priorité' },
@@ -231,7 +232,14 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
     return onStartPractice(id);
   };
   const [stats, setStats] = useState(null);
-  const [tab, setTab] = useState('math'); // le mode 3e année bascule sur 'french' (voir plus bas)
+  // Le commentaire disait depuis la rentrée « le mode 3e année bascule sur
+  // french (voir plus bas) » — et ce code n'a jamais existé. Résultat: le menu
+  // de Ryan s'ouvrait sur Mathématiques et TOUT le français (dictées
+  // comprises) vivait derrière un onglet qu'il fallait savoir toucher. Sa
+  // semaine est français d'abord: on ouvre sur le français.
+  const [tab, setTab] = useState(
+    profile === 'ryan' && new Date() >= new Date(2026, 8, 1) ? 'french' : 'math'
+  );
   const [dicteesOpen, setDicteesOpen] = useState(false);
   const [nylaWordsOpen, setNylaWordsOpen] = useState(false);
   const [cahierOpen, setCahierOpen] = useState(false);
@@ -250,6 +258,34 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
     return d.getDay() === 0 ? new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1) : d;
   })();
   const listeSemaine = listeCetteSemaine(refSemaine);
+
+  // ===== Toutes les dictées, les deux années au même endroit =====
+  // Quand Ryan est passé en 3e le 1er sept., son menu a basculé sur la liste
+  // 3e année — et la tuile « Dictées », qui n'existait que dans la liste de
+  // 2e, a disparu de son écran. Les flashcards du Thème 7 n'avaient pas été
+  // supprimées, elles étaient juste devenues introuvables sans passer par la
+  // puce « 2e année (archive) ». Une seule porte, maintenant, avec les deux.
+  //
+  // `flashKey` = ce qu'on passe à DicteeFlashcard; `practiceMode` = le choix
+  // multiple, qui n'existe que pour la liste EN COURS (le générateur
+  // d'orthographe suit toujours la semaine, il ne sait pas remonter le temps).
+  const dicteesDeRyan = (() => {
+    const courante = listeCetteSemaine(refSemaine);
+    const listes = listesVues(refSemaine).filter(Boolean).reverse().map((l) => ({
+      id: cleDictee(l.id),
+      flashKey: cleDictee(l.id),
+      practiceMode: l.id === courante.id ? 'orthographe' : null,
+      current: l.id === courante.id,
+      groupe: '3e année — mon cahier d’orthographe',
+      label: `Liste ${l.numero} — ${l.titre.toLowerCase()}`,
+      desc: l.mots.slice(0, 5).map((m) => m.mot).join(', ') + '…',
+    }));
+    const archive = dicteeWeeksList.map((d) => ({
+      ...d, flashKey: d.id, practiceMode: d.id, current: false,
+      groupe: '2e année — Thème 7 (révision)',
+    }));
+    return [...listes, ...archive];
+  })();
   const stratsSemaine = strategiesCetteSemaine(refSemaine);
   const remiseSemaine = (() => {
     const w = semaineCourante(refSemaine);
@@ -854,36 +890,45 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
             </div>
 
             <div className="space-y-2">
-              {(isCayla ? caylaDicteeWeeksList : dicteeWeeksList).map((d) => (
-                <div key={d.id}
-                  className={`w-full text-left rounded-2xl p-3 border-2 ${
-                    d.highlight ? 'bg-orange-50 border-lava' :
-                    d.current ? 'bg-white border-fox shadow-sm' :
-                    'bg-white border-s1'
-                  }`}>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="flex-1">
-                      <div className="font-heading font-bold text-stone text-base flex items-center gap-2">
-                        {d.label}
-                        {d.current && <span className="text-[10px] font-bold bg-fox text-white px-2 py-0.5 rounded-full">CETTE SEMAINE</span>}
+              {(isCayla ? caylaDicteeWeeksList : isGrade3 ? dicteesDeRyan : dicteeWeeksList).map((d, i, tout) => (
+                <React.Fragment key={d.id}>
+                  {d.groupe && d.groupe !== tout[i - 1]?.groupe && (
+                    <p className="text-[11px] font-extrabold text-s4 uppercase tracking-wide pt-2 pb-0.5">
+                      {d.groupe}
+                    </p>
+                  )}
+                  <div
+                    className={`w-full text-left rounded-2xl p-3 border-2 ${
+                      d.highlight ? 'bg-orange-50 border-lava' :
+                      d.current ? 'bg-white border-fox shadow-sm' :
+                      'bg-white border-s1'
+                    }`}>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="flex-1">
+                        <div className="font-heading font-bold text-stone text-base flex items-center gap-2">
+                          {d.label}
+                          {d.current && <span className="text-[10px] font-bold bg-fox text-white px-2 py-0.5 rounded-full">CETTE SEMAINE</span>}
+                        </div>
+                        <div className="text-xs text-s4 font-semibold mt-0.5">{d.desc}</div>
                       </div>
-                      <div className="text-xs text-s4 font-semibold mt-0.5">{d.desc}</div>
+                    </div>
+                    <div className="flex gap-2">
+                      {(d.practiceMode || !isGrade3) && (
+                        <button onClick={() => { setDicteesOpen(false); onStartPractice(d.practiceMode || d.id); }}
+                          className="flex-1 py-2 rounded-lg font-bold text-white text-sm"
+                          style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
+                          ▶ Choix multiple
+                        </button>
+                      )}
+                      {onStartFlashcard && d.id !== 'dictee_revision' && (
+                        <button onClick={() => { setDicteesOpen(false); onStartFlashcard(d.flashKey || d.id); }}
+                          className="flex-1 py-2 rounded-lg font-bold text-fox-d text-sm bg-orange-50 border-2 border-orange-200 hover:border-fox">
+                          🃏 Écris les mots
+                        </button>
+                      )}
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => { setDicteesOpen(false); onStartPractice(d.id); }}
-                      className="flex-1 py-2 rounded-lg font-bold text-white text-sm"
-                      style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
-                      ▶ Choix multiple
-                    </button>
-                    {onStartFlashcard && d.id !== 'dictee_revision' && (
-                      <button onClick={() => { setDicteesOpen(false); onStartFlashcard(d.id); }}
-                        className="flex-1 py-2 rounded-lg font-bold text-fox-d text-sm bg-orange-50 border-2 border-orange-200 hover:border-fox">
-                        🃏 Flashcard
-                      </button>
-                    )}
-                  </div>
-                </div>
+                </React.Fragment>
               ))}
             </div>
           </div>
