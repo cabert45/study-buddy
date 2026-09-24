@@ -17,6 +17,7 @@ import InstallPrompt from './components/InstallPrompt';
 import NotificationsPanel from './components/Notifications';
 import DicteeFlashcard from './components/DicteeFlashcard';
 import Feuille from './components/Feuille';
+import FeuilleMatcha from './components/FeuilleMatcha';
 import { listeCetteSemaine, cleDictee } from './data/orthographeQuotidien';
 import BiographieFlashcard from './components/BiographieFlashcard';
 import VerbesAvoirEtre from './components/VerbesAvoirEtre';
@@ -102,6 +103,11 @@ export default function App() {
     // le renvoie vers la flashcard, sur la liste du cahier en cours.
     // « Ma feuille » n'est pas un générateur de questions: c'est la feuille du
     // cahier reproduite à l'écran, avec son propre écran.
+    if (selectedMode === 'feuille_matcha') {
+      setNylaDeck(null); setFlashcardWeek(null); setMode(null);
+      setScreen('feuille_matcha');
+      return;
+    }
     if (selectedMode === 'feuille_l2') {
       setNylaDeck(null);
       setFlashcardWeek(null);
@@ -458,6 +464,9 @@ export default function App() {
       )}
       {screen === 'coach' && (
         <Coach onHome={goHome} onStartPractice={startPractice} />
+      )}
+      {screen === 'feuille_matcha' && (
+        <FeuilleMatcha onHome={goHome} onFinish={goHome} />
       )}
       {screen === 'feuille' && (
         <Feuille onHome={goHome} onFinish={goHome} />

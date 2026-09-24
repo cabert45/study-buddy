@@ -101,6 +101,7 @@ const ryanFrenchModes = [
 // de 2e année et on attaque en priorité ce qui a coulé aux examens de juin
 // (situations-problèmes 2.95/11, passé composé 9/17, vitesse de calcul).
 const grade3MathModes = [
+  { id: 'feuille_matcha', label: '📐 Ma feuille de maths', desc: 'Matcha AS.1.02 — échanger les blocs, poser les colonnes', badge: 'À revoir' },
   { id: 'matcha_nombres', label: '📘 Mon cahier Matcha', desc: 'Thème 1 en classe: blocs, valeur de position, nombres jusqu\'à 9 999', featured: true },
   { id: 'mixed', label: 'Pratique ciblée', desc: 'Mix de tous tes exercices' },
   { id: 'multi_step', label: '🧩 Problèmes', desc: 'Problèmes à étapes — le gros morceau de juin', badge: 'Priorité' },
