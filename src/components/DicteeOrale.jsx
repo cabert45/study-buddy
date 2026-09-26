@@ -118,6 +118,16 @@ export default function DicteeOrale({ onHome, onFinish }) {
     });
     if (!vivant.current) return null;
     if (r.refuse) { setMicRefuse(true); return null; }
+
+    // Rien entendu, ou du bruit que Scribe a transforme en phrase: on
+    // redemande. Lui compter une faute sur une invention serait injuste.
+    if (r.silence || r.invente || !r.texte) {
+      await reagir(r.invente
+        ? 'Il y avait trop de bruit. On recommence, bien fort.'
+        : 'Je ne t’ai pas entendu. Redis-moi les lettres, bien fort.');
+      if (vivant.current) setEtat(ETATS.PRET);
+      return null;
+    }
     setBrouillon(r.texte);
     setEtat(ETATS.RELIT);
     return r;

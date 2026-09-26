@@ -53,22 +53,25 @@ const ETATS = {
 
 // Où on en est, en toutes lettres. La première version n'avait qu'un « … »
 // gris: impossible de savoir si l'app écoutait, réfléchissait, ou était plantée.
+// Les etats sont nommes SANS « elle »: le mot designait le lapin ici et Nyla
+// la-bas (« Elle parle… » = la mascotte, « Elle a dit » = l'enfant). On met le
+// nom de la mascotte d'un cote et « Nyla » de l'autre.
 const LIBELLE_ETAT = {
-  [ETATS.PARLE]: { Icone: IconVoix, texte: 'Elle parle…' },
-  [ETATS.ATTEND]: { Icone: IconMicro, texte: 'À toi de parler' },
-  [ETATS.OUVERTURE]: { Icone: IconMicro, texte: 'J’ouvre le micro…' },
-  [ETATS.ECOUTE]: { Icone: IconMicro, texte: 'Je t’écoute' },
-  [ETATS.RELIT]: { Icone: IconCrayon, texte: 'Vérifie ce que j’ai entendu' },
-  [ETATS.REFLECHIT]: { Icone: IconReflechit, texte: 'Je réfléchis…' },
-  [ETATS.REPOND]: { Icone: IconVoix, texte: 'Elle répond…' },
+  [ETATS.PARLE]: { Icone: IconVoix, texte: (n) => `${n} parle…` },
+  [ETATS.ATTEND]: { Icone: IconMicro, texte: () => 'À toi de parler, Nyla' },
+  [ETATS.OUVERTURE]: { Icone: IconMicro, texte: () => 'J’ouvre le micro…' },
+  [ETATS.ECOUTE]: { Icone: IconMicro, texte: () => 'Je t’écoute, Nyla' },
+  [ETATS.RELIT]: { Icone: IconCrayon, texte: () => 'Vérifie ce que j’ai entendu' },
+  [ETATS.REFLECHIT]: { Icone: IconReflechit, texte: () => 'Je réfléchis…' },
+  [ETATS.REPOND]: { Icone: IconVoix, texte: (n) => `${n} répond…` },
 };
 
 // Un etat affiche: l'icone, puis les mots.
-function Etat({ etat }) {
+function Etat({ etat, nom }) {
   const e = LIBELLE_ETAT[etat];
   if (!e) return null;
   const { Icone, texte } = e;
-  return <span className="inline-flex items-center gap-1.5"><Icone size={18} /> {texte}</span>;
+  return <span className="inline-flex items-center gap-1.5"><Icone size={18} /> {texte(nom)}</span>;
 }
 
 export default function NylaTuteur({ onHome, onFinish }) {
@@ -148,7 +151,7 @@ export default function NylaTuteur({ onHome, onFinish }) {
     if (!vivantRef.current) return;
     setBrouillon('');
     setEtat(ETATS.PARLE);
-    ajouter('elle', phrase);
+    ajouter('mascotte', phrase);
     consigneRef.current = phrase;
     await speakAndWait(phrase);
     if (!vivantRef.current) return;
@@ -175,6 +178,20 @@ export default function NylaTuteur({ onHome, onFinish }) {
     });
     if (!vivantRef.current) return;
     if (r.refuse) { setMicRefuse(true); return; }
+
+    // Rien entendu, ou une phrase que Scribe a inventee a partir du bruit: on
+    // ne montre RIEN et on redonne la parole. Afficher « Trop con. Est-ce que
+    // tu es tres fort en maths? » comme si Nyla l'avait dit, c'est pire que de
+    // redemander.
+    if (r.silence || r.invente || !r.texte) {
+      const quoi = r.invente
+        ? 'Il y avait trop de bruit. On recommence?'
+        : 'Je ne t’ai pas entendue. Parle un peu plus fort!';
+      setEtat(ETATS.REPOND);
+      await speakAndWait(quoi);
+      if (vivantRef.current) setEtat(ETATS.ATTEND);
+      return;
+    }
     setBrouillon(r.texte);
     setEtat(ETATS.RELIT);
   }
@@ -229,7 +246,7 @@ export default function NylaTuteur({ onHome, onFinish }) {
 
     setBrouillon('');
     setEtat(ETATS.REPOND);
-    ajouter('elle', dire);
+    ajouter('mascotte', dire);
     setDetails((d) => [...d, { category: 'nyla_oral', type: question.theme, correct: ok }]);
     if (ok) setScore((s) => s + 1);
     setEssais((n) => n + 1);
@@ -274,7 +291,7 @@ export default function NylaTuteur({ onHome, onFinish }) {
 
   function terminer(phrase) {
     setEtat(ETATS.FINI);
-    ajouter('elle', phrase);
+    ajouter('mascotte', phrase);
     speakAndWait(phrase);
     try {
       if (mode === 'questions') saveSession('nyla_oral', essais + 1, score, details);
@@ -402,7 +419,7 @@ export default function NylaTuteur({ onHome, onFinish }) {
         <div className="flex-1">
           <div className="font-heading font-extrabold text-stone">
             {LIBELLE_ETAT[etat]
-              ? <Etat etat={etat} />
+              ? <Etat etat={etat} nom={mascotteLabel} />
               : etat === ETATS.FINI
                 ? <span className="inline-flex items-center gap-1.5"><IconTrophee size={18} /> Fini!</span>
                 : 'Prête?'}
@@ -445,7 +462,7 @@ export default function NylaTuteur({ onHome, onFinish }) {
       {etat === ETATS.RELIT && (
         <div className="bg-purple-50 border-2 border-purple-300 rounded-2xl p-3 mb-3">
           <div className="text-[10px] font-extrabold uppercase tracking-wide text-purple-700 mb-1">
-            Elle a dit — corrige si c’est mal entendu
+            Nyla a dit — corrige si c’est mal entendu
           </div>
           <input value={brouillon} onChange={(e) => setBrouillon(e.target.value)}
             placeholder="(rien entendu)"
@@ -492,7 +509,7 @@ export default function NylaTuteur({ onHome, onFinish }) {
 
       {(etat === ETATS.PARLE || etat === ETATS.REFLECHIT || etat === ETATS.REPOND || etat === ETATS.OUVERTURE) && (
         <div className="w-full py-5 rounded-3xl bg-s1 text-center font-heading font-bold text-s6 text-lg">
-          <Etat etat={etat} />
+          <Etat etat={etat} nom={mascotteLabel} />
         </div>
       )}
 

@@ -9,7 +9,22 @@
 //
 // Rien n'est gardé: l'audio vit le temps d'une requête.
 
-const MIN_AUDIO_OCTETS = 2000; // en dessous, c'est un silence
+const MIN_AUDIO_OCTETS = 2000;   // en dessous, il n'y a rien du tout
+// Il faut avoir VRAIMENT parle: un niveau au-dessus de ce seuil, pendant au
+// moins ce temps-la. Sans ce garde-fou, on envoyait du bruit de piece a Scribe
+// — et Scribe, devant du bruit, n'avoue pas qu'il n'a rien compris: il invente
+// une phrase francaise plausible. Nyla s'est vue attribuer « Trop con. Est-ce
+// que tu es tres fort en maths? », qu'elle n'a jamais dit. Mieux vaut
+// redemander que de lui preter des mots.
+const SEUIL_VOIX = 0.14;
+const MS_VOIX_MIN = 350;
+
+// Scribe marque lui-meme ce qu'il juge vide. On ne montre jamais ces marqueurs.
+const MARQUEURS = /^[\s(\[]*(silence|bruit|musique|inaudible|blank_audio|no speech|music|noise)[\s)\]]*$/i;
+
+// Une transcription doit tenir dans le temps qu'a dure l'audio. Un enfant de
+// cinq ans ne place pas quinze mots en deux secondes: au-dela, c'est invente.
+const MOTS_PAR_SECONDE_MAX = 4.5;
 
 /**
  * Ouvre le micro, enregistre, puis rend le texte transcrit.
@@ -32,7 +47,9 @@ export async function ecouterUnTour({
     return { texte: '', vide: true, refuse: true };
   }
 
-  const arreterNiveau = suivreLeNiveau(stream, onNiveau);
+  const mesure = { max: 0, msVoix: 0 };
+  const arreterNiveau = suivreLeNiveau(stream, onNiveau, mesure);
+  const debut = Date.now();
 
   const blob = await new Promise((resolve) => {
     let mime = '';
@@ -56,7 +73,14 @@ export async function ecouterUnTour({
     minuterie = setTimeout(arrete, maxMs);
   });
 
+  const duree = (Date.now() - debut) / 1000;
   if (!blob || blob.size < MIN_AUDIO_OCTETS) return { texte: '', vide: true, refuse: false };
+
+  // Elle n'a pas parle: on ne demande rien a Scribe. C'est plus rapide, ca ne
+  // coute rien, et surtout ca ne peut pas inventer.
+  if (mesure.msVoix < MS_VOIX_MIN) {
+    return { texte: '', vide: true, refuse: false, silence: true };
+  }
 
   onTranscrit && onTranscrit();
   try {
@@ -67,7 +91,17 @@ export async function ecouterUnTour({
     });
     if (!res.ok) return { texte: '', vide: false, refuse: false };
     const j = await res.json();
-    return { texte: String(j.texte || '').trim(), vide: false, refuse: false };
+    let texte = String(j.texte || '').trim();
+
+    // Les marqueurs de Scribe (« [silence] ») ne sont pas des paroles.
+    if (MARQUEURS.test(texte)) texte = '';
+
+    // Trop de mots pour la duree: c'est une invention, pas une transcription.
+    const mots = texte ? texte.split(/\s+/).length : 0;
+    if (mots > 3 && duree > 0 && mots / duree > MOTS_PAR_SECONDE_MAX) {
+      return { texte: '', vide: true, refuse: false, invente: true };
+    }
+    return { texte, vide: !texte, refuse: false };
   } catch {
     return { texte: '', vide: false, refuse: false };
   }
@@ -75,8 +109,7 @@ export async function ecouterUnTour({
 
 // La barre verte qui bouge avec la voix. C'est la seule preuve visible, pour
 // un enfant, que le micro l'entend vraiment.
-function suivreLeNiveau(stream, onNiveau) {
-  if (!onNiveau) return () => {};
+function suivreLeNiveau(stream, onNiveau, mesure) {
   let raf = null;
   let ctx = null;
   try {
@@ -90,14 +123,20 @@ function suivreLeNiveau(stream, onNiveau) {
       analyser.getByteTimeDomainData(data);
       let max = 0;
       for (let i = 0; i < data.length; i++) max = Math.max(max, Math.abs(data[i] - 128));
-      onNiveau(Math.min(1, max / 60));
+      const niveau = Math.min(1, max / 60);
+      if (mesure) {
+        mesure.max = Math.max(mesure.max, niveau);
+        // ~16 ms par image: on cumule le temps passe au-dessus du seuil.
+        if (niveau >= SEUIL_VOIX) mesure.msVoix += 16;
+      }
+      onNiveau && onNiveau(niveau);
       raf = requestAnimationFrame(boucle);
     };
     boucle();
   } catch {}
   return () => {
     cancelAnimationFrame(raf);
-    onNiveau(0);
+    onNiveau && onNiveau(0);
     try { ctx && ctx.close(); } catch {}
   };
 }
