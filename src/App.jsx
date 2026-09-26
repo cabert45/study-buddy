@@ -55,6 +55,9 @@ export default function App() {
   const guest = isGuest(); // camarade de classe via /laval: jamais les profils de la famille
   const [screen, setScreen] = useState(() => (guest ? 'guest' : 'profile'));
   const [mode, setMode] = useState(null);
+  // D’où vient la session en cours: le Coach (le chemin du jour) ou le menu.
+  // Sert à ramener Ryan sur son chemin à la fin, au lieu du menu.
+  const [venuDuCoach, setVenuDuCoach] = useState(null);
   const [sessionResults, setSessionResults] = useState(null);
   const [profile, setProfile] = useState(() => (guest ? guestProfile() : null)); // 'ryan', 'cayla', 'nyla' ou 'invite-…'
   const [darkMode, setDarkMode] = useState(false);
@@ -99,7 +102,8 @@ export default function App() {
     });
   }
 
-  function startPractice(selectedMode) {
+  function startPractice(selectedMode, contexte = null) {
+    setVenuDuCoach(contexte && contexte.depuisCoach ? contexte : null);
     // La dictee de la semaine n'est pas un exercice a choix multiple: elle se
     // tape. Le menu ET le Coach demandent le meme mode `dictee_liste`, et on
     // le renvoie vers la flashcard, sur la liste du cahier en cours.
@@ -247,6 +251,7 @@ export default function App() {
 
   function goHome() {
     setScreen(guest ? 'guest' : 'menu');
+    setVenuDuCoach(null);
     setMode(null);
     setActiveBloc(null);
     setSessionResults(null);
@@ -460,6 +465,8 @@ export default function App() {
         <Results
           results={sessionResults}
           onHome={goHome}
+          onRetourCoach={venuDuCoach ? () => { setVenuDuCoach(null); setMode(null); setSessionResults(null); setScreen('coach'); } : undefined}
+          suivant={venuDuCoach ? venuDuCoach.suivant : null}
           onRetry={() => startPractice(mode)}
           onContinueFocused={(weakCategory) => {
             // Switch to weak category mode if we recognize it, else retry same
@@ -490,7 +497,7 @@ export default function App() {
         <Chores onHome={goHome} profile={profile} />
       )}
       {screen === 'coach' && (
-        <Coach onHome={goHome} onStartPractice={startPractice} onOpenBoukili={() => setShowBoukili(true)} profile={profile} />
+        <Coach onHome={goHome} onStartPractice={startPractice} onOpenBoukili={() => setShowBoukili(true)} onStartTutor={startTutor} profile={profile} />
       )}
       {screen === 'feuille_matcha' && (
         <FeuilleMatcha onHome={goHome} onFinish={goHome} />

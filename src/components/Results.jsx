@@ -119,7 +119,7 @@ const categoryLabels = {
   memory: 'Mémoire',
 };
 
-export default function Results({ results, onHome, onRetry, onContinueFocused }) {
+export default function Results({ results, onHome, onRetry, onContinueFocused, onRetourCoach, suivant }) {
   if (!results) return null;
 
   const { correct, total, streak } = results;
@@ -204,8 +204,50 @@ export default function Results({ results, onHome, onRetry, onContinueFocused })
         </div>
       )}
 
+      {/* Le chemin du jour continue.
+          Avant, la fin d'un exercice lancé depuis le Coach renvoyait au MENU:
+          « Ryan a fini la stratégie, puis il retourne au menu — qu'est-ce
+          qu'il fait ensuite? » (26 sept. 2026). Il se retrouvait devant vingt
+          cartes, à choisir. La règle du parent est l'inverse: on propose, on
+          tranche, on annonce. Le Coach a déjà décidé — on le lui dit, et un
+          seul bouton continue. */}
+      {onRetourCoach && (
+        <div className="rounded-2xl p-4 mb-3 border-2 border-lava" style={{ background: 'linear-gradient(90deg, #fff1e6, #fdf6ee)' }}>
+          {suivant ? (
+            <>
+              <div className="text-[10px] font-extrabold uppercase tracking-wide text-fox-d mb-1">Ensuite dans mon chemin</div>
+              <div className="font-heading text-xl font-extrabold text-stone leading-tight mb-3">{suivant}</div>
+            </>
+          ) : (
+            <div className="font-heading text-xl font-extrabold text-stone leading-tight mb-3">
+              Il ne reste plus rien — va voir ton trophée!
+            </div>
+          )}
+          <button onClick={onRetourCoach}
+            className="w-full py-4 rounded-xl font-extrabold text-lg text-white active:scale-[0.98] transition-transform"
+            style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
+            Continuer mon chemin →
+          </button>
+          {/* Quand ça a vraiment coincé, la vidéo reste offerte — mais en petit,
+              et c'est tout. Le reste (« encore une session », « plus de
+              pratique », « retour au menu ») disparaît: sur le chemin, c'est
+              le chemin qui décide. Quatre boutons, c'est quatre décisions
+              qu'on lui demande de prendre. */}
+          {videos.length > 0 && analysis.decision !== 'mastered' && (
+            <button onClick={() => window.open(videos[0].url, '_blank')}
+              className="w-full mt-2 py-2.5 rounded-xl font-bold text-sm text-s6 bg-white border-2 border-s2">
+              Voir une vidéo sur {categoryLabels[analysis.worstCategory] || 'ce sujet'}
+            </button>
+          )}
+          <button onClick={onHome}
+            className="w-full mt-2 py-2 rounded-xl font-semibold text-xs text-s4">
+            Pause — retour au menu
+          </button>
+        </div>
+      )}
+
       {/* Action buttons — driven by AI decision */}
-      <div className="space-y-3">
+      <div className={`space-y-3 ${onRetourCoach ? 'hidden' : ''}`}>
         {analysis.decision === 'mastered' && (
           <>
             <button onClick={onHome}

@@ -430,7 +430,7 @@ const dayChips = [
   { idx: 0, label: 'Dim' },
 ];
 
-export default function Coach({ onHome, onStartPractice, onOpenBoukili, profile = 'ryan' }) {
+export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartTutor, profile = 'ryan' }) {
   const [plan, setPlan] = useState([]);
   const [planReady, setPlanReady] = useState(false);
   const [stepIdx, setStepIdx] = useState(0);
@@ -546,7 +546,11 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, profile 
   }, [running, remaining, warned, currentStep]);
 
   function handleStepEnd() {
-    setDoneSteps(d => { const n = [...d, stepIdx]; sauverAvancement(profile, n); return n; });
+    // Même règle qu'ailleurs: on écrit d'abord, on met l'état à jour ensuite.
+    // Un effet de bord dans un setState n'a aucune garantie de s'exécuter.
+    const fait = [...doneSteps, stepIdx];
+    sauverAvancement(profile, fait);
+    setDoneSteps(fait);
     if (currentStep?.type === 'break') {
       playAlarm();
       speak('PAUSE TERMINÉE! Retour au travail!');
@@ -587,8 +591,26 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, profile 
     if (currentStep?.type === 'app' && currentStep.mode) {
       // On coche la case AVANT d'ouvrir l'exercice: le Coach va etre quitte,
       // et c'est ce qui permet de retrouver le chemin au bon endroit au retour.
-      setDoneSteps(d => { const n = [...d, stepIdx]; sauverAvancement(profile, n); return n; });
-      onStartPractice(currentStep.mode);
+      //
+      // L'ENREGISTREMENT SE FAIT ICI, PAS DANS LE setState. Avant, le
+      // `sauverAvancement` vivait à l'intérieur de `setDoneSteps(d => …)`:
+      // React n'exécute cette fonction qu'au moment de traiter la mise à
+      // jour, et `onStartPractice` démonte le Coach à la ligne suivante — la
+      // mise à jour était donc abandonnée et RIEN n'était écrit. Mesuré le
+      // 26 sept. 2026: après un exercice complet lancé depuis le chemin,
+      // `localStorage` ne contenait aucune clé `sb_coach_fait_*`, et le
+      // chemin repartait éternellement de la première case.
+      const fait = [...doneSteps, stepIdx];
+      sauverAvancement(profile, fait);
+      setDoneSteps(fait);
+      // On emporte le nom de l'étape suivante: à la fin de l'exercice, l'écran
+      // de résultats l'annonce et propose UN bouton pour continuer, au lieu de
+      // le relâcher dans le menu. Le Coach a déjà décidé — on le lui dit.
+      const suivante = plan[stepIdx + 1];
+      onStartPractice(currentStep.mode, {
+        depuisCoach: true,
+        suivant: suivante ? suivante.label : null,
+      });
     }
   }
 
@@ -775,6 +797,19 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, profile 
                         className="w-full py-3 rounded-xl font-bold text-white"
                         style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
                         ▶ Continuer
+                      </button>
+                    )}
+
+                    {/* Le tuteur, là où on en a besoin.
+                        « Where the heck is the tutor? » (26 sept. 2026) — il
+                        était au bas du menu, derrière le panneau « Plus ».
+                        Un enfant bloqué ne va pas chercher de l'aide dans un
+                        sous-menu: il ferme l'app. Le tuteur s'ouvre donc
+                        depuis l'étape en cours, au moment où ça coince. */}
+                    {stepApp && onStartTutor && (
+                      <button onClick={onStartTutor}
+                        className="w-full mt-2 py-3 rounded-xl font-bold text-s6 bg-white border-2 border-s2 hover:border-info">
+                        Je ne comprends pas — explique-moi
                       </button>
                     )}
 

@@ -20,6 +20,7 @@ const icons = {
   // icônes sont à nous et suivent la couleur du module.)
   quatre_classes: { bg: '#e9f0fb', color: '#2b5ea8', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="5" x2="11" y2="5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/><line x1="3" y1="13" x2="8" y2="13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><circle cx="15" cy="13" r="1.4" fill="currentColor"/></svg> },
   boukili: { bg: '#f3ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 4.5C7.6 3.4 5.9 3 4 3.2v9.4c1.9-.2 3.6.2 5 1.3 1.4-1.1 3.1-1.5 5-1.3V3.2c-1.9-.2-3.6.2-5 1.3Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/><line x1="9" y1="4.5" x2="9" y2="13.9" stroke="currentColor" strokeWidth="1.4"/></svg> },
+  tuteur: { bg: '#e8eef8', color: '#3a5bc7', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 4.5h12v7.5H9.5L6.5 15v-3H3V4.5Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/><line x1="6" y1="8" x2="12" y2="8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
   calcul: { bg: '#fef0e4', color: '#c74a15', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="14" rx="1" stroke="currentColor" strokeWidth="1.4"/><rect x="10" y="5" width="6" height="11" rx="1" stroke="currentColor" strokeWidth="1.4"/><line x1="4" y1="9" x2="6" y2="9" stroke="currentColor" strokeWidth="1.4"/><line x1="5" y1="8" x2="5" y2="10" stroke="currentColor" strokeWidth="1.4"/></svg> },
   terme: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.4"/><text x="9" y="13" textAnchor="middle" fontSize="11" fontWeight="700" fill="currentColor">?</text></svg> },
   multi_step: { bg: '#e6f5f0', color: '#0f766e', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><rect x="10" y="2" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><rect x="6" y="10" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/></svg> },
@@ -140,6 +141,9 @@ const grade3FrenchModes = [
   { id: 'dictees_group', label: '🎴 Toutes mes dictées', desc: 'Les listes déjà vues + les dictées de 2e année', isGroup: true },
   { id: 'quatre_classes', label: 'Nom, adjectif ou verbe?', desc: 'Les reconnaître dans une phrase — avec le test qui décide', badge: 'À travailler' },
   { id: 'boukili', label: 'Boukili — ma lecture', desc: '20 minutes · 3 ou 4 livres, à voix haute', badge: 'Tous les jours' },
+  // Le tuteur était au fond du menu, derrière « Plus »: « where the heck is
+  // the tutor? » Un enfant bloqué ne fouille pas un sous-menu.
+  { id: 'tuteur', label: 'Mon tuteur — explique-moi', desc: 'Pose ta question, il explique pas à pas', badge: 'Quand ça bloque' },
   { id: 't1_revision', label: '📝 Classes de mots', desc: 'Nom, déterminant, adjectif, verbe, pronom — Thème 1', badge: 'En classe' },
   { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs' },
   { id: 'passe_compose', label: '⏪ Passé composé', desc: 'Auxiliaire être/avoir — 9/17 au dernier examen', badge: 'Priorité' },
@@ -255,6 +259,7 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
     if (id === 'verbes_avoir_etre' && onOpenVerbes) return onOpenVerbes();
     if (id === 'univers_social' && onOpenUniversSocial) return onOpenUniversSocial();
     if (id === 'sciences_labo' && onOpenSciences) return onOpenSciences();
+    if (id === 'tuteur') return onStartTutor && onStartTutor();
     if (id === 'nyla_boukili' || id === 'boukili') return onOpenBoukili && onOpenBoukili();
     if (id === 'nyla_logiciel') return window.open('https://www.logicieleducatif.fr/', '_blank', 'noopener,noreferrer');
     if (id === 'nyla_letters_flash') return onStartNylaFlashcard && onStartNylaFlashcard('letters_upper');
