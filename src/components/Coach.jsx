@@ -5,6 +5,8 @@ import { EXAMS, dicteeWeekForDate, dicteeActiveOn, daysBetween } from '../data/e
 import { moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data/cahierFrancais';
 import { listeCetteSemaine, semaineCourante } from '../data/orthographeQuotidien';
 import { strategiesCetteSemaine } from '../data/tablesStrategies';
+import { buildNylaPlan } from '../data/nylaPlanQuotidien';
+import { chargerAvancement, sauverAvancement } from '../utils/coachAvancement';
 
 // The Coach decides what Ryan does and when.
 // Given the time of day and what's coming up this week,
@@ -283,6 +285,11 @@ function buildPlan(dashboardData, opts = {}) {
   const day = today.getDay(); // 0=Sun, 6=Sat
   const minutesNow = realNow.getHours() * 60 + realNow.getMinutes();
 
+  // ===== Nyla, maternelle 5 ans: son propre plan, beaucoup plus court =====
+  // Le plan de Ryan fait une heure. A cinq ans, une heure ne s'apprend pas,
+  // elle s'endure: trois choses, une douzaine de minutes.
+  if (opts.profile === 'nyla') return buildNylaPlan(today);
+
   // ===== SUMMER: school's out — run the daily revision rotation =====
   if (today >= SUMMER_START && today < SUMMER_END) {
     return buildSummerPlan(today);
@@ -408,6 +415,7 @@ function dayLabel(dayIdx) {
   return days[dayIdx != null ? dayIdx : new Date().getDay()];
 }
 
+
 const dayChips = [
   { idx: 1, label: 'Lun' },
   { idx: 2, label: 'Mar' },
@@ -418,7 +426,7 @@ const dayChips = [
   { idx: 0, label: 'Dim' },
 ];
 
-export default function Coach({ onHome, onStartPractice }) {
+export default function Coach({ onHome, onStartPractice, profile = 'ryan' }) {
   const [plan, setPlan] = useState([]);
   const [planReady, setPlanReady] = useState(false);
   const [stepIdx, setStepIdx] = useState(0);
@@ -431,6 +439,8 @@ export default function Coach({ onHome, onStartPractice }) {
   const intervalRef = useRef(null);
   const greetedRef = useRef(false);
 
+  const isNyla = profile === 'nyla';
+  const prenom = isNyla ? 'Nyla' : profile === 'cayla' ? 'Cayla' : 'Ryan';
   const currentStep = plan[stepIdx];
   const today = new Date().getDay();
   const isPreviewMode = dayOverride != null && dayOverride !== today;
@@ -452,14 +462,19 @@ export default function Coach({ onHome, onStartPractice }) {
   // Build plan whenever dashData / overrides change
   useEffect(() => {
     if (dashData == null) return;
-    const built = buildPlan(dashData, { dayOverride });
+    const built = buildPlan(dashData, { dayOverride, profile });
     setPlan(built);
     setPlanReady(true);
-    // Reset progression when plan changes
-    setStepIdx(0);
-    setDoneSteps([]);
+    // On reprend la ou elle en etait aujourd'hui (voir chargerAvancement).
+    // En mode apercu d'un autre jour, on repart a zero: ce n'est pas son plan.
+    const dejaFait = isPreviewMode ? [] : chargerAvancement(profile);
+    const valides = dejaFait.filter((i) => i >= 0 && i < built.length);
+    setDoneSteps(valides);
+    let prochain = 0;
+    while (prochain < built.length && valides.includes(prochain)) prochain++;
+    setStepIdx(prochain);
     setRunning(false);
-  }, [dashData, dayOverride]);
+  }, [dashData, dayOverride, profile, isPreviewMode]);
 
   // Greet on first load
   useEffect(() => {
@@ -467,7 +482,11 @@ export default function Coach({ onHome, onStartPractice }) {
       greetedRef.current = true;
       const total = plan.reduce((s, p) => s + p.mins, 0);
       setTimeout(() => {
-        speak(`Salut Ryan! On va travailler ensemble. ${plan.length} étapes, environ ${total} minutes. C'est parti!`);
+        // On ne récite plus le nombre d'étapes et les minutes: le chemin les
+        // montre déjà, et l'annonce servait surtout à faire attendre.
+        speak(isNyla
+          ? `Bonjour Nyla! On commence par ${plan[0]?.label || 'la première chose'}.`
+          : `Salut ${prenom}! On commence par ${plan[0]?.label || 'la première chose'}.`);
       }, 500);
     }
   }, [plan, planReady]);
@@ -523,7 +542,7 @@ export default function Coach({ onHome, onStartPractice }) {
   }, [running, remaining, warned, currentStep]);
 
   function handleStepEnd() {
-    setDoneSteps(d => [...d, stepIdx]);
+    setDoneSteps(d => { const n = [...d, stepIdx]; sauverAvancement(profile, n); return n; });
     if (currentStep?.type === 'break') {
       playAlarm();
       speak('PAUSE TERMINÉE! Retour au travail!');
@@ -538,7 +557,7 @@ export default function Coach({ onHome, onStartPractice }) {
   function goNext() {
     if (stepIdx + 1 >= plan.length) {
       // All done!
-      speak('Tu as tout fini! Bravo! Tu mérites une récompense!');
+      speak(`Tu as tout fini! Bravo ${prenom}!`);
       playDing();
       setStepIdx(plan.length); // out of bounds = finished view
     } else {
@@ -560,15 +579,11 @@ export default function Coach({ onHome, onStartPractice }) {
     speak('+ 2 minutes. Continue!');
   }
 
-  function skipStep() {
-    setRunning(false);
-    goNext();
-  }
-
   function startAppMode() {
     if (currentStep?.type === 'app' && currentStep.mode) {
-      // Mark coach step as done before launching
-      setDoneSteps(d => [...d, stepIdx]);
+      // On coche la case AVANT d'ouvrir l'exercice: le Coach va etre quitte,
+      // et c'est ce qui permet de retrouver le chemin au bon endroit au retour.
+      setDoneSteps(d => { const n = [...d, stepIdx]; sauverAvancement(profile, n); return n; });
       onStartPractice(currentStep.mode);
     }
   }
@@ -579,7 +594,7 @@ export default function Coach({ onHome, onStartPractice }) {
       <div className="max-w-3xl mx-auto px-4 pt-12 text-center">
         <div className="text-7xl mb-4 animate-bounce">🏆</div>
         <h2 className="font-heading text-4xl font-extrabold text-ok mb-2">Tu as tout fait!</h2>
-        <p className="text-stone font-semibold mb-6 text-lg">Bravo Ryan! Tu mérites une grosse pause! 🎉</p>
+        <p className="text-stone font-semibold mb-6 text-lg">Bravo {prenom}! Tu mérites une grosse pause! 🎉</p>
         <button onClick={onHome}
           className="w-full py-4 rounded-xl font-bold text-white text-lg"
           style={{ background: 'linear-gradient(90deg, #2d7a3a, #4ca65b)' }}>
@@ -607,6 +622,9 @@ export default function Coach({ onHome, onStartPractice }) {
   const isApp = currentStep.type === 'app';
   const isMessage = currentStep.type === 'message';
   const color = isBreak ? '#e8a050' : remaining < 30 ? '#c74a15' : remaining < 120 ? '#e8a050' : '#2d7a3a';
+  // Combien de cases il reste à monter — le chemin le dit en toutes lettres,
+  // au lieu d'un compte à rebours qu'on regarde descendre.
+  const restant = Math.max(0, plan.length - doneSteps.length);
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-4 pb-8">
@@ -658,109 +676,136 @@ export default function Coach({ onHome, onStartPractice }) {
         </div>
       </div>
 
-      {/* Big current step card */}
-      <div className={`rounded-3xl p-6 mb-4 border-2 text-center ${
-        isBreak ? 'bg-orange-50 border-orange-300' :
-        isApp ? 'bg-blue-50 border-blue-300' :
-        'bg-white border-lava shadow-lg'
-      }`}>
-        <div className="text-xs font-bold uppercase tracking-wide text-s4 mb-1">
-          {isBreak ? '☕ Pause' : isApp ? '📚 App' : isMessage ? 'Info' : '🎯 Maintenant'}
+      {/* ===== Le chemin du jour =====
+          Avant, cet ecran etait un chronometre de 5 rem qui comptait a rebours,
+          avec « Passer cette etape » juste en dessous. Un enfant regarde le
+          chiffre descendre au lieu de travailler, et le bouton Passer est une
+          porte de sortie a portee de pouce. Le parent, lui, ne savait meme pas
+          a quoi les 15 minutes correspondaient.
+
+          Maintenant c'est un chemin: on part d'en bas, on monte d'une case par
+          exercice termine, et le trophee est en haut. Aucun compte a rebours
+          pour les exercices — une case se coche quand le travail est FINI, pas
+          quand le temps est ecoule. Le seul chronometre qui reste est celui de
+          la lecture, parce que la, « 15 minutes dans ton livre » est justement
+          la consigne. */}
+      <div className="bg-white rounded-3xl p-4 border-2 border-s1 mb-4">
+        {/* Le trophee, tout en haut du chemin */}
+        <div className="flex items-center gap-3 pb-1">
+          <div className={`w-11 h-11 rounded-full flex items-center justify-center text-2xl flex-shrink-0 border-2 ${
+            doneSteps.length >= plan.length ? 'bg-yellow-100 border-yellow-400' : 'bg-cream border-s2 opacity-50'
+          }`}>🏆</div>
+          <div className={`font-heading font-extrabold ${doneSteps.length >= plan.length ? 'text-stone' : 'text-s4'}`}>
+            {restant === 0 ? 'Tout est fait!' : restant === 1 ? 'Plus qu\u2019une case!' : `Encore ${restant} cases`}
+          </div>
         </div>
-        <div className="text-6xl mb-3">{currentStep.icon}</div>
-        <h3 className="font-heading text-2xl font-extrabold text-stone leading-tight mb-3">
-          {currentStep.label}
-        </h3>
 
-        {!isMessage && (
-          <div className="font-heading font-extrabold leading-none mb-4 transition-colors"
-            style={{ fontSize: '5rem', color }}>
-            {format(remaining)}
-          </div>
-        )}
+        {/* Les cases, de la derniere a la premiere: on monte le chemin */}
+        {plan.map((_, i) => plan.length - 1 - i).map((i) => {
+          const step = plan[i];
+          const done = doneSteps.includes(i);
+          const current = i === stepIdx;
+          const futur = i > stepIdx;
+          const stepBreak = step.type === 'break';
+          const stepApp = step.type === 'app';
+          const stepMsg = step.type === 'message';
+          const stepChore = step.type === 'chore';
 
-        {/* Action buttons */}
-        {isApp && !running && (
-          <button onClick={startAppMode}
-            className="w-full py-4 rounded-xl font-bold text-white text-lg"
-            style={{ background: 'linear-gradient(90deg, #3a5bc7, #5b4ad4)' }}>
-            ▶ Commencer
-          </button>
-        )}
-
-        {!isApp && !isMessage && remaining > 0 && (
-          <div className="flex gap-2">
-            {running ? (
-              <button onClick={() => setRunning(false)}
-                className="flex-1 py-3 rounded-xl font-bold text-white text-sm bg-yellow-600">
-                ⏸ Pause
-              </button>
-            ) : (
-              <button onClick={() => setRunning(true)}
-                className="flex-1 py-3 rounded-xl font-bold text-white text-sm"
-                style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
-                ▶ Continuer
-              </button>
-            )}
-            <button onClick={markDone}
-              className="flex-1 py-3 rounded-xl font-bold text-white text-sm bg-ok">
-              ✓ Fait!
-            </button>
-          </div>
-        )}
-
-        {!isApp && !isMessage && remaining === 0 && (
-          <div className="flex gap-2">
-            <button onClick={extend}
-              className="flex-1 py-3 rounded-xl font-bold text-white text-sm bg-yellow-600">
-              + 2 min
-            </button>
-            <button onClick={markDone}
-              className="flex-1 py-3 rounded-xl font-bold text-white text-sm bg-ok">
-              ✓ Fait!
-            </button>
-          </div>
-        )}
-
-        {isMessage && (
-          <button onClick={goNext}
-            className="w-full py-3 rounded-xl font-bold text-white"
-            style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
-            ▶ Continuer
-          </button>
-        )}
-      </div>
-
-      {/* Skip button */}
-      <button onClick={skipStep}
-        className="w-full text-xs text-s4 font-bold hover:text-lava py-2 mb-3">
-        ↓ Passer cette étape
-      </button>
-
-      {/* Mini plan preview */}
-      <div className="bg-white rounded-2xl p-3 border-2 border-s1">
-        <div className="text-xs font-bold text-s4 uppercase mb-2">Le reste du plan</div>
-        <div className="space-y-1.5">
-          {plan.map((step, i) => {
-            const done = doneSteps.includes(i);
-            const current = i === stepIdx;
-            return (
-              <div key={i}
-                className={`flex items-center gap-2 text-sm py-1 px-2 rounded ${
-                  current ? 'bg-orange-50 border border-lava' :
-                  done ? 'opacity-40' : ''
+          return (
+            <div key={i} className="flex gap-3">
+              {/* La colonne de gauche: la pastille + le trait qui relie */}
+              <div className="flex flex-col items-center flex-shrink-0">
+                <div className={`w-1.5 flex-shrink-0 rounded-full ${done ? 'bg-ok' : 'bg-s1'}`} style={{ height: 14 }} />
+                <div className={`w-11 h-11 rounded-full flex items-center justify-center text-2xl border-2 transition-all ${
+                  done ? 'bg-green-50 border-ok'
+                  : current ? 'bg-white border-lava shadow-lg scale-110'
+                  : 'bg-cream border-s2 opacity-60'
                 }`}>
-                <span className="text-base">{step.icon}</span>
-                <span className={`flex-1 truncate ${
-                  done ? 'line-through text-s4' :
-                  current ? 'font-bold text-stone' :
-                  'text-s6'
-                }`}>{step.label}</span>
-                <span className="text-xs font-bold text-s4">{step.mins}m</span>
-                {done && <span className="text-ok text-xs">✓</span>}
+                  {done ? '\u2705' : step.icon}
+                </div>
+                {i > 0 && (
+                  <div className={`w-1.5 flex-1 rounded-full ${done ? 'bg-ok' : 'bg-s1'}`} style={{ minHeight: 14 }} />
+                )}
               </div>
-            );
-          })}
+
+              {/* La colonne de droite: le contenu de la case */}
+              <div className={`flex-1 ${current ? 'pb-4' : 'pb-2'} pt-3`}>
+                {!current && (
+                  <div className={`font-heading font-bold leading-tight ${
+                    done ? 'text-s4 line-through' : futur ? 'text-s4' : 'text-stone'
+                  }`}>
+                    {step.label}
+                  </div>
+                )}
+
+                {current && (
+                  <div className={`rounded-2xl p-4 border-2 ${
+                    stepBreak ? 'bg-orange-50 border-orange-300' : 'bg-white border-lava shadow-lg'
+                  }`}>
+                    <div className="text-[10px] font-extrabold uppercase tracking-wide text-lava mb-1">
+                      {stepBreak ? '\u2615 Pause' : stepMsg ? 'Info' : 'Tu es ici'}
+                    </div>
+                    <h3 className="font-heading text-xl font-extrabold text-stone leading-tight mb-3">
+                      {step.label}
+                    </h3>
+
+                    {/* Le chronometre ne s'affiche QUE pour la lecture et les
+                        pauses: la, la duree est la consigne elle-meme. */}
+                    {(stepChore || stepBreak) && (
+                      <div className="font-heading font-extrabold leading-none mb-3 text-center"
+                        style={{ fontSize: '3rem', color }}>
+                        {format(remaining)}
+                      </div>
+                    )}
+
+                    {stepApp && (
+                      <button onClick={startAppMode}
+                        className="w-full py-4 rounded-xl font-extrabold text-white text-lg active:scale-[0.98] transition-transform"
+                        style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
+                        Commencer \u2192
+                      </button>
+                    )}
+
+                    {stepMsg && (
+                      <button onClick={goNext}
+                        className="w-full py-3 rounded-xl font-bold text-white"
+                        style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
+                        \u25b6 Continuer
+                      </button>
+                    )}
+
+                    {(stepChore || stepBreak) && (
+                      <div className="flex gap-2">
+                        {remaining > 0 ? (
+                          <button onClick={() => setRunning((v) => !v)}
+                            className="flex-1 py-3 rounded-xl font-bold text-white text-sm bg-yellow-600">
+                            {running ? '\u23f8 Pause' : '\u25b6 Continuer'}
+                          </button>
+                        ) : (
+                          <button onClick={extend}
+                            className="flex-1 py-3 rounded-xl font-bold text-white text-sm bg-yellow-600">
+                            + 2 min
+                          </button>
+                        )}
+                        <button onClick={markDone}
+                          className="flex-1 py-3 rounded-xl font-bold text-white text-sm bg-ok">
+                          \u2713 Fait!
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Le depart, tout en bas */}
+        <div className="flex items-center gap-3 pt-1">
+          <div className="w-11 h-11 rounded-full bg-cream border-2 border-s2 flex items-center justify-center text-2xl flex-shrink-0">
+            \ud83c\udfe0
+          </div>
+          <div className="font-heading font-bold text-s4">D\u00e9part</div>
         </div>
       </div>
     </div>

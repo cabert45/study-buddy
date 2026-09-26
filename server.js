@@ -121,6 +121,30 @@ async function queryOne(sql, params = []) {
 }
 
 // --- Anthropic client ---
+// Qui est l'enfant devant l'écran. Le prompt du tuteur disait « Ryan, 7 ans,
+// 2e année » — figé depuis l'an dernier. Ryan a 8 ans et il est en 3e, Cayla
+// est au secondaire, Nyla ne lit pas encore. Un tuteur qui se trompe d'enfant
+// explique au mauvais niveau, ce qui est pire que pas de tuteur du tout.
+const ENFANTS = {
+  ryan: {
+    nom: 'Ryan',
+    qui: 'Ryan, 8 ans, 3e année au Québec',
+    comment: `Il pleure quand il se trompe: ne dis jamais que c'est faux. Dis d'abord ce qui est déjà
+bon, puis la prochaine étape. Explique avec des objets qu'il peut voir (billes, bonbons, doigts, blocs).`,
+  },
+  cayla: {
+    nom: 'Cayla',
+    qui: 'Cayla, secondaire 1 au Québec (Collège Laval)',
+    comment: `Parle-lui comme à une grande. Pas de bébelles: donne la règle, puis un exemple clair.`,
+  },
+  nyla: {
+    nom: 'Nyla',
+    qui: 'Nyla, 5 ans, maternelle 5 ans au Québec',
+    comment: `Elle NE LIT PAS. Tout ce que tu écris sera lu à voix haute: des phrases très courtes,
+des mots de tous les jours, aucune consigne écrite à déchiffrer. Compte avec elle à voix haute.`,
+  },
+};
+
 let anthropic = null;
 if (process.env.ANTHROPIC_API_KEY) {
   anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -529,7 +553,8 @@ app.get('/api/dashboard/advice', async (req, res) => {
       return { date: s.date, mode: s.mode, score: `${s.correct}/${s.total}`, details };
     });
 
-    const prompt = `Voici les stats de Ryan (7 ans, 2e annee Quebec):
+    const enfant = ENFANTS[profile] || ENFANTS.ryan;
+    const prompt = `Voici les stats de ${enfant.qui}:
 
 Statistiques par categorie:
 ${stats.map(s => `- ${s.category}: ${s.correct}/${s.total} (${s.total > 0 ? Math.round(s.correct/s.total*100) : 0}%)`).join('\n')}
@@ -544,12 +569,15 @@ Donne-moi:
 4. Des conseils pour l'aider a la maison`;
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 600,
-      system: `Tu es un tuteur de mathematiques expert pour enfants au Quebec. Tu parles au PARENT de Ryan, pas a Ryan. Sois precis, actionnable et encourageant. Utilise des emojis. Reponds en francais.`,
+      model: 'claude-opus-5',
+      max_tokens: 2000,
+      system: `Tu es un tuteur expert pour enfants au Québec, en français ET en mathématiques.
+Tu parles au PARENT de ${enfant.nom}, pas à l'enfant. Sois précis, actionnable et encourageant.
+Appuie chaque constat sur un chiffre des statistiques. Utilise des émojis. Réponds en français.`,
       messages: [{ role: 'user', content: prompt }],
     });
-    res.json({ message: response.content[0].text });
+    const texte = response.content.find((b) => b.type === 'text');
+    res.json({ message: texte ? texte.text : "Pas encore assez de données pour un conseil utile." });
   } catch (err) {
     console.error('Advice API error:', err);
     res.json({ message: "Erreur lors de la generation des conseils. Reessayez plus tard." });
@@ -698,17 +726,22 @@ app.post('/api/tutor', async (req, res) => {
   if (!anthropic) {
     return res.status(500).json({ error: 'Cle API Anthropic non configuree' });
   }
+  const enfant = ENFANTS[req.body.profile] || ENFANTS.ryan;
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-opus-5',
       max_tokens: 300,
-      system: `Tu es le tuteur de math de Ryan, 7 ans, 2e année au Québec.
-Réponds en 1-2 phrases MAXIMUM. Français simple. Sois encourageant avec des émojis.
-Ne donne JAMAIS la réponse directement. Guide Ryan pour comprendre.
-Quand il se trompe, explique avec des exemples concrets (billes, bonbons, doigts).`,
+      // Une phrase d'aide n'a pas besoin d'une longue réflexion, et l'enfant
+      // attend devant l'écran: effort bas = réponse rapide.
+      output_config: { effort: 'low' },
+      system: `Tu es le tuteur de ${enfant.qui}.
+Réponds en 1-2 phrases MAXIMUM. Français simple. Sois encourageant, avec un émoji.
+Ne donne JAMAIS la réponse directement: pose la question qui lui fait trouver la prochaine étape.
+${enfant.comment}`,
       messages: [{ role: 'user', content: req.body.prompt }],
     });
-    res.json({ message: response.content[0].text });
+    const texte = response.content.find((b) => b.type === 'text');
+    res.json({ message: texte ? texte.text : 'Essaie encore! 💪' });
   } catch (err) {
     console.error('Tutor API error:', err);
     res.json({ message: "Hmm, je n'ai pas pu reflechir cette fois. Reessaie! 🤔" });

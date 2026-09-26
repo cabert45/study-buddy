@@ -15,7 +15,9 @@ function generateTutorQuestion() {
   return generateWordProblem();
 }
 
-export default function TutorSession({ onHome }) {
+export default function TutorSession({ onHome, profile = 'ryan' }) {
+  // Le tuteur felicitait « Ryan » quel que soit l'enfant connecte.
+  const prenom = profile === 'nyla' ? 'Nyla' : profile === 'cayla' ? 'Cayla' : 'Ryan';
   const [question, setQuestion] = useState(null);
   const [selected, setSelected] = useState(null);
   const [showResult, setShowResult] = useState(false);
@@ -47,11 +49,11 @@ export default function TutorSession({ onHome }) {
 
     if (value === question.correct) {
       const cheers = [
-        'Super Ryan! Tu as compris! 🌟',
+        `Super ${prenom}! Tu as compris! 🌟`,
         'Excellent! Tu es un champion! 🏆',
         'Bravo! Continue comme ca! 💪',
         'Parfait! Tu progresses! 🚀',
-        'Genial Ryan! 🎉',
+        `Genial ${prenom}! 🎉`,
       ];
       const cheer = cheers[Math.floor(Math.random() * cheers.length)];
       setTutorMessages((prev) => [...prev, { text: cheer, isLoading: false }]);
@@ -59,7 +61,7 @@ export default function TutorSession({ onHome }) {
       setLoading(true);
       setTutorMessages((prev) => [...prev, { text: '', isLoading: true }]);
 
-      const prompt = `Ryan vient de se tromper sur ce problème:
+      const prompt = `${prenom} vient de se tromper sur ce problème:
 Problème: ${question.text}
 Sa réponse: ${value}
 Bonne réponse: ${question.correct}

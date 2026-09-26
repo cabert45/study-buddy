@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
 import { nylaWeekList } from '../data/nylaFlashcards';
 import { sonsList } from '../data/nyla1reAnnee';
+import { themeDuJour } from '../data/nylaPlanQuotidien';
+import { coachFaitAujourdhui } from '../utils/coachAvancement';
 import { CAHIER_THEMES, CAHIER_SEMAINES, moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data/cahierFrancais';
 import { listeCetteSemaine, semaineCourante, listesVues, cleDictee } from '../data/orthographeQuotidien';
 import { strategiesCetteSemaine } from '../data/tablesStrategies';
@@ -381,6 +383,13 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
   const name = isDemo ? 'Mon ami' : profile === 'ryan' ? 'Ryan' : isCayla ? 'Cayla' : 'Nyla';
   const isGrade3 = ryanGraded && section === 'grade3';
   const grade = isCayla ? 'Secondaire 1' : isNyla ? 'Maternelle 5 ans' : ryanGraded ? '3e année' : '2e année';
+  // Ce que Nyla a à faire aujourd'hui, annoncé dès l'accueil.
+  const nylaSousTitre = (() => {
+    if (!isNyla) return '';
+    const t = themeDuJour();
+    const fait = coachFaitAujourdhui('nyla');
+    return fait > 0 ? `${t.jour} — ${t.theme} · ${fait} de fait` : `${t.jour} — ${t.theme}`;
+  })();
   const mathModes = isCayla ? caylaMathModes : isNyla ? nylaMathModes : isGrade3 ? grade3MathModes : ryanMathModes;
   const frenchModes = isCayla ? caylaFrenchModes : isNyla ? nylaFrenchModes : isGrade3 ? grade3FrenchModes : ryanFrenchModes;
   const modes = tab === 'math' ? mathModes : frenchModes;
@@ -506,8 +515,10 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
         </button>
       )}
 
-      {/* Coach button — the BIG one (Ryan: lives in the ☀️ Été window instead) */}
-      {onStartCoach && !isDemo && !ryanGraded && !isNyla && (
+      {/* Coach button — the BIG one (Ryan: lives in the ☀️ Été window instead).
+          Nyla l'a en haut de son écran: c'est SA porte d'entrée. À 5 ans, on ne
+          choisit pas parmi onze tuiles — on suit le chemin du jour. */}
+      {onStartCoach && !isDemo && (!ryanGraded || isNyla) && (
         <button onClick={onStartCoach}
           className="w-full rounded-2xl p-5 mb-3 flex items-center gap-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
           style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a 50%, #fdcb6e)', boxShadow: '0 6px 24px rgba(199,74,21,0.25)' }}>
@@ -515,8 +526,12 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
             <Target size={26} />
           </div>
           <div className="text-left flex-1">
-            <div className="font-heading text-xl font-extrabold text-white leading-tight">Mon Coach</div>
-            <div className="text-xs font-semibold text-white/85">Suis le plan, ne réfléchis pas — juste GO!</div>
+            <div className="font-heading text-xl font-extrabold text-white leading-tight">
+              {isNyla ? 'Mon chemin du jour' : 'Mon Coach'}
+            </div>
+            <div className="text-xs font-semibold text-white/85">
+              {isNyla ? nylaSousTitre : 'Suis le plan, ne réfléchis pas — juste GO!'}
+            </div>
           </div>
           <ChevronRight className="text-white/60" size={24} strokeWidth={3} />
         </button>

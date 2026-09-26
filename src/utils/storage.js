@@ -60,7 +60,9 @@ export async function askTutor(prompt) {
   const res = await fetch(`${API_BASE}/tutor`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt }),
+    // Sans le profil, le serveur croyait parler à Ryan quoi qu'il arrive —
+    // et à un Ryan de 7 ans en 2e année, en plus.
+    body: JSON.stringify({ prompt, profile: getProfile() }),
   });
   return res.json();
 }

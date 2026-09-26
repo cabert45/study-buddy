@@ -103,6 +103,16 @@ export default function App() {
     // le renvoie vers la flashcard, sur la liste du cahier en cours.
     // « Ma feuille » n'est pas un générateur de questions: c'est la feuille du
     // cahier reproduite à l'écran, avec son propre écran.
+    // Le plan du jour de Nyla contient ses paquets de cartes (les lettres, les
+    // chiffres), qui ne sont pas des séries de questions mais leur propre
+    // écran. Le Coach les demande sous la forme « nyladeck:letters_upper ».
+    if (typeof selectedMode === 'string' && selectedMode.startsWith('nyladeck:')) {
+      setFlashcardWeek(null);
+      setMode(null);
+      setNylaDeck(selectedMode.slice('nyladeck:'.length));
+      setScreen('menu');
+      return;
+    }
     if (selectedMode === 'feuille_matcha') {
       setNylaDeck(null); setFlashcardWeek(null); setMode(null);
       setScreen('feuille_matcha');
@@ -427,7 +437,7 @@ export default function App() {
         />
       )}
       {screen === 'tutor' && (
-        <TutorSession onHome={goHome} />
+        <TutorSession onHome={goHome} profile={profile} />
       )}
       {screen === 'results' && (
         <Results
@@ -463,7 +473,7 @@ export default function App() {
         <Chores onHome={goHome} profile={profile} />
       )}
       {screen === 'coach' && (
-        <Coach onHome={goHome} onStartPractice={startPractice} />
+        <Coach onHome={goHome} onStartPractice={startPractice} profile={profile} />
       )}
       {screen === 'feuille_matcha' && (
         <FeuilleMatcha onHome={goHome} onFinish={goHome} />
