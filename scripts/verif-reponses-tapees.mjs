@@ -57,6 +57,10 @@ verifie('4 358 écrit 2 358 (2 um oubliées)', diagnosticTape('2358', 4358, 'nom
 // deuxième moitié qui n'existe pas.
 verifie('11 écrit 1 (terme manquant)', diagnosticTape('1', 11, 'nombre'), 'Il te manque exactement 1 dizaine (10).');
 verifie('à un près', diagnosticTape('62', 63, 'nombre'), 'À un près. Recompte une dernière fois, lentement.');
+// « 1 » au lieu de « 10 » dans un problème de bonbons: pas une histoire de
+// colonnes. Les messages de valeur de position sont réservés aux vrais nombres.
+verifie('10 écrit 1: pas de leçon de colonnes', diagnosticTape('1', 10, 'nombre'), null);
+verifie('6 écrit 60: pas de leçon de colonnes', diagnosticTape('60', 6, 'nombre'), null);
 verifie('réponse sans rapport: pas de « presque »', diagnosticTape('17', 2398, 'nombre'), null);
 verifie('accent oublié', diagnosticTape('j ai mange', "j'ai mangé", 'mot'), "C'est le bon mot — il manque juste l'accent. En français, l'accent fait partie du mot.");
 verifie('une lettre en trop', diagnosticTape("j'ai mangés", "j'ai mangé", 'mot'), 'Tu y es presque: une lettre ou deux à changer.');

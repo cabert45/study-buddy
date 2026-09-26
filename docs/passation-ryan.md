@@ -66,6 +66,12 @@ L'écart n'est pas lui. Mesuré dans le générateur :
 **Conséquence pour la suite : tout score de l'app sur une compétence de
 production est optimiste tant que la réponse est un choix multiple.**
 
+**Corrigé le 26 sept.** — ces questions-là se tapent maintenant (voir §3). Mais
+les chiffres ci-dessus, eux, **mélangent les deux régimes**: tout ce qui a été
+répondu avant le 26 septembre a été CHOISI parmi quatre. Ne pas comparer un
+pourcentage d'octobre à un pourcentage de septembre sans le savoir; le vrai
+niveau de départ, ce sont ses feuilles papier, pas la base.
+
 ### Ses trois malentendus, vus sur ses vraies feuilles
 
 1. **Quelle lettre est muette.** Il sait qu'il y en a une, il ne trie pas
@@ -82,6 +88,34 @@ production est optimiste tant que la réponse est un choix multiple.**
 
 ## 3. Ce qui a été construit (et qui marche)
 
+- **Les réponses de production se TAPENT, dans le moteur quotidien** (26 sept.).
+  C'était le point 1 de la liste ci-dessous; il est fait. Voir
+  `utils/reponseTapee.js`, branché dans `PracticeSession.jsx`.
+  - Ce qui n'a plus de choix: `terme` (sa catégorie la plus faible), `mental`,
+    `relational`, les 11 types de production de `matcha_nombres` (blocs, jetons,
+    abaque, tableau, lettres→chiffres, ajouter, ajouter_deux, groupements,
+    sacs, valeur de position, plus grand/plus petit), et la conjugaison écrite
+    (`passe_compose` conjugate_er/etre, `present_indicatif`, `futur_simple`,
+    `futur_etre_avoir`, `conjugaison`). Mesuré: 300/400 questions Matcha,
+    400/400 en terme, 137/400 en passé composé.
+  - Ce qui garde ses choix, exprès: les questions de CLASSEMENT (`comparer`
+    `< > =`, `position_nom`, `ordre`, `auxiliary`, `chiffres_lettres`, les
+    terminaisons). Choisir y est la tâche, comme dans le cahier — et taper
+    « quatre mille quatre-vingt-dix » serait un test d'orthographe déguisé.
+  - Le pavé de chiffres accepte **plus** de chiffres que la bonne réponse: s'il
+    écrit 6200 pour « six cent vingt », l'app doit le laisser faire et le lui
+    montrer. Une case à la bonne longueur lui soufflerait la réponse.
+  - Le champ texte coupe l'autocorrection du téléphone (`autoCorrect`,
+    `spellCheck`, `autoCapitalize`) — sinon iOS répare son orthographe et on ne
+    mesure plus rien — et offre une rangée d'accents (é è ê à â ç ô î û ’),
+    parce que l'accent doit rester une question de français, pas de clavier.
+  - Ce qu'on accepte: majuscules, espaces, apostrophe courbe, pronom omis
+    (« ai mangé » = « j'ai mangé »). Ce qu'on refuse: l'accent manquant.
+  - **La correction commence par « Presque! » quand l'erreur est une des
+    siennes** (zéro en trop, colonne vide sans son 0, moitié d'une consigne à
+    deux temps, un chiffre à la mauvaise place, à un près). Le bloc passe en
+    ambre au lieu du rouge. Il pleure quand il se trompe: un mur de rouge le
+    fait fermer l'app, même quand chaque ligne est exacte.
 - **Dictée tapée branchée sur ses listes de 3e** — `DicteeFlashcard` accepte les
   clés `ortho_lN` via `dicteeDeLaListe()` dans `data/orthographeQuotidien.js`.
   169 phrases à trou, listes 1 à 10. Mode `dictee_liste` intercepté dans
@@ -116,11 +150,12 @@ production est optimiste tant que la réponse est un choix multiple.**
 
 ## 4. Ce qui reste à faire, par ordre d'utilité
 
-1. **Réponses tapées dans le moteur quotidien.** Approuvé par le parent le
-   13 sept., redemandé le 26 (« Yes. So he understands »). Fait dans les deux
-   feuilles, **pas** dans `PracticeSession.jsx`, qui ne sait afficher que
-   `question.options.map`. C'est ce qui gonfle le 88 %. **C'est la prochaine
-   tâche.**
+1. ~~Réponses tapées dans le moteur quotidien.~~ **Fait le 26 sept.** (§3).
+   Ce qui reste dans cette veine, si on veut aller plus loin: `strategies` et
+   `calcul_rapide_3` gardent leurs choix alors que ce sont aussi des
+   productions — laissés de côté parce que leurs réponses ne sont pas toutes
+   des nombres (« Vrai/Faux », « quelle addition t'aide »), donc il faut les
+   trier type par type, comme on l'a fait pour Matcha.
 2. **Le moteur de décision** : après chaque session, décider — refaire,
    passer au suivant, changer pour les maths, terminé. Les données par question
    arrivent enfin au serveur, donc c'est possible maintenant.
@@ -137,15 +172,27 @@ production est optimiste tant que la réponse est un choix multiple.**
 
 - **Plusieurs sessions partagent ce dossier de travail.** Toujours `git add`
   des chemins explicites, jamais `git add -A`. Pendant cette session, une autre
-  session travaillait sur Nyla et le Coach.
+  session travaillait sur Nyla et le Coach. **Et c'est arrivé**: le 26 sept.,
+  le commit « Ryan epelle a voix haute » a emporté au passage les fichiers des
+  réponses tapées, encore en cours d'écriture dans le dossier. Rien n'est
+  perdu, mais l'historique ment sur qui a fait quoi — ne pas s'y fier pour
+  comprendre une fonctionnalité, lire le code et ce document.
 - **Railway → Neon est instable.** Deux coupures le 26 sept. (ETIMEDOUT en IPv4,
   ENETUNREACH en IPv6, vers les bonnes adresses ; la base répondait très bien
   de l'extérieur). L'app y survit maintenant. Diagnostic en 3 s :
   `curl <app>/api/health`. Si ça se reproduit souvent, la vraie solution est le
   driver HTTP de Neon (port 443 au lieu de 5432).
 - **`vite build` ne prouve rien.** Il passe sur des composants qui plantent au
-  rendu. Utiliser `scripts/verif-telephone.mjs` — il a trouvé cinq bugs que le
-  build a laissés passer.
+  rendu. Trois scripts, du plus rapide au plus complet:
+  - `node scripts/verif-reponses-tapees.mjs` — ce qui se tape, ce qu'on accepte,
+    ce qu'on explique. Ne demande rien d'autre que node.
+  - `node scripts/verif-session.mjs <url> "Mathématiques||Terme manquant" 6` —
+    joue une vraie session dans Chrome. Il a trouvé deux corrections qui
+    enseignaient le faux (« la deuxième moitié de la consigne » sur une
+    question qui n'en a qu'une; « la colonne vide » à un enfant qui a répondu 1
+    au lieu de 10).
+  - `scripts/verif-telephone.mjs` — une page, un écran, les débordements. Il a
+    trouvé cinq bugs que le build a laissés passer.
 - **Il n'y a toujours pas de sauvegarde de la base.** `scripts/backup-db.js`
   vise un fichier SQLite d'avant le passage à Neon.
 - **Ne jamais compter des objets sur une image** (les siennes ou celles d'une

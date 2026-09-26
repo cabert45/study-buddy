@@ -134,10 +134,15 @@ export function diagnosticTape(saisie, correct, mode, contexte = {}) {
     const v = versNombre(saisie);
     const c = Number(correct);
     if (!Number.isFinite(v) || v === c) return null;
-    if (v === c * 10 || String(v) === String(c) + '0') {
+    // Les deux messages de valeur de position ne valent que pour de vrais
+    // nombres à colonnes. Répondre 1 au lieu de 10 dans un problème de
+    // bonbons, ce n'est pas « la colonne vide » — c'est juste faux, et lui
+    // parler de colonnes l'embrouillerait.
+    const aDesColonnes = String(c).length >= 3;
+    if (aDesColonnes && (v === c * 10 || String(v) === String(c) + '0')) {
       return 'Un zéro en trop. ' + String(c).length + ' chiffres suffisent — compte-les.';
     }
-    if (String(c).includes('0') && String(v) === String(c).replace(/0/g, '')) {
+    if (aDesColonnes && String(c).includes('0') && String(v) === String(c).replace(/0/g, '')) {
       return "Il manque le 0 de la colonne vide. Une colonne sans rien, ça s'écrit 0.";
     }
     if (String(v).length === String(c).length && memesChiffres(v, c)) {
