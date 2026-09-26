@@ -781,6 +781,106 @@ app.get('/api/tts/status', (req, res) => {
   res.json({ enabled: !!TTS_KEY, defaultVoice: TTS_DEFAULT_VOICE, model: TTS_MODEL, modelSlow: TTS_MODEL_SLOW });
 });
 
+// ===== Nyla parle, et on l'écoute ================================
+//
+// Le reste du portail de Nyla est à choix multiples, et un choix multiple
+// bute toujours sur le même mur à cinq ans: il faut lire les réponses. Des
+// pans entiers du programme de maternelle restaient donc dehors — réciter
+// les jours de la semaine, compter jusqu'à 20 d'un trait, dire son âge.
+// Ça ne se coche pas, ça se dit.
+//
+// Même montage que la pratique orale de Prepara: on enregistre un tour, on
+// l'envoie à Scribe, on renvoie le texte. Rien n'est gardé — l'audio vit le
+// temps d'une requête, en mémoire, et repart avec elle.
+//
+// La clé d'ElevenLabs est « scoped »: elle a le droit de faire parler, pas de
+// lister les voix (401 sur /v1/voices). Vérifié le 26 sept 2026: elle A le
+// droit de transcrire (scribe_v1, language_code=fra → 200). Si cette
+// permission disparaissait, /api/ecoute répond 503 et l'app retombe sur le
+// module de reconnaissance du navigateur: aucun écran ne devient muet.
+const ECOUTE_MAX_BYTES = 4 * 1024 * 1024; // ~30 s d'audio: bien assez pour un tour
+
+app.post('/api/ecoute', express.raw({ type: 'audio/*', limit: ECOUTE_MAX_BYTES }), async (req, res) => {
+  if (!TTS_KEY) return res.status(503).json({ error: 'stt_indisponible' });
+  const buf = req.body;
+  if (!buf || !buf.length) return res.status(400).json({ error: 'audio_vide' });
+  const mime = req.headers['content-type'] || 'audio/webm';
+  const ext = /mp4|m4a|aac/.test(mime) ? 'm4a' : /ogg/.test(mime) ? 'ogg' : /wav/.test(mime) ? 'wav' : 'webm';
+  try {
+    const fd = new FormData();
+    fd.append('model_id', 'scribe_v1');
+    fd.append('language_code', 'fra');
+    fd.append('tag_audio_events', 'false');
+    fd.append('file', new Blob([buf], { type: mime }), `tour.${ext}`);
+    const r = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
+      method: 'POST',
+      headers: { 'xi-api-key': TTS_KEY },
+      body: fd,
+    });
+    if (!r.ok) {
+      const body = await r.text().catch(() => '');
+      console.error('STT', r.status, body.slice(0, 200));
+      return res.status(503).json({ error: 'stt_indisponible' });
+    }
+    const data = await r.json();
+    res.json({ texte: String(data.text || '').trim() });
+  } catch (err) {
+    console.error('Ecoute error:', err.message);
+    res.status(503).json({ error: 'stt_indisponible' });
+  }
+});
+
+// Le juge parlant. Le client a déjà tranché tout seul ce qui est tranchable
+// (une suite de nombres, les jours de la semaine — voir utils/nylaOralCheck).
+// Ce qui arrive ici, c'est soit une question ouverte, soit un cas où le
+// vérificateur local a refusé de conclure. La réponse est COURTE parce qu'elle
+// sera lue à voix haute: une enfant de cinq ans n'écoute pas un paragraphe.
+app.post('/api/oral', async (req, res) => {
+  const { question, attendu, transcript, verdict } = req.body || {};
+  if (!anthropic) {
+    return res.json({ ok: null, dire: "Merci Nyla! On passe à la suivante." });
+  }
+  try {
+    const r = await anthropic.messages.create({
+      model: 'claude-opus-5',
+      max_tokens: 200,
+      // Elle attend devant l'écran, la bouche encore ouverte: la vitesse fait
+      // partie de la pédagogie ici.
+      output_config: { effort: 'low' },
+      system: `Tu parles à Nyla, 5 ans, maternelle 5 ans au Québec. Elle NE LIT PAS:
+tout ce que tu écris sera lu à voix haute par une voix de synthèse.
+
+Règles absolues:
+- UNE ou DEUX phrases courtes. Jamais plus.
+- Des mots de tous les jours. Aucune consigne écrite, aucune liste, aucun emoji.
+- Si elle a raison: dis-le avec enthousiasme et redis sa bonne réponse.
+- Si elle se trompe: ne dis JAMAIS « non » ni « c'est faux ». Nomme d'abord ce
+  qu'elle a réussi, puis donne l'indice qui lui fait trouver. Elle pleure quand
+  elle se trompe.
+- Si sa réponse est hors sujet ou incompréhensible, suppose que la transcription
+  est mauvaise et redemande gentiment, autrement.
+
+Réponds en JSON: {"ok": true|false, "dire": "<ce qu'on lui dit à voix haute>"}`,
+      messages: [{
+        role: 'user',
+        content: `Question posée à voix haute: « ${question} »
+${attendu ? `Réponse attendue: ${attendu}` : 'Question ouverte: toute réponse sensée est bonne.'}
+Ce que la transcription a entendu: « ${transcript} »
+${verdict ? `Le vérificateur automatique a conclu: ${verdict}` : ''}`,
+      }],
+    });
+    const texte = (r.content.find((b) => b.type === 'text') || {}).text || '';
+    const m = texte.match(/\{[\s\S]*\}/);
+    const parsed = m ? JSON.parse(m[0]) : null;
+    res.json(parsed && typeof parsed.dire === 'string'
+      ? { ok: !!parsed.ok, dire: parsed.dire }
+      : { ok: null, dire: "Bravo Nyla! On continue." });
+  } catch (err) {
+    console.error('Oral API error:', err.message);
+    res.json({ ok: null, dire: "Bravo Nyla! On continue." });
+  }
+});
+
 // Les voix proposées dans ⚙️ Réglages quand le compte ne peut pas être listé.
 // La clé d'ElevenLabs est « scoped »: elle a le droit de faire parler, pas celui
 // de lire la liste des voix du compte (401 sur /v1/voices). Plutôt que de laisser

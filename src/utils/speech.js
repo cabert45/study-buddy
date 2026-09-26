@@ -333,6 +333,60 @@ export function speak(text, lang = 'fr', baseRate = 0.85) {
   speakDevice(cleaned, lang, rate);
 }
 
+/**
+ * Dire une phrase, et savoir QUAND elle est finie.
+ *
+ * `speak()` part et ne revient jamais: parfait pour une consigne qu'on lance,
+ * inutilisable pour une conversation. Le tuteur parlant de Nyla doit ouvrir le
+ * micro à la seconde où la voix se tait — sinon il s'enregistre lui-même en
+ * train de poser la question, et Scribe transcrit la question au lieu de la
+ * réponse de l'enfant.
+ *
+ * Rend une promesse qui se résout à la fin de la phrase, quelle que soit la
+ * voix utilisée (premium ou celle de l'appareil), et même si tout échoue —
+ * elle ne rejette jamais: un micro qui ne s'ouvre pas serait pire qu'une
+ * phrase mal jouée.
+ */
+export function speakAndWait(text, { rate = 0.85 } = {}) {
+  return new Promise((resolve) => {
+    if (!speechEnabled || !window.speechSynthesis) return resolve();
+    const cleaned = cleanForSpeech(text);
+    if (!cleaned) return resolve();
+
+    const fini = () => resolve();
+    if (ttsReady()) {
+      const gen = speechGen;
+      window.speechSynthesis.cancel();
+      playPremium(cleaned, { rate: rate * prefSpeed })
+        .then(fini)
+        .catch(() => {
+          if (gen !== speechGen || !speechEnabled) return fini();
+          direAppareilEtAttendre(cleaned, rate * prefSpeed).then(fini);
+        });
+      return;
+    }
+    direAppareilEtAttendre(cleaned, rate * prefSpeed).then(fini);
+  });
+}
+
+// La voix de l'appareil, avec la même promesse de fin. Un filet de sécurité
+// temporel parce que `onend` ne se déclenche pas toujours sur iOS quand la
+// phrase est coupée: sans lui, le micro ne s'ouvrirait jamais.
+function direAppareilEtAttendre(texte, rate) {
+  return new Promise((resolve) => {
+    let fini = false;
+    const done = () => { if (!fini) { fini = true; resolve(); } };
+    try {
+      speakDevice(texte, 'fr', rate);
+      const u = window.speechSynthesis;
+      const garde = setTimeout(done, Math.min(20000, 1200 + texte.length * 90));
+      const tick = setInterval(() => {
+        if (!u.speaking && !u.pending) { clearInterval(tick); clearTimeout(garde); done(); }
+      }, 150);
+    } catch { done(); }
+  });
+}
+
 // Speak slowly for dictée — clearer pronunciation
 export function speakSlow(text) {
   if (!speechEnabled || !window.speechSynthesis) return;

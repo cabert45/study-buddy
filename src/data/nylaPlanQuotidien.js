@@ -80,6 +80,10 @@ export function buildNylaPlan(today = new Date()) {
 
   const plan = [etape(r.francais, 5), etape(r.maths, 5)];
 
+  // Parler, tous les jours. C'est la seule case ou elle produit une reponse au
+  // lieu d'en choisir une, et a cinq ans c'est ce qui compte le plus.
+  plan.push({ type: 'app', mode: 'nyla_oral', label: '🗣️ On parle ensemble', icon: '🗣️', mins: 5 });
+
   // Mardi et samedi: les cartes de chiffres en plus.
   if (jour === 2 || jour === 6) plan.push(etape(CARTES_CHIFFRES, 4));
 

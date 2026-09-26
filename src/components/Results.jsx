@@ -112,6 +112,7 @@ const categoryLabels = {
   nyla_prenom: '✍️ Mon prénom',
   nyla_1re_sons: '🔊 Le son de la semaine',
   nyla_1re_lecture: '📖 Je lis',
+  nyla_oral: '🗣️ On parle ensemble',
   aquarium: 'Aquarium',
   speed: 'Course',
   memory: 'Mémoire',

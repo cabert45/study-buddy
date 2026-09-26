@@ -48,6 +48,7 @@ import NylaSpeed from './components/NylaSpeed';
 import NylaSongs from './components/NylaSongs';
 import NylaAddition from './components/NylaAddition';
 import NylaCompare from './components/NylaCompare';
+import NylaTuteur from './components/NylaTuteur';
 
 export default function App() {
   const guest = isGuest(); // camarade de classe via /laval: jamais les profils de la famille
@@ -106,6 +107,13 @@ export default function App() {
     // Le plan du jour de Nyla contient ses paquets de cartes (les lettres, les
     // chiffres), qui ne sont pas des séries de questions mais leur propre
     // écran. Le Coach les demande sous la forme « nyladeck:letters_upper ».
+    // Le tuteur parlant a son propre ecran (micro + voix), pas une serie de
+    // questions a choix multiples.
+    if (selectedMode === 'nyla_oral') {
+      setFlashcardWeek(null); setMode(null); setNylaDeck(null);
+      setScreen('nylatuteur');
+      return;
+    }
     if (typeof selectedMode === 'string' && selectedMode.startsWith('nyladeck:')) {
       setFlashcardWeek(null);
       setMode(null);
@@ -358,6 +366,7 @@ export default function App() {
       {screen === 'nylasongs' && <NylaSongs onHome={goHome} />}
       {screen === 'nylaadd' && <NylaAddition onHome={goHome} />}
       {screen === 'nylacompare' && <NylaCompare onHome={goHome} />}
+      {screen === 'nylatuteur' && <NylaTuteur onHome={goHome} onFinish={goHome} />}
       {nylaDeck && screen === 'menu' && (
         <NylaFlashcard
           deck={nylaDeck}

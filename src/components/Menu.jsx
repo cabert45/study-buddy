@@ -211,7 +211,10 @@ const nylaMathModes = [
 ];
 
 const nylaFrenchModes = [
-  { id: 'nyla_letters_flash', label: '🔤 Mes lettres MAJUSCULES', desc: 'Apprends à nommer A à Z', featured: true },
+  // En vedette: c'est le seul endroit ou elle REPOND, au lieu de choisir parmi
+  // des mots qu'elle ne sait pas encore lire.
+  { id: 'nyla_oral', label: '🗣️ On parle ensemble', desc: 'Je te pose des questions, tu me réponds à voix haute', featured: true },
+  { id: 'nyla_letters_flash', label: '🔤 Mes lettres MAJUSCULES', desc: 'Apprends à nommer A à Z' },
   { id: 'nyla_letters_lower_flash', label: '🔡 lettres minuscules', desc: 'a à z — après les majuscules' },
   { id: 'nyla_prenom', label: '✍️ Mon prénom', desc: 'Reconnaître Nyla, Ryan, Cayla, papa, maman' },
   { id: 'nyla_syllabes', label: '👏 Mes syllabes', desc: 'Tape les syllabes: ba-na-ne' },
