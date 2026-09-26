@@ -253,13 +253,43 @@ if (typeof window !== 'undefined') {
   );
 }
 
+// Les deux voix ne se voyaient pas.
+//
+// `speechSynthesis.cancel()` fait taire la voix de l'appareil mais n'arrête pas
+// le MP3, et jouer un MP3 n'arrêtait pas la voix de l'appareil. Tant que tout
+// passait par l'appareil, chaque phrase coupait la précédente et personne ne
+// remarquait rien. Le jour où une voix premium est choisie, les deux canaux
+// tournent en parallèle: un mot d'anglais (toujours dit par l'appareil, parce
+// qu'une voix française qui prononce « butterfly » n'apprend rien à personne)
+// part par-dessus la phrase française — deux voix en même temps.
+//
+// Mesuré le 26 sept. 2026: `speak('Bonjour Ryan…')` puis, 700 ms plus tard,
+// `speak('butterfly', 'en')` → la voix de l'appareil démarre pendant que le MP3
+// joue encore. Depuis, avant de parler, on coupe LES DEUX.
+//
+// Ne touche pas à speechGen: couper pour parler tout de suite n'est pas la même
+// chose que quitter un écran (stopSpeech), qui annule aussi ce qui est
+// programmé.
+function couperLesVoix() {
+  try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch {}
+  try { if (audioEl) { audioEl.onended = null; audioEl.onerror = null; audioEl.pause(); } } catch {}
+}
+
+// Un numéro par clip. Quand un clip plus récent a pris la main, l'ancien se tait
+// au lieu de repasser à la voix de l'appareil: sinon on entendrait le MP3 de la
+// nouvelle phrase ET l'ancienne phrase dite par l'appareil par-dessus.
+let audioSeq = 0;
+
 // Joue le MP3. Rejette si quoi que ce soit cloche — l'appelant repasse alors à
 // la voix de l'appareil.
 function playPremium(text, { slow = false, rate = TTS_BASELINE_RATE } = {}) {
   const gen = speechGen;
+  couperLesVoix();
   const a = getAudio();
+  const seq = ++audioSeq;
+  const perime = () => seq !== audioSeq;
   return new Promise((resolve, reject) => {
-    a.onerror = () => reject(new Error('audio'));
+    a.onerror = () => (perime() ? resolve() : reject(new Error('audio')));
     a.onended = () => resolve();
     a.src = ttsUrl(text, slow);
     // Les appels demandent 0.8 ou 0.85; le MP3, lui, est enregistré à vitesse
@@ -272,7 +302,7 @@ function playPremium(text, { slow = false, rate = TTS_BASELINE_RATE } = {}) {
         // Écran quitté pendant le chargement: on se tait (stopSpeech a déjà
         // appelé pause(), mais un play() en vol peut le reprendre).
         if (gen !== speechGen) { try { a.pause(); } catch {} resolve(); }
-      }).catch(() => reject(new Error('play')));
+      }).catch(() => (perime() ? resolve() : reject(new Error('play'))));
     }
   });
 }
@@ -296,8 +326,8 @@ let speechGen = 0;
 
 export function stopSpeech() {
   speechGen++;
-  try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch {}
-  try { if (audioEl) { audioEl.onended = null; audioEl.onerror = null; audioEl.pause(); } } catch {}
+  audioSeq++;
+  couperLesVoix();
 }
 
 // setTimeout pour la voix: ne parle pas si on a changé d'écran entre-temps.
@@ -310,7 +340,7 @@ export function speakAfter(ms, fn) {
 
 // La voix de l'appareil: le chemin d'origine, qui reste le filet de sécurité.
 function speakDevice(cleaned, lang, rate) {
-  window.speechSynthesis.cancel();
+  couperLesVoix(); // et pas seulement speechSynthesis.cancel(): le MP3 aussi
   const u = new SpeechSynthesisUtterance(cleaned);
 
   const voice = lang === 'en' ? getEnglishVoice() : getVoice();
@@ -336,7 +366,7 @@ export function speak(text, lang = 'fr', baseRate = 0.85) {
   // L'anglais reste sur la voix de l'appareil (accent).
   if (lang !== 'en' && ttsReady()) {
     const gen = speechGen;
-    window.speechSynthesis.cancel(); // couper une phrase de l'appareil encore en cours
+    // (playPremium coupe déjà les deux voix)
     playPremium(cleaned, { rate }).catch(() => {
       if (gen === speechGen && speechEnabled) speakDevice(cleaned, lang, rate);
     });
@@ -440,7 +470,7 @@ export function speakSlow(text) {
 
   if (ttsReady()) {
     const gen = speechGen;
-    window.speechSynthesis.cancel();
+    // (playPremium coupe déjà les deux voix)
     playPremium(cleaned, { slow: true, rate: TTS_BASELINE_RATE * prefSpeed }).catch(() => {
       if (gen === speechGen && speechEnabled) speakDevice(cleaned, 'fr', 0.6 * prefSpeed);
     });
