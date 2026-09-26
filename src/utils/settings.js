@@ -18,8 +18,17 @@ export const DEFAULT_SETTINGS = {
   accent: 'auto',  // 'auto' | 'fr-CA' | 'fr-FR' | 'fr-BE' | 'fr-CH'
   voice: '',       // nom exact d'une voix de l'appareil ('' = la meilleure)
   // Voix ElevenLabs: 'auto' = celle du serveur, 'appareil' = la voix de l'iPad,
-  // sinon l'identifiant d'une voix du compte (voir /api/tts/voices).
-  ttsVoice: 'auto',
+  // sinon l'identifiant d'une voix (voir /api/tts/voices).
+  //
+  // Par defaut: Emilie, une voix FRANCAISE (accent neutre, ni quebecois ni
+  // parisien). Ce n'etait pas 'auto' par hasard — 'auto' prend la voix du
+  // serveur, et celle-la vient du compte partage avec Prepara, qui enseigne
+  // l'anglais: ses 22 voix sont anglaises. Elles lisent le francais avec une
+  // bouche anglaise, et Nyla entendait « sixe » au lieu de « six ». Nommer la
+  // voix ici plutot que de dependre d'ELEVENLABS_VOICE_ID garantit que tous
+  // les appareils parlent francais, sans toucher aux variables du deploiement.
+  // Chacun peut en changer dans ⚙️ Reglages.
+  ttsVoice: 'DmA5Za3LKQf1NQcbHfdZ',
   debit: 'normal',  // 'lente' | 'normal' | 'rapide' — la vitesse de la voix
   color: 'orange',
   mascot: 'default',

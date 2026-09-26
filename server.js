@@ -789,7 +789,11 @@ const TTS_MODEL = process.env.ELEVENLABS_MODEL || 'eleven_flash_v2_5';
 // lui coûte le mot. Ces mots-là sont courts et reviennent toute la semaine,
 // donc la seconde et demie de génération n'est payée qu'une fois par mot.
 const TTS_MODEL_SLOW = process.env.ELEVENLABS_MODEL_SLOW || 'eleven_multilingual_v2';
-const TTS_DEFAULT_VOICE = process.env.ELEVENLABS_VOICE_ID || '';
+// La voix par defaut de l'app: francaise, calme, articulee.
+// ELEVENLABS_VOICE_ID (Railway) reste prioritaire s'il est defini — c'est
+// encore une voix anglaise aujourd'hui, d'ou la note dans le README du deploy.
+const VOIX_FR_DEFAUT = 'DmA5Za3LKQf1NQcbHfdZ';
+const TTS_DEFAULT_VOICE = process.env.ELEVENLABS_VOICE_ID || VOIX_FR_DEFAUT;
 const TTS_DIR = path.join(__dirname, 'data', 'tts-cache');
 const TTS_MAX_CHARS = 600;
 
@@ -990,48 +994,42 @@ ${verdict ? `Le vérificateur automatique a conclu: ${verdict}` : ''}`,
 // La clé d'ElevenLabs est « scoped »: elle a le droit de faire parler, pas celui
 // de lire la liste des voix du compte (401 sur /v1/voices). Plutôt que de laisser
 // l'écran vide, on offre ces voix du catalogue commun, vérifiées en français.
+// Les voix proposees dans l'app. Elles sont FRANCAISES, et c'est tout le
+// sujet.
+//
+// Le compte ElevenLabs est partage avec Prepara, qui enseigne l'anglais: ses
+// 22 voix sont donc toutes anglaises. Elles savent lire du francais avec le
+// modele multilingue, mais avec une bouche anglaise — « six » sortait
+// « sixe ». Un enfant de cinq ans qui apprend a compter ne doit pas entendre
+// ca.
+//
+// Celles-ci viennent de la bibliotheque partagee, `language=fr`, accent
+// `standard`: ni tres quebecois, ni tres parisien — du francais neutre, comme
+// demande. Chacune a ete essayee sur une phrase piegeuse (« une tortue, un
+// ourson et six oiseaux ») et reconnue en francais par Scribe.
 const TTS_FALLBACK_VOICES = [
-  { id: 'XB0fDUnXU5powFXDhCwa', name: 'Charlotte', description: 'femme · douce · raconte bien' },
-  { id: 'Xb7hH8MSUJpSbSDYk0k2', name: 'Alice', description: 'femme · claire · articule chaque mot' },
-  { id: 'pFZP5JQG7iQjIQuC4Bku', name: 'Lily', description: 'femme · chaleureuse · calme' },
-  { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah', description: 'femme · posée · lit lentement' },
-  { id: 'FGY2WhTYpPnrIDTdsKH5', name: 'Laura', description: 'femme · jeune · enjouée' },
-  { id: 'XrExE9yKIg1WjnnlVkGX', name: 'Matilda', description: 'femme · amicale · rassurante' },
-  { id: 'JBFqnCBsd6RMkjVDRZzb', name: 'George', description: 'homme · grave · tranquille' },
-  { id: 'nPczCjzI2devNBz1zQrb', name: 'Brian', description: 'homme · net · sérieux' },
+  { id: 'DmA5Za3LKQf1NQcbHfdZ', name: 'Emilie', description: 'femme - calme et amicale' },
+  { id: 'Cy2zXKmu2kQeAuze0rzV', name: 'Chloe', description: 'femme - jeune et naturelle' },
+  { id: 'LAUUUZAQpu1khF4zl6Vl', name: 'Lucie', description: 'femme - douce, pour raconter' },
+  { id: 'uOw88F5bjqRiVuZLhXEA', name: 'Victoria', description: 'femme - enjouee' },
+  { id: 'LFtQZWdaqmvamcTNGpwl', name: 'Lucie (posee)', description: 'femme - lente et claire' },
+  { id: 'aiFobLbZNvpjmWZD7HBh', name: 'Alex', description: 'homme - chaleureux' },
+  { id: '43TArLZXN5r3L8mJ6AGR', name: 'Quentin', description: 'homme - jeune' },
 ];
+
 
 // Les voix du compte ElevenLabs, pour la liste de ⚙️ Réglages.
 // Gardées 10 min en mémoire: la liste ne bouge presque jamais.
 let voicesCache = { at: 0, list: null };
-app.get('/api/tts/voices', async (req, res) => {
+app.get('/api/tts/voices', (req, res) => {
   if (!TTS_KEY) return res.json({ enabled: false, voices: [] });
-  if (voicesCache.list && Date.now() - voicesCache.at < 10 * 60 * 1000) {
-    return res.json({ enabled: true, voices: voicesCache.list });
-  }
-  try {
-    const r = await fetch('https://api.elevenlabs.io/v1/voices', {
-      headers: { 'xi-api-key': TTS_KEY },
-    });
-    if (!r.ok) throw new Error(`ElevenLabs ${r.status}`);
-    const data = await r.json();
-    const list = (data.voices || []).map((v) => ({
-      id: v.voice_id,
-      name: v.name,
-      // « female · young · french »: ce qu'on montre sous le nom
-      description: [v.labels?.gender, v.labels?.age, v.labels?.accent, v.labels?.use_case]
-        .filter(Boolean).join(' · '),
-      category: v.category,
-    }));
-    voicesCache = { at: Date.now(), list: list.length ? list : TTS_FALLBACK_VOICES };
-    res.json({ enabled: true, voices: voicesCache.list });
-  } catch (err) {
-    // 401 = clé « scoped » sans le droit de lister. Ce n'est pas une panne: elle
-    // peut toujours faire parler, donc on renvoie la liste de secours.
-    console.error('ElevenLabs voices error:', err.message, '→ liste de secours');
-    res.json({ enabled: true, voices: TTS_FALLBACK_VOICES, fallback: true });
-  }
+  // On NE liste plus les voix du compte. Depuis que la permission voices_read
+  // est accordee, /v1/voices repond bien — mais il rend les 22 voix de
+  // Prepara, toutes anglaises. Les proposer dans une app francaise pour
+  // enfants serait un recul: on sert la selection francaise ci-dessus.
+  res.json({ enabled: true, voices: TTS_FALLBACK_VOICES });
 });
+
 
 // Le MP3 d'une phrase. GET (et pas POST) exprès: l'URL devient la clé de cache
 // du navigateur ET du service worker, donc un mot déjà entendu ne repasse même
