@@ -26,14 +26,22 @@ dit('3 × 4 = ?', '3 fois 4 égale combien');
 dit('12 ÷ 3 = ?', '12 divisé par 3 égale combien');
 
 console.log('\n— Les nombres du cahier Matcha —');
-dit('Écris en chiffres:\n\n« deux mille quatre cent sept »', 'Écris en chiffres: « deux mille quatre cent sept »');
+dit('Écris en chiffres:\n\n« deux mille quatre cent sept »', 'Écris en chiffres: deux mille quatre cent sept');
 dit('Ajoute 2 unités de mille ET 4 dizaines au nombre 2 407.', 'Ajoute 2 unités de mille ET 4 dizaines au nombre 2407.');
 dit('Il y a 1 626 carottes.', 'Il y a 1626 carottes.');
 
+console.log('\n— Les marques typographiques ne se disent pas —');
+// La voix de l'appareil annonçait « crochet ouvrant » et « guillemet » au
+// milieu de la question: du charabia pour un enfant qui écoute.
+dit('Quelle est la classe du mot entre crochets?\n\n« Ryan lance un [ ballon ] rouge. »',
+  'Quelle est la classe du mot entre crochets? Ryan lance un, ballon, rouge.');
+dit('« Anatole raconte une histoire drôle. »', 'Anatole raconte une histoire drôle.');
+dit('Conjugue « manger » au PASSÉ COMPOSÉ avec « il »:', 'Conjugue manger au PASSÉ COMPOSÉ avec il:');
+
 console.log('\n— Ce qu’il ne faut SURTOUT pas abîmer —');
 // Le trait d'union d'un nombre n'est pas un moins.
-dit('« quatre-vingt-dix »', '« quatre-vingt-dix »');
-dit('Conjugue « manger » au PASSÉ COMPOSÉ avec « il »:', 'Conjugue « manger » au PASSÉ COMPOSÉ avec « il »:');
+dit('« quatre-vingt-dix »', 'quatre-vingt-dix');
+
 // Un vrai point d'interrogation de phrase reste un point d'interrogation.
 dit('Combien de sacs PLEINS peut-on faire?', 'Combien de sacs PLEINS peut-on faire?');
 dit('Quel signe va dans la case?', 'Quel signe va dans la case?');

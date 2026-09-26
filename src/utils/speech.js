@@ -131,6 +131,20 @@ const PRONONCIATION = [
   [/Nyla/g, 'Naïla'],
 ];
 
+// Les marques typographiques ne sont pas des mots. Les guillemets français et
+// les crochets partaient tels quels à la voix: ElevenLabs les ignore, mais la
+// voix de l'appareil — celle qui prend le relais dès que le MP3 ne peut pas
+// jouer — peut annoncer « crochet ouvrant » et « guillemet » au milieu de la
+// phrase. L'enfant entend alors du charabia à la place de sa question.
+//
+// Le mot entre crochets garde sa place: il devient un mot détaché par deux
+// virgules, donc la voix marque une petite pause autour de lui — c'est
+// exactement ce que les crochets font pour l'œil.
+const PONCTUATION = [
+  [/\[\s*([^\]]+?)\s*\]/g, ', $1,'],   // « le [ ballon ] rouge » → « le, ballon, rouge »
+  [/[«»“”„]/g, ''],
+];
+
 // Un calcul ne se lit pas tout seul.
 //
 // « 4 + 4 = ? » partait tel quel à la voix, avec ses symboles. Une voix ne sait
@@ -164,6 +178,7 @@ export function cleanForSpeech(text) {
   if (!text) return '';
   let t = String(text);
   for (const [re, remplacement] of PRONONCIATION) t = t.replace(re, remplacement);
+  for (const [re, remplacement] of PONCTUATION) t = t.replace(re, remplacement);
   for (const [re, remplacement] of MATHS) t = t.replace(re, remplacement);
   return t
     // Une ligne blanche sépare deux idées (« 7 + 7 » / « Ce sont des JUMEAUX »).
@@ -307,7 +322,7 @@ if (typeof window !== 'undefined') {
 // programmé.
 function couperLesVoix() {
   try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch {}
-  try { if (audioEl) { audioEl.onended = null; audioEl.onerror = null; audioEl.pause(); } } catch {}
+  try { if (audioEl) { audioEl.onended = null; audioEl.onerror = null; audioEl.onplaying = null; audioEl.pause(); } } catch {}
 }
 
 // Un numéro par clip. Quand un clip plus récent a pris la main, l'ancien se tait
@@ -323,8 +338,19 @@ function playPremium(text, { slow = false, rate = TTS_BASELINE_RATE } = {}) {
   const a = getAudio();
   const seq = ++audioSeq;
   const perime = () => seq !== audioSeq;
+  // A-t-on déjà entendu quelque chose? Si le MP3 a commencé puis s'est
+  // interrompu, reprendre la phrase DEPUIS LE DÉBUT avec l'autre voix est pire
+  // que se taire: l'enfant a déjà entendu les trois quarts, et ce qui repart
+  // n'a ni la même voix ni le même rythme. Il entend « la voix qui tombe, puis
+  // du charabia ». Le bouton 🔊 Écouter est là pour réentendre.
+  let aCommence = false;
+  const marquerDebut = () => { aCommence = true; };
   return new Promise((resolve, reject) => {
-    a.onerror = () => (perime() ? resolve() : reject(new Error('audio')));
+    a.onplaying = marquerDebut;
+    a.onerror = () => {
+      if (perime() || aCommence) return resolve();
+      reject(new Error('audio'));
+    };
     a.onended = () => resolve();
     a.src = ttsUrl(text, slow);
     // Les appels demandent 0.8 ou 0.85; le MP3, lui, est enregistré à vitesse

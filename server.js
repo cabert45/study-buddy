@@ -780,10 +780,24 @@ ${enfant.comment}`,
 // son part instantanément. L'app retombe sur la voix de l'appareil si le
 // serveur ne répond pas: aucun écran ne devient muet.
 const TTS_KEY = process.env.ELEVENLABS_API_KEY || '';
-// flash_v2_5: ~2x moins cher et beaucoup plus rapide que multilingual_v2, pour
-// un français très correct. Mettre ELEVENLABS_MODEL=eleven_multilingual_v2
-// dans les variables d'environnement si on veut la qualité maximale.
-const TTS_MODEL = process.env.ELEVENLABS_MODEL || 'eleven_flash_v2_5';
+// multilingual_v2, et pas flash_v2_5.
+//
+// « The voice is dropping and saying gibberish at the end. » (26 sept. 2026)
+// Mesuré par aller-retour voix → Scribe, sur la même phrase, le même serveur:
+//
+//   flash_v2_5          « Dans CE CETTE PHRASE GUÉ, quel mot est un adjectif? »
+//   multilingual_v2     « Dans cette phrase, quel mot est un adjectif? »
+//
+// Et sur une phrase finissant par un guillemet fermant, flash inventait de
+// l'anglais à la fin: « …un ballon rouge. YOUR TURN. » Flash est deux fois
+// moins cher et bien plus rapide, mais il bafouille en français — et un
+// enfant de 8 ans qui écoute la consigne n'a aucun moyen de savoir que c'est
+// la machine qui s'est trompée, pas lui.
+//
+// Le coût reste tenu par le cache: chaque phrase n'est générée qu'une fois.
+// Remettre ELEVENLABS_MODEL=eleven_flash_v2_5 si jamais la latence devient un
+// problème — mais alors il faut réécouter, pas supposer.
+const TTS_MODEL = process.env.ELEVENLABS_MODEL || 'eleven_multilingual_v2';
 // La dictée, elle, passe par le gros modèle. C'est le seul moment où l'enfant
 // écrit d'après le son seul: une liaison avalée ou un « ent » final mal rendu
 // lui coûte le mot. Ces mots-là sont courts et reviennent toute la semaine,
