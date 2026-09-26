@@ -9,13 +9,66 @@ export function setProfile(profile) {
   localStorage.setItem('sb_profile', profile);
 }
 
-export async function saveSession(mode, total, correct, details) {
+// Les sessions qui n'ont pas pu partir attendent ici.
+//
+// Le 24 sept. 2026, le conteneur Railway a perdu l'accès à la base: pendant
+// deux jours, /api/session répondait 500 et personne ne l'a vu. Ryan a
+// travaillé, et tout est parti à la poubelle en silence — parce qu'ici on
+// faisait `res.json()` sans jamais regarder `res.ok`. Un 500 ressemblait
+// exactement à un succès.
+//
+// Maintenant une session qui échoue est gardée sur l'appareil et repart au
+// prochain envoi réussi (ou au prochain démarrage de l'app).
+const FILE_ATTENTE = 'sb_sessions_en_attente';
+const MAX_EN_ATTENTE = 50;
+
+function lireFile() {
+  try { return JSON.parse(localStorage.getItem(FILE_ATTENTE) || '[]'); } catch { return []; }
+}
+function ecrireFile(liste) {
+  try { localStorage.setItem(FILE_ATTENTE, JSON.stringify(liste.slice(-MAX_EN_ATTENTE))); } catch {}
+}
+
+async function envoyerSession(charge) {
   const res = await fetch(`${API_BASE}/session`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ mode, total, correct, details, profile: getProfile() }),
+    body: JSON.stringify(charge),
   });
+  // Sans ce test, un 500 passait pour un succès.
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
+}
+
+// Renvoie ce qui attend. Appelée au démarrage et après chaque envoi réussi.
+export async function renvoyerSessionsEnAttente() {
+  const file = lireFile();
+  if (!file.length) return { envoyees: 0, restantes: 0 };
+  const restantes = [];
+  let envoyees = 0;
+  for (const charge of file) {
+    try { await envoyerSession(charge); envoyees++; }
+    catch { restantes.push(charge); }
+  }
+  ecrireFile(restantes);
+  return { envoyees, restantes: restantes.length };
+}
+
+export function nbSessionsEnAttente() {
+  return lireFile().length;
+}
+
+export async function saveSession(mode, total, correct, details) {
+  const charge = { mode, total, correct, details, profile: getProfile() };
+  try {
+    const reponse = await envoyerSession(charge);
+    // On en profite pour rattraper le retard accumulé pendant la panne.
+    if (nbSessionsEnAttente()) renvoyerSessionsEnAttente().catch(() => {});
+    return reponse;
+  } catch {
+    ecrireFile([...lireFile(), charge]);
+    return { ok: false, enAttente: true };
+  }
 }
 
 export async function getProgress() {
