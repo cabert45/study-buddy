@@ -3,6 +3,13 @@
 
 export const whatsNew = [
   {
+    id: '2026-09-26-maternelle5-nyla',
+    date: '2026-09-26',
+    profile: 'nyla',
+    title: 'Plein de nouveaux jeux pour la maternelle 🌟',
+    body: "Bonjour Nyla! Tes exercices ne se répètent plus: les formes, les suites et les rimes ont des tonnes de nouvelles questions. Et quand tu réussis bien, ça devient un peu plus grand tout seul — tu comptes maintenant jusqu'à 30! Il y a aussi de tout nouveaux jeux: 🎨 les couleurs, 🧺 trier et comparer, 🌦️ les saisons, 👏 tes syllabes et ✍️ ton prénom. Bonne chance! 🦁",
+  },
+  {
     id: '2026-09-22-dictee-liste-ryan',
     date: '2026-09-22',
     profile: 'ryan',

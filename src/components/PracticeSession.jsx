@@ -39,6 +39,13 @@ import { generateComprehension } from '../generators/comprehension';
 import { generateCalculRapide3 } from '../generators/calculRapide3';
 import { generateProbabilite } from '../generators/probabilite';
 import { generateNylaCount } from '../generators/nylaCount';
+import { generateNylaSyllabes, generateNylaFusion } from '../generators/nylaSyllabes';
+import { generateNylaCouleurs } from '../generators/nylaCouleurs';
+import { generateNylaTri } from '../generators/nylaTri';
+import { generateNylaSaisons } from '../generators/nylaSaisons';
+import { generateNylaPrenom } from '../generators/nylaPrenom';
+import { generateNyla1reSons, setCurrentSon } from '../generators/nyla1reSons';
+import { generateNyla1reLecture } from '../generators/nyla1reLecture';
 import { generateNylaAdd } from '../generators/nylaAdd';
 import { generateNylaLetters } from '../generators/nylaLetters';
 import { generateNylaSightWords } from '../generators/nylaSightWords';
@@ -116,6 +123,12 @@ function AideNombre({ aide, onClose }) {
 }
 
 function getGenerator(mode) {
+  // « Mes sons »: le menu envoie nyla_son:son_ou. Comme la dictee de la
+  // semaine de Ryan, on fixe le son courant avant de rendre le generateur.
+  if (typeof mode === 'string' && mode.startsWith('nyla_son:')) {
+    setCurrentSon(mode.slice('nyla_son:'.length));
+    return generateNyla1reSons;
+  }
   switch (mode) {
     case 'calcul': return generateCalcul;
     case 'terme': return generateTerme;
@@ -162,6 +175,13 @@ function getGenerator(mode) {
     case 'calcul_rapide_3': return generateCalculRapide3;
     case 'probabilite': return generateProbabilite;
     case 'nyla_count': return generateNylaCount;
+    case 'nyla_syllabes': return generateNylaSyllabes;
+    case 'nyla_fusion': return generateNylaFusion;
+    case 'nyla_couleurs': return generateNylaCouleurs;
+    case 'nyla_tri': return generateNylaTri;
+    case 'nyla_saisons': return generateNylaSaisons;
+    case 'nyla_prenom': return generateNylaPrenom;
+    case 'nyla_1re_lecture': return generateNyla1reLecture;
     case 'nyla_add': return generateNylaAdd;
     case 'nyla_letters': return generateNylaLetters;
     case 'nyla_sight_words': return generateNylaSightWords;
@@ -651,7 +671,15 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           {question.category === 'comprehension' && '📖 Compréhension de lecture'}
           {question.category === 'calcul_rapide_3' && '⚡ Calcul rapide — 3 chiffres ±9/±10'}
           {question.category === 'probabilite' && '🎲 Probabilité — certain / possible / impossible'}
-          {question.category === 'nyla_count' && '🍎 Compte les objets'}
+          {question.category === 'nyla_count' && '🍎 Je compte'}
+          {question.category === 'nyla_syllabes' && '👏 Mes syllabes'}
+          {question.category === 'nyla_fusion' && '🧩 Je fusionne les sons'}
+          {question.category === 'nyla_couleurs' && '🎨 Les couleurs'}
+          {question.category === 'nyla_tri' && '🧺 Trier et comparer'}
+          {question.category === 'nyla_saisons' && '🌦️ Les saisons et la météo'}
+          {question.category === 'nyla_prenom' && '✍️ Mon prénom'}
+          {question.category === 'nyla_1re_sons' && `🔊 Le son [${question.son || ''}]`}
+          {question.category === 'nyla_1re_lecture' && '📖 Je lis'}
           {question.category === 'nyla_add' && '➕ Petites additions'}
           {question.category === 'nyla_letters' && '🔤 Les lettres'}
           {question.category === 'nyla_sight_words' && '⭐ Mots-étoiles'}

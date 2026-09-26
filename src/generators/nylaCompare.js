@@ -1,7 +1,14 @@
-// Nyla — Comparer les quantités (plus / moins / pareil)
-// Maternelle 5 ans: core "éveil mathématique" skill before symbolic comparison.
-// Show two groups of objects, ask which group has more/less, or if they're equal.
-import { withFresh } from '../utils/antiRepeat';
+// Nyla — Comparer (maternelle 5 ans)
+//
+// ⚠️ Avant: des paquets de 1 à 7, et seulement trois choix (« Groupe A »,
+// « Groupe B », « Les deux pareils »). Une chance sur trois de tomber juste
+// sans rien compter, et toujours la même question.
+//
+// Maintenant: des quantités plus grandes qui s'ouvrent par paliers, trois
+// paquets à classer, la comparaison de deux NOMBRES écrits (sans dessin), et
+// « combien de plus » — qui est le vrai début de la soustraction.
+import { pickAdaptive } from '../utils/skillStats';
+import { entreesOuvertes } from '../utils/nylaNiveau';
 
 function shuffle(arr) {
   const a = [...arr];
@@ -12,63 +19,128 @@ function shuffle(arr) {
   return a;
 }
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function rand(min, max) { return min + Math.floor(Math.random() * (max - min + 1)); }
 
-const icons = ['🍎', '⭐', '🐠', '🌸', '🦋', '🍓', '🎈', '🐝', '🌻'];
+const icons = ['🍎', '⭐', '🐠', '🌸', '🦋', '🍓', '🎈', '🐝', '🌻', '🍬', '🐞', '🧁'];
 
-function buildOne() {
+// Au-delà de 10, on groupe par 5: sinon la rangée devient illisible et
+// l'exercice ne mesure plus que sa patience.
+function rangee(icon, n) {
+  if (n <= 10) return icon.repeat(n);
+  const parts = [];
+  for (let i = 0; i < n; i += 5) parts.push(icon.repeat(Math.min(5, n - i)));
+  return parts.join(' ');
+}
+
+// Deux paquets: lequel a le plus / le moins.
+function deuxPaquets(max, type) {
   const icon = pick(icons);
-  const r = Math.random();
+  const plus = Math.random() < 0.5;
+  const a = rand(1, max);
+  let b = rand(1, max);
+  // Un écart de 1 ou 2 force un vrai dénombrement; un gros écart se voit.
+  if (Math.abs(a - b) > 3) b = a + (Math.random() < 0.5 ? 1 : -1) * rand(1, 3);
+  if (b === a || b < 1 || b > max) b = a === max ? a - 1 : a + 1;
 
-  // Type 1 — Which group has MORE?
-  if (r < 0.4) {
-    const a = 2 + Math.floor(Math.random() * 6);
-    let b = 1 + Math.floor(Math.random() * 7);
-    while (b === a) b = 1 + Math.floor(Math.random() * 7);
-    const bigger = a > b ? 'Groupe A' : 'Groupe B';
-    return {
-      category: 'nyla_compare',
-      type: 'more',
-      text: `Quel groupe a le PLUS de ${icon}?\n\nGroupe A: ${icon.repeat(a)}\nGroupe B: ${icon.repeat(b)}`,
-      correct: bigger,
-      options: shuffle(['Groupe A', 'Groupe B', 'Les deux pareils']),
-      explanation: `${bigger} a ${Math.max(a, b)} ${icon}, l'autre a ${Math.min(a, b)}.`,
-      hint: 'Compte chaque groupe et compare les nombres.',
-    };
-  }
-
-  // Type 2 — Which group has LESS?
-  if (r < 0.7) {
-    const a = 2 + Math.floor(Math.random() * 6);
-    let b = 1 + Math.floor(Math.random() * 7);
-    while (b === a) b = 1 + Math.floor(Math.random() * 7);
-    const smaller = a < b ? 'Groupe A' : 'Groupe B';
-    return {
-      category: 'nyla_compare',
-      type: 'less',
-      text: `Quel groupe a le MOINS de ${icon}?\n\nGroupe A: ${icon.repeat(a)}\nGroupe B: ${icon.repeat(b)}`,
-      correct: smaller,
-      options: shuffle(['Groupe A', 'Groupe B', 'Les deux pareils']),
-      explanation: `${smaller} a seulement ${Math.min(a, b)} ${icon}, l'autre en a ${Math.max(a, b)}.`,
-      hint: 'Le plus petit groupe = le moins.',
-    };
-  }
-
-  // Type 3 — Equal? Sometimes yes, sometimes no
-  const equal = Math.random() < 0.5;
-  const a = 2 + Math.floor(Math.random() * 6);
-  const b = equal ? a : (a + (Math.random() < 0.5 ? 1 : -1));
-  if (b < 1) return buildOne();
+  const gagnant = plus ? (a > b ? 'A' : 'B') : (a < b ? 'A' : 'B');
   return {
     category: 'nyla_compare',
-    type: 'equal',
-    text: `Est-ce que les deux groupes ont la même quantité?\n\nGroupe A: ${icon.repeat(a)}\nGroupe B: ${icon.repeat(b)}`,
-    correct: a === b ? 'Oui, pareils' : 'Non, différents',
-    options: ['Oui, pareils', 'Non, différents'],
-    explanation: a === b ? `Oui! Les deux groupes ont ${a} ${icon}.` : `Non: un groupe a ${a}, l'autre a ${b}.`,
-    hint: 'Compte chaque groupe pour vérifier.',
+    type,
+    text: `Quel groupe a le ${plus ? 'PLUS' : 'MOINS'} de ${icon}?\n\nA:  ${rangee(icon, a)}\nB:  ${rangee(icon, b)}`,
+    correct: `Groupe ${gagnant}`,
+    options: shuffle(['Groupe A', 'Groupe B', 'Les deux pareils']),
+    explanation: `A en a ${a}, B en a ${b}. Le ${plus ? 'plus' : 'moins'}, c'est le groupe ${gagnant}.`,
+    hint: 'Compte chaque rangée, puis compare les deux nombres.',
+  };
+}
+
+// Autant l'un que l'autre — il faut vraiment compter pour le voir.
+function buildAutant() {
+  const icon = pick(icons);
+  const pareils = Math.random() < 0.5;
+  const a = rand(4, 12);
+  const b = pareils ? a : a + (Math.random() < 0.5 ? 1 : -1);
+  if (b < 1) return null;
+  return {
+    category: 'nyla_compare',
+    type: 'autant',
+    text: `Est-ce qu'il y en a AUTANT dans les deux groupes?\n\nA:  ${rangee(icon, a)}\nB:  ${rangee(icon, b)}`,
+    correct: pareils ? 'Oui, autant' : 'Non, pas pareil',
+    options: shuffle(['Oui, autant', 'Non, pas pareil']),
+    explanation: pareils
+      ? `Oui: ${a} d'un côté et ${b} de l'autre. C'est pareil.`
+      : `Non: ${a} d'un côté et ${b} de l'autre.`,
+    hint: 'Compte les deux rangées. Un seul de différence, ça compte!',
+  };
+}
+
+// Comparer deux nombres ÉCRITS, sans dessin: elle doit connaître l'ordre.
+function buildNombres(max, type) {
+  const plus = Math.random() < 0.5;
+  const a = rand(1, max);
+  let b = rand(1, max);
+  while (b === a) b = rand(1, max);
+  const correct = plus ? Math.max(a, b) : Math.min(a, b);
+  return {
+    category: 'nyla_compare',
+    type,
+    text: `Quel nombre est le PLUS ${plus ? 'GRAND' : 'PETIT'}?\n\n${a}     ${b}`,
+    correct: String(correct),
+    options: shuffle([String(a), String(b)]),
+    explanation: `${correct} est le plus ${plus ? 'grand' : 'petit'}. Quand on compte, on dit ${Math.min(a, b)} avant ${Math.max(a, b)}.`,
+    hint: 'Pense à la file des nombres: celui qu\'on dit en dernier est le plus grand.',
+  };
+}
+
+// Trois paquets à classer — le plus grand des trois.
+function buildTrois() {
+  const icon = pick(icons);
+  const plus = Math.random() < 0.5;
+  const vals = [];
+  while (vals.length < 3) {
+    const v = rand(2, 14);
+    if (!vals.includes(v)) vals.push(v);
+  }
+  const [a, b, c] = vals;
+  const cible = plus ? Math.max(a, b, c) : Math.min(a, b, c);
+  const lettre = ['A', 'B', 'C'][vals.indexOf(cible)];
+  return {
+    category: 'nyla_compare',
+    type: 'trois_groupes',
+    text: `Quel groupe a le ${plus ? 'PLUS' : 'MOINS'} de ${icon}?\n\nA:  ${rangee(icon, a)}\nB:  ${rangee(icon, b)}\nC:  ${rangee(icon, c)}`,
+    correct: `Groupe ${lettre}`,
+    options: shuffle(['Groupe A', 'Groupe B', 'Groupe C']),
+    explanation: `A: ${a}, B: ${b}, C: ${c}. Le ${plus ? 'plus' : 'moins'}, c'est ${lettre} avec ${cible}.`,
+    hint: 'Compte les trois rangées et écris les nombres dans ta tête.',
+  };
+}
+
+// Combien de plus — la différence, début de la soustraction.
+function buildCombienDePlus() {
+  const icon = pick(icons);
+  const a = rand(4, 12);
+  const b = rand(1, a - 1);
+  const ecart = a - b;
+  return {
+    category: 'nyla_compare',
+    type: 'combien_de_plus',
+    text: `Combien le groupe A en a-t-il de PLUS que le groupe B?\n\nA:  ${rangee(icon, a)}\nB:  ${rangee(icon, b)}`,
+    correct: String(ecart),
+    options: shuffle([...new Set([ecart, ecart + 1, Math.max(0, ecart - 1), ecart + 2])].slice(0, 4)).map(String),
+    explanation: `A en a ${a}, B en a ${b}. ${a} − ${b} = ${ecart} de plus.`,
+    hint: 'Place les deux rangées l\'une sous l\'autre et compte ce qui dépasse.',
   };
 }
 
 export function generateNylaCompare() {
-  return withFresh('nyla_compare', buildOne, 60, 25, (q) => q.text);
+  const entries = entreesOuvertes('nyla_compare', [
+    { type: 'deux_8', w: 2, build: () => deuxPaquets(8, 'deux_8') },
+    { type: 'deux_15', w: 3, build: () => deuxPaquets(15, 'deux_15') },
+    { type: 'nombres_10', w: 2.5, build: () => buildNombres(10, 'nombres_10') },
+    { type: 'nombres_30', w: 2.5, build: () => buildNombres(30, 'nombres_30') },
+    { type: 'autant', w: 2, horsPalier: true, build: buildAutant },
+    { type: 'trois_groupes', w: 2.5, horsPalier: true, build: buildTrois },
+    { type: 'combien_de_plus', w: 2, horsPalier: true, build: buildCombienDePlus },
+  ]);
+  return pickAdaptive('nyla_compare', entries, (q) => `${q.type}|${q.text}`);
 }

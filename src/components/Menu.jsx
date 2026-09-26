@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getProgress } from '../utils/storage';
 import { nylaWeekList } from '../data/nylaFlashcards';
+import { sonsList } from '../data/nyla1reAnnee';
 import { CAHIER_THEMES, CAHIER_SEMAINES, moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data/cahierFrancais';
 import { listeCetteSemaine, semaineCourante, listesVues, cleDictee } from '../data/orthographeQuotidien';
 import { strategiesCetteSemaine } from '../data/tablesStrategies';
@@ -189,28 +190,44 @@ const caylaDicteeWeeksList = [
   { id: 'cayla_t6_s3', label: 'Semaine 3 — finales BLE/LE/ME', desc: 'agréable, marmite, vaste...' },
 ];
 
-// ===== Nyla — pré-maternelle (5 ans) =====
-// Built from Quebec maternelle 5 ans curriculum (éveil mathématique + langagier)
+// ===== Nyla — maternelle 5 ans (rentrée septembre 2026) =====
+// Programme-cycle de l'éducation préscolaire. Les exercices montent en
+// difficulté tout seuls (utils/nylaNiveau): un palier s'ouvre quand le
+// précédent est solide, donc rien ne reste « trop facile » très longtemps.
 const nylaMathModes = [
   { id: 'nyla_numbers_flash', label: '🔢 Mes chiffres (cartes)', desc: 'Reconnaître les nombres — niveaux jusqu\'à 50', featured: true },
+  { id: 'nyla_count', label: '🍎 Je compte', desc: 'Jusqu\'à 30, les dés, avant/après, combien il manque' },
   { id: 'nyla_speed', label: '⚡ Calcul rapide', desc: 'Vite vite! Compte, +1, le plus...' },
-  { id: 'nyla_count', label: '🍎 Compte les objets', desc: 'De 1 à 10' },
-  { id: 'nyla_compare', label: '⚖️ Plus ou moins?', desc: 'Compare deux groupes' },
-  { id: 'nyla_shapes', label: '⬜ Les formes', desc: 'Carré, cercle, triangle...' },
-  { id: 'nyla_patterns', label: '🔄 Suites logiques', desc: 'Qu\'est-ce qui vient ensuite?' },
+  { id: 'nyla_compare', label: '⚖️ Plus, moins, autant', desc: 'Compare des groupes et des nombres' },
   { id: 'nyla_addition', label: '➕ Additions (Numberblocks)', desc: 'Compte les blocs — niveaux jusqu\'à 20' },
+  { id: 'nyla_add', label: '➖ Ajouter et enlever', desc: 'Il en arrive, il en part, il en reste combien' },
+  { id: 'nyla_shapes', label: '⬜ Les formes', desc: 'Figures, côtés, solides, objets du quotidien' },
+  { id: 'nyla_tri', label: '🧺 Trier et comparer', desc: 'L\'intrus, le plus gros, le plus long' },
+  { id: 'nyla_patterns', label: '🔄 Suites logiques', desc: 'Le motif, le nombre qui manque' },
+  { id: 'nyla_saisons', label: '🌦️ Saisons et météo', desc: 'Le calendrier du matin' },
+  { id: 'nyla_couleurs', label: '🎨 Les couleurs', desc: 'Trouve la couleur, de quelle couleur c\'est' },
 ];
 
 const nylaFrenchModes = [
   { id: 'nyla_letters_flash', label: '🔤 Mes lettres MAJUSCULES', desc: 'Apprends à nommer A à Z', featured: true },
   { id: 'nyla_letters_lower_flash', label: '🔡 lettres minuscules', desc: 'a à z — après les majuscules' },
+  { id: 'nyla_prenom', label: '✍️ Mon prénom', desc: 'Reconnaître Nyla, Ryan, Cayla, papa, maman' },
+  { id: 'nyla_syllabes', label: '👏 Mes syllabes', desc: 'Tape les syllabes: ba-na-ne' },
+  { id: 'nyla_rhymes', label: '🎵 Rimes et sons', desc: 'Finit pareil, commence pareil, l\'intrus' },
   { id: 'nyla_words_group', label: '⭐ Mots de la semaine', desc: '5 nouveaux mots à reconnaître', groupKind: 'nylawords' },
+  { id: 'nyla_letters', label: '🔍 Le premier son', desc: 'Par quel son ça commence?' },
   { id: 'nyla_songs', label: '🎵 Apprends une chanson', desc: 'Les comptines de l\'école' },
-  { id: 'nyla_letters', label: '🔍 Le premier son', desc: 'Par quel son ça commence? (quand tu connais tes lettres)' },
   { id: 'nyla_boukili', label: '📚 Boukili', desc: 'Lis tes livres préférés' },
   { id: 'nyla_sight_words', label: '🃏 Mots-étoiles (jeu)', desc: 'Associe le mot et le dessin' },
-  { id: 'nyla_rhymes', label: '🎵 Les rimes', desc: 'Mots qui finissent pareil' },
   { id: 'nyla_logiciel', label: '🎮 Logiciel Éducatif', desc: 'Jeux pour apprendre' },
+];
+
+// Le pont vers la 1re année (septembre 2027). Rangé à part, et dit comme tel:
+// c'est du bonus, pas ce qu'on attend d'elle en maternelle.
+const nylaPont1reModes = [
+  { id: 'nyla_sons_group', label: '🔊 Mes sons', desc: 'Un son par semaine: [a], [ou], [ch]...', groupKind: 'nylasons' },
+  { id: 'nyla_fusion', label: '🧩 Je fusionne', desc: 'm + a = « ma » — le début de la lecture' },
+  { id: 'nyla_1re_lecture', label: '📖 Je lis une phrase', desc: 'Les petits mots, puis de vraies phrases' },
 ];
 
 // Les mascottes (lion de Ryan, renard, ours…) sont dans ./Mascots — choisies dans ⚙️ Réglages.
@@ -244,12 +261,14 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
   );
   const [dicteesOpen, setDicteesOpen] = useState(false);
   const [nylaWordsOpen, setNylaWordsOpen] = useState(false);
+  const [nylaSonsOpen, setNylaSonsOpen] = useState(false);
   const [cahierOpen, setCahierOpen] = useState(false);
   const [plusOpen, setPlusOpen] = useState(false);
   const [defis, setDefis] = useState(() => weakSkills(['t1_', 'matcha_']));
   const [refreshing, setRefreshing] = useState(false);
   const mascot = mascotFor(profile, useSettings(profile));
   const openGroup = (m) => (m.groupKind === 'nylawords' ? setNylaWordsOpen(true)
+    : m.groupKind === 'nylasons' ? setNylaSonsOpen(true)
     : m.groupKind === 'cahier' ? setCahierOpen(true)
     : m.isGroup ? setDicteesOpen(true) : launchMode(m.id));
 
@@ -361,7 +380,7 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
   const isRyan = profile === 'ryan' || isDemo; // demo gets Ryan's 2e année content
   const name = isDemo ? 'Mon ami' : profile === 'ryan' ? 'Ryan' : isCayla ? 'Cayla' : 'Nyla';
   const isGrade3 = ryanGraded && section === 'grade3';
-  const grade = isCayla ? 'Secondaire 1' : isNyla ? 'Pré-maternelle' : ryanGraded ? '3e année' : '2e année';
+  const grade = isCayla ? 'Secondaire 1' : isNyla ? 'Maternelle 5 ans' : ryanGraded ? '3e année' : '2e année';
   const mathModes = isCayla ? caylaMathModes : isNyla ? nylaMathModes : isGrade3 ? grade3MathModes : ryanMathModes;
   const frenchModes = isCayla ? caylaFrenchModes : isNyla ? nylaFrenchModes : isGrade3 ? grade3FrenchModes : ryanFrenchModes;
   const modes = tab === 'math' ? mathModes : frenchModes;
@@ -664,7 +683,65 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
           </button>
         ))}
       </div>
+
+      {/* Nyla — le pont vers la 1re année. Sous les exercices de son année, et
+          annoncé comme du bonus: elle est en maternelle, pas en retard. */}
+      {isNyla && tab === 'french' && (
+        <div className="mb-6">
+          <div className="flex items-baseline gap-2 mb-2">
+            <h3 className="font-heading text-base font-extrabold text-stone">🚀 Je me prépare pour la 1re année</h3>
+            <span className="text-[11px] font-bold text-s4">bonus — septembre 2027</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2.5">
+            {nylaPont1reModes.map((mode) => (
+              <button key={mode.id}
+                onClick={() => openGroup(mode)}
+                className="bg-white border-2 border-dashed border-purple-200 rounded-2xl p-4 text-left transition-all
+                  hover:border-purple-400 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.97]">
+                <div className="font-heading text-base font-bold text-stone leading-tight">{mode.label}</div>
+                <div className="text-xs font-semibold text-s4 mt-0.5">{mode.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
         </>
+      )}
+
+      {/* Nyla — le son de la semaine (picker → pratique sur ce son) */}
+      {nylaSonsOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4"
+          onClick={() => setNylaSonsOpen(false)}>
+          <div onClick={(e) => e.stopPropagation()}
+            className="bg-cream rounded-2xl p-5 max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl border-2 border-s1">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-heading text-xl font-extrabold text-stone">🔊 Mes sons</h3>
+              <button onClick={() => setNylaSonsOpen(false)}
+                className="w-9 h-9 rounded-full bg-white border-2 border-s2 text-s4 font-bold hover:border-lava hover:text-lava">
+                ✕
+              </button>
+            </div>
+            <p className="text-xs font-bold text-purple-700 bg-purple-50 border-2 border-purple-200 rounded-xl p-3 mb-3 text-center">
+              Un son à la fois, dans l'ordre. Les voyelles d'abord, les sons complexes ([ou], [ch], [oi]) à la fin.
+            </p>
+            <div className="space-y-2">
+              {sonsList.map((s, i) => (
+                <button key={s.id}
+                  onClick={() => { setNylaSonsOpen(false); onStartPractice(`nyla_son:${s.id}`); }}
+                  className="w-full text-left rounded-2xl p-3 border-2 bg-white border-s1 hover:border-purple-400 hover:shadow-sm transition-all flex items-center gap-3">
+                  <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-purple-50 text-purple-700 font-heading font-extrabold flex items-center justify-center text-xs">
+                    {i + 1}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-heading font-bold text-stone text-base">{s.label}</div>
+                    <div className="text-xs text-s4 font-semibold mt-0.5">{s.desc}</div>
+                  </div>
+                  <ChevronRight className="text-s3" size={18} strokeWidth={3} />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Nyla — mots de la semaine (week picker → flashcards) */}
