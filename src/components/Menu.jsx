@@ -125,6 +125,7 @@ const grade3MathModes = [
 ];
 
 const grade3FrenchModes = [
+  { id: 'dictee_orale', label: '🎙️ Dictée à voix haute', desc: 'Épelle les mots tout haut — le coach t’écoute' },
   { id: 'cahier_jazz', label: '📒 Mon cahier Jazz', desc: 'Ce que tu fais en classe — et un pas d\'avance', featured: true, groupKind: 'cahier' },
   { id: 'feuille_l2', label: '📄 Ma feuille — Liste 2', desc: 'La vraie feuille du cahier, question par question', badge: 'À remettre' },
   { id: 'dictee_liste', label: '🎧 Dictée de la liste', desc: 'La liste, puis tu tapes chaque mot que tu entends', badge: 'Cette semaine' },

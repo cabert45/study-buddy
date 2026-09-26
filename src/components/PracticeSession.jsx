@@ -618,7 +618,9 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
   // Il pleure quand il se trompe: un mur de rouge le fait fermer l'app, même
   // quand chaque ligne est exacte.
   const diagnostic = showResult && tape && !estBonne(selected)
-    ? diagnosticTape(selected, question.correct, tape)
+    ? diagnosticTape(selected, question.correct, tape, {
+      deuxConsignes: question.type === 'ajouter_deux' || / ET /.test(question.text || ''),
+    })
     : null;
   const bonneReponseAffichee = (question.optionLabels && question.optionLabels[question.correct]) || question.correct;
 
@@ -1196,12 +1198,12 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
             <div className="flex flex-wrap gap-2 mt-3">
               {['é', 'è', 'ê', 'à', 'â', 'ç', 'ô', 'î', 'û', '’'].map((c) => (
                 <button key={c} onClick={() => setSaisie((v) => v + c)}
-                  className="w-10 h-10 rounded-xl font-extrabold text-lg bg-white border-2 border-s2 text-stone active:bg-orange-100">
+                  className="w-11 h-11 rounded-xl font-extrabold text-lg bg-white border-2 border-s2 text-stone active:bg-orange-100">
                   {c}
                 </button>
               ))}
               <button onClick={() => setSaisie((v) => v.slice(0, -1))} disabled={!saisie}
-                className="w-12 h-10 rounded-xl font-extrabold text-lg bg-white border-2 border-s2 text-s4 active:bg-orange-100 disabled:opacity-40">
+                className="w-14 h-11 rounded-xl font-extrabold text-lg bg-white border-2 border-s2 text-s4 active:bg-orange-100 disabled:opacity-40">
                 ⌫
               </button>
             </div>

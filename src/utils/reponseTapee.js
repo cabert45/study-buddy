@@ -129,7 +129,7 @@ const memesChiffres = (a, b) =>
 //   3. la moitié d'une consigne à deux temps (2 358 au lieu de 2 398)
 // Quand on reconnaît l'un des trois, l'écran dit « presque », pas rouge: il
 // pleure quand il se trompe, et un mur de rouge le fait fermer l'app.
-export function diagnosticTape(saisie, correct, mode) {
+export function diagnosticTape(saisie, correct, mode, contexte = {}) {
   if (mode === 'nombre') {
     const v = versNombre(saisie);
     const c = Number(correct);
@@ -149,9 +149,14 @@ export function diagnosticTape(saisie, correct, mode) {
     // moitié de la consigne ». Un écart de 3 ou de 7 ne dit rien de tel.
     if (ecart >= 10 && /^[1-9]0*$/.test(String(ecart))) {
       const quoi = enPositions(ecart);
-      return quoi
+      if (!quoi) return 'Il te manque exactement ' + ecart + '.';
+      // « Ajoute 2 um ET 4 dizaines »: là, un écart rond veut dire qu'il a fait
+      // la première moitié et laissé tomber l'autre. Ailleurs, ça ne veut dire
+      // que ce que ça dit, et lui parler d'une consigne en deux temps qui
+      // n'existe pas ne l'aide pas.
+      return contexte.deuxConsignes
         ? 'Il te manque exactement ' + quoi + ' — la deuxième moitié de la consigne.'
-        : 'Il te manque exactement ' + ecart + '.';
+        : 'Il te manque exactement ' + quoi + ' (' + ecart + ').';
     }
     return null;
   }

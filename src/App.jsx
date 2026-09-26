@@ -49,6 +49,7 @@ import NylaSongs from './components/NylaSongs';
 import NylaAddition from './components/NylaAddition';
 import NylaCompare from './components/NylaCompare';
 import NylaTuteur from './components/NylaTuteur';
+import DicteeOrale from './components/DicteeOrale';
 
 export default function App() {
   const guest = isGuest(); // camarade de classe via /laval: jamais les profils de la famille
@@ -109,6 +110,12 @@ export default function App() {
     // écran. Le Coach les demande sous la forme « nyladeck:letters_upper ».
     // Le tuteur parlant a son propre ecran (micro + voix), pas une serie de
     // questions a choix multiples.
+    // La dictee a voix haute a son propre ecran (micro + voix).
+    if (selectedMode === 'dictee_orale') {
+      setFlashcardWeek(null); setMode(null); setNylaDeck(null);
+      setScreen('dicteeorale');
+      return;
+    }
     if (selectedMode === 'nyla_oral') {
       setFlashcardWeek(null); setMode(null); setNylaDeck(null);
       setScreen('nylatuteur');
@@ -367,6 +374,7 @@ export default function App() {
       {screen === 'nylaadd' && <NylaAddition onHome={goHome} />}
       {screen === 'nylacompare' && <NylaCompare onHome={goHome} />}
       {screen === 'nylatuteur' && <NylaTuteur onHome={goHome} onFinish={goHome} />}
+      {screen === 'dicteeorale' && <DicteeOrale onHome={goHome} onFinish={goHome} />}
       {nylaDeck && screen === 'menu' && (
         <NylaFlashcard
           deck={nylaDeck}

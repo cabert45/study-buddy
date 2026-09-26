@@ -43,6 +43,7 @@ const categoryLabels = {
   nyla_1re_sons: '🔊 Le son de la semaine (Nyla)',
   nyla_1re_lecture: '📖 Je lis (Nyla)',
   nyla_oral: '🗣️ Oral — elle parle (Nyla)',
+  dictee_orale: '🎙️ Dictée à voix haute (Ryan)',
   aquarium: '🐟 Aquarium',
   speed: '⚡ Course',
   memory: '🎴 Mémoire',

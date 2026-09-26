@@ -51,8 +51,11 @@ console.log('\n— Ses trois malentendus, reconnus —');
 verifie('620 écrit 6200 (zéro en trop)', diagnosticTape('6200', 620, 'nombre'), 'Un zéro en trop. 3 chiffres suffisent — compte-les.');
 verifie('2 407 écrit 247 (colonne vide)', diagnosticTape('247', 2407, 'nombre'), "Il manque le 0 de la colonne vide. Une colonne sans rien, ça s'écrit 0.");
 verifie('5 140 écrit 5 014 (désordre)', diagnosticTape('5014', 5140, 'nombre'), 'Tu as les bons chiffres, mais pas à la bonne place.');
-verifie('2 398 écrit 2 358 (la moitié de la consigne)', diagnosticTape('2358', 2398, 'nombre'), 'Il te manque exactement 4 dizaines — la deuxième moitié de la consigne.');
-verifie('4 358 écrit 2 358 (2 um oubliées)', diagnosticTape('2358', 4358, 'nombre'), 'Il te manque exactement 2 unités de mille — la deuxième moitié de la consigne.');
+verifie('2 398 écrit 2 358 (la moitié de la consigne)', diagnosticTape('2358', 2398, 'nombre', { deuxConsignes: true }), 'Il te manque exactement 4 dizaines — la deuxième moitié de la consigne.');
+verifie('4 358 écrit 2 358 (2 um oubliées)', diagnosticTape('2358', 4358, 'nombre', { deuxConsignes: true }), 'Il te manque exactement 2 unités de mille — la deuxième moitié de la consigne.');
+// Sans consigne en deux temps (un terme manquant), on ne lui invente pas une
+// deuxième moitié qui n'existe pas.
+verifie('11 écrit 1 (terme manquant)', diagnosticTape('1', 11, 'nombre'), 'Il te manque exactement 1 dizaine (10).');
 verifie('à un près', diagnosticTape('62', 63, 'nombre'), 'À un près. Recompte une dernière fois, lentement.');
 verifie('réponse sans rapport: pas de « presque »', diagnosticTape('17', 2398, 'nombre'), null);
 verifie('accent oublié', diagnosticTape('j ai mange', "j'ai mangé", 'mot'), "C'est le bon mot — il manque juste l'accent. En français, l'accent fait partie du mot.");
