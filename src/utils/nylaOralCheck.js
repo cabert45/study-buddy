@@ -83,10 +83,33 @@ export function jugerOral(question, transcript) {
     const bons = prefixeCommun(dits, attendu);
 
     if (bons >= attendu.length) {
-      return { verdict: 'bravo', jusqua: attendu[attendu.length - 1], bons };
+      return { verdict: 'bravo', jusqua: question.attendu[attendu.length - 1], bons };
     }
-    // Les deux tiers, c'est déjà une vraie réussite partielle: on la nomme, et
-    // on redonne le point exact où reprendre.
+
+    // SAUTER un element n'est pas s'arreter. « lundi mardi mercredi vendredi
+    // samedi dimanche », c'est six jours sur sept: elle les sait, elle a juste
+    // oublie jeudi. L'ancienne version ne regardait que le prefixe commun et
+    // s'arretait a trois — elle lui aurait fait tout recommencer. On repere
+    // donc ce qui MANQUE, et surtout apres quoi ca vient, parce que c'est ca
+    // qu'on peut lui dire: « apres mercredi, c'est jeudi ».
+    const oublies = [];
+    for (let i = 0; i < attendu.length; i++) {
+      if (dits.includes(attendu[i])) continue;
+      oublies.push({ quoi: question.attendu[i], apres: i > 0 ? question.attendu[i - 1] : null });
+    }
+    const dansLOrdre = attendu.filter((a) => dits.includes(a)).length;
+
+    // Tout est la (peut-etre pas dans un ordre parfait selon la transcription):
+    // elle les connait, on ne chicane pas.
+    if (oublies.length === 0) {
+      return { verdict: 'bravo', jusqua: question.attendu[attendu.length - 1], bons: attendu.length };
+    }
+    // Un ou deux trous dans une suite qu'elle sait par ailleurs: on nomme le
+    // trou au lieu de tout reprendre.
+    if (oublies.length <= 2 && dansLOrdre >= attendu.length - 2) {
+      return { verdict: 'presque', oublies, bons: dansLOrdre, jusqua: question.attendu[bons - 1] };
+    }
+    // Elle s'est vraiment arretee en chemin: on repart d'ou ca a bloque.
     if (bons >= Math.max(2, Math.ceil(attendu.length * 0.6))) {
       return { verdict: 'presque', bons, bloqueA: question.attendu[bons], jusqua: question.attendu[bons - 1] };
     }
@@ -111,7 +134,17 @@ export function jugerOral(question, transcript) {
     const uniques = [...new Set(trouves.map((t) => normaliser(t)))];
     const vises = question.combien || 3;
     if (uniques.length >= vises) return { verdict: 'bravo', trouves };
-    if (uniques.length > 0) return { verdict: 'presque', trouves, manque: vises - uniques.length };
+    if (uniques.length > 0) {
+      // Quand il faut TOUT nommer (les quatre saisons, les deux jours de
+      // congé), on peut dire lequel manque. Quand n'importe lesquels font
+      // l'affaire (« nomme trois couleurs »), surtout pas: il n'y a pas de
+      // bonne reponse manquante, juste une de moins.
+      const listeFermee = vises === question.attendu.length;
+      const oublies = listeFermee
+        ? question.attendu.filter((a) => !dit.includes(normaliser(a))).map((quoi) => ({ quoi, apres: null }))
+        : null;
+      return { verdict: 'presque', trouves, manque: vises - uniques.length, oublies };
+    }
     return { verdict: 'encore', trouves: [] };
   }
 

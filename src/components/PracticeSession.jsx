@@ -69,6 +69,7 @@ import {
 } from '../generators/theme1';
 import { generateMatchaNombres } from '../generators/matcha1';
 import { saveSession } from '../utils/storage';
+import { modeTape, memeReponse, diagnosticTape } from '../utils/reponseTapee';
 import { incrementStudyRounds } from '../utils/studyRounds';
 import { getLevel, recordSession, aideProblemes, NIVEAU_LABELS } from '../utils/mastery';
 import AideMemoire from './AideMemoire';
@@ -265,6 +266,9 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
   const [stepResults, setStepResults] = useState([]);
   const [stepFeedback, setStepFeedback] = useState(null);
   const [stepInput, setStepInput] = useState('');
+  // Réponse écrite en lettres (conjugaison). Les nombres passent par le pavé de
+  // chiffres, donc par stepInput.
+  const [saisie, setSaisie] = useState('');
   // Per-step "pick the operands + operator" phase — forces Ryan to decide
   // WHICH numbers and operation, not just compute. Cleared each step.
   const [pickedA, setPickedA] = useState(null);
@@ -325,6 +329,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
     setSetupConfirmed(false);
     setFinalAnswerGate(null);
     setStepInput('');
+    setSaisie('');
   }, [currentIndex, stepIdx]);
 
   if (!question) {
@@ -355,12 +360,22 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
   }
 
   const isWordProblem = question.type === 'word_problem';
+  // Réponse à ÉCRIRE ('nombre' | 'mot') ou à choisir (null). Voir
+  // utils/reponseTapee: l'app notait 88 % là où la feuille papier donnait 4/13,
+  // parce qu'elle offrait quatre réponses là où le cahier a une case vide.
+  const tape = modeTape(question);
+  const estBonne = (valeur) => (tape ? memeReponse(valeur, question.correct, tape) : valeur === question.correct);
   // L'échafaudage se retire tout seul quand Ryan maîtrise (voir utils/mastery).
   // Niveau 3+: plus de démarche guidée du tout, il lit et il répond.
   const niveau = getLevel(question.category || mode);
   const aide = aideProblemes(niveau);
   const hasSteps = isWordProblem && Array.isArray(question.stepCalcs)
     && question.stepCalcs.length > 0 && aide.etapesGuidees;
+  // Combien de chiffres il peut taper. Volontairement PLUS long que la bonne
+  // réponse: s'il écrit 6200 pour « six cent vingt » (son erreur du cahier),
+  // l'app doit le laisser faire et le lui montrer — pas bloquer la touche et lui
+  // souffler du même coup la longueur du nombre.
+  const maxChiffres = hasSteps ? 3 : Math.max(5, String(question.correct ?? '').length + 1);
 
   // Pool of numbers Ryan can pick from for the operand-picker phase: every number
   // mentioned in the problem text + any intermediate result from a prior step.
@@ -421,7 +436,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
 
   function pressDigit(d) {
     if (stepFeedback !== null) return;
-    setStepInput((v) => (v.length >= 3 ? v : v + String(d)));
+    setStepInput((v) => (v.length >= maxChiffres ? v : v + String(d)));
   }
   function pressBackspace() {
     if (stepFeedback !== null) return;
@@ -488,7 +503,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
     setSelected(value);
     setShowResult(true);
 
-    const isCorrect = value === question.correct;
+    const isCorrect = estBonne(value);
     const result = {
       question: question.text,
       category: question.category,
@@ -496,6 +511,9 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
       correct: isCorrect,
       userAnswer: value,
       correctAnswer: question.correct,
+      // Écrite à la main ou choisie parmi quatre: sans ça, deux réussites qui
+      // ne valent pas la même chose se ressemblent dans les statistiques.
+      tape: tape || null,
       explanation: question.steps || question.explanation || question.hint || null,
       visual: question.visual || null,
     };

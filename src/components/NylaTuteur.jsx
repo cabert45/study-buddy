@@ -200,11 +200,23 @@ export default function NylaTuteur({ onHome, onFinish }) {
   }, [enregistrer]);
 
   // ===== Mode « questions » =====
+  // On enchaine comme dans une conversation, pas comme un formulaire: entre
+  // deux questions, une petite phrase de liaison, puis la question. C'est
+  // dit d'un seul souffle, donc elle n'attend pas entre les deux.
+  const LIAISONS = [
+    'Une autre question pour toi, Nyla. Tu es prête?',
+    'Bon, on continue! Autre question.',
+    'Maintenant, j’ai une question pour toi.',
+    'On en fait une autre? Alors écoute bien.',
+  ];
+
   const poser = useCallback(async (phraseDeRelance) => {
     if (!question) return;
     setRelance(!!phraseDeRelance);
-    await direPuisEcouter(phraseDeRelance || question.dire);
-  }, [question, direPuisEcouter]);
+    if (phraseDeRelance) return direPuisEcouter(phraseDeRelance);
+    const liaison = idx > 0 ? LIAISONS[(idx - 1) % LIAISONS.length] + ' ' : '';
+    await direPuisEcouter(liaison + question.dire);
+  }, [question, direPuisEcouter, idx]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function envoyerQuestion() {
     const texte = brouillon.trim();
@@ -521,6 +533,14 @@ function reactionLocale(question, local) {
     return bravo;
   }
   if (local.verdict === 'presque') {
+    // Elle a saute un element: on le nomme, et on dit apres quoi il vient.
+    // « Bravo! Mais tu as oublie jeudi. Apres mercredi, c'est jeudi. »
+    if (local.oublies?.length) {
+      const o = local.oublies[0];
+      const place = o.apres ? ` Après ${o.apres}, c’est ${o.quoi}.` : '';
+      const reste = local.oublies.length > 1 ? ` Et aussi ${local.oublies[1].quoi}.` : '';
+      return `${bravo} Mais tu as oublié ${o.quoi}.${place}${reste} On refait la suite ensemble?`;
+    }
     if (question.verif === 'liste') {
       return `Très bien jusqu’à ${local.jusqua}! Après ${local.jusqua}, il y a ${local.bloqueA}. On recommence.`;
     }
