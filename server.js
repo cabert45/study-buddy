@@ -862,7 +862,12 @@ app.post('/api/oral', async (req, res) => {
   try {
     const r = await anthropic.messages.create({
       model: 'claude-opus-5',
-      max_tokens: 200,
+      // 200 ne suffisait pas: la réflexion du modèle compte dans max_tokens,
+      // et elle mangeait tout le budget avant la phrase. La réponse revenait
+      // vide, sans erreur, et l'app tombait sur son filet « Bravo Nyla! On
+      // continue. » — poli, mais elle ne jugeait plus rien. La phrase parlée
+      // reste courte parce que le prompt l'exige, pas parce qu'on la coupe.
+      max_tokens: 1200,
       // Elle attend devant l'écran, la bouche encore ouverte: la vitesse fait
       // partie de la pédagogie ici.
       output_config: { effort: 'low' },
@@ -890,10 +895,15 @@ ${verdict ? `Le vérificateur automatique a conclu: ${verdict}` : ''}`,
     });
     const texte = (r.content.find((b) => b.type === 'text') || {}).text || '';
     const m = texte.match(/\{[\s\S]*\}/);
-    const parsed = m ? JSON.parse(m[0]) : null;
-    res.json(parsed && typeof parsed.dire === 'string'
-      ? { ok: !!parsed.ok, dire: parsed.dire }
-      : { ok: null, dire: "Bravo Nyla! On continue." });
+    let parsed = null;
+    try { parsed = m ? JSON.parse(m[0]) : null; } catch {}
+    if (!parsed || typeof parsed.dire !== 'string') {
+      // Silencieux, cet echec ressemblait a un succes: on le nomme dans le log
+      // pour qu'un budget de tokens trop court se voie du premier coup d'oeil.
+      console.error('Oral: reponse inexploitable', r.stop_reason, JSON.stringify(texte).slice(0, 160));
+      return res.json({ ok: null, dire: 'Bravo Nyla! On continue.' });
+    }
+    res.json({ ok: !!parsed.ok, dire: parsed.dire });
   } catch (err) {
     console.error('Oral API error:', err.message);
     res.json({ ok: null, dire: "Bravo Nyla! On continue." });

@@ -338,40 +338,69 @@ export function speak(text, lang = 'fr', baseRate = 0.85) {
  *
  * `speak()` part et ne revient jamais: parfait pour une consigne qu'on lance,
  * inutilisable pour une conversation. Le tuteur parlant de Nyla doit ouvrir le
- * micro à la seconde où la voix se tait — sinon il s'enregistre lui-même en
+ * micro a la seconde ou la voix se tait — sinon il s'enregistre lui-meme en
  * train de poser la question, et Scribe transcrit la question au lieu de la
- * réponse de l'enfant.
+ * reponse de l'enfant.
  *
- * Rend une promesse qui se résout à la fin de la phrase, quelle que soit la
- * voix utilisée (premium ou celle de l'appareil), et même si tout échoue —
- * elle ne rejette jamais: un micro qui ne s'ouvre pas serait pire qu'une
- * phrase mal jouée.
+ * NE REJETTE JAMAIS, ET NE RESTE JAMAIS EN SUSPENS. C'est la regle importante:
+ * `playPremium` ne resout que sur `onended`, et `pause()` ne declenche pas
+ * `onended`. Un stopSpeech() pendant la phrase laissait donc la promesse
+ * pendante pour toujours — et l'ecran du tuteur restait fige sur « … », micro
+ * jamais ouvert. Deux filets: une garde de temps, et une veille sur le
+ * compteur de generation (qui change des que la voix est coupee).
+ *
+ * `rate` par defaut 0.7 (contre 0.85 partout ailleurs): a cinq ans, la voix
+ * normale de l'app va trop vite pour suivre.
  */
-export function speakAndWait(text, { rate = 0.85 } = {}) {
+export function speakAndWait(text, { rate = 0.7 } = {}) {
   return new Promise((resolve) => {
     if (!speechEnabled || !window.speechSynthesis) return resolve();
     const cleaned = cleanForSpeech(text);
     if (!cleaned) return resolve();
 
-    const fini = () => resolve();
-    if (ttsReady()) {
-      const gen = speechGen;
-      window.speechSynthesis.cancel();
-      playPremium(cleaned, { rate: rate * prefSpeed })
-        .then(fini)
-        .catch(() => {
-          if (gen !== speechGen || !speechEnabled) return fini();
-          direAppareilEtAttendre(cleaned, rate * prefSpeed).then(fini);
-        });
+    const gen = speechGen;
+    let fini = false;
+    let garde = null;
+    let veille = null;
+    const done = () => {
+      if (fini) return;
+      fini = true;
+      clearTimeout(garde);
+      clearInterval(veille);
+      resolve();
+    };
+    // Large: mieux vaut attendre une seconde de trop que couper la consigne.
+    garde = setTimeout(done, Math.min(30000, 2500 + cleaned.length * 120));
+    veille = setInterval(() => { if (gen !== speechGen) done(); }, 200);
+
+    const premium = () => playPremium(cleaned, { rate: rate * prefSpeed })
+      .then(done)
+      .catch(() => {
+        if (fini || gen !== speechGen || !speechEnabled) return done();
+        direAppareilEtAttendre(cleaned, rate * prefSpeed).then(done);
+      });
+
+    if (ttsReady()) return premium();
+
+    // Au tout premier tour, /api/tts/status n'a pas encore repondu: on attend
+    // cette seule reponse, sinon la premiere question sortirait avec la voix
+    // de l'appareil alors que la voix premium existe.
+    if (ttsStatus === null && prefTtsVoice !== 'appareil') {
+      probeTts().then(() => {
+        if (fini) return;
+        if (ttsReady()) premium();
+        else direAppareilEtAttendre(cleaned, rate * prefSpeed).then(done);
+      }).catch(() => { if (!fini) direAppareilEtAttendre(cleaned, rate * prefSpeed).then(done); });
       return;
     }
-    direAppareilEtAttendre(cleaned, rate * prefSpeed).then(fini);
+
+    direAppareilEtAttendre(cleaned, rate * prefSpeed).then(done);
   });
 }
 
-// La voix de l'appareil, avec la même promesse de fin. Un filet de sécurité
-// temporel parce que `onend` ne se déclenche pas toujours sur iOS quand la
-// phrase est coupée: sans lui, le micro ne s'ouvrirait jamais.
+// La voix de l'appareil, avec la meme promesse de fin. Un filet de securite
+// temporel parce que `onend` ne se declenche pas toujours sur iOS quand la
+// phrase est coupee: sans lui, le micro ne s'ouvrirait jamais.
 function direAppareilEtAttendre(texte, rate) {
   return new Promise((resolve) => {
     let fini = false;
@@ -379,7 +408,7 @@ function direAppareilEtAttendre(texte, rate) {
     try {
       speakDevice(texte, 'fr', rate);
       const u = window.speechSynthesis;
-      const garde = setTimeout(done, Math.min(20000, 1200 + texte.length * 90));
+      const garde = setTimeout(done, Math.min(25000, 1500 + texte.length * 120));
       const tick = setInterval(() => {
         if (!u.speaking && !u.pending) { clearInterval(tick); clearTimeout(garde); done(); }
       }, 150);
