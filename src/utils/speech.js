@@ -131,17 +131,52 @@ const PRONONCIATION = [
   [/Nyla/g, 'Naïla'],
 ];
 
+// Un calcul ne se lit pas tout seul.
+//
+// « 4 + 4 = ? » partait tel quel à la voix, avec ses symboles. Une voix ne sait
+// pas quoi en faire: elle saute le « + », ou épelle « égale point
+// d'interrogation ». Ryan entendait « quatre quatre » et regardait l'écran en
+// attendant la question. Un calcul se DIT: « 4 plus 4 égale combien? ».
+//
+// Deux pièges évités ici:
+//   - le trait d'union n'est PAS un moins: « quatre-vingt-dix » doit rester un
+//     nombre. Seuls le vrai signe − (U+2212) et un tiret entre deux chiffres
+//     deviennent « moins ».
+//   - « 2 407 » s'écrit avec une espace, comme dans le cahier Matcha, mais se
+//     lit « deux mille quatre cent sept ». Sans recoller les chiffres, la voix
+//     dit « deux… quatre cent sept ».
+const MATHS = [
+  [/(\d)[\s  ](?=\d{3}\b)/g, '$1'],          // 2 407 → 2407
+  [/\s*\+\s*/g, ' plus '],
+  [/\s*−\s*/g, ' moins '],                             // le vrai signe moins
+  [/(\d)\s*[-–]\s*(?=\d)/g, '$1 moins '],              // 12-6, écrit au tiret
+  [/(\d)\s*[×x]\s*(?=\d)/g, '$1 fois '],
+  [/\s*÷\s*/g, ' divisé par '],
+  [/\s*=\s*/g, ' égale '],
+  [/(^|\s)\?(?=\s*$)/g, '$1combien'],                  // « … = ? » → « … égale combien »
+  [/(^|\s)\?(?=\s)/g, '$1quel nombre'],                // « ? + 21 = 45 »
+  [/\s*<\s*/g, ' est plus petit que '],
+  [/\s*>\s*/g, ' est plus grand que '],
+];
+
 // Clean text for speech — strip underscores, repeated punctuation, brackets
-function cleanForSpeech(text) {
+export function cleanForSpeech(text) {
   if (!text) return '';
   let t = String(text);
   for (const [re, remplacement] of PRONONCIATION) t = t.replace(re, remplacement);
+  for (const [re, remplacement] of MATHS) t = t.replace(re, remplacement);
   return t
+    // Une ligne blanche sépare deux idées (« 7 + 7 » / « Ce sont des JUMEAUX »).
+    // Sans point, la voix enchaîne tout d'un souffle et on perd la question.
+    .replace(/([^.!?…:,;])\n{2,}/g, '$1. ')
     .replace(/_+/g, ' ... ')           // underscores → pause
     .replace(/\(([^)]+)\)/g, ', $1, ') // (gris) → ", gris,"
     .replace(/→/g, ' devient ')        // arrows
     .replace(/[★⭐🌟🎯🎧📝✏️🔢🧠🔍🧩🔗⚖️🎴🐟⚡📊👨‍🚀👋🌋🏰🐜📌🎨🧮]/g, '') // emojis
     .replace(/\s+/g, ' ')              // collapse whitespace
+    .replace(/\s+([,.;:!?])/g, '$1')   // « mot , » → « mot, »
+    .replace(/,+(?=[.?!])/g, '')       // « "1", ? » → « "1"? »
+    .replace(/,\s*$/, '')              // virgule en fin de phrase
     .trim();
 }
 
