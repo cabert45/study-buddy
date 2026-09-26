@@ -538,7 +538,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
   }
 
   function handleNext() {
-    const wasCorrect = selected === question.correct;
+    const wasCorrect = estBonne(selected);
 
     if (!wasCorrect && !retryInserted) {
       const gen = getGenerator(mode);
@@ -577,11 +577,12 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
     setStepResults([]);
     setStepFeedback(null);
     setStepInput('');
+    setSaisie('');
   }
 
   function finishSession() {
     const correct = results.filter((r) => r.correct).length;
-    const details = results.map((r) => ({ category: r.category, type: r.type, correct: r.correct, question: r.question, userAnswer: r.userAnswer, correctAnswer: r.correctAnswer }));
+    const details = results.map((r) => ({ category: r.category, type: r.type, correct: r.correct, question: r.question, userAnswer: r.userAnswer, correctAnswer: r.correctAnswer, tape: r.tape || null }));
     saveSession(mode, results.length, correct, details);
     incrementStudyRounds(mode);
     // La catégorie dominante de la session décide du niveau (une session « mixte »
@@ -611,6 +612,15 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
   })();
 
   const progress = Math.min(((currentIndex + 1) / questions.length) * 100, 100);
+
+  // Une réponse écrite « presque bonne » (un zéro en trop, l'accent oublié, la
+  // moitié d'une consigne à deux temps) est expliquée en une ligne, en ambre.
+  // Il pleure quand il se trompe: un mur de rouge le fait fermer l'app, même
+  // quand chaque ligne est exacte.
+  const diagnostic = showResult && tape && !estBonne(selected)
+    ? diagnosticTape(selected, question.correct, tape)
+    : null;
+  const bonneReponseAffichee = (question.optionLabels && question.optionLabels[question.correct]) || question.correct;
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-4">
@@ -1110,18 +1120,32 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           </div>
         )}
 
-        {/* Digit-pad answer (calcul etc.) — Ryan TYPES the answer instead of
-            picking from options. Forces real computation. */}
-        {question.useDigitPad && !hasSteps && !showResult && (
+        {/* Réponse écrite en chiffres — il ÉCRIT le nombre au lieu de le
+            reconnaître parmi quatre. C'est la différence entre le 88 % de
+            l'app et le 4/13 de la feuille papier (utils/reponseTapee). */}
+        {tape === 'nombre' && !hasSteps && !showResult && (
           <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200 mt-4 mb-4">
-            <div className="flex items-center justify-center gap-3 my-2 flex-wrap" style={{ fontVariantNumeric: 'tabular-nums' }}>
-              <span className="text-3xl font-extrabold text-stone">
-                {question.text.replace(/=\s*\?\s*$/, '=')}
-              </span>
-              <div className="min-w-[110px] h-14 px-4 rounded-xl border-4 flex items-center justify-center text-3xl font-extrabold bg-white border-fox text-stone">
-                {stepInput || <span className="text-s2">?</span>}
+            {/* « 45 + 8 = ? »: on rappelle le calcul à côté de la case. Les
+                autres consignes (« Ajoute 2 um ET 4 dizaines ») sont déjà
+                écrites au complet plus haut — on ne les répète pas. */}
+            {/=\s*\?\s*$/.test(question.text || '') ? (
+              <div className="flex items-center justify-center gap-3 my-2 flex-wrap" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                <span className="text-3xl font-extrabold text-stone">
+                  {question.text.replace(/=\s*\?\s*$/, '=')}
+                </span>
+                <div className="min-w-[110px] h-14 px-4 rounded-xl border-4 flex items-center justify-center text-3xl font-extrabold bg-white border-fox text-stone">
+                  {stepInput || <span className="text-s2">?</span>}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="text-center my-2">
+                <div className="text-[10px] font-extrabold uppercase tracking-wide text-fox-d mb-1.5">Écris ta réponse</div>
+                <div className="mx-auto min-w-[140px] inline-flex h-14 px-4 rounded-xl border-4 items-center justify-center text-3xl font-extrabold bg-white border-fox text-stone"
+                  style={{ fontVariantNumeric: 'tabular-nums' }}>
+                  {stepInput || <span className="text-s2">?</span>}
+                </div>
+              </div>
+            )}
             <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto mt-3">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
                 <button key={d} onClick={() => pressDigit(d)}
@@ -1148,12 +1172,55 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           </div>
         )}
 
+        {/* Réponse écrite en lettres (conjugaison) — au test, l'école lui
+            demande d'ÉCRIRE « j'ai mangé », pas de le reconnaître. La
+            correction automatique du téléphone est coupée exprès: elle
+            réparerait son orthographe et on ne saurait plus ce qu'il sait. */}
+        {tape === 'mot' && !showResult && (
+          <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200 mt-4 mb-4">
+            <div className="text-[10px] font-extrabold uppercase tracking-wide text-fox-d mb-1.5">Écris ta réponse</div>
+            <input
+              type="text"
+              value={saisie}
+              onChange={(e) => setSaisie(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && saisie.trim()) handleAnswer(saisie.trim()); }}
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              className="w-full h-14 px-4 rounded-xl border-4 border-fox bg-white text-2xl font-extrabold text-stone outline-none"
+            />
+            {/* Les accents se font au long appui sur un clavier de téléphone.
+                Ici ils sont à un doigt: l'accent doit rester une question de
+                français, pas de clavier. */}
+            <div className="flex flex-wrap gap-2 mt-3">
+              {['é', 'è', 'ê', 'à', 'â', 'ç', 'ô', 'î', 'û', '’'].map((c) => (
+                <button key={c} onClick={() => setSaisie((v) => v + c)}
+                  className="w-10 h-10 rounded-xl font-extrabold text-lg bg-white border-2 border-s2 text-stone active:bg-orange-100">
+                  {c}
+                </button>
+              ))}
+              <button onClick={() => setSaisie((v) => v.slice(0, -1))} disabled={!saisie}
+                className="w-12 h-10 rounded-xl font-extrabold text-lg bg-white border-2 border-s2 text-s4 active:bg-orange-100 disabled:opacity-40">
+                ⌫
+              </button>
+            </div>
+            <button
+              onClick={() => handleAnswer(saisie.trim())}
+              disabled={!saisie.trim()}
+              className="w-full mt-3 py-3 rounded-xl font-extrabold text-lg text-white disabled:opacity-40"
+              style={{ background: 'linear-gradient(90deg, #2d7a3a, #4ca65b)' }}>
+              Vérifier ma réponse
+            </button>
+          </div>
+        )}
+
         {/* Toutes les réponses s'affichent à la MÊME taille. Avant, chaque bouton
             se redimensionnait tout seul: la bonne réponse, souvent la plus
             longue (« quatre mille quatre-vingt-dix »), s'affichait en tout
             petit à côté des autres — Ryan pouvait la repérer sans lire. */}
         {/* Answer options — skipped for word problems with stepCalcs (handled by step UI above) or digit-pad mode */}
-        {(!isWordProblem || operationAnswer !== null) && !operationPhase && !hasSteps && !question.useDigitPad && (
+        {(!isWordProblem || operationAnswer !== null) && !operationPhase && !hasSteps && !tape && Array.isArray(question.options) && (
           <div className={`grid gap-3 mt-4 items-stretch ${question.isCompare || question.options.length === 3 ? 'grid-cols-3' : question.options.length === 2 ? 'grid-cols-2' : 'grid-cols-2'}`}>
             {question.options.map((opt, i) => {
               let btnClass = 'bg-white border-2 border-s2 text-stone hover:border-fox';
@@ -1217,26 +1284,36 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
                 </div>
               </div>
             )}
-            {selected === question.correct ? (
+            {estBonne(selected) ? (
               <div className="text-center p-3 bg-green-50 rounded-xl border-2 border-green-200">
                 <div className="text-2xl">✅</div>
                 <p className="font-bold text-green-700">Bravo! 🌟</p>
               </div>
             ) : (
-              <div className="p-3 bg-red-50 rounded-xl border-2 border-red-200">
-                <div className="text-center text-2xl mb-2">🔁</div>
-                <p className="font-bold text-red-600 text-center mb-2">
-                  La reponse est {question.correct}
+              <div className={`p-3 rounded-xl border-2 ${diagnostic ? 'bg-amber-50 border-amber-300' : 'bg-red-50 border-red-200'}`}>
+                <div className="text-center text-2xl mb-2">{diagnostic ? '🤏' : '🔁'}</div>
+                {diagnostic && (
+                  <p className="font-extrabold text-amber-900 text-center mb-2">
+                    Presque! {diagnostic}
+                  </p>
+                )}
+                <p className={`font-bold text-center mb-2 ${diagnostic ? 'text-amber-900' : 'text-red-600'}`}>
+                  La réponse est {bonneReponseAffichee}
+                  {tape && String(selected || '').trim() !== '' && (
+                    <span className="block text-sm font-semibold mt-0.5">
+                      Tu as écrit: {String(selected)}
+                    </span>
+                  )}
                 </p>
                 {question.steps && (
-                  <div className="text-sm text-red-600 space-y-1 mt-2">
+                  <div className={`text-sm space-y-1 mt-2 ${diagnostic ? 'text-amber-900' : 'text-red-600'}`}>
                     {question.steps.map((step, i) => (
                       <p key={i} className="font-semibold">{step.label}: {step.text}</p>
                     ))}
                   </div>
                 )}
                 {question.explanation && !question.steps && (
-                  <p className="text-sm text-red-600 font-semibold mt-1">{question.explanation}</p>
+                  <p className={`text-sm font-semibold mt-1 whitespace-pre-line ${diagnostic ? 'text-amber-900' : 'text-red-600'}`}>{question.explanation}</p>
                 )}
                 {question.visual && (
                   <>
