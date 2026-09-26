@@ -1,30 +1,52 @@
 import { useState } from 'react';
 import { X, Copy, Eye, EyeOff, ExternalLink, Pencil } from 'lucide-react';
 
-const STORAGE_KEY = 'sb_boukili_creds';
 const BOUKILI_URL = 'https://app.boukili.ca/'; // the reading app (boukili.ca is just the info site)
 
 // Boukili ne demande pas un nom d'utilisateur et un mot de passe: il demande
-// « le code donné par ton enseignante ». Celui de la classe de Nyla est écrit
-// ici pour qu'on ne le reperde plus — l'app le remplit toute seule et elle n'a
-// qu'à le copier. S'il change d'année en année, c'est la seule ligne à changer.
-const CODE_CLASSE = 'ia6dry';
+// « le code donné par ton enseignante ». Chaque enfant a le sien — ils ne sont
+// pas dans la même classe, ni dans la même école.
+//
+// Celui de Nyla est écrit ici pour qu'on ne le reperde plus. Celui de Ryan
+// n'est pas encore connu: l'écran lui laisse une case pour l'entrer, et il est
+// gardé sur l'appareil ensuite. C'est la seule différence entre les deux.
+const CODES_CLASSE = { nyla: 'ia6dry' };
 
-function loadCreds() {
+// Un code par enfant. Avant, une seule clé servait à tout le monde: le code de
+// la classe de Nyla se serait affiché à Ryan.
+const cleDe = (profile) => `sb_boukili_creds_${profile || 'ryan'}`;
+
+function loadCreds(profile) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
+    const raw = localStorage.getItem(cleDe(profile));
+    if (raw) return JSON.parse(raw);
+    // Reprise de l'ancienne clé commune: elle ne contenait que Nyla.
+    if (profile === 'nyla') {
+      const vieux = localStorage.getItem('sb_boukili_creds');
+      if (vieux) return JSON.parse(vieux);
+    }
+    return null;
   } catch {
     return null;
   }
 }
 
-function saveCreds(c) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); } catch {}
+function saveCreds(profile, c) {
+  try { localStorage.setItem(cleDe(profile), JSON.stringify(c)); } catch {}
 }
 
-export default function BoukiliLauncher({ onClose }) {
-  const [creds, setCreds] = useState(loadCreds);
+// « 20 minutes, ça fait 3 ou 4 livres » — la consigne du parent, 26 sept. 2026.
+// La feuille de l'école demande 15 minutes par jour; on vise 20.
+const OBJECTIFS = {
+  ryan: { minutes: 20, livres: '3 ou 4 livres', niveau: 'Prends les livres de 3e année — et lis À VOIX HAUTE.' },
+  nyla: { minutes: 10, livres: '1 ou 2 livres', niveau: 'Commence par les livres niveau 1 — ce sont ceux de la maternelle.' },
+};
+
+export default function BoukiliLauncher({ onClose, profile = 'ryan' }) {
+  const prenom = profile === 'nyla' ? 'Nyla' : profile === 'cayla' ? 'Cayla' : 'Ryan';
+  const objectif = OBJECTIFS[profile] || OBJECTIFS.ryan;
+  const CODE_CLASSE = CODES_CLASSE[profile] || '';
+  const [creds, setCreds] = useState(() => loadCreds(profile));
   const [editing, setEditing] = useState(false);
   const [showPw, setShowPw] = useState(false);
   const [usernameInput, setUsernameInput] = useState(creds?.username || '');
@@ -49,7 +71,7 @@ export default function BoukiliLauncher({ onClose }) {
       username: usernameInput.trim(),
       password: passwordInput,
     };
-    saveCreds(next);
+    saveCreds(profile, next);
     setCreds(next);
     setEditing(false);
   }
@@ -86,7 +108,7 @@ export default function BoukiliLauncher({ onClose }) {
         {editing ? (
           <div className="p-4 space-y-3">
             <p className="text-xs text-s6">
-              {creds ? 'Modifie les identifiants de Nyla.' : 'Mets les identifiants de Nyla une fois — on les gardera ici pour la prochaine fois.'}
+              {creds ? `Modifie les identifiants de ${prenom}.` : `Mets le code de ${prenom} une fois — on le gardera ici pour la prochaine fois.`}
             </p>
             <div>
               <label className="text-[10px] font-bold uppercase tracking-wide text-s5 block mb-1">Code de la classe</label>
@@ -135,9 +157,22 @@ export default function BoukiliLauncher({ onClose }) {
           <div className="p-4 space-y-3">
             <p className="text-sm text-stone">
               {creds
-                ? 'Bonjour Nyla! Voici tes identifiants. Tape sur les boutons pour les copier, puis ouvre Boukili.'
-                : 'Bonjour Nyla! Touche le bouton mauve pour aller lire. Les livres sont gratuits.'}
+                ? `Bonjour ${prenom}! Voici tes identifiants. Tape sur les boutons pour les copier, puis ouvre Boukili.`
+                : `Bonjour ${prenom}! Touche le bouton mauve pour aller lire. Les livres sont gratuits.`}
             </p>
+
+            {/* La consigne du jour: une durée ET un nombre de livres. « 20
+                minutes » tout seul ne dit pas quand on a fini; « 3 ou 4
+                livres » lui donne une cible qu'il peut voir arriver. */}
+            <div className="rounded-xl p-3 border-2 border-lava" style={{ background: 'linear-gradient(90deg, #fff1e6, #fdf6ee)' }}>
+              <div className="text-[10px] font-extrabold uppercase tracking-wide text-fox-d mb-1">
+                Ma lecture d'aujourd'hui
+              </div>
+              <div className="font-heading text-xl font-extrabold text-stone leading-tight">
+                {objectif.minutes} minutes · {objectif.livres}
+              </div>
+              <p className="text-[11px] font-semibold text-s6 leading-snug mt-1">{objectif.niveau}</p>
+            </div>
 
             {/* Le code de la classe — c'est CE qu'on te demande à l'écran
                 « Please enter the code given by your teacher ». */}
@@ -145,24 +180,43 @@ export default function BoukiliLauncher({ onClose }) {
               <div className="text-[10px] font-bold uppercase tracking-wide text-purple-700 mb-1">
                 Code de la classe
               </div>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 text-2xl font-extrabold text-stone bg-white rounded-lg px-3 py-2 border-2 border-purple-200 font-mono tracking-[0.15em] text-center">
-                  {code}
-                </div>
-                <button onClick={() => copyToClipboard(code, 'c')}
-                  className="px-3 py-2.5 rounded-lg bg-white border-2 border-purple-300 hover:bg-purple-100 text-purple-800 text-sm font-bold flex items-center gap-1">
-                  <Copy size={14} /> {copied === 'c' ? 'Copié!' : 'Copier'}
-                </button>
-              </div>
-              <p className="text-[11px] font-semibold text-purple-900 leading-snug mt-2">
-                Dans Boukili, colle-le où c'est écrit « entre le code de ton enseignante », puis touche <strong>Connecter</strong>.
-              </p>
+              {code ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 text-2xl font-extrabold text-stone bg-white rounded-lg px-3 py-2 border-2 border-purple-200 font-mono tracking-[0.15em] text-center">
+                      {code}
+                    </div>
+                    <button onClick={() => copyToClipboard(code, 'c')}
+                      className="px-3 py-2.5 rounded-lg bg-white border-2 border-purple-300 hover:bg-purple-100 text-purple-800 text-sm font-bold flex items-center gap-1">
+                      <Copy size={14} /> {copied === 'c' ? 'Copié!' : 'Copier'}
+                    </button>
+                  </div>
+                  <p className="text-[11px] font-semibold text-purple-900 leading-snug mt-2">
+                    Dans Boukili, colle-le où c'est écrit « entre le code de ton enseignante », puis touche <strong>Connecter</strong>.
+                  </p>
+                </>
+              ) : (
+                // Pas encore de code pour cet enfant: on ne fait pas semblant
+                // d'en avoir un. Le code de la classe de Nyla ne marcherait pas
+                // pour Ryan — ils ne sont pas dans la même école.
+                <>
+                  <p className="text-[11px] font-semibold text-purple-900 leading-snug mb-2">
+                    Boukili demande « le code donné par ton enseignante ». Celui de {prenom} n'est
+                    pas encore enregistré — entre-le une fois, et il restera ici.
+                  </p>
+                  <button onClick={() => setEditing(true)}
+                    className="w-full py-2.5 rounded-lg bg-white border-2 border-purple-300 hover:bg-purple-100 text-purple-800 font-bold flex items-center justify-center gap-1.5">
+                    <Pencil size={14} /> Entrer le code de {prenom}
+                  </button>
+                </>
+              )}
             </div>
 
-            {!creds && (
+            {!creds && objectif.niveau && (
               <div className="bg-cream border-2 border-s2 rounded-xl p-3">
                 <p className="text-xs font-semibold text-s6 leading-snug">
-                  📖 Commence par les livres <strong>niveau 1</strong> — ce sont ceux de la maternelle.
+                  Les livres de Boukili sont gratuits: on peut lire sans compte. Le code sert
+                  seulement à garder la progression de la classe.
                 </p>
               </div>
             )}

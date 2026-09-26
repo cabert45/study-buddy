@@ -24,6 +24,11 @@ verifie('matcha ordre garde ses choix', modeTape({ category: 'matcha_nombres', t
 verifie('matcha position_nom garde ses choix', modeTape({ category: 'matcha_nombres', type: 'position_nom', correct: 'dizaines' }), null);
 verifie('matcha chiffres→lettres garde ses choix', modeTape({ category: 'matcha_nombres', type: 'chiffres_lettres', correct: 'deux mille' }), null);
 verifie('terme manquant', modeTape({ category: 'terme', type: 'terme_manquant', correct: 27 }), 'nombre');
+// Stratégies: le FAIT se tape, la stratégie se choisit.
+verifie('stratégies — un fait à calculer', modeTape({ category: 'strategies', type: 'fait_C', correct: 8 }), 'nombre');
+verifie('stratégies — vrai ou faux garde ses choix', modeTape({ category: 'strategies', type: 'vrai_faux', correct: 'Vrai' }), null);
+verifie('stratégies — « quel double se cache » garde ses choix', modeTape({ category: 'strategies', type: 'double_D', correct: '6 + 6 = 12' }), null);
+verifie('calcul rapide 3 chiffres', modeTape({ category: 'calcul_rapide_3', type: 'plus9', correct: 347 }), 'nombre');
 verifie('calcul (digit pad existant)', modeTape({ category: 'calcul', useDigitPad: true, correct: 42 }), 'nombre');
 verifie('passé composé conjugué', modeTape({ category: 'passe_compose', type: 'conjugate_er', correct: "j'ai mangé" }), 'mot');
 verifie('passé composé auxiliaire', modeTape({ category: 'passe_compose', type: 'auxiliary', correct: 'avoir' }), null);
@@ -90,6 +95,8 @@ await build({
       export { generatePasseCompose } from './src/generators/passeCompose.js';
       export { generatePresentIndicatif } from './src/generators/presentIndicatif.js';
       export { generateConjugaison } from './src/generators/conjugaison.js';
+      export { generateStrategies } from './src/generators/strategies.js';
+      export { generateCalculRapide3 } from './src/generators/calculRapide3.js';
     `,
     resolveDir: racine,
     sourcefile: 'generateurs.js',
@@ -115,6 +122,7 @@ if (typeof globalThis.localStorage === 'undefined') {
 const {
   generateMatchaNombres, generateTerme, generateRelational, generateMental,
   generatePasseCompose, generatePresentIndicatif, generateConjugaison,
+  generateStrategies, generateCalculRapide3,
 } = await import(pathToFileURL(paquet).href);
 
 const générateurs = {
@@ -125,6 +133,8 @@ const générateurs = {
   passe_compose: generatePasseCompose,
   present_indicatif: generatePresentIndicatif,
   conjugaison: generateConjugaison,
+  strategies: generateStrategies,
+  calcul_rapide_3: generateCalculRapide3,
 };
 
 for (const [nom, gen] of Object.entries(générateurs)) {

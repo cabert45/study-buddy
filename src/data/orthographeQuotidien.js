@@ -24,6 +24,8 @@
 //   circ    accent circonflexe         jum    consonnes jumelles
 //   inv     mot invariable             rime   clé de rime
 
+import { refScolaire } from '../utils/semaineScolaire';
+
 // ===== LISTE 1 — Mots sans grandes difficultés =====
 const L1 = [
   { mot: 'abri', nom: 1 },
@@ -275,16 +277,10 @@ export const listeById = (id) => LISTES.find((l) => l.id === id) || null;
 
 const dateOf = ([y, m, d]) => new Date(y, m - 1, d);
 
-// Le dimanche soir appartient à la semaine qui COMMENCE, pas à celle qui finit.
-// C'est le soir où on prépare lundi: si on ne décale pas, Ryan révise la liste
-// terminée la veille du jour où la nouvelle sort. Le décalage vit ici pour que
-// le Coach, le menu ET l'exercice disent tous la même chose.
-function refScolaire(date) {
-  return date.getDay() === 0
-    ? new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)
-    : date;
-}
-
+// La fin de semaine appartient à la semaine qui COMMENCE, pas à celle qui
+// finit: la dictée a lieu le vendredi, donc dès le vendredi après-midi la liste
+// en cours est finie. Voir utils/semaineScolaire — la règle est commune au
+// Coach, au menu et à l'exercice, pour qu'ils disent tous la même chose.
 function semaineIndex(rawDate) {
   const date = refScolaire(rawDate);
   let idx = -1;

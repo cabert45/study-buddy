@@ -207,9 +207,13 @@ function buildRentreePlan(today) {
   // Lecture: 15 min par jour, c'est la première ligne de la feuille de
   // l'enseignante. Un vrai livre, pas un écran — d'où le type « chore »
   // (minuterie + bouton « Fait! ») plutôt qu'un exercice de l'app.
+  // « Pour la lecture, envoie-le sur Boukili avec un lien pour entrer le code,
+  // et mets-lui un temps. 20 minutes, ça fait 3 ou 4 livres. » (26 sept. 2026)
+  // La feuille de l'école demande 15 minutes; on vise 20, et on lui dit combien
+  // de livres ça représente — une durée seule ne dit pas quand on a fini.
   const lecture = (mins) => ({
-    type: 'chore', mins, icon: '📖',
-    label: `Lecture — ${mins} minutes dans ton livre`,
+    type: 'chore', mins, icon: '📖', boukili: true,
+    label: `Lecture — ${mins} minutes · 3 ou 4 livres`,
   });
 
   const fin = {
@@ -426,7 +430,7 @@ const dayChips = [
   { idx: 0, label: 'Dim' },
 ];
 
-export default function Coach({ onHome, onStartPractice, profile = 'ryan' }) {
+export default function Coach({ onHome, onStartPractice, onOpenBoukili, profile = 'ryan' }) {
   const [plan, setPlan] = useState([]);
   const [planReady, setPlanReady] = useState(false);
   const [stepIdx, setStepIdx] = useState(0);
@@ -774,6 +778,18 @@ export default function Coach({ onHome, onStartPractice, profile = 'ryan' }) {
                       </button>
                     )}
 
+                    {/* La lecture a maintenant une porte: Boukili (Télé-Québec),
+                        les livres de son niveau, gratuits. Avant, « 20 minutes
+                        dans ton livre » supposait qu'un livre traîne à portée
+                        de main — et un chronomètre sans livre, c'est une
+                        minuterie qui tourne dans le vide. */}
+                    {stepChore && step.boukili && onOpenBoukili && (
+                      <button onClick={onOpenBoukili}
+                        className="w-full mb-2 py-3 rounded-xl font-extrabold text-white text-base active:scale-[0.98] transition-transform"
+                        style={{ background: 'linear-gradient(90deg, #6d28d9, #8b5cf6)' }}>
+                        Ouvrir Boukili — mes livres →
+                      </button>
+                    )}
                     {(stepChore || stepBreak) && (
                       <div className="flex gap-2">
                         {remaining > 0 ? (

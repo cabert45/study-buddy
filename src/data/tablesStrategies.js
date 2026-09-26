@@ -13,6 +13,8 @@
 //
 // Les faits sont CALCULÉS, pas recopiés: pas de faute de transcription possible.
 
+import { refScolaire } from '../utils/semaineScolaire';
+
 const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
 
 // Un fait = { a, op, b, r } → « a op b = r »
@@ -186,11 +188,10 @@ export const STRATEGIE_SEMAINES = [
 
 const dateOf = ([y, m, d]) => new Date(y, m - 1, d);
 
-// Même décalage du dimanche que pour l'orthographe: le dimanche prépare lundi.
-function refScolaire(d) {
-  return d.getDay() === 0 ? new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1) : d;
-}
-
+// Même bascule que pour l'orthographe et le cahier Jazz — voir
+// utils/semaineScolaire. Les trois avancent ensemble: une semaine à moitié
+// tournée (liste 3 avec les stratégies de la semaine passée) serait pire que
+// pas de bascule du tout.
 function semaineIndex(rawDate) {
   const date = refScolaire(rawDate);
   let idx = -1;

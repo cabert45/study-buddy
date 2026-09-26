@@ -361,7 +361,7 @@ export default function App() {
         <TestResults onClose={() => setShowTestResults(false)} />
       )}
       {showBoukili && (
-        <BoukiliLauncher onClose={() => setShowBoukili(false)} />
+        <BoukiliLauncher onClose={() => setShowBoukili(false)} profile={profile} />
       )}
       {screen === 'journal' && <Journal onHome={goHome} profile={profile} />}
       {screen === 'verbes' && <VerbesAvoirEtre onHome={goHome} onStartPractice={startPractice} />}
@@ -490,7 +490,7 @@ export default function App() {
         <Chores onHome={goHome} profile={profile} />
       )}
       {screen === 'coach' && (
-        <Coach onHome={goHome} onStartPractice={startPractice} profile={profile} />
+        <Coach onHome={goHome} onStartPractice={startPractice} onOpenBoukili={() => setShowBoukili(true)} profile={profile} />
       )}
       {screen === 'feuille_matcha' && (
         <FeuilleMatcha onHome={goHome} onFinish={goHome} />

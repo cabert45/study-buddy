@@ -1,3 +1,5 @@
+import { refScolaire } from '../utils/semaineScolaire';
+
 // Cahier de français de Ryan — JAZZ 3e année (TC Média)
 // Photos des pages: Documents/Ryan - Tandem/Jazz - 3e
 // Table des matières photographiée le 13 sept 2026. Chaque module = une lecture
@@ -89,7 +91,9 @@ export const moduleById = (id) => moduleIndex[id] || null;
 
 const dateOf = ([y, m, d]) => new Date(y, m - 1, d);
 
-function weekIndex(date) {
+function weekIndex(rawDate) {
+  // La fin de semaine prépare la semaine qui vient — voir utils/semaineScolaire.
+  const date = refScolaire(rawDate);
   let idx = -1;
   CAHIER_SEMAINES.forEach((w, i) => { if (dateOf(w.debut) <= date) idx = i; });
   return idx;

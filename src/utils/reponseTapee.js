@@ -29,6 +29,16 @@ const NOMBRE = {
   terme: '*',       // sa catégorie la plus faible: 27/54
   relational: '*',
   mental: '*',
+  // « No more choix multiple, he can calculate that himself. He types the
+  // answer. » (26 sept. 2026, devant une question de stratégies à 4 boutons.)
+  //
+  // '*' ne rend PAS tout tapé: le garde-fou `typeof correct === 'number'`
+  // ci-dessous laisse en choix ce qui n'est pas un nombre — « Vrai ou faux? »,
+  // « quel DOUBLE se cache dans 12 − 6? » (la réponse est « 6 + 6 »), « quelle
+  // décomposition est la bonne? ». Là, choisir EST la tâche: on travaille la
+  // stratégie, pas le calcul.
+  strategies: '*',
+  calcul_rapide_3: '*',
 };
 
 // Un mot (ou deux) à écrire: la conjugaison, c'est-à-dire ce que l'école lui
@@ -40,6 +50,15 @@ const MOT = {
   futur_etre_avoir: ['conjugate'],
   conjugaison: '*',
 };
+
+// Un nombre, écrit comme un nombre ou comme du texte: calculRapide3 répond
+// « 347 » (chaîne), matcha répond 347. C'est le même geste pour l'enfant, et
+// ce qui décide, c'est la réponse — pas le type JavaScript du générateur.
+// En revanche « 6 + 6 = 12 » ou « 1 027 , 1 424 » ne sont pas des nombres: ces
+// questions-là gardent leurs choix.
+const estUnNombre = (v) =>
+  typeof v === 'number'
+  || (typeof v === 'string' && /^-?\d+$/.test(v.replace(/[\s  ]/g, '')));
 
 function listeContient(table, categorie, type) {
   const types = table[categorie];
@@ -55,7 +74,7 @@ export function modeTape(question) {
   if (question.useDigitPad) return 'nombre';
   const cat = question.category;
   const type = question.type;
-  if (typeof question.correct === 'number' && listeContient(NOMBRE, cat, type)) return 'nombre';
+  if (estUnNombre(question.correct) && listeContient(NOMBRE, cat, type)) return 'nombre';
   // Garde-fou: on ne fait pas taper une phrase entière à un enfant de 8 ans.
   if (typeof question.correct === 'string' && question.correct.length <= 26
       && listeContient(MOT, cat, type)) return 'mot';
