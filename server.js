@@ -5,7 +5,13 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
+import dns from 'node:dns';
 import pg from 'pg';
+
+// Le conteneur Railway n'a pas de route IPv6: chaque adresse AAAA de Neon
+// renvoie ENETUNREACH avant qu'on tente enfin l'IPv4. On resout donc en IPv4
+// en premier.
+dns.setDefaultResultOrder('ipv4first');
 import Anthropic from '@anthropic-ai/sdk';
 import webpush from 'web-push';
 
@@ -19,8 +25,21 @@ app.use(express.json());
 // --- Database setup with PostgreSQL ---
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL?.includes('railway') ? { rejectUnauthorized: false } : false,
+  // Neon exige TLS. L'ancien test ne l'activait que pour un hote « railway »,
+  // donc depuis le demenagement vers Neon il ne s'appliquait plus du tout.
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
+  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: 30000,
+  keepAlive: true,
 });
+
+// Un pool qui explose ne doit pas emporter le processus.
+pool.on('error', (err) => {
+  dbPrete = false;
+  console.error('Pool Postgres:', err.message);
+});
+
+let dbPrete = false;
 
 async function initDb() {
   const client = await pool.connect();
@@ -991,6 +1010,30 @@ app.get('/api/tts', async (req, res) => {
   }
 });
 
+// Etat du service: permet de voir en un coup d'oeil si la base repond,
+// au lieu de decouvrir trois jours plus tard que rien n'a ete enregistre.
+app.get('/api/health', async (req, res) => {
+  let base = 'injoignable';
+  try {
+    // Un diagnostic qui prend 10 s n'est pas un diagnostic: on plafonne a 3 s,
+    // sinon /api/health pend aussi longtemps que le pool.
+    await Promise.race([
+      pool.query('SELECT 1'),
+      new Promise((_, rejeter) => setTimeout(() => rejeter(new Error('trop lent')), 3000)),
+    ]);
+    base = 'ok';
+    dbPrete = true;
+  } catch (err) {
+    base = `injoignable (${err.code || err.message})`;
+  }
+  res.status(base === 'ok' ? 200 : 503).json({
+    serveur: 'ok',
+    base,
+    voix: !!TTS_KEY,
+    heure: new Date().toISOString(),
+  });
+});
+
 // --- Serve static files in production ---
 const distPath = path.join(__dirname, 'dist');
 app.use(express.static(distPath));
@@ -999,8 +1042,30 @@ app.get('*', (req, res) => {
 });
 
 // --- Start server ---
-initDb().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Study Buddy server running on http://localhost:${PORT}`);
-  });
+//
+// AVANT: `initDb().then(() => app.listen(...))`. Si la base etait injoignable,
+// la promesse echouait, `app.listen` n'etait JAMAIS appele et le processus
+// mourait: toute l'app tombait en 502 — y compris les exercices, qui tournent
+// entierement dans le navigateur et n'ont pas besoin de la base.
+// C'est exactement ce qui est arrive le 26 sept.
+//
+// Maintenant le serveur ecoute tout de suite. La base est preparee a cote,
+// avec des essais espaces, et l'app fonctionne dans l'intervalle: la pratique
+// marche, et les sessions attendent sur l'appareil (voir utils/storage.js).
+app.listen(PORT, () => {
+  console.log(`Study Buddy server running on http://localhost:${PORT}`);
 });
+
+async function preparerLaBase(essai = 1) {
+  try {
+    await initDb();
+    dbPrete = true;
+    console.log('Base de donnees prete' + (essai > 1 ? ` (apres ${essai} essais)` : ''));
+  } catch (err) {
+    dbPrete = false;
+    const attente = Math.min(60000, 2000 * 2 ** (essai - 1));
+    console.error(`Base injoignable (essai ${essai}): ${err.message} — nouvel essai dans ${Math.round(attente / 1000)}s`);
+    setTimeout(() => preparerLaBase(essai + 1), attente);
+  }
+}
+preparerLaBase();
