@@ -6,6 +6,8 @@
 //   - voit seulement les modules de secondaire 1 (Univers social, Sciences, Verbes)
 //   - progrès anonyme: profil « invite-xxxxxxxx » propre à l'appareil, aucun nom demandé
 // Pour sortir du mode invité sur un appareil de la famille: ouvrir https://<app>/famille
+// (ou /family, /sortie: le 26 sept. 2026 l'adresse a été tapée en anglais sur le PC de
+//  la maison, aucune porte ne s'est ouverte, et l'écran des camarades est resté collé.)
 //
 // Solution temporaire (13-14 sept. 2026) en attendant de vrais comptes parent/enfant.
 
@@ -16,6 +18,10 @@ const PROFILE_KEY = 'sb_profile';
 // « / » revient aux profils. Sinon le lien des camarades restait collé sur nos appareils.
 const FAMILY_KEY = 'sb_family_device';
 const SESSION_KEY = 'sb_guest_session';
+// Les adresses qui ramènent un appareil à la famille. Une seule orthographe ne
+// suffit pas: on tape l'anglais sans y penser, et une porte qui ne s'ouvre pas
+// ressemble à une app cassée.
+const SORTIES = ['/famille', '/family', '/sortie'];
 
 export function markFamilyDevice() {
   try { localStorage.setItem(FAMILY_KEY, '1'); } catch {}
@@ -43,12 +49,12 @@ export function initGuestFromUrl() {
     } else if (isFamilyDevice()) {
       // appareil de la famille: toute autre adresse (dont « / ») revient aux profils
       try { sessionStorage.removeItem(SESSION_KEY); } catch {}
-      if (path === '/famille') {
+      if (SORTIES.includes(path)) {
         localStorage.removeItem(GUEST_KEY);
         if ((localStorage.getItem(PROFILE_KEY) || '').startsWith('invite-')) localStorage.removeItem(PROFILE_KEY);
         window.history.replaceState(null, '', '/');
       }
-    } else if (path === '/famille') {
+    } else if (SORTIES.includes(path)) {
       localStorage.removeItem(GUEST_KEY);
       try { sessionStorage.removeItem(SESSION_KEY); } catch {}
       if ((localStorage.getItem(PROFILE_KEY) || '').startsWith('invite-')) localStorage.removeItem(PROFILE_KEY);
