@@ -362,10 +362,12 @@ export function speak(text, lang = 'fr', baseRate = 0.85) {
  * jamais ouvert. Deux filets: une garde de temps, et une veille sur le
  * compteur de generation (qui change des que la voix est coupee).
  *
- * `rate` par defaut 0.7 (contre 0.85 partout ailleurs): a cinq ans, la voix
- * normale de l'app va trop vite pour suivre.
+ * `rate` par defaut 0.8. Reglage fait a l'oreille, en deux temps: 0.85 (la
+ * vitesse du reste de l'app) etait trop rapide pour elle, 0.7 trop lent au
+ * point de trainer. Le debit de ⚙️ Reglages (🐢 / 🙂 / 🐇) multiplie encore
+ * par-dessus pour qui veut ajuster.
  */
-export function speakAndWait(text, { rate = 0.7 } = {}) {
+export function speakAndWait(text, { rate = 0.8 } = {}) {
   return new Promise((resolve) => {
     if (!speechEnabled || !window.speechSynthesis) return resolve();
     const cleaned = cleanForSpeech(text);

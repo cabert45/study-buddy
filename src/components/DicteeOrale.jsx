@@ -7,6 +7,7 @@ import { ecouterUnTour } from '../utils/micro';
 import { recordAnswer, buildSmartQueue } from '../utils/wordMastery';
 import Mascot, { MASCOTS } from './Mascots';
 import { useSettings, mascotFor } from '../utils/settings';
+import { IconVoix, IconMicro, IconCrayon, IconReflechit, IconCoche, IconRepete, IconTrophee, IconOeil, IconOeilBarre } from './Icones';
 
 // Ryan — la dictée à voix haute.
 //
@@ -44,12 +45,19 @@ const ETATS = {
 };
 
 const LIBELLE = {
-  [ETATS.PARLE]: '🔊 Écoute bien…',
-  [ETATS.ECOUTE]: '🎤 Épelle, je t’écoute',
-  [ETATS.RELIT]: '✏️ Vérifie ce que j’ai entendu',
-  [ETATS.REFLECHIT]: '💭 Je vérifie…',
-  [ETATS.REPOND]: '🔊 …',
+  [ETATS.PARLE]: { Icone: IconVoix, texte: 'Écoute bien…' },
+  [ETATS.ECOUTE]: { Icone: IconMicro, texte: 'Épelle, je t’écoute' },
+  [ETATS.RELIT]: { Icone: IconCrayon, texte: 'Vérifie ce que j’ai entendu' },
+  [ETATS.REFLECHIT]: { Icone: IconReflechit, texte: 'Je vérifie…' },
+  [ETATS.REPOND]: { Icone: IconVoix, texte: '…' },
 };
+
+function Etat({ etat }) {
+  const e = LIBELLE[etat];
+  if (!e) return null;
+  const { Icone, texte } = e;
+  return <span className="inline-flex items-center gap-1.5"><Icone size={18} /> {texte}</span>;
+}
 
 export default function DicteeOrale({ onHome, onFinish }) {
   const reglages = useSettings('ryan');
@@ -80,7 +88,12 @@ export default function DicteeOrale({ onHome, onFinish }) {
   const mot = mots[i] ? mots[i].mot : null;
   const mascotteLabel = (MASCOTS.find((m) => m.id === avatar) || {}).label || 'ton coach';
 
-  useEffect(() => () => { vivant.current = false; stopSpeech(); }, []);
+  // Remis a vrai a chaque montage: sinon le mode strict de React 18 le laisse
+  // a faux apres son demontage simule, et plus aucun tour ne demarre.
+  useEffect(() => {
+    vivant.current = true;
+    return () => { vivant.current = false; stopSpeech(); };
+  }, []);
   useEffect(() => { basRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, [fil, etat, brouillon]);
 
   // Dans le fil, le mot en cours reste masqué: c'est une dictée.
@@ -228,7 +241,7 @@ export default function DicteeOrale({ onHome, onFinish }) {
   if (micRefuse) {
     return (
       <div className="max-w-xl mx-auto px-4 pt-10 text-center">
-        <div className="text-6xl mb-4">🎤</div>
+        <div className="text-lava mb-4 flex justify-center"><IconMicro size={64} /></div>
         <h2 className="font-heading text-2xl font-extrabold text-stone mb-2">Le micro est fermé</h2>
         <p className="text-sm text-s4 mb-6">Autorise le microphone dans le navigateur, puis rouvre la page.</p>
         <button onClick={onHome} className="w-full py-3 rounded-xl font-bold text-white"
@@ -253,7 +266,7 @@ export default function DicteeOrale({ onHome, onFinish }) {
         </div>
         <div className="flex-1">
           <div className="font-heading font-extrabold text-stone">
-            {LIBELLE[etat] || (etat === ETATS.FINI ? '🏆 Fini!' : 'Prêt?')}
+            {LIBELLE[etat] ? <Etat etat={etat} /> : etat === ETATS.FINI ? <span className="inline-flex items-center gap-1.5"><IconTrophee size={18} /> Fini!</span> : 'Prêt?'}
           </div>
           {etat === ETATS.ECOUTE && (
             <div className="mt-1 h-3 rounded-full bg-s1 overflow-hidden">
@@ -268,7 +281,7 @@ export default function DicteeOrale({ onHome, onFinish }) {
         {/* Le parent peut lire les mots; Ryan, non. */}
         <button onClick={() => setDevoile((v) => !v)}
           className="text-[11px] font-bold text-s4 underline flex-shrink-0">
-          {devoile ? '🙈 cacher' : '👁 parent'}
+          {devoile ? <span className="inline-flex items-center gap-1"><IconOeilBarre size={14} /> cacher</span> : <span className="inline-flex items-center gap-1"><IconOeil size={14} /> parent</span>}
         </button>
       </div>
 
@@ -296,7 +309,7 @@ export default function DicteeOrale({ onHome, onFinish }) {
         <button onClick={() => demander(i)}
           className="w-full py-6 rounded-3xl font-heading font-extrabold text-white text-2xl active:scale-[0.98] transition-transform"
           style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a)' }}>
-          🎤 Commencer la dictée
+          Commencer la dictée
         </button>
       )}
 
@@ -304,7 +317,7 @@ export default function DicteeOrale({ onHome, onFinish }) {
         <button onClick={() => arretRef.current?.()}
           className="w-full py-6 rounded-3xl font-heading font-extrabold text-white text-2xl active:scale-[0.98] transition-transform"
           style={{ background: 'linear-gradient(135deg, #2d7a3a, #4ca65b)' }}>
-          ✓ J’ai fini d’épeler
+          J’ai fini d’épeler
         </button>
       )}
 
@@ -319,12 +332,12 @@ export default function DicteeOrale({ onHome, onFinish }) {
           <div className="flex gap-2 mt-2">
             <button onClick={redemander}
               className="flex-1 py-3 rounded-xl font-bold text-s6 bg-white border-2 border-s2 hover:border-lava text-sm">
-              ↺ Reprendre
+              Reprendre
             </button>
             <button onClick={envoyer}
               className="flex-1 py-3 rounded-xl font-extrabold text-white text-sm"
               style={{ background: 'linear-gradient(90deg, #2d7a3a, #4ca65b)' }}>
-              ✓ Envoyer
+              Envoyer
             </button>
           </div>
         </div>
@@ -332,7 +345,7 @@ export default function DicteeOrale({ onHome, onFinish }) {
 
       {(etat === ETATS.PARLE || etat === ETATS.REFLECHIT || etat === ETATS.REPOND) && (
         <div className="w-full py-5 rounded-3xl bg-s1 text-center font-heading font-bold text-s6 text-lg">
-          {LIBELLE[etat]}
+          <Etat etat={etat} />
         </div>
       )}
 
@@ -340,7 +353,7 @@ export default function DicteeOrale({ onHome, onFinish }) {
       {etat === ETATS.FINI && (
         <div>
           <div className="text-center mb-4">
-            <div className="text-5xl mb-2">🏆</div>
+            <div className="text-ok mb-2 flex justify-center"><IconTrophee size={52} /></div>
             <p className="font-heading text-2xl font-extrabold text-ok">
               {resultats.filter((r) => r.ok).length} sur {resultats.length}
             </p>
@@ -369,7 +382,7 @@ function Tete({ onHome, droite }) {
   return (
     <div className="flex items-center justify-between mb-3">
       <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
-      <h2 className="font-heading font-bold text-stone">🎙️ Dictée à voix haute</h2>
+      <h2 className="font-heading font-bold text-stone inline-flex items-center gap-1.5"><IconMicro size={18} /> Dictée à voix haute</h2>
       <div className="text-xs font-bold text-s4 min-w-[42px] text-right">{droite || ''}</div>
     </div>
   );

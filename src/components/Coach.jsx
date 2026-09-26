@@ -696,7 +696,7 @@ export default function Coach({ onHome, onStartPractice, profile = 'ryan' }) {
             doneSteps.length >= plan.length ? 'bg-yellow-100 border-yellow-400' : 'bg-cream border-s2 opacity-50'
           }`}>🏆</div>
           <div className={`font-heading font-extrabold ${doneSteps.length >= plan.length ? 'text-stone' : 'text-s4'}`}>
-            {restant === 0 ? 'Tout est fait!' : restant === 1 ? 'Plus qu\u2019une case!' : `Encore ${restant} cases`}
+            {restant === 0 ? 'Tout est fait!' : restant === 1 ? 'Plus qu’une case!' : `Encore ${restant} cases`}
           </div>
         </div>
 
@@ -721,7 +721,7 @@ export default function Coach({ onHome, onStartPractice, profile = 'ryan' }) {
                   : current ? 'bg-white border-lava shadow-lg scale-110'
                   : 'bg-cream border-s2 opacity-60'
                 }`}>
-                  {done ? '\u2705' : step.icon}
+                  {done ? '✅' : step.icon}
                 </div>
                 {i > 0 && (
                   <div className={`w-1.5 flex-1 rounded-full ${done ? 'bg-ok' : 'bg-s1'}`} style={{ minHeight: 14 }} />
@@ -743,7 +743,7 @@ export default function Coach({ onHome, onStartPractice, profile = 'ryan' }) {
                     stepBreak ? 'bg-orange-50 border-orange-300' : 'bg-white border-lava shadow-lg'
                   }`}>
                     <div className="text-[10px] font-extrabold uppercase tracking-wide text-lava mb-1">
-                      {stepBreak ? '\u2615 Pause' : stepMsg ? 'Info' : 'Tu es ici'}
+                      {stepBreak ? '☕ Pause' : stepMsg ? 'Info' : 'Tu es ici'}
                     </div>
                     <h3 className="font-heading text-xl font-extrabold text-stone leading-tight mb-3">
                       {step.label}
@@ -762,7 +762,7 @@ export default function Coach({ onHome, onStartPractice, profile = 'ryan' }) {
                       <button onClick={startAppMode}
                         className="w-full py-4 rounded-xl font-extrabold text-white text-lg active:scale-[0.98] transition-transform"
                         style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
-                        Commencer \u2192
+                        Commencer →
                       </button>
                     )}
 
@@ -770,7 +770,7 @@ export default function Coach({ onHome, onStartPractice, profile = 'ryan' }) {
                       <button onClick={goNext}
                         className="w-full py-3 rounded-xl font-bold text-white"
                         style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
-                        \u25b6 Continuer
+                        ▶ Continuer
                       </button>
                     )}
 
@@ -779,7 +779,7 @@ export default function Coach({ onHome, onStartPractice, profile = 'ryan' }) {
                         {remaining > 0 ? (
                           <button onClick={() => setRunning((v) => !v)}
                             className="flex-1 py-3 rounded-xl font-bold text-white text-sm bg-yellow-600">
-                            {running ? '\u23f8 Pause' : '\u25b6 Continuer'}
+                            {running ? '⏸ Pause' : '▶ Continuer'}
                           </button>
                         ) : (
                           <button onClick={extend}
@@ -789,7 +789,7 @@ export default function Coach({ onHome, onStartPractice, profile = 'ryan' }) {
                         )}
                         <button onClick={markDone}
                           className="flex-1 py-3 rounded-xl font-bold text-white text-sm bg-ok">
-                          \u2713 Fait!
+                          ✓ Fait!
                         </button>
                       </div>
                     )}
@@ -803,9 +803,9 @@ export default function Coach({ onHome, onStartPractice, profile = 'ryan' }) {
         {/* Le depart, tout en bas */}
         <div className="flex items-center gap-3 pt-1">
           <div className="w-11 h-11 rounded-full bg-cream border-2 border-s2 flex items-center justify-center text-2xl flex-shrink-0">
-            \ud83c\udfe0
+            🏠
           </div>
-          <div className="font-heading font-bold text-s4">D\u00e9part</div>
+          <div className="font-heading font-bold text-s4">Départ</div>
         </div>
       </div>
     </div>

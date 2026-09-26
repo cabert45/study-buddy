@@ -301,7 +301,7 @@ export default function App() {
                     className="bg-white border-2 border-s1 rounded-2xl p-6 hover:scale-105 hover:border-purple-400 hover:shadow-lg transition-all active:scale-95">
                     <div className="text-5xl mb-3">🌸</div>
                     <div className="font-heading text-xl font-extrabold text-stone">Nyla</div>
-                    <div className="text-xs font-bold text-s4 mt-1">Pré-maternelle · 5 ans</div>
+                    <div className="text-xs font-bold text-s4 mt-1">Maternelle 5 ans</div>
                   </button>
                 </>
               )}

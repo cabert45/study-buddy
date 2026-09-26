@@ -3,6 +3,8 @@ import { speakAndWait, stopSpeech } from '../utils/speech';
 import { saveSession } from '../utils/storage';
 import { serieOrale } from '../data/nylaOral';
 import { jugerOral } from '../utils/nylaOralCheck';
+import { ecouterUnTour } from '../utils/micro';
+import { IconVoix, IconMicro, IconRepete, IconReflechit, IconCrayon, IconCoche, IconTrophee, IconCible, IconBulle } from './Icones';
 import Mascot, { MASCOTS } from './Mascots';
 import { useSettings, mascotFor } from '../utils/settings';
 
@@ -40,6 +42,8 @@ const ETATS = {
   MODE: 'mode',
   PRET: 'pret',
   PARLE: 'parle',
+  ATTEND: 'attend',       // a elle de parler: elle appuie quand elle est prete
+  OUVERTURE: 'ouverture', // le navigateur demande l'autorisation du micro
   ECOUTE: 'ecoute',
   RELIT: 'relit',
   REFLECHIT: 'reflechit',
@@ -50,12 +54,22 @@ const ETATS = {
 // Où on en est, en toutes lettres. La première version n'avait qu'un « … »
 // gris: impossible de savoir si l'app écoutait, réfléchissait, ou était plantée.
 const LIBELLE_ETAT = {
-  [ETATS.PARLE]: '🔊 Elle parle…',
-  [ETATS.ECOUTE]: '🎤 Je t’écoute',
-  [ETATS.RELIT]: '✏️ Vérifie ce que j’ai entendu',
-  [ETATS.REFLECHIT]: '💭 Je réfléchis…',
-  [ETATS.REPOND]: '🔊 Elle répond…',
+  [ETATS.PARLE]: { Icone: IconVoix, texte: 'Elle parle…' },
+  [ETATS.ATTEND]: { Icone: IconMicro, texte: 'À toi de parler' },
+  [ETATS.OUVERTURE]: { Icone: IconMicro, texte: 'J’ouvre le micro…' },
+  [ETATS.ECOUTE]: { Icone: IconMicro, texte: 'Je t’écoute' },
+  [ETATS.RELIT]: { Icone: IconCrayon, texte: 'Vérifie ce que j’ai entendu' },
+  [ETATS.REFLECHIT]: { Icone: IconReflechit, texte: 'Je réfléchis…' },
+  [ETATS.REPOND]: { Icone: IconVoix, texte: 'Elle répond…' },
 };
+
+// Un etat affiche: l'icone, puis les mots.
+function Etat({ etat }) {
+  const e = LIBELLE_ETAT[etat];
+  if (!e) return null;
+  const { Icone, texte } = e;
+  return <span className="inline-flex items-center gap-1.5"><Icone size={18} /> {texte}</span>;
+}
 
 export default function NylaTuteur({ onHome, onFinish }) {
   const reglages = useSettings('nyla');
@@ -87,17 +101,28 @@ export default function NylaTuteur({ onHome, onFinish }) {
   // serveur à chaque tour, et l'état React n'est pas encore à jour à ce
   // moment-là.
   const filRef = useRef([]);
+  const consigneRef = useRef('');
 
   const question = serie[idx];
   const mascotteLabel = (MASCOTS.find((m) => m.id === avatar) || {}).label || 'ton ami';
 
-  useEffect(() => () => {
-    vivantRef.current = false;
+  // Le drapeau doit etre REMIS A VRAI a chaque montage.
+  //
+  // Avant, il n'etait mis qu'a faux, dans le nettoyage. En React 18, le mode
+  // strict monte, demonte et remonte chaque composant: le nettoyage passait
+  // une fois, le drapeau restait a faux pour toujours, et tous les tours de
+  // parole sortaient en silence — l'ecran restait fige sur « Prete? » sans la
+  // moindre erreur. Le meme piege attendait la production au premier remontage.
+  useEffect(() => {
+    vivantRef.current = true;
+    return () => {
+      vivantRef.current = false;
     clearTimeout(stopTimerRef.current);
     cancelAnimationFrame(rafRef.current);
     try { recRef.current?.stream?.getTracks().forEach((t) => t.stop()); } catch {}
-    try { audioCtxRef.current?.close(); } catch {}
-    stopSpeech();
+      try { audioCtxRef.current?.close(); } catch {}
+      stopSpeech();
+    };
   }, []);
 
   useEffect(() => {
@@ -110,94 +135,49 @@ export default function NylaTuteur({ onHome, onFinish }) {
     setConversation(filRef.current);
   }
 
-  // ===== Le niveau du micro: la preuve visible qu'elle est entendue =====
-  function suivreLeNiveau(stream) {
-    try {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      const ctx = new Ctx();
-      audioCtxRef.current = ctx;
-      const analyser = ctx.createAnalyser();
-      analyser.fftSize = 512;
-      ctx.createMediaStreamSource(stream).connect(analyser);
-      const data = new Uint8Array(analyser.frequencyBinCount);
-      const boucle = () => {
-        analyser.getByteTimeDomainData(data);
-        let max = 0;
-        for (let i = 0; i < data.length; i++) max = Math.max(max, Math.abs(data[i] - 128));
-        setNiveauMic(Math.min(1, max / 60));
-        rafRef.current = requestAnimationFrame(boucle);
-      };
-      boucle();
-    } catch {}
-  }
-
-  function couperLeNiveau() {
-    cancelAnimationFrame(rafRef.current);
-    setNiveauMic(0);
-    try { audioCtxRef.current?.close(); } catch {}
-    audioCtxRef.current = null;
-  }
-
-  const enregistrer = useCallback(async () => {
-    let stream;
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    } catch {
-      setMicRefuse(true);
-      return null;
-    }
-    suivreLeNiveau(stream);
-    return new Promise((resolve) => {
-      let mime = '';
-      for (const m of ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4']) {
-        if (window.MediaRecorder && MediaRecorder.isTypeSupported(m)) { mime = m; break; }
-      }
-      const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
-      rec.stream = stream;
-      recRef.current = rec;
-      chunksRef.current = [];
-      rec.ondataavailable = (e) => { if (e.data && e.data.size) chunksRef.current.push(e.data); };
-      rec.onstop = () => {
-        couperLeNiveau();
-        try { stream.getTracks().forEach((t) => t.stop()); } catch {}
-        resolve(new Blob(chunksRef.current, { type: rec.mimeType || 'audio/webm' }));
-      };
-      finEcouteRef.current = () => { if (rec.state === 'recording') rec.stop(); };
-      rec.start();
-      setEtat(ETATS.ECOUTE);
-      stopTimerRef.current = setTimeout(() => finEcouteRef.current?.(), MAX_ECOUTE_MS);
-    });
-  }, []);
-
-  // Dire une phrase, puis ouvrir le micro et transcrire.
-  const direPuisEcouter = useCallback(async (phrase) => {
+  // Dire une phrase — et S'ARRETER LA.
+  //
+  // Avant, le micro s'ouvrait tout seul juste apres. Deux problemes, vus au
+  // premier essai en famille: l'ecran restait ecrit « Elle parle… » pendant
+  // que le navigateur demandait l'autorisation du micro (donc fige, sans
+  // explication), et surtout rien ne disait a Nyla QUAND parler. Maintenant on
+  // s'arrete sur « A toi de parler », elle appuie, et alors seulement le micro
+  // s'ouvre — ce qui est aussi ce que les navigateurs preferent: une
+  // autorisation demandee suite a un vrai geste.
+  const dire = useCallback(async (phrase) => {
     if (!vivantRef.current) return;
     setBrouillon('');
     setEtat(ETATS.PARLE);
     ajouter('elle', phrase);
+    consigneRef.current = phrase;
     await speakAndWait(phrase);
     if (!vivantRef.current) return;
+    setEtat(ETATS.ATTEND);
+  }, []);
 
-    const blob = await enregistrer();
-    if (!blob || !vivantRef.current) return;
-    clearTimeout(stopTimerRef.current);
+  // Redire la derniere consigne, sans la reecrire dans le fil.
+  async function repeter() {
+    if (!consigneRef.current) return;
+    const retour = etat;
+    setEtat(ETATS.PARLE);
+    await speakAndWait(consigneRef.current);
+    if (vivantRef.current) setEtat(retour === ETATS.ECOUTE ? ETATS.ATTEND : retour);
+  }
 
-    if (blob.size < MIN_AUDIO_BYTES) { setBrouillon(''); setEtat(ETATS.RELIT); return; }
-
-    setEtat(ETATS.REFLECHIT);
-    let texte = '';
-    try {
-      const res = await fetch('/api/ecoute', {
-        method: 'POST',
-        headers: { 'Content-Type': blob.type || 'audio/webm' },
-        body: blob,
-      });
-      if (res.ok) texte = (await res.json()).texte || '';
-    } catch {}
+  // Elle appuie: on ouvre le micro, on enregistre, on transcrit.
+  async function ecouter() {
+    setEtat(ETATS.OUVERTURE);
+    const r = await ecouterUnTour({
+      onNiveau: setNiveauMic,
+      onOuvert: () => setEtat(ETATS.ECOUTE),
+      onArret: (f) => { finEcouteRef.current = f; },
+      onTranscrit: () => setEtat(ETATS.REFLECHIT),
+    });
     if (!vivantRef.current) return;
-    setBrouillon(texte);
+    if (r.refuse) { setMicRefuse(true); return; }
+    setBrouillon(r.texte);
     setEtat(ETATS.RELIT);
-  }, [enregistrer]);
+  }
 
   // ===== Mode « questions » =====
   // On enchaine comme dans une conversation, pas comme un formulaire: entre
@@ -213,10 +193,10 @@ export default function NylaTuteur({ onHome, onFinish }) {
   const poser = useCallback(async (phraseDeRelance) => {
     if (!question) return;
     setRelance(!!phraseDeRelance);
-    if (phraseDeRelance) return direPuisEcouter(phraseDeRelance);
+    if (phraseDeRelance) return dire(phraseDeRelance);
     const liaison = idx > 0 ? LIAISONS[(idx - 1) % LIAISONS.length] + ' ' : '';
-    await direPuisEcouter(liaison + question.dire);
-  }, [question, direPuisEcouter, idx]); // eslint-disable-line react-hooks/exhaustive-deps
+    await dire(liaison + question.dire);
+  }, [question, dire, idx]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function envoyerQuestion() {
     const texte = brouillon.trim();
@@ -280,12 +260,12 @@ export default function NylaTuteur({ onHome, onFinish }) {
     } catch {}
     if (!vivantRef.current) return;
     if (fini) { terminer(ligne); return; }
-    await direPuisEcouter(ligne);
-  }, [direPuisEcouter, mascotteLabel]);
+    await dire(ligne);
+  }, [dire, mascotteLabel]);
 
   async function envoyerCauserie() {
     const texte = brouillon.trim();
-    if (!texte) { await direPuisEcouter('Je ne t’ai pas entendue. Redis-moi ça?'); return; }
+    if (!texte) { await dire('Je ne t’ai pas entendue. Redis-moi ça?'); return; }
     ajouter('nyla', texte);
     setBrouillon('');
     setEssais((n) => n + 1);
@@ -305,7 +285,7 @@ export default function NylaTuteur({ onHome, onFinish }) {
 
   const envoyer = () => (mode === 'causerie' ? envoyerCauserie() : envoyerQuestion());
   const reprendre = () => (mode === 'causerie'
-    ? direPuisEcouter('Vas-y, je t’écoute.')
+    ? dire('Vas-y, je t’écoute.')
     : poser(relance ? question.aide : undefined));
 
   useEffect(() => {
@@ -366,7 +346,7 @@ export default function NylaTuteur({ onHome, onFinish }) {
           <button onClick={() => demarrer('causerie')}
             className="w-full rounded-3xl p-5 text-left text-white active:scale-[0.98] transition-transform"
             style={{ background: 'linear-gradient(135deg, #6d28d9, #8b5cf6)' }}>
-            <div className="font-heading text-2xl font-extrabold">💬 On jase</div>
+            <div className="font-heading text-2xl font-extrabold inline-flex items-center gap-2"><IconBulle size={24} /> On jase</div>
             <div className="text-sm font-semibold text-white/85 mt-0.5">
               Une vraie conversation, deux ou trois minutes. Pas de bonne réponse.
             </div>
@@ -374,7 +354,7 @@ export default function NylaTuteur({ onHome, onFinish }) {
           <button onClick={() => demarrer('questions')}
             className="w-full rounded-3xl p-5 text-left text-white active:scale-[0.98] transition-transform"
             style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a)' }}>
-            <div className="font-heading text-2xl font-extrabold">🎯 Les questions</div>
+            <div className="font-heading text-2xl font-extrabold inline-flex items-center gap-2"><IconCible size={24} /> Les questions</div>
             <div className="text-sm font-semibold text-white/85 mt-0.5">
               Cinq questions: les jours, compter, les couleurs…
             </div>
@@ -387,11 +367,11 @@ export default function NylaTuteur({ onHome, onFinish }) {
   if (micRefuse) {
     return (
       <div className="max-w-xl mx-auto px-4 pt-10 text-center">
-        <div className="text-6xl mb-4">🎤</div>
+        <div className="text-lava mb-4 flex justify-center"><IconMicro size={64} /></div>
         <h2 className="font-heading text-2xl font-extrabold text-stone mb-2">Le micro est fermé</h2>
         <p className="text-s6 font-semibold mb-2">Pour parler, il faut autoriser le microphone.</p>
         <p className="text-sm text-s4 mb-6">
-          Touche l’icône 🎤 (ou le cadenas) à gauche de l’adresse, choisis « Autoriser », puis rouvre la page.
+          Touche l’icône du micro (ou le cadenas) à gauche de l’adresse, choisis « Autoriser », puis rouvre la page.
         </p>
         <button onClick={onHome} className="w-full py-3 rounded-xl font-bold text-white"
           style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>← Retour</button>
@@ -421,10 +401,15 @@ export default function NylaTuteur({ onHome, onFinish }) {
         </div>
         <div className="flex-1">
           <div className="font-heading font-extrabold text-stone">
-            {LIBELLE_ETAT[etat] || (etat === ETATS.FINI ? '🏆 Fini!' : 'Prête?')}
+            {LIBELLE_ETAT[etat]
+              ? <Etat etat={etat} />
+              : etat === ETATS.FINI
+                ? <span className="inline-flex items-center gap-1.5"><IconTrophee size={18} /> Fini!</span>
+                : 'Prête?'}
           </div>
           {etat === ETATS.ECOUTE && (
             <div className="mt-1 h-3 rounded-full bg-s1 overflow-hidden">
+              {/* Le niveau du micro: la preuve visible qu'elle est entendue */}
               <div className="h-3 rounded-full transition-[width] duration-75"
                 style={{ width: `${Math.max(4, niveauMic * 100)}%`, background: 'linear-gradient(90deg, #2d7a3a, #4ca65b)' }} />
             </div>
@@ -467,35 +452,53 @@ export default function NylaTuteur({ onHome, onFinish }) {
             className="w-full px-3 py-2.5 rounded-xl border-2 border-purple-200 focus:border-lava focus:outline-none text-base text-stone font-semibold bg-white" />
           <div className="flex gap-2 mt-2">
             <button onClick={reprendre}
-              className="flex-1 py-3 rounded-xl font-bold text-s6 bg-white border-2 border-s2 hover:border-lava text-sm">
-              ↺ Reprendre
+              className="flex-1 py-3 rounded-xl font-bold text-s6 bg-white border-2 border-s2 hover:border-lava text-sm inline-flex items-center justify-center gap-1.5">
+              <IconRepete size={16} /> Reprendre
             </button>
             <button onClick={envoyer}
-              className="flex-1 py-3 rounded-xl font-extrabold text-white text-sm"
+              className="flex-1 py-3 rounded-xl font-extrabold text-white text-sm inline-flex items-center justify-center gap-1.5"
               style={{ background: 'linear-gradient(90deg, #2d7a3a, #4ca65b)' }}>
-              ✓ Envoyer
+              <IconCoche size={16} /> Envoyer
             </button>
           </div>
         </div>
       )}
 
+      {/* A elle de parler: elle appuie quand elle est prete. Le micro ne
+          s’ouvre plus tout seul — personne ne savait quand parler, et
+          l’ecran restait fige sur « Elle parle… » pendant que le navigateur
+          demandait l’autorisation. */}
+      {etat === ETATS.ATTEND && (
+        <div className="space-y-2">
+          <button onClick={ecouter}
+            className="w-full py-6 rounded-3xl font-heading font-extrabold text-white text-2xl active:scale-[0.98] transition-transform inline-flex items-center justify-center gap-3"
+            style={{ background: 'linear-gradient(135deg, #6d28d9, #8b5cf6)' }}>
+            <IconMicro size={30} /> À toi de parler
+          </button>
+          <button onClick={repeter}
+            className="w-full py-3 rounded-2xl font-bold text-s6 bg-white border-2 border-s2 hover:border-lava inline-flex items-center justify-center gap-2">
+            <IconRepete size={18} /> Répète la question
+          </button>
+        </div>
+      )}
+
       {etat === ETATS.ECOUTE && (
         <button onClick={() => finEcouteRef.current?.()}
-          className="w-full py-6 rounded-3xl font-heading font-extrabold text-white text-2xl active:scale-[0.98] transition-transform"
+          className="w-full py-6 rounded-3xl font-heading font-extrabold text-white text-2xl active:scale-[0.98] transition-transform inline-flex items-center justify-center gap-3"
           style={{ background: 'linear-gradient(135deg, #2d7a3a, #4ca65b)' }}>
-          ✓ J’ai fini de parler
+          <IconCoche size={28} /> J’ai fini de parler
         </button>
       )}
 
-      {(etat === ETATS.PARLE || etat === ETATS.REFLECHIT || etat === ETATS.REPOND || etat === ETATS.PRET) && (
+      {(etat === ETATS.PARLE || etat === ETATS.REFLECHIT || etat === ETATS.REPOND || etat === ETATS.OUVERTURE) && (
         <div className="w-full py-5 rounded-3xl bg-s1 text-center font-heading font-bold text-s6 text-lg">
-          {LIBELLE_ETAT[etat] || '…'}
+          <Etat etat={etat} />
         </div>
       )}
 
       {etat === ETATS.FINI && (
         <div className="text-center">
-          <div className="text-6xl mb-3">🏆</div>
+          <div className="text-ok mb-3 flex justify-center"><IconTrophee size={56} /></div>
           {enCausant
             ? <p className="font-heading text-2xl font-extrabold text-ok mb-1">Belle conversation!</p>
             : <p className="font-heading text-2xl font-extrabold text-ok mb-1">{score} sur {serie.length}</p>}
@@ -513,7 +516,7 @@ function Entete({ onHome, droite }) {
   return (
     <div className="flex items-center justify-between mb-3">
       <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
-      <h2 className="font-heading font-bold text-stone">🗣️ On parle ensemble</h2>
+      <h2 className="font-heading font-bold text-stone inline-flex items-center gap-1.5"><IconVoix size={18} /> On parle ensemble</h2>
       <div className="text-xs font-bold text-s4 min-w-[48px] text-right">{droite || ''}</div>
     </div>
   );
