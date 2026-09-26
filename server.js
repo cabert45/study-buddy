@@ -849,6 +849,80 @@ app.post('/api/ecoute', express.raw({ type: 'audio/*', limit: ECOUTE_MAX_BYTES }
   }
 });
 
+// ===== « On jase » — une vraie conversation, pas une série de questions =====
+//
+// Le mode « questions » pose cinq consignes fixes et les corrige. Ça travaille
+// des savoirs précis (les jours, compter jusqu'à 20), mais ça ne ressemble pas
+// à une conversation, et le parent en voulait une: on choisit quelqu'un, on
+// touche, et ça se met à jaser — comme /parler chez Prepara.
+//
+// Sans état, exactement comme Prepara: le client garde le fil et le renvoie à
+// chaque tour. Rien n'est écrit sur le serveur.
+//
+// Deux règles tenues par le prompt:
+//   • UNE phrase, puis UNE question. Un enfant de cinq ans décroche d'un
+//     paragraphe, et ne peut répondre qu'à une chose à la fois.
+//   • On ne corrige jamais son français. Elle a cinq ans: elle parle, c'est
+//     tout ce qu'on lui demande.
+const CAUSERIE_MAX_TOURS = 12;
+
+app.post('/api/causerie', async (req, res) => {
+  const { tours = [], mascotte = 'ton ami' } = req.body || {};
+  if (!anthropic) {
+    return res.json({ dire: "Raconte-moi ce que tu as fait aujourd'hui!", fini: false });
+  }
+  const echanges = Array.isArray(tours) ? tours.slice(-CAUSERIE_MAX_TOURS * 2) : [];
+  const nbElle = echanges.filter((t) => t.qui === 'nyla').length;
+  const onTermine = nbElle >= CAUSERIE_MAX_TOURS - 1;
+
+  try {
+    const r = await anthropic.messages.create({
+      model: 'claude-opus-5',
+      // La réflexion compte dans max_tokens: trop juste, et la phrase revient
+      // vide sans la moindre erreur.
+      max_tokens: 1200,
+      output_config: { effort: 'low' },
+      system: `Tu es ${mascotte}, une petite mascotte qui jase avec Nyla, 5 ans, en maternelle 5 ans au Québec.
+Son prénom se prononce « Naïla ».
+
+Comment tu parles:
+- UN FRANCAIS NEUTRE ET INTERNATIONAL. Ni tres quebecois, ni tres francais de France.
+  A eviter: allo, tse, c'est le fun, pantoute, char, presentement, magasiner, une brassee.
+  A eviter aussi: ouais, sympa, bagnole, super chouette, un truc, gamin.
+  Ecris comme un livre pour enfants ou une emission jeunesse: bonjour, d'accord,
+  c'est bien, une voiture, aujourd'hui, beaucoup, amusant.
+- UNE phrase courte, puis UNE seule question. Jamais deux questions.
+- Des mots de tous les jours, comme on parle à un enfant de cinq ans.
+- Tu réagis à ce qu'elle vient de dire avant de demander autre chose.
+- Tu ne corriges JAMAIS son français, jamais sa prononciation. Elle parle: c'est déjà tout.
+- Si sa réponse est incompréhensible, suppose que le micro a mal entendu et redemande autrement, gentiment.
+- Aucun emoji, aucune liste, aucune consigne écrite: tout sera lu à voix haute.
+
+De quoi on jase: sa journée, sa famille (Ryan son grand frère, Cayla sa grande sœur), l'école,
+ce qu'elle aime manger, jouer, les animaux, dehors, ce qu'elle a dessiné.
+Glisse parfois une petite question de maternelle sans en faire un examen
+(« et ça fait combien de chats en tout? », « c'est quelle couleur? »).
+
+${onTermine ? 'IMPORTANT: la conversation se termine. Dis-lui au revoir chaleureusement en une phrase, sans poser de question.' : ''}`,
+      messages: echanges.length
+        ? echanges.map((t) => ({
+            role: t.qui === 'nyla' ? 'user' : 'assistant',
+            content: t.texte,
+          }))
+        : [{ role: 'user', content: '(La conversation commence. Salue-la et pose-lui une première question.)' }],
+    });
+    const texte = (r.content.find((b) => b.type === 'text') || {}).text || '';
+    if (!texte.trim()) {
+      console.error('Causerie: reponse vide', r.stop_reason);
+      return res.json({ dire: "Et toi, qu'est-ce que tu aimes faire?", fini: onTermine });
+    }
+    res.json({ dire: texte.trim(), fini: onTermine });
+  } catch (err) {
+    console.error('Causerie API error:', err.message);
+    res.json({ dire: "Raconte-moi encore!", fini: false });
+  }
+});
+
 // Le juge parlant. Le client a déjà tranché tout seul ce qui est tranchable
 // (une suite de nombres, les jours de la semaine — voir utils/nylaOralCheck).
 // Ce qui arrive ici, c'est soit une question ouverte, soit un cas où le
@@ -876,6 +950,8 @@ tout ce que tu écris sera lu à voix haute par une voix de synthèse.
 
 Règles absolues:
 - UNE ou DEUX phrases courtes. Jamais plus.
+- Un francais NEUTRE ET INTERNATIONAL: ni tres quebecois (allo, tse, c'est le fun),
+  ni tres francais de France (ouais, sympa, gamin). Comme une emission jeunesse.
 - Des mots de tous les jours. Aucune consigne écrite, aucune liste, aucun emoji.
 - Si elle a raison: dis-le avec enthousiasme et redis sa bonne réponse.
 - Si elle se trompe: ne dis JAMAIS « non » ni « c'est faux ». Nomme d'abord ce

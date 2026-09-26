@@ -120,10 +120,23 @@ function getVoice() {
   return loadBestVoice();
 }
 
+// Comment ecrire un mot pour que la voix le prononce bien.
+//
+// « Nyla » se lit [ni-la] en francais, et c'est ce que la voix disait: « Nila ».
+// Son prenom se dit « Naila ». On ne change que ce qui est PARLE — a l'ecran
+// son prenom reste ecrit Nyla, parce que c'est ainsi qu'elle doit apprendre a
+// le reconnaitre (voir data/nylaMaternelle5.js, exercice « Mon prenom »).
+// Verifie par aller-retour voix -> Scribe: « Naila » ressort bien « Naila ».
+const PRONONCIATION = [
+  [/Nyla/g, 'Naïla'],
+];
+
 // Clean text for speech — strip underscores, repeated punctuation, brackets
 function cleanForSpeech(text) {
   if (!text) return '';
-  return String(text)
+  let t = String(text);
+  for (const [re, remplacement] of PRONONCIATION) t = t.replace(re, remplacement);
+  return t
     .replace(/_+/g, ' ... ')           // underscores → pause
     .replace(/\(([^)]+)\)/g, ', $1, ') // (gris) → ", gris,"
     .replace(/→/g, ' devient ')        // arrows

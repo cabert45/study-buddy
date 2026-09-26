@@ -13,40 +13,42 @@ import { useSettings, mascotFor } from '../utils/settings';
 // Réciter les jours de la semaine, compter jusqu'à 20, dire son âge — rien de
 // tout ça ne se coche. Ça se dit.
 //
-// L'écran suit la pratique orale de Prepara (/parler), y compris ce qui est
-// revenu du premier essai en famille:
-//   • on CHOISIT d'abord qui nous parle — « Choisissez une personne » chez
-//     Prepara, seize mascottes ici;
-//   • on appuie pour parler, on ne se fait pas surprendre par un micro qui
-//     s'ouvre tout seul (« Appuyez, puis parlez »);
-//   • ce que la personne a dit s'affiche et se CORRIGE (« Vous avez dit —
-//     corrigez si besoin »), parce qu'une transcription se trompe, et encore
-//     plus sur une voix de cinq ans;
+// Deux façons de parler, parce que les deux servent à des choses différentes:
+//   • « Les questions » — cinq consignes précises du programme de maternelle,
+//     corrigées (les jours, compter, les couleurs).
+//   • « On jase » — une vraie conversation libre de deux ou trois minutes,
+//     sans bonne réponse, où on parle juste pour parler. C'est /parler de
+//     Prepara: on choisit quelqu'un, on touche, et ça discute.
+//
+// L'écran reprend ce qui marche chez Prepara:
+//   • on CHOISIT d'abord qui nous parle (« Choisissez une personne »);
+//   • on appuie pour parler, le micro ne s'ouvre pas tout seul;
+//   • ce qu'on a entendu s'affiche et se CORRIGE avant d'être envoyé
+//     (« Vous avez dit — corrigez si besoin ») — une transcription se trompe,
+//     et sur une voix de cinq ans elle se trompe souvent;
 //   • toute la conversation reste à l'écran, pour le parent assis à côté.
 //
-// Deux règles qui ne bougent pas:
-//   • le micro ne s'ouvre QU'APRÈS la fin de la phrase, sinon l'app
-//     s'enregistre elle-même en train de poser la question;
-//   • on ne dit jamais « non »: elle pleure quand elle se trompe.
+// Deux règles qui ne bougent pas: le micro ne s'ouvre QU'APRÈS la fin de la
+// phrase (sinon l'app s'enregistre elle-même), et on ne dit jamais « non ».
 
 const MAX_ECOUTE_MS = 20000;
 const MIN_AUDIO_BYTES = 2000;
 const CLE_AVATAR = 'sb_nyla_avatar_tuteur';
 
-// Où on en est dans le tour de parole. Affiché en toutes lettres: la première
-// version n'avait qu'un « … » gris, et personne ne pouvait savoir si l'app
-// écoutait, réfléchissait, ou était simplement plantée.
 const ETATS = {
   CHOIX: 'choix',
+  MODE: 'mode',
   PRET: 'pret',
   PARLE: 'parle',
   ECOUTE: 'ecoute',
-  RELIT: 'relit',          // elle a parlé: on montre le texte, corrigeable
+  RELIT: 'relit',
   REFLECHIT: 'reflechit',
   REPOND: 'repond',
   FINI: 'fini',
 };
 
+// Où on en est, en toutes lettres. La première version n'avait qu'un « … »
+// gris: impossible de savoir si l'app écoutait, réfléchissait, ou était plantée.
 const LIBELLE_ETAT = {
   [ETATS.PARLE]: '🔊 Elle parle…',
   [ETATS.ECOUTE]: '🎤 Je t’écoute',
@@ -60,11 +62,12 @@ export default function NylaTuteur({ onHome, onFinish }) {
   const [avatar, setAvatar] = useState(() => {
     try { return localStorage.getItem(CLE_AVATAR) || ''; } catch { return ''; }
   });
+  const [mode, setMode] = useState(null); // 'questions' | 'causerie'
   const [serie] = useState(() => serieOrale(5));
   const [idx, setIdx] = useState(0);
-  const [etat, setEtat] = useState(avatar ? ETATS.PRET : ETATS.CHOIX);
-  const [conversation, setConversation] = useState([]); // {qui:'elle'|'nyla', texte}
-  const [brouillon, setBrouillon] = useState('');       // ce que Scribe a entendu, corrigeable
+  const [etat, setEtat] = useState(avatar ? ETATS.MODE : ETATS.CHOIX);
+  const [conversation, setConversation] = useState([]);
+  const [brouillon, setBrouillon] = useState('');
   const [score, setScore] = useState(0);
   const [essais, setEssais] = useState(0);
   const [micRefuse, setMicRefuse] = useState(false);
@@ -80,8 +83,13 @@ export default function NylaTuteur({ onHome, onFinish }) {
   const rafRef = useRef(null);
   const finEcouteRef = useRef(null);
   const basRef = useRef(null);
+  // Le fil de la conversation, aussi dans une ref: « On jase » l'envoie au
+  // serveur à chaque tour, et l'état React n'est pas encore à jour à ce
+  // moment-là.
+  const filRef = useRef([]);
 
   const question = serie[idx];
+  const mascotteLabel = (MASCOTS.find((m) => m.id === avatar) || {}).label || 'ton ami';
 
   useEffect(() => () => {
     vivantRef.current = false;
@@ -92,26 +100,25 @@ export default function NylaTuteur({ onHome, onFinish }) {
     stopSpeech();
   }, []);
 
-  // La conversation défile toute seule vers le bas.
   useEffect(() => {
     basRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [conversation, brouillon, etat]);
 
   function ajouter(qui, texte) {
     if (!texte) return;
-    setConversation((c) => [...c, { qui, texte }]);
+    filRef.current = [...filRef.current, { qui, texte }];
+    setConversation(filRef.current);
   }
 
-  // ===== Le niveau du micro, pour qu'on VOIE qu'elle est entendue =====
+  // ===== Le niveau du micro: la preuve visible qu'elle est entendue =====
   function suivreLeNiveau(stream) {
     try {
       const Ctx = window.AudioContext || window.webkitAudioContext;
       const ctx = new Ctx();
       audioCtxRef.current = ctx;
-      const src = ctx.createMediaStreamSource(stream);
       const analyser = ctx.createAnalyser();
       analyser.fftSize = 512;
-      src.connect(analyser);
+      ctx.createMediaStreamSource(stream).connect(analyser);
       const data = new Uint8Array(analyser.frequencyBinCount);
       const boucle = () => {
         analyser.getByteTimeDomainData(data);
@@ -131,7 +138,6 @@ export default function NylaTuteur({ onHome, onFinish }) {
     audioCtxRef.current = null;
   }
 
-  // ===== Enregistrer un tour =====
   const enregistrer = useCallback(async () => {
     let stream;
     try {
@@ -163,11 +169,9 @@ export default function NylaTuteur({ onHome, onFinish }) {
     });
   }, []);
 
-  // 1. Poser la question, puis ouvrir le micro.
-  const poser = useCallback(async (phraseDeRelance) => {
-    if (!question || !vivantRef.current) return;
-    const phrase = phraseDeRelance || question.dire;
-    setRelance(!!phraseDeRelance);
+  // Dire une phrase, puis ouvrir le micro et transcrire.
+  const direPuisEcouter = useCallback(async (phrase) => {
+    if (!vivantRef.current) return;
     setBrouillon('');
     setEtat(ETATS.PARLE);
     ajouter('elle', phrase);
@@ -178,11 +182,7 @@ export default function NylaTuteur({ onHome, onFinish }) {
     if (!blob || !vivantRef.current) return;
     clearTimeout(stopTimerRef.current);
 
-    if (blob.size < MIN_AUDIO_BYTES) {
-      setBrouillon('');
-      setEtat(ETATS.RELIT);
-      return;
-    }
+    if (blob.size < MIN_AUDIO_BYTES) { setBrouillon(''); setEtat(ETATS.RELIT); return; }
 
     setEtat(ETATS.REFLECHIT);
     let texte = '';
@@ -195,16 +195,18 @@ export default function NylaTuteur({ onHome, onFinish }) {
       if (res.ok) texte = (await res.json()).texte || '';
     } catch {}
     if (!vivantRef.current) return;
-
-    // On NE JUGE PAS tout de suite: on montre d'abord ce qu'on a entendu.
-    // Une transcription se trompe, et sur une voix de cinq ans elle se trompe
-    // souvent — la corriger d'un doigt vaut mieux que de la faire recommencer.
     setBrouillon(texte);
     setEtat(ETATS.RELIT);
-  }, [question, enregistrer]);
+  }, [enregistrer]);
 
-  // 2. Elle (ou le parent) valide le texte: on juge.
-  async function envoyer() {
+  // ===== Mode « questions » =====
+  const poser = useCallback(async (phraseDeRelance) => {
+    if (!question) return;
+    setRelance(!!phraseDeRelance);
+    await direPuisEcouter(phraseDeRelance || question.dire);
+  }, [question, direPuisEcouter]);
+
+  async function envoyerQuestion() {
     const texte = brouillon.trim();
     if (!texte) { poser(question.aide); return; }
     ajouter('nyla', texte);
@@ -228,12 +230,8 @@ export default function NylaTuteur({ onHome, onFinish }) {
         });
         const j = await res.json();
         dire = j.dire;
-        // `ok: null` = personne n'a pu juger. On ne compte pas ça contre elle.
         ok = typeof j.ok === 'boolean' ? j.ok : true;
-      } catch {
-        dire = 'Merci Nyla! On continue.';
-        ok = true;
-      }
+      } catch { dire = 'Merci Nyla! On continue.'; ok = true; }
     }
     if (!vivantRef.current) return;
 
@@ -248,49 +246,86 @@ export default function NylaTuteur({ onHome, onFinish }) {
     if (!vivantRef.current) return;
 
     if (!ok && local.verdict === 'presque' && !relance) { poser(question.aide); return; }
-    suivante();
-  }
-
-  function suivante() {
-    if (idx + 1 >= serie.length) {
-      setEtat(ETATS.FINI);
-      const fin = 'Bravo Nyla! On a fini de parler ensemble.';
-      ajouter('elle', fin);
-      speakAndWait(fin);
-      try { saveSession('nyla_oral', essais + 1, score, details); } catch {}
-      return;
-    }
+    if (idx + 1 >= serie.length) return terminer(`Bravo Nyla! On a fini de parler ensemble.`);
     setIdx((i) => i + 1);
     setEtat(ETATS.PRET);
   }
 
+  // ===== Mode « on jase » =====
+  const tourDeCauserie = useCallback(async () => {
+    setEtat(ETATS.REFLECHIT);
+    let ligne = 'Raconte-moi!';
+    let fini = false;
+    try {
+      const res = await fetch('/api/causerie', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tours: filRef.current, mascotte: mascotteLabel.toLowerCase() }),
+      });
+      const j = await res.json();
+      if (j.dire) ligne = j.dire;
+      fini = !!j.fini;
+    } catch {}
+    if (!vivantRef.current) return;
+    if (fini) { terminer(ligne); return; }
+    await direPuisEcouter(ligne);
+  }, [direPuisEcouter, mascotteLabel]);
+
+  async function envoyerCauserie() {
+    const texte = brouillon.trim();
+    if (!texte) { await direPuisEcouter('Je ne t’ai pas entendue. Redis-moi ça?'); return; }
+    ajouter('nyla', texte);
+    setBrouillon('');
+    setEssais((n) => n + 1);
+    await tourDeCauserie();
+  }
+
+  function terminer(phrase) {
+    setEtat(ETATS.FINI);
+    ajouter('elle', phrase);
+    speakAndWait(phrase);
+    try {
+      if (mode === 'questions') saveSession('nyla_oral', essais + 1, score, details);
+      else saveSession('nyla_oral', Math.max(1, essais), Math.max(1, essais),
+        [{ category: 'nyla_oral', type: 'causerie', correct: true }]);
+    } catch {}
+  }
+
+  const envoyer = () => (mode === 'causerie' ? envoyerCauserie() : envoyerQuestion());
+  const reprendre = () => (mode === 'causerie'
+    ? direPuisEcouter('Vas-y, je t’écoute.')
+    : poser(relance ? question.aide : undefined));
+
   useEffect(() => {
-    if (etat === ETATS.PRET && idx > 0) {
+    if (mode === 'questions' && etat === ETATS.PRET && idx > 0) {
       const t = setTimeout(() => poser(), 500);
       return () => clearTimeout(t);
     }
   }, [idx]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function demarrer(m) {
+    setMode(m);
+    filRef.current = [];
+    setConversation([]);
+    setEtat(ETATS.PRET);
+    setTimeout(() => (m === 'causerie' ? tourDeCauserie() : poser()), 300);
+  }
 
   // ===== Choisir qui parle =====
   if (etat === ETATS.CHOIX) {
     const suggere = mascotFor('nyla', reglages);
     return (
       <div className="max-w-xl mx-auto px-4 pt-4 pb-10">
-        <div className="flex items-center justify-between mb-4">
-          <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
-          <h2 className="font-heading font-bold text-stone">🗣️ On parle ensemble</h2>
-          <span className="w-12" />
-        </div>
+        <Entete onHome={onHome} />
         <p className="text-center font-heading text-xl font-extrabold text-stone mb-1">Choisis qui va te parler</p>
-        <p className="text-center text-sm font-semibold text-s4 mb-5">Touche un ami. C’est lui qui posera les questions.</p>
+        <p className="text-center text-sm font-semibold text-s4 mb-5">Touche un ami.</p>
         <div className="grid grid-cols-3 gap-3">
           {MASCOTS.map((m) => (
             <button key={m.id}
               onClick={() => {
                 setAvatar(m.id);
                 try { localStorage.setItem(CLE_AVATAR, m.id); } catch {}
-                setEtat(ETATS.PRET);
-                setTimeout(() => poser(), 300);
+                setEtat(ETATS.MODE);
               }}
               className={`rounded-2xl p-2 border-2 bg-white transition-all active:scale-[0.96] ${
                 m.id === suggere ? 'border-purple-400 shadow-sm' : 'border-s1 hover:border-purple-300'
@@ -304,39 +339,68 @@ export default function NylaTuteur({ onHome, onFinish }) {
     );
   }
 
+  // ===== Choisir ce qu'on fait =====
+  if (etat === ETATS.MODE) {
+    return (
+      <div className="max-w-xl mx-auto px-4 pt-4 pb-10">
+        <Entete onHome={onHome} />
+        <div className="text-center mb-4">
+          <Mascot id={avatar} width={110} />
+          <button onClick={() => setEtat(ETATS.CHOIX)} className="block mx-auto text-[11px] font-bold text-s4 underline mt-1">
+            changer d’ami
+          </button>
+        </div>
+        <div className="space-y-3">
+          <button onClick={() => demarrer('causerie')}
+            className="w-full rounded-3xl p-5 text-left text-white active:scale-[0.98] transition-transform"
+            style={{ background: 'linear-gradient(135deg, #6d28d9, #8b5cf6)' }}>
+            <div className="font-heading text-2xl font-extrabold">💬 On jase</div>
+            <div className="text-sm font-semibold text-white/85 mt-0.5">
+              Une vraie conversation, deux ou trois minutes. Pas de bonne réponse.
+            </div>
+          </button>
+          <button onClick={() => demarrer('questions')}
+            className="w-full rounded-3xl p-5 text-left text-white active:scale-[0.98] transition-transform"
+            style={{ background: 'linear-gradient(135deg, #c74a15, #e8622a)' }}>
+            <div className="font-heading text-2xl font-extrabold">🎯 Les questions</div>
+            <div className="text-sm font-semibold text-white/85 mt-0.5">
+              Cinq questions: les jours, compter, les couleurs…
+            </div>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (micRefuse) {
     return (
       <div className="max-w-xl mx-auto px-4 pt-10 text-center">
         <div className="text-6xl mb-4">🎤</div>
         <h2 className="font-heading text-2xl font-extrabold text-stone mb-2">Le micro est fermé</h2>
-        <p className="text-s6 font-semibold mb-2">
-          Pour parler, il faut autoriser le microphone dans le navigateur.
-        </p>
+        <p className="text-s6 font-semibold mb-2">Pour parler, il faut autoriser le microphone.</p>
         <p className="text-sm text-s4 mb-6">
-          Touche l’icône 🎤 (ou le cadenas) à gauche de l’adresse, choisis « Autoriser », puis rouvre cette page.
+          Touche l’icône 🎤 (ou le cadenas) à gauche de l’adresse, choisis « Autoriser », puis rouvre la page.
         </p>
         <button onClick={onHome} className="w-full py-3 rounded-xl font-bold text-white"
-          style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
-          ← Retour
-        </button>
+          style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>← Retour</button>
       </div>
     );
   }
 
+  const enCausant = mode === 'causerie';
+
   return (
     <div className="max-w-xl mx-auto px-4 pt-4 pb-10">
-      <div className="flex items-center justify-between mb-3">
-        <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
-        <h2 className="font-heading font-bold text-stone">🗣️ On parle ensemble</h2>
-        <div className="text-xs font-bold text-s4">{Math.min(idx + 1, serie.length)}/{serie.length}</div>
-      </div>
+      <Entete onHome={onHome}
+        droite={enCausant ? `${essais} réponses` : `${Math.min(idx + 1, serie.length)}/${serie.length}`} />
 
-      <div className="w-full bg-s1 rounded-full h-2 mb-4">
-        <div className="h-2 rounded-full transition-all duration-300"
-          style={{ width: `${(idx / serie.length) * 100}%`, background: 'linear-gradient(90deg, #6d28d9, #8b5cf6)' }} />
-      </div>
+      {!enCausant && (
+        <div className="w-full bg-s1 rounded-full h-2 mb-4">
+          <div className="h-2 rounded-full transition-all duration-300"
+            style={{ width: `${(idx / serie.length) * 100}%`, background: 'linear-gradient(90deg, #6d28d9, #8b5cf6)' }} />
+        </div>
+      )}
 
-      {/* Où on en est — en toutes lettres, jamais un « … » muet */}
       <div className="flex items-center gap-3 mb-3">
         <div className={`transition-transform duration-300 flex-shrink-0 ${
           etat === ETATS.PARLE || etat === ETATS.REPOND ? 'scale-110' : ''
@@ -349,17 +413,17 @@ export default function NylaTuteur({ onHome, onFinish }) {
           </div>
           {etat === ETATS.ECOUTE && (
             <div className="mt-1 h-3 rounded-full bg-s1 overflow-hidden">
-              {/* Le niveau du micro: la preuve visible qu'elle est entendue */}
               <div className="h-3 rounded-full transition-[width] duration-75"
                 style={{ width: `${Math.max(4, niveauMic * 100)}%`, background: 'linear-gradient(90deg, #2d7a3a, #4ca65b)' }} />
             </div>
           )}
         </div>
-        <button onClick={() => setEtat(ETATS.CHOIX)}
-          className="text-[11px] font-bold text-s4 underline flex-shrink-0">changer</button>
+        <button onClick={() => setEtat(ETATS.MODE)} className="text-[11px] font-bold text-s4 underline flex-shrink-0">
+          changer
+        </button>
       </div>
 
-      {/* La conversation, en entier — c'est ce que le parent lit */}
+      {/* La conversation en entier — c'est ce que le parent lit */}
       <div className="bg-white rounded-2xl border-2 border-s1 p-3 mb-4 max-h-[42vh] overflow-y-auto">
         {conversation.length === 0 && (
           <p className="text-sm text-s4 font-semibold text-center py-4">La conversation s’écrira ici.</p>
@@ -372,7 +436,7 @@ export default function NylaTuteur({ onHome, onFinish }) {
                 : 'bg-cream border-2 border-s2 text-stone rounded-bl-md'
             }`}>
               <div className="text-[10px] font-extrabold uppercase tracking-wide text-s4 mb-0.5">
-                {t.qui === 'nyla' ? 'Nyla' : 'Ton ami'}
+                {t.qui === 'nyla' ? 'Nyla' : mascotteLabel}
               </div>
               {t.texte}
             </div>
@@ -381,20 +445,16 @@ export default function NylaTuteur({ onHome, onFinish }) {
         <div ref={basRef} />
       </div>
 
-      {/* Ce qu'on a entendu — corrigeable, comme « Vous avez dit » chez Prepara */}
       {etat === ETATS.RELIT && (
         <div className="bg-purple-50 border-2 border-purple-300 rounded-2xl p-3 mb-3">
           <div className="text-[10px] font-extrabold uppercase tracking-wide text-purple-700 mb-1">
             Elle a dit — corrige si c’est mal entendu
           </div>
-          <input
-            value={brouillon}
-            onChange={(e) => setBrouillon(e.target.value)}
+          <input value={brouillon} onChange={(e) => setBrouillon(e.target.value)}
             placeholder="(rien entendu)"
-            className="w-full px-3 py-2.5 rounded-xl border-2 border-purple-200 focus:border-lava focus:outline-none text-base text-stone font-semibold bg-white"
-          />
+            className="w-full px-3 py-2.5 rounded-xl border-2 border-purple-200 focus:border-lava focus:outline-none text-base text-stone font-semibold bg-white" />
           <div className="flex gap-2 mt-2">
-            <button onClick={() => poser(relance ? question.aide : undefined)}
+            <button onClick={reprendre}
               className="flex-1 py-3 rounded-xl font-bold text-s6 bg-white border-2 border-s2 hover:border-lava text-sm">
               ↺ Reprendre
             </button>
@@ -407,15 +467,6 @@ export default function NylaTuteur({ onHome, onFinish }) {
         </div>
       )}
 
-      {/* Le bouton principal */}
-      {etat === ETATS.PRET && (
-        <button onClick={() => poser()}
-          className="w-full py-6 rounded-3xl font-heading font-extrabold text-white text-2xl active:scale-[0.98] transition-transform"
-          style={{ background: 'linear-gradient(135deg, #6d28d9, #8b5cf6)' }}>
-          🎤 On commence!
-        </button>
-      )}
-
       {etat === ETATS.ECOUTE && (
         <button onClick={() => finEcouteRef.current?.()}
           className="w-full py-6 rounded-3xl font-heading font-extrabold text-white text-2xl active:scale-[0.98] transition-transform"
@@ -424,30 +475,40 @@ export default function NylaTuteur({ onHome, onFinish }) {
         </button>
       )}
 
-      {(etat === ETATS.PARLE || etat === ETATS.REFLECHIT || etat === ETATS.REPOND) && (
+      {(etat === ETATS.PARLE || etat === ETATS.REFLECHIT || etat === ETATS.REPOND || etat === ETATS.PRET) && (
         <div className="w-full py-5 rounded-3xl bg-s1 text-center font-heading font-bold text-s6 text-lg">
-          {LIBELLE_ETAT[etat]}
+          {LIBELLE_ETAT[etat] || '…'}
         </div>
       )}
 
       {etat === ETATS.FINI && (
         <div className="text-center">
           <div className="text-6xl mb-3">🏆</div>
-          <p className="font-heading text-2xl font-extrabold text-ok mb-1">{score} sur {serie.length}</p>
+          {enCausant
+            ? <p className="font-heading text-2xl font-extrabold text-ok mb-1">Belle conversation!</p>
+            : <p className="font-heading text-2xl font-extrabold text-ok mb-1">{score} sur {serie.length}</p>}
           <p className="text-s6 font-semibold mb-5">Tu as bien parlé, Nyla!</p>
           <button onClick={onFinish || onHome}
             className="w-full py-4 rounded-xl font-bold text-white text-lg"
-            style={{ background: 'linear-gradient(90deg, #2d7a3a, #4ca65b)' }}>
-            ← Retour
-          </button>
+            style={{ background: 'linear-gradient(90deg, #2d7a3a, #4ca65b)' }}>← Retour</button>
         </div>
       )}
     </div>
   );
 }
 
-// La réaction parlée quand le vérificateur local a su trancher. Écrite ici
-// plutôt que demandée au modèle: instantané, gratuit, et ça marche sans réseau.
+function Entete({ onHome, droite }) {
+  return (
+    <div className="flex items-center justify-between mb-3">
+      <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
+      <h2 className="font-heading font-bold text-stone">🗣️ On parle ensemble</h2>
+      <div className="text-xs font-bold text-s4 min-w-[48px] text-right">{droite || ''}</div>
+    </div>
+  );
+}
+
+// La réaction parlée quand le vérificateur local a su trancher: instantané,
+// gratuit, et ça marche même sans réseau.
 function reactionLocale(question, local) {
   const bravos = ['Bravo Nyla!', 'Oui, c’est ça!', 'Parfait!', 'Super!'];
   const bravo = bravos[Math.floor(Math.random() * bravos.length)];
