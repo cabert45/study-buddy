@@ -7,15 +7,20 @@
   @page { size: Letter; margin: 10mm 11mm 8mm 11mm; }
   * { box-sizing: border-box; }
   html { font-size: 10.5pt; }
+  /* Tout est en points absolus dans cette feuille: réduire la taille de base ne
+     change presque rien. Le zoom, lui, réduit TOUT d'un coup — c'est ce qui
+     ramène la semaine sur UNE page, et tenir sur une page est tout l'intérêt
+     de ce document: il se pose à côté de lui, il ne se feuillette pas. */
+  body { zoom: 0.82; }
   body {
     margin: 0; color: #111; line-height: 1.32;
     font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
 
-  .head { border-bottom: 2.5pt solid #111; padding-bottom: 6pt; margin-bottom: 9pt; }
+  .head { border-bottom: 2.5pt solid #111; padding-bottom: 5pt; margin-bottom: 7pt; }
   .head .kicker { font-size: 8pt; letter-spacing: .14em; text-transform: uppercase; color: #555; font-weight: 700; }
-  .head h1 { font-size: 19pt; margin: 3pt 0 1pt; line-height: 1.1; }
+  .head h1 { font-size: 17pt; margin: 2pt 0 1pt; line-height: 1.08; }
   .head .sub { font-size: 9.5pt; color: #444; }
 
   h2 {
@@ -24,7 +29,7 @@
     display: flex; justify-content: space-between; align-items: baseline;
   }
   h2 .tag { font-size: 7.5pt; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
-  section { margin-bottom: 7pt; break-inside: avoid; }
+  section { margin-bottom: 5.5pt; break-inside: avoid; }
 
   /* le cadre pointillé du cahier */
   .cadre { border: 2pt dashed #9a8a72; padding: 7pt 9pt; background: #fffdf8; }
@@ -32,7 +37,7 @@
   .mots div { font-size: 11.5pt; font-weight: 700; letter-spacing: .01em; }
   .mots .fam { display: block; font-size: 8pt; font-weight: 500; color: #6a5f4e; }
 
-  .truc { border-left: 3pt solid #111; background: #f4f4f1; padding: 5pt 8pt; margin-top: 5pt; font-size: 9.3pt; }
+  .truc { border-left: 3pt solid #111; background: #f4f4f1; padding: 4pt 7pt; margin-top: 4pt; font-size: 8.9pt; }
   .truc b { letter-spacing: .01em; }
   .truc .gros { font-size: 11pt; display: block; margin-top: 2pt; }
 
@@ -44,7 +49,7 @@
   th { background: #eee; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .06em; }
   .verbe td { font-weight: 700; }
 
-  .piege { border: 1pt solid #111; padding: 6pt 8pt; font-size: 9.5pt; }
+  .piege { border: 1pt solid #111; padding: 4pt 7pt; font-size: 8.8pt; }
   .piege h3 { margin: 0 0 3pt; font-size: 9pt; text-transform: uppercase; letter-spacing: .05em; }
   .piege ol { margin: 0; padding-left: 15pt; }
   .piege li { margin-bottom: 2pt; }
@@ -64,7 +69,7 @@
 <div class="head">
   <div class="kicker">Study Buddy · 3e année</div>
   <h1>Ma semaine — du lundi 28 septembre au vendredi 2 octobre</h1>
-  <div class="sub">Ryan · Liste 3 · Verbe <b>avoir</b> au présent · Stratégies E et F · Cahier Jazz, module 3</div>
+  <div class="sub">Ryan · Liste 3 · Verbe <b>avoir</b> au présent · Stratégies E et F · Cahier Jazz : <b>le verbe</b> · Maths : <b>la décomposition</b></div>
 </div>
 
 <section>
@@ -108,8 +113,7 @@
       <tr><td>il / elle a</td><td>ils / elles ont</td></tr>
     </table>
     <div class="truc" style="margin-top:6pt">
-      <b>on / ont</b> — <i>ont</i> c'est le verbe avoir (remplace par « avaient »).
-      <i>on</i> c'est quelqu'un (remplace par « il »).
+      <b>on / ont</b> — <i>ont</i> = le verbe avoir (« avaient »). <i>on</i> = quelqu'un (« il »).
     </div>
   </section>
 
@@ -129,6 +133,22 @@
 </div>
 
 <section>
+  <h2>Les 4 sortes de mots <span class="tag">c'est le test qui décide</span></h2>
+  <table>
+    <tr><th>nom commun</th><th>nom propre</th><th>adjectif</th><th>verbe</th></tr>
+    <tr>
+      <td>Je peux mettre <b>un</b> ou <b>une</b> devant.<br><i>un ballon</i></td>
+      <td><b>Majuscule</b>, et c'est quelqu'un ou un endroit <b>précis</b>.<br><i>Ryan, Laval</i></td>
+      <td>Ça dit <b>comment</b> est le nom. « très ___ ».<br><i>rouge, grand</i></td>
+      <td>Ça dit ce qu'on <b>fait</b>. « ne ___ pas ».<br><i>lance, mange</i></td>
+    </tr>
+  </table>
+  <div class="truc" style="margin-top:6pt">
+    <b>Ryan</b> (nom propre) <b>lance</b> (verbe) un <b>ballon</b> (nom commun) <b>rouge</b> (adjectif) — quand tu hésites, tu ne devines pas : tu fais passer <b>le test</b>.
+  </div>
+</section>
+
+<section>
   <h2>Les 3 pièges que je surveille <span class="tag">vus dans mes feuilles</span></h2>
   <div class="piege">
     <ol>
@@ -146,34 +166,45 @@
 <section>
   <h2>Mon bloc de la semaine <span class="tag">1 heure par jour</span></h2>
   <div style="font-size:9pt;color:#444;margin-bottom:2pt">
-    Cahier Jazz cette semaine : <b>Thème 1 · Module 3 — L'adjectif</b> (lecture « Le rêve de Klovis », p. 22-27).
+    Cahier Jazz cette semaine : <b>Le verbe</b> (Aide-mémoire Jazz p. 5 · module 4, « Le destin d'une mousse », p. 29-33).
+    On fait <b>l'adjectif</b> aussi : il a été barré sur la feuille, mais c'est celui qu'il confond le plus.
+  </div>
+  <div style="font-size:9pt;color:#444;margin-bottom:4pt">
+    Maths : <b>la décomposition</b> (Aide-mémoire Matcha p. 9) · Tables +/− <b>Stratégies E et F</b>.
+  </div>
+  <div style="font-size:9pt;color:#444;margin-bottom:4pt;border-left:3px solid #c74a15;padding-left:6pt">
+    <b>De l'école cette semaine :</b>
+    lundi 28 — évaluation de lecture ·
+    mercredi 30 — situation d'application en maths (<i>aucune étude requise</i>), Vélosco et chandail orange ·
+    vendredi 2 — remise des devoirs.
+    <br><b>À remettre :</b> feuille liste 3 (orthographe au quotidien) · feuille de mathématiques · signature de la dictée.
   </div>
   <div class="jours">
     <div class="jour"><div class="nom">Lundi 28</div>
       <div class="case"><span class="b"></span>Lecture 15 min</div>
       <div class="case"><span class="b"></span>Liste 3</div>
       <div class="case"><span class="b"></span>Stratégies E/F</div>
-      <div class="case"><span class="b"></span>Maths — Matcha</div></div>
+      <div class="case"><span class="b"></span>Décomposition</div></div>
     <div class="jour"><div class="nom">Mardi 29</div>
       <div class="case"><span class="b"></span>Lecture 15 min</div>
       <div class="case"><span class="b"></span>Liste 3</div>
       <div class="case"><span class="b"></span>Verbe avoir</div>
-      <div class="case"><span class="b"></span>Maths — Matcha</div></div>
+      <div class="case"><span class="b"></span>Décomposition</div></div>
     <div class="jour"><div class="nom">Mercredi 30</div>
       <div class="case"><span class="b"></span>Lecture 15 min</div>
       <div class="case"><span class="b"></span><b>Dictée</b> liste 3</div>
-      <div class="case"><span class="b"></span>L'adjectif</div>
-      <div class="case"><span class="b"></span>Maths — Matcha</div></div>
+      <div class="case"><span class="b"></span>Nom · adjectif · verbe</div>
+      <div class="case"><span class="b"></span>Décomposition</div></div>
     <div class="jour"><div class="nom">Jeudi 1<sup>er</sup> oct.</div>
       <div class="case"><span class="b"></span>Lecture 15 min</div>
       <div class="case"><span class="b"></span>Liste 3</div>
-      <div class="case"><span class="b"></span>Verbe avoir</div>
-      <div class="case"><span class="b"></span>Maths — Matcha</div></div>
+      <div class="case"><span class="b"></span>Nom · adjectif · verbe</div>
+      <div class="case"><span class="b"></span>Décomposition</div></div>
     <div class="jour"><div class="nom">Vendredi 2</div>
       <div class="case"><span class="b"></span>Lecture 15 min</div>
       <div class="case"><span class="b"></span><b>Dictée</b> liste 3</div>
       <div class="case"><span class="b"></span>Feuille à remettre</div>
-      <div class="case"><span class="b"></span>Maths — Matcha</div></div>
+      <div class="case"><span class="b"></span>Décomposition</div></div>
   </div>
 </section>
 

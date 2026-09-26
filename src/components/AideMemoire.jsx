@@ -1,6 +1,7 @@
 import React from 'react';
 import { listeCetteSemaine, LISTES } from '../data/orthographeQuotidien';
 import { strategiesCetteSemaine, ecrireFait } from '../data/tablesStrategies';
+import { CLASSES, TESTS } from '../generators/quatreClasses';
 
 // L'aide-mémoire de la semaine — la page du cahier, à l'écran.
 //
@@ -111,23 +112,75 @@ function TableauStrategies({ strats }) {
   );
 }
 
+// Les quatre classes côte à côte — parce que c'est la COMPARAISON qui manque.
+// Son père, le 26 sept. 2026: « Ryan ne sait pas ce qu'est un adjectif comparé
+// à un verbe et à un nom commun ou un nom propre. » Une classe seule ne veut
+// rien dire; ce qui compte, c'est le test qui les sépare.
+function TableauClasses() {
+  const couleurs = {
+    'nom commun': { bg: '#eef5ff', bord: '#b9d3f5', txt: '#1d4e89' },
+    'nom propre': { bg: '#f0ecfb', bord: '#cfc0ef', txt: '#5b34a8' },
+    adjectif: { bg: '#fff1e6', bord: '#f5c9a3', txt: '#a6501a' },
+    verbe: { bg: '#e9f7ee', bord: '#b2e0c3', txt: '#1e6b3a' },
+  };
+  return (
+    <>
+      <h2 className="font-heading text-xl font-extrabold text-stone mb-1">
+        Les 4 sortes de mots
+      </h2>
+      <p className="text-sm font-semibold text-s4 mb-4">
+        Pour chaque mot, il y a un <b>test</b>. C'est le test qui décide — pas l'impression.
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {CLASSES.map((c) => {
+          const t = TESTS[c];
+          const k = couleurs[c];
+          return (
+            <div key={c} className="rounded-2xl p-4 border-2" style={{ background: k.bg, borderColor: k.bord }}>
+              <div className="font-heading text-lg font-extrabold mb-1" style={{ color: k.txt }}>
+                {c}
+              </div>
+              <div className="text-sm font-bold text-stone mb-1.5">{t.quoi}</div>
+              <div className="text-sm font-semibold text-s6 mb-2">🔎 {t.test}</div>
+              <div className="text-sm font-extrabold" style={{ color: k.txt }}>{t.exemple}</div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-3 rounded-2xl bg-white border-2 border-s1 p-3">
+        <div className="text-[10px] font-extrabold uppercase tracking-wide text-s4 mb-1">
+          La même phrase, les 4 sortes
+        </div>
+        <p className="text-base font-bold text-stone leading-relaxed">
+          <span style={{ color: couleurs['nom propre'].txt }}>Ryan</span>{' '}
+          <span style={{ color: couleurs.verbe.txt }}>lance</span> un{' '}
+          <span style={{ color: couleurs['nom commun'].txt }}>ballon</span>{' '}
+          <span style={{ color: couleurs.adjectif.txt }}>rouge</span>.
+        </p>
+      </div>
+    </>
+  );
+}
+
 export default function AideMemoire({ mode, onStart, onClose, dejaCommence, listeNumero }) {
   const estOrtho = mode === 'orthographe';
+  const estClasses = mode === 'quatre_classes';
   // Par defaut la liste de la semaine. `listeNumero` sert quand on revient sur
   // une liste deja vue (revision) : la page du cahier doit montrer CES mots-la,
   // pas ceux de cette semaine.
   const liste = estOrtho
     ? (listeNumero ? LISTES.find((l) => l.numero === listeNumero) : null) || listeCetteSemaine()
     : null;
-  const strats = estOrtho ? null : strategiesCetteSemaine();
-  if (estOrtho ? !liste : !strats?.length) return null;
+  const strats = estOrtho || estClasses ? null : strategiesCetteSemaine();
+  if (estOrtho && !liste) return null;
+  if (!estOrtho && !estClasses && !strats?.length) return null;
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-4 pb-10">
       <div className="bg-cream border-2 border-s1 rounded-3xl p-4 sm:p-6 shadow-sm">
-        {estOrtho
-          ? <ListeOrthographe liste={liste} />
-          : <TableauStrategies strats={strats} />}
+        {estOrtho && <ListeOrthographe liste={liste} />}
+        {estClasses && <TableauClasses />}
+        {!estOrtho && !estClasses && <TableauStrategies strats={strats} />}
 
         <div className="mt-5 flex flex-col sm:flex-row gap-2.5">
           <button
@@ -149,8 +202,8 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
 
         {!dejaCommence && (
           <p className="text-center text-xs font-semibold text-s4 mt-3">
-            Prends 30 secondes pour <b>regarder</b> les mots. Tu pourras revenir
-            les voir avec le bouton « 📋 La liste ».
+            Prends 30 secondes pour <b>regarder</b>{estClasses ? ' les 4 sortes de mots' : ' les mots'}. Tu pourras revenir
+            {estClasses ? ' les voir' : ' les voir'} avec le bouton « 📋 {estClasses ? 'Les 4 sortes' : 'La liste'} ».
           </p>
         )}
       </div>

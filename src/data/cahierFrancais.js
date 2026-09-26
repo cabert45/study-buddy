@@ -70,8 +70,14 @@ export const CAHIER_SEMAINES = [
   { debut: [2026, 9, 7], module: 't1m1' },   // fait — p. 6-12 remplies et corrigées (photos du 13 sept)
   { debut: [2026, 9, 14], module: 't1m2' },
   { debut: [2026, 9, 21], module: 't1m2' },  // confirmé: déterminant (Aide-mémoire Jazz p. 5)
-  { debut: [2026, 9, 28], module: 't1m3' },  // + Des clés: le dialogue (p. 20)
-  { debut: [2026, 10, 5], module: 't1m4' },
+  // Confirmé par la feuille du 28 sept. au 2 oct.: « Grammaire: Le verbe ·
+  // Aide-mémoire Jazz p.5 ». La classe est donc passée directement du
+  // déterminant au VERBE. L'adjectif (module 3, « Le rêve de Klovis ») n'a
+  // jamais été annoncé dans une feuille de devoirs: soit il a été fait en
+  // classe entre deux feuilles, soit il viendra à la révision du thème 1.
+  // Ne pas le supprimer du cahier pour autant — il reste au programme.
+  { debut: [2026, 9, 28], module: 't1m4', confirme: true },
+  { debut: [2026, 10, 5], module: 't1m3' },   // estimation: l'adjectif, en retard
   { debut: [2026, 10, 13], module: 't1rev' }, // mardi — lundi 12 = Action de grâce
   { debut: [2026, 10, 19], module: 't2m1' },
 ];

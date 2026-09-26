@@ -349,6 +349,132 @@ function ajouterDeux() {
   };
 }
 
+// ===== Aide-mémoire Matcha p. 9 — LA DÉCOMPOSITION =====
+// Leçon de la semaine du 28 sept. au 2 oct. 2026 (feuille de Mme Haidar).
+//
+// Décomposer, c'est écrire un nombre comme la somme de ce que vaut chaque
+// chiffre: 2 407 = 2 000 + 400 + 7. C'est exactement le même geste que le
+// tableau de numération, mais avec des « + ».
+//
+// Pourquoi ça tombe bien pour lui: sa colonne vide. Dans 2 407, il n'y a RIEN
+// à écrire pour les dizaines — la somme n'a que trois termes, mais le nombre
+// a quatre chiffres. C'est là qu'il écrit 247. La décomposition rend le trou
+// visible au lieu de le cacher.
+const NOMS_POSITION = { 1000: 'unités de mille', 100: 'centaines', 10: 'dizaines', 1: 'unités' };
+
+// 2 407 → [2000, 400, 7] (on saute les zéros, comme dans le cahier)
+function termes(n) {
+  return [1000, 100, 10, 1]
+    .map((v) => Math.floor(n / v) % 10 * v)
+    .filter((x) => x > 0);
+}
+const enSomme = (liste) => liste.map(fmt).join(' + ');
+
+// La décomposition écrite avec TOUS les termes, zéros compris — ce qui fait
+// voir la colonne vide: 2 000 + 400 + 0 + 7
+const sommeAvecZeros = (n) => [1000, 100, 10, 1].map((v) => Math.floor(n / v) % 10 * v);
+
+function nombreADecomposer() {
+  const n = nombreAuHasard();
+  // On veut souvent un zéro à l'intérieur: c'est toute la difficulté.
+  return n < 1000 ? n + 1000 : n;
+}
+
+// Le nombre → sa somme. Les mauvais choix sont ses erreurs, pas du hasard.
+function decompositionSomme() {
+  const n = nombreADecomposer();
+  const bonne = enSomme(termes(n));
+  const ch = chiffres(n);
+  const mauvaises = new Set();
+  // 1) les chiffres pris tels quels, sans leur valeur: 2 + 4 + 0 + 7
+  mauvaises.add([ch.um, ch.c, ch.d, ch.u].filter((x) => x > 0).join(' + '));
+  // 2) le plus gros terme d'une colonne trop bas (4 000 lu comme 400).
+  //    On ne divise QUE ce qui reste un entier: « 4 000 + 0,6 » n'existe pas
+  //    en 3e année, et un choix impossible n'apprend rien — il fait deviner.
+  const plusGros = termes(n)[0];
+  if (plusGros >= 100) {
+    mauvaises.add(enSomme(termes(n).map((t, i) => (i === 0 ? t / 10 : t))));
+  }
+  // 3) un terme oublié — le plus petit
+  if (termes(n).length > 2) mauvaises.add(enSomme(termes(n).slice(0, -1)));
+  // 4) de secours
+  mauvaises.add(enSomme(termes(n + 1000)));
+  const choix = [bonne];
+  // Filet: aucun choix avec une virgule ou un nombre à virgule, jamais.
+  for (const m of mauvaises) {
+    if (choix.length >= 4) break;
+    if (m && m !== bonne && !m.includes('.') && !m.includes(',')) choix.push(m);
+  }
+  while (choix.length < 4) choix.push(enSomme(termes(n + 1000 * choix.length)));
+  const parPosition = [1000, 100, 10, 1]
+    .filter((v) => Math.floor(n / v) % 10 > 0)
+    .map((v) => `${Math.floor(n / v) % 10} ${NOMS_POSITION[v]} = ${fmt(Math.floor(n / v) % 10 * v)}`);
+  return {
+    category: CATEGORY,
+    rule: ruleFor(),
+    type: 'decomposition_somme',
+    text: `Décompose le nombre ${fmt(n)}.`,
+    correct: bonne,
+    options: shuffle(choix),
+    explanation: `${parPosition.join('\n')}\n${fmt(n)} = ${bonne}.`
+      + (String(n).includes('0')
+        ? `\n⚠ Une colonne est vide: elle ne donne aucun terme dans la somme. Le 0 reste dans le NOMBRE, pas dans l'addition.`
+        : ''),
+    hint: 'Chaque chiffre vaut quelque chose: um × 1 000, c × 100, d × 10, u × 1. Additionne ces valeurs.',
+    aide: { titre: `${fmt(n)} dans le tableau`, tableau: chiffres(n), note: 'Une colonne par chiffre. Ce que vaut chaque chiffre, c\'est un terme de la somme.' },
+  };
+}
+
+// La somme → le nombre. Il ÉCRIT le nombre: c'est là que la colonne vide se
+// perd (2 000 + 400 + 7 recollé en 247).
+function decompositionNombre() {
+  const n = nombreADecomposer();
+  const liste = termes(n);
+  const sansZero = Number(String(n).replace(/0/g, '')) || n + 1;
+  return {
+    category: CATEGORY,
+    rule: ruleFor(),
+    type: 'decomposition_nombre',
+    text: `Quel nombre est décomposé ici?\n\n${enSomme(liste)}`,
+    correct: n,
+    options: options(n, [sansZero, n + 10, n - 10, Number(String(n).split('').reverse().join(''))], (k) => n + 100 * k),
+    explanation: `${liste.map((t) => `${fmt(t)}`).join(' + ')} = ${fmt(n)}.`
+      + (String(n).includes('0')
+        ? `\n⚠ Attention: il manque un terme dans la somme, parce qu'une colonne est vide. Dans le nombre, cette colonne s'écrit 0 — sinon on lirait ${fmt(sansZero)}.`
+        : '\nCompte les termes ET les colonnes: ils ne se suivent pas toujours.'),
+    hint: 'Place chaque terme dans sa colonne. Une colonne sans terme? Elle prend un 0.',
+    aide: {
+      titre: 'Une colonne par position',
+      tableauVide: true,
+      note: `${enSomme(liste)} — mets chaque terme dans sa colonne, puis lis le nombre. Une colonne vide prend 0.`,
+    },
+  };
+}
+
+// Le terme qui manque: « 4 706 = 4 000 + ___ + 6 »
+function decompositionTrou() {
+  const n = nombreADecomposer();
+  const tous = sommeAvecZeros(n);
+  const visibles = tous.filter((x) => x > 0);
+  if (visibles.length < 2) return decompositionNombre();
+  const manquant = pick(visibles);
+  const affiche = visibles.map((x) => (x === manquant ? '___' : fmt(x))).join(' + ');
+  const position = manquant >= 1000 ? 1000 : manquant >= 100 ? 100 : manquant >= 10 ? 10 : 1;
+  const chiffre = manquant / position;
+  return {
+    category: CATEGORY,
+    rule: ruleFor(),
+    type: 'decomposition_trou',
+    text: `Quel terme manque?\n\n${fmt(n)} = ${affiche}`,
+    correct: manquant,
+    options: options(manquant, [chiffre, chiffre * (position * 10), chiffre * (position / 10 || 1), manquant + position], (k) => manquant + position * k),
+    explanation: `Dans ${fmt(n)}, le chiffre ${chiffre} est à la position des ${NOMS_POSITION[position]}: ${chiffre} × ${fmt(position)} = ${fmt(manquant)}.`
+      + `\n⚠ On écrit ${fmt(manquant)}, pas ${chiffre}: dans une décomposition, on écrit ce que le chiffre VAUT.`,
+    hint: 'Regarde quelle colonne n\'est pas déjà dans la somme, puis écris ce que vaut ce chiffre-là.',
+    aide: { titre: `${fmt(n)} dans le tableau`, tableau: chiffres(n), note: 'Trouve la colonne qui manque dans la somme, puis écris sa valeur (pas son chiffre).' },
+  };
+}
+
 // ===== p. 9 — Problèmes de groupements =====
 // [singulier, pluriel] — « 1 caisse de 100 » mais « 4 caisses de 100 »
 const CONTEXTES = [
@@ -575,6 +701,10 @@ function buildOne() {
     { type: 'position_valeur', w: 8, build: () => valeurPosition('valeur') },
     { type: 'ajouter', w: 8, build: ajouter },
     { type: 'ajouter_deux', w: 12, build: ajouterDeux },
+    // La décomposition — leçon de la semaine du 28 sept. (Aide-mémoire p. 9)
+    { type: 'decomposition_somme', w: 12, build: decompositionSomme },
+    { type: 'decomposition_nombre', w: 14, build: decompositionNombre },
+    { type: 'decomposition_trou', w: 10, build: decompositionTrou },
     { type: 'groupements', w: 12, build: groupements },
     { type: 'sacs', w: 8, build: faireDesSacs },
     // Comparaison — leçon de la semaine du 21 au 25 sept.

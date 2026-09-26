@@ -68,6 +68,7 @@ import {
   generateT1Pronom, generateT1Dialogue, generateT1Voc, generateT1Revision,
 } from '../generators/theme1';
 import { generateMatchaNombres } from '../generators/matcha1';
+import { generateQuatreClasses } from '../generators/quatreClasses';
 import { saveSession } from '../utils/storage';
 import { modeTape, memeReponse, diagnosticTape } from '../utils/reponseTapee';
 import { incrementStudyRounds } from '../utils/studyRounds';
@@ -97,6 +98,10 @@ function scratchPadUseful(q) {
   if (cat.startsWith('nyla')) return false;
   if (q.aide) return true;
   if (cat.startsWith('matcha_')) return false;
+  // Une question sans le moindre chiffre n'a rien à compter: « Mes boîtes de
+  // travail » s'affichait sur les questions de grammaire, où des cadres de dix
+  // ne servent à rien. L'accueil doit rester court, les écrans aussi.
+  if (!/\d/.test(q.text || '')) return false;
   return biggestNumber(q.text) <= 100;
 }
 
@@ -161,6 +166,7 @@ function getGenerator(mode) {
     case 'futur_etre_avoir': return generateFuturEtreAvoir;
     case 'biographie_jr': return generateBiographieJr;
     case 'classe_de_mots': return generateClasseDeMots;
+    case 'quatre_classes': return generateQuatreClasses;
     case 'pluriels_cayla': return generatePlurielsCayla;
     case 'homophones': return generateHomophones;
     case 'present_indicatif': return generatePresentIndicatif;
@@ -284,7 +290,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
   const [showVideos, setShowVideos] = useState(false);
   // L'aide-mémoire (la liste de mots / le tableau de faits) s'ouvre AVANT les
   // questions: on ne mémorise pas ce qu'on ne nous a pas montré.
-  const aMemoire = mode === 'orthographe' || mode === 'strategies';
+  const aMemoire = mode === 'orthographe' || mode === 'strategies' || mode === 'quatre_classes';
   const [memoireOuvert, setMemoireOuvert] = useState(aMemoire);
   const [memoireVu, setMemoireVu] = useState(false);
 
@@ -635,7 +641,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           {aMemoire && (
             <button onClick={() => setMemoireOuvert(true)}
               className="text-xs font-bold text-lava bg-orange-50 border border-orange-200 rounded-lg px-2.5 py-1 hover:bg-orange-100">
-              📋 {mode === 'orthographe' ? 'La liste' : 'Le tableau'}
+              📋 {mode === 'orthographe' ? 'La liste' : mode === 'quatre_classes' ? 'Les 4 sortes' : 'Le tableau'}
             </button>
           )}
           <div className="text-sm font-bold text-s4">
@@ -687,6 +693,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           {question.category === 'futur_simple' && 'Futur simple (1er groupe)'}
           {question.category === 'biographie_jr' && 'Biographie — Jean Rostand'}
           {question.category === 'classe_de_mots' && 'Classe de mots'}
+          {question.category === 'quatre_classes' && '🔤 Nom · adjectif · verbe — les reconnaître'}
           {question.category === 'pluriels' && 'Pluriels — cas particuliers'}
           {question.category === 'homophones' && 'Homophones'}
           {question.category === 'present_indicatif' && 'Présent — 1er groupe'}

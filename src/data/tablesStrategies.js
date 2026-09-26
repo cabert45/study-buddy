@@ -173,7 +173,7 @@ export const strategieById = (id) => STRATEGIES.find((s) => s.id === id) || null
 export const STRATEGIE_SEMAINES = [
   { debut: [2026, 9, 14], ids: ['A', 'B'] },
   { debut: [2026, 9, 21], ids: ['C', 'D'], confirme: true },
-  { debut: [2026, 9, 28], ids: ['E', 'F'] },
+  { debut: [2026, 9, 28], ids: ['E', 'F'], confirme: true }, // feuille du 28 sept. au 2 oct.
   { debut: [2026, 10, 5], ids: ['G', 'H'] },
   { debut: [2026, 10, 13], ids: ['I', 'J'] },
   { debut: [2026, 10, 19], ids: ['K', 'L'] },

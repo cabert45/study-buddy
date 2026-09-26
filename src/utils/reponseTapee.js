@@ -20,8 +20,12 @@ const NOMBRE = {
   // Les types de production du cahier Matcha. Absents volontairement:
   // chiffres_lettres (ce serait un test d'orthographe), position_nom,
   // comparer, ordre (on ne tape pas un ordre).
+  // « decomposition_somme » reste à choix: écrire « 2 000 + 400 + 7 » au
+  // complet, c'est de la copie, pas de la numération. Les deux autres
+  // demandent UN nombre — et c'est justement là que la colonne vide se perd.
   matcha_nombres: ['blocs', 'tableau_zero', 'jetons', 'abaque', 'lettres_chiffres',
-    'position_valeur', 'ajouter', 'ajouter_deux', 'groupements', 'sacs', 'plus_grand_petit'],
+    'position_valeur', 'ajouter', 'ajouter_deux', 'groupements', 'sacs', 'plus_grand_petit',
+    'decomposition_nombre', 'decomposition_trou'],
   terme: '*',       // sa catégorie la plus faible: 27/54
   relational: '*',
   mental: '*',

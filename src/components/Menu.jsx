@@ -130,6 +130,7 @@ const grade3FrenchModes = [
   { id: 'feuille_l2', label: '📄 Ma feuille — Liste 2', desc: 'La vraie feuille du cahier, question par question', badge: 'À remettre' },
   { id: 'dictee_liste', label: '🎧 Dictée de la liste', desc: 'La liste, puis tu tapes chaque mot que tu entends', badge: 'Cette semaine' },
   { id: 'dictees_group', label: '🎴 Toutes mes dictées', desc: 'Les listes déjà vues + les dictées de 2e année', isGroup: true },
+  { id: 'quatre_classes', label: '🔤 Nom, adjectif ou verbe?', desc: 'Les reconnaître dans une phrase — avec le test qui décide', badge: 'À travailler' },
   { id: 't1_revision', label: '📝 Classes de mots', desc: 'Nom, déterminant, adjectif, verbe, pronom — Thème 1', badge: 'En classe' },
   { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs' },
   { id: 'passe_compose', label: '⏪ Passé composé', desc: 'Auxiliaire être/avoir — 9/17 au dernier examen', badge: 'Priorité' },
@@ -398,7 +399,10 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
   const frenchModes = isCayla ? caylaFrenchModes : isNyla ? nylaFrenchModes : isGrade3 ? grade3FrenchModes : ryanFrenchModes;
   const modes = tab === 'math' ? mathModes : frenchModes;
   const featured = modes.find(m => m.featured);
-  const grid = modes.filter(m => !m.featured);
+  // `m !== featured`, et pas `!m.featured`: une liste avec DEUX modules
+  // vedettes n'en affichait qu'un — l'autre disparaissait de l'écran sans rien
+  // dire. Un module invisible est pire qu'un module mal placé.
+  const grid = modes.filter(m => m !== featured);
 
   return (
     <div className="relative z-[1] max-w-3xl mx-auto px-4 pt-4 pb-12">
