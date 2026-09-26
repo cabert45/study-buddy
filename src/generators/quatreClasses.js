@@ -180,7 +180,7 @@ function quelTest() {
   return {
     category: CATEGORY,
     type: 'quel_test',
-    text: `Quel mot est ${classe === 'nom commun' || classe === 'nom propre' ? `un ${classe}` : `un ${classe}`}?\n\n${t.test}`,
+    text: `De quelle sorte de mot je parle?\n\n« ${t.test} »`,
     correct: classe,
     options: [...CLASSES],
     explanation: `${t.test}\n→ ${classe}.\n\nLes autres: ${autres.map((c) => `${c} = ${TESTS[c].court}`).join(' · ')}.`,

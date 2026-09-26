@@ -141,7 +141,13 @@ function TableauClasses() {
                 {c}
               </div>
               <div className="text-sm font-bold text-stone mb-1.5">{t.quoi}</div>
-              <div className="text-sm font-semibold text-s6 mb-2">🔎 {t.test}</div>
+              <div className="text-sm font-semibold text-s6 mb-2 flex gap-1.5">
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none" className="flex-none mt-0.5" aria-hidden="true">
+                  <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.5" />
+                  <line x1="10.4" y1="10.4" x2="14" y2="14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                <span>{t.test}</span>
+              </div>
               <div className="text-sm font-extrabold" style={{ color: k.txt }}>{t.exemple}</div>
             </div>
           );

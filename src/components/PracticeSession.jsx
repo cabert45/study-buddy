@@ -693,7 +693,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           {question.category === 'futur_simple' && 'Futur simple (1er groupe)'}
           {question.category === 'biographie_jr' && 'Biographie — Jean Rostand'}
           {question.category === 'classe_de_mots' && 'Classe de mots'}
-          {question.category === 'quatre_classes' && '🔤 Nom · adjectif · verbe — les reconnaître'}
+          {question.category === 'quatre_classes' && 'Nom · adjectif · verbe — les reconnaître'}
           {question.category === 'pluriels' && 'Pluriels — cas particuliers'}
           {question.category === 'homophones' && 'Homophones'}
           {question.category === 'present_indicatif' && 'Présent — 1er groupe'}

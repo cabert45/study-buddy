@@ -15,6 +15,10 @@ import { useSettings, mascotFor } from '../utils/settings';
 
 // SVG icons for modules — clean, no emojis
 const icons = {
+  // Quatre traits de longueurs différentes: les quatre sortes de mots d'une
+  // phrase, et celui qu'on cherche est mis en évidence. (Pas d'émoji: les
+  // icônes sont à nous et suivent la couleur du module.)
+  quatre_classes: { bg: '#e9f0fb', color: '#2b5ea8', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="5" x2="11" y2="5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/><line x1="3" y1="13" x2="8" y2="13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><circle cx="15" cy="13" r="1.4" fill="currentColor"/></svg> },
   calcul: { bg: '#fef0e4', color: '#c74a15', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="14" rx="1" stroke="currentColor" strokeWidth="1.4"/><rect x="10" y="5" width="6" height="11" rx="1" stroke="currentColor" strokeWidth="1.4"/><line x1="4" y1="9" x2="6" y2="9" stroke="currentColor" strokeWidth="1.4"/><line x1="5" y1="8" x2="5" y2="10" stroke="currentColor" strokeWidth="1.4"/></svg> },
   terme: { bg: '#f0ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.4"/><text x="9" y="13" textAnchor="middle" fontSize="11" fontWeight="700" fill="currentColor">?</text></svg> },
   multi_step: { bg: '#e6f5f0', color: '#0f766e', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><rect x="10" y="2" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><rect x="6" y="10" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/></svg> },
@@ -130,7 +134,7 @@ const grade3FrenchModes = [
   { id: 'feuille_l2', label: '📄 Ma feuille — Liste 2', desc: 'La vraie feuille du cahier, question par question', badge: 'À remettre' },
   { id: 'dictee_liste', label: '🎧 Dictée de la liste', desc: 'La liste, puis tu tapes chaque mot que tu entends', badge: 'Cette semaine' },
   { id: 'dictees_group', label: '🎴 Toutes mes dictées', desc: 'Les listes déjà vues + les dictées de 2e année', isGroup: true },
-  { id: 'quatre_classes', label: '🔤 Nom, adjectif ou verbe?', desc: 'Les reconnaître dans une phrase — avec le test qui décide', badge: 'À travailler' },
+  { id: 'quatre_classes', label: 'Nom, adjectif ou verbe?', desc: 'Les reconnaître dans une phrase — avec le test qui décide', badge: 'À travailler' },
   { id: 't1_revision', label: '📝 Classes de mots', desc: 'Nom, déterminant, adjectif, verbe, pronom — Thème 1', badge: 'En classe' },
   { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs' },
   { id: 'passe_compose', label: '⏪ Passé composé', desc: 'Auxiliaire être/avoir — 9/17 au dernier examen', badge: 'Priorité' },
