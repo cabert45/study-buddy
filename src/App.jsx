@@ -227,6 +227,15 @@ export default function App() {
   }
 
   async function finishSession(results) {
+    // La case du chemin ne se coche QUE si la série est allée jusqu'au bout.
+    // Ouvrir un exercice ne vaut pas l'avoir fait: s'il quitte après deux
+    // questions, la case reste « commencée » et il pourra la reprendre.
+    if (venuDuCoach && venuDuCoach.etape != null) {
+      try {
+        const { marquerEtape } = await import('./utils/coachAvancement');
+        marquerEtape(venuDuCoach.profile || profile, venuDuCoach.etape, 'fini');
+      } catch {}
+    }
     // Si c'était un test de bloc, on enregistre l'état de la fondation.
     if (activeBloc) {
       try {

@@ -6,7 +6,7 @@ import { moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data
 import { listeCetteSemaine, semaineCourante } from '../data/orthographeQuotidien';
 import { strategiesCetteSemaine } from '../data/tablesStrategies';
 import { buildNylaPlan } from '../data/nylaPlanQuotidien';
-import { chargerAvancement, sauverAvancement } from '../utils/coachAvancement';
+import { chargerAvancement, marquerEtape, estFini, estCommence, prochaineEtape } from '../utils/coachAvancement';
 
 // The Coach decides what Ryan does and when.
 // Given the time of day and what's coming up this week,
@@ -437,7 +437,8 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
   const [remaining, setRemaining] = useState(0);
   const [running, setRunning] = useState(false);
   const [warned, setWarned] = useState({});
-  const [doneSteps, setDoneSteps] = useState([]);
+  // Trois etats par case: absent / commence / fini. Voir utils/coachAvancement.
+  const [etats, setEtats] = useState({});
   const [dashData, setDashData] = useState(null);
   const [dayOverride, setDayOverride] = useState(null); // null = today, 0-6 = preview a different day
   const intervalRef = useRef(null);
@@ -469,14 +470,11 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
     const built = buildPlan(dashData, { dayOverride, profile });
     setPlan(built);
     setPlanReady(true);
-    // On reprend la ou elle en etait aujourd'hui (voir chargerAvancement).
+    // On reprend la ou il en etait aujourd'hui (voir utils/coachAvancement).
     // En mode apercu d'un autre jour, on repart a zero: ce n'est pas son plan.
-    const dejaFait = isPreviewMode ? [] : chargerAvancement(profile);
-    const valides = dejaFait.filter((i) => i >= 0 && i < built.length);
-    setDoneSteps(valides);
-    let prochain = 0;
-    while (prochain < built.length && valides.includes(prochain)) prochain++;
-    setStepIdx(prochain);
+    const enCours = isPreviewMode ? {} : chargerAvancement(profile);
+    setEtats(enCours);
+    setStepIdx(prochaineEtape(enCours, built.length));
     setRunning(false);
   }, [dashData, dayOverride, profile, isPreviewMode]);
 
@@ -548,9 +546,7 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
   function handleStepEnd() {
     // Même règle qu'ailleurs: on écrit d'abord, on met l'état à jour ensuite.
     // Un effet de bord dans un setState n'a aucune garantie de s'exécuter.
-    const fait = [...doneSteps, stepIdx];
-    sauverAvancement(profile, fait);
-    setDoneSteps(fait);
+    setEtats(marquerEtape(profile, stepIdx, 'fini'));
     if (currentStep?.type === 'break') {
       playAlarm();
       speak('PAUSE TERMINÉE! Retour au travail!');
@@ -592,23 +588,25 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
       // On coche la case AVANT d'ouvrir l'exercice: le Coach va etre quitte,
       // et c'est ce qui permet de retrouver le chemin au bon endroit au retour.
       //
-      // L'ENREGISTREMENT SE FAIT ICI, PAS DANS LE setState. Avant, le
-      // `sauverAvancement` vivait à l'intérieur de `setDoneSteps(d => …)`:
-      // React n'exécute cette fonction qu'au moment de traiter la mise à
-      // jour, et `onStartPractice` démonte le Coach à la ligne suivante — la
-      // mise à jour était donc abandonnée et RIEN n'était écrit. Mesuré le
-      // 26 sept. 2026: après un exercice complet lancé depuis le chemin,
-      // `localStorage` ne contenait aucune clé `sb_coach_fait_*`, et le
-      // chemin repartait éternellement de la première case.
-      const fait = [...doneSteps, stepIdx];
-      sauverAvancement(profile, fait);
-      setDoneSteps(fait);
+      // « COMMENCÉ », pas « fini »: c'est l'exercice qui dira s'il est allé au
+      // bout (App.finishSession renvoie l'étape). Avant, la case se cochait à
+      // l'OUVERTURE — s'il abandonnait après deux questions, l'app le comptait
+      // comme fait et passait à la suite.
+      //
+      // L'enregistrement se fait ICI, pas dans un setState: `onStartPractice`
+      // démonte le Coach à la ligne suivante, React abandonne la mise à jour
+      // en attente, et la fonction passée à setState n'est jamais appelée.
+      // Mesuré le 26 sept. 2026: aucune clé `sb_coach_fait_*` après un
+      // exercice complet, et le chemin repartait éternellement de la case 1.
+      setEtats(marquerEtape(profile, stepIdx, 'commence'));
       // On emporte le nom de l'étape suivante: à la fin de l'exercice, l'écran
       // de résultats l'annonce et propose UN bouton pour continuer, au lieu de
       // le relâcher dans le menu. Le Coach a déjà décidé — on le lui dit.
       const suivante = plan[stepIdx + 1];
       onStartPractice(currentStep.mode, {
         depuisCoach: true,
+        etape: stepIdx,                    // pour marquer « fini » à la fin
+        profile,
         suivant: suivante ? suivante.label : null,
       });
     }
@@ -649,8 +647,11 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
   const isMessage = currentStep.type === 'message';
   const color = isBreak ? '#e8a050' : remaining < 30 ? '#c74a15' : remaining < 120 ? '#e8a050' : '#2d7a3a';
   // Combien de cases il reste à monter — le chemin le dit en toutes lettres,
-  // au lieu d'un compte à rebours qu'on regarde descendre.
-  const restant = Math.max(0, plan.length - doneSteps.length);
+  // au lieu d'un compte à rebours qu'on regarde descendre. Une case COMMENCÉE
+  // compte encore comme restante: elle n'est pas finie.
+  const nbFinis = Object.values(etats).filter((v) => v === 'fini').length;
+  const restant = Math.max(0, plan.length - nbFinis);
+  const toutFini = nbFinis >= plan.length;
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-4 pb-8">
@@ -719,9 +720,9 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
         {/* Le trophee, tout en haut du chemin */}
         <div className="flex items-center gap-3 pb-1">
           <div className={`w-11 h-11 rounded-full flex items-center justify-center text-2xl flex-shrink-0 border-2 ${
-            doneSteps.length >= plan.length ? 'bg-yellow-100 border-yellow-400' : 'bg-cream border-s2 opacity-50'
+            toutFini ? 'bg-yellow-100 border-yellow-400' : 'bg-cream border-s2 opacity-50'
           }`}>🏆</div>
-          <div className={`font-heading font-extrabold ${doneSteps.length >= plan.length ? 'text-stone' : 'text-s4'}`}>
+          <div className={`font-heading font-extrabold ${toutFini ? 'text-stone' : 'text-s4'}`}>
             {restant === 0 ? 'Tout est fait!' : restant === 1 ? 'Plus qu’une case!' : `Encore ${restant} cases`}
           </div>
         </div>
@@ -729,7 +730,8 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
         {/* Les cases, de la derniere a la premiere: on monte le chemin */}
         {plan.map((_, i) => plan.length - 1 - i).map((i) => {
           const step = plan[i];
-          const done = doneSteps.includes(i);
+          const done = estFini(etats, i);
+          const commence = estCommence(etats, i);
           const current = i === stepIdx;
           const futur = i > stepIdx;
           const stepBreak = step.type === 'break';
@@ -745,6 +747,7 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
                 <div className={`w-11 h-11 rounded-full flex items-center justify-center text-2xl border-2 transition-all ${
                   done ? 'bg-green-50 border-ok'
                   : current ? 'bg-white border-lava shadow-lg scale-110'
+                  : commence ? 'bg-amber-50 border-amber-400'
                   : 'bg-cream border-s2 opacity-60'
                 }`}>
                   {done ? '✅' : step.icon}
@@ -756,12 +759,25 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
 
               {/* La colonne de droite: le contenu de la case */}
               <div className={`flex-1 ${current ? 'pb-4' : 'pb-2'} pt-3`}>
+                {/* Toutes les cases non finies se touchent.
+                    « On devrait pouvoir choisir laquelle il veut faire en
+                    premier, au cas où. » (26 sept. 2026) Le chemin propose un
+                    ordre, il ne l'impose pas — et une case COMMENCÉE se reprend
+                    au lieu de recommencer la journée. */}
                 {!current && (
-                  <div className={`font-heading font-bold leading-tight ${
-                    done ? 'text-s4 line-through' : futur ? 'text-s4' : 'text-stone'
-                  }`}>
+                  <button
+                    onClick={() => { if (!done) { setStepIdx(i); setRunning(false); } }}
+                    disabled={done}
+                    className={`text-left w-full font-heading font-bold leading-tight ${
+                      done ? 'text-s4 line-through cursor-default' : futur ? 'text-s4 hover:text-stone' : 'text-stone'
+                    }`}>
                     {step.label}
-                  </div>
+                    {commence && (
+                      <span className="ml-2 align-middle text-[10px] font-extrabold uppercase tracking-wide bg-amber-100 text-amber-800 rounded-full px-2 py-0.5">
+                        commencé — à reprendre
+                      </span>
+                    )}
+                  </button>
                 )}
 
                 {current && (
@@ -788,7 +804,7 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
                       <button onClick={startAppMode}
                         className="w-full py-4 rounded-xl font-extrabold text-white text-lg active:scale-[0.98] transition-transform"
                         style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
-                        Commencer →
+                        {commence ? 'Reprendre →' : 'Commencer →'}
                       </button>
                     )}
 
