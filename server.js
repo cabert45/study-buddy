@@ -806,8 +806,19 @@ const TTS_MODEL_SLOW = process.env.ELEVENLABS_MODEL_SLOW || 'eleven_multilingual
 // La voix par defaut de l'app: francaise, calme, articulee.
 // ELEVENLABS_VOICE_ID (Railway) reste prioritaire s'il est defini — c'est
 // encore une voix anglaise aujourd'hui, d'ou la note dans le README du deploy.
-const VOIX_FR_DEFAUT = 'DmA5Za3LKQf1NQcbHfdZ';
-const TTS_DEFAULT_VOICE = process.env.ELEVENLABS_VOICE_ID || VOIX_FR_DEFAUT;
+const VOIX_FR_DEFAUT = 'DmA5Za3LKQf1NQcbHfdZ'; // « Emilie » — femme, calme, française
+// On N'HONORE PLUS `ELEVENLABS_VOICE_ID` de Railway.
+//
+// « La voix française a un accent anglais, elle dit les mots de travers. »
+// (28 sept. 2026) La variable de Railway vaut XB0fDUnXU5powFXDhCwa — une voix
+// anglaise, comme le disait déjà le commentaire de ce fichier. Elle servait de
+// voix PAR DÉFAUT, donc tout enfant réglé sur « auto » (l'app n'envoie alors
+// aucune voix) s'est fait lire du français par une voix anglaise.
+//
+// Une variable d'environnement qui contredit le code et casse la prononciation
+// n'est pas une configuration, c'est un piège. Pour en changer volontairement,
+// il y a maintenant un nom sans ambiguïté.
+const TTS_DEFAULT_VOICE = process.env.ELEVENLABS_VOICE_FR || VOIX_FR_DEFAUT;
 const TTS_DIR = path.join(__dirname, 'data', 'tts-cache');
 const TTS_MAX_CHARS = 600;
 

@@ -7,6 +7,15 @@ import AideMemoire from './AideMemoire';
 import { notifySessionResult } from '../utils/notifications';
 import { buildSmartQueue, recordAnswer, getWeekSummary } from '../utils/wordMastery';
 
+// Un ordre tiré du mot lui-même, pas du hasard: la bonne réponse ne doit pas
+// sauter de place à chaque rendu (React re-rend au moindre clic), sinon il
+// touche un bouton et un autre mot se trouve dessous.
+function melangeStable(graine, options) {
+  const code = String(graine).split('').reduce((n, c) => n + c.charCodeAt(0), 0);
+  const a = [...new Set(options)].filter(Boolean);
+  return a.map((v, i) => ({ v, k: (code * (i + 7)) % 97 })).sort((x, y) => x.k - y.k).map((o) => o.v);
+}
+
 // Sentence templates by word — shows the word in context
 const sentenceContexts = {
   // ===== RYAN — THEME 6 =====
@@ -189,8 +198,23 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
   // « Donne-lui la liste au complet, qu'il puisse regarder les mots avant. »
   // (parent, 20 sept. 2026) — la liste s'ouvre en premier, comme dans le
   // cahier, et le bouton « 📋 La liste » la rouvre pendant la dictée.
-  const [memoireOuvert, setMemoireOuvert] = useState(estListeOrtho);
+  const [memoireOuvert, setMemoireOuvert] = useState(false);
   const [memoireVu, setMemoireVu] = useState(false);
+  // Les cartes d'abord, l'écriture ensuite (voir plus bas). Un mot par carte,
+  // dans l'ordre de la liste — pas dans l'ordre mêlé de la dictée: on apprend
+  // la liste, on ne la teste pas encore.
+  const [phase, setPhase] = useState(estListeOrtho ? 'cartes' : 'ecrire');
+  const [carteIdx, setCarteIdx] = useState(0);
+  const [choixIdx, setChoixIdx] = useState(0);
+  const [choixPris, setChoixPris] = useState(null);
+  const motsCartes = React.useMemo(() => {
+    const vus = new Set();
+    return (week?.words || []).filter((w) => {
+      if (!w?.correct || vus.has(w.correct)) return false;
+      vus.add(w.correct);
+      return true;
+    });
+  }, [week]);
   const inputRef = useRef(null);
 
   // Reset AI sentence when word changes
@@ -237,8 +261,135 @@ export default function DicteeFlashcard({ weekKey, onHome, onFinish }) {
     );
   }
 
-  // La page du cahier avant les questions — d'abord à l'ouverture, puis à la
-  // demande avec « 📋 La liste ».
+  // ===== Les cartes, avant d'écrire =====
+  //
+  // « Ryan n'aime pas la dictée à choix multiple que tu lui donnes. Il doit
+  // pratiquer les mots en cartes, et APRÈS les écrire. » (28 sept. 2026)
+  //
+  // La page du cahier (la liste complète) montrait les quinze mots d'un coup:
+  // on la survole et on n'en retient aucun. Une carte à la fois, le mot en
+  // grand, dit à voix haute, avec son truc — puis on écrit. C'est l'ordre du
+  // cahier et c'est l'ordre de la mémoire: voir, entendre, puis produire.
+  if (estListeOrtho && phase === 'cartes' && motsCartes.length > 0) {
+    const mot = motsCartes[Math.min(carteIdx, motsCartes.length - 1)];
+    const derniere = carteIdx >= motsCartes.length - 1;
+    return (
+      <div className="max-w-3xl mx-auto px-4 pt-4 pb-10">
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
+          <div className="text-sm font-bold text-s4">Carte {carteIdx + 1} / {motsCartes.length}</div>
+          <button onClick={() => setPhase('ecrire')} className="text-xs font-bold text-lava">Passer à l'écriture →</button>
+        </div>
+
+        <div className="w-full bg-s1 rounded-full h-2 mb-6">
+          <div className="h-2 rounded-full transition-all duration-300"
+            style={{ width: `${((carteIdx + 1) / motsCartes.length) * 100}%`, background: 'linear-gradient(90deg, #c74a15, #e8622a)' }} />
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-sm border-2 border-s1 border-l-4 border-l-lava p-8 text-center">
+          <div className="text-[10px] font-extrabold uppercase tracking-wide text-fox-d mb-4">
+            Regarde le mot, écoute-le, dis-le
+          </div>
+          <div className="font-heading text-5xl font-extrabold text-stone leading-tight mb-4 break-words">
+            {mot?.correct}
+          </div>
+          {mot?.truc && (
+            <div className="text-sm font-semibold text-s6 bg-cream rounded-xl px-4 py-3 border-2 border-s1 inline-block">
+              {mot.truc}
+            </div>
+          )}
+          <button
+            onClick={() => speakSlow(mot?.correct || '')}
+            className="mt-5 w-full py-3 rounded-xl font-bold text-s6 bg-white border-2 border-s2">
+            🔊 Réécouter
+          </button>
+          <button
+            onClick={() => {
+              if (derniere) { setPhase('choisir'); return; }
+              setCarteIdx((i) => i + 1);
+            }}
+            className="mt-2 w-full py-4 rounded-xl font-extrabold text-lg text-white active:scale-[0.98] transition-transform"
+            style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
+            {derniere ? "J'ai vu tous les mots — on continue! →" : 'Mot suivant →'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ===== Choisir la bonne écriture =====
+  //
+  // C'est le format de la 2e année — celui qui l'avait débloqué (voir
+  // `generators/dictee.js` et les `wrongs` de `data/dicteeWeekly.js`): l'app
+  // DIT le mot, il choisit la bonne écriture parmi quatre. Son père, le
+  // 28 sept. 2026: « le choix multiple est correct pour qu'il choisisse le bon
+  // mot ». C'est l'étape entre regarder et produire: il ne copie plus, il ne
+  // tape pas encore, il reconnaît.
+  if (estListeOrtho && phase === 'choisir' && motsCartes.length > 0) {
+    const mot = motsCartes[Math.min(choixIdx, motsCartes.length - 1)];
+    const options = melangeStable(mot.correct, [mot.correct, ...(mot.wrongs || [])]);
+    const derniere = choixIdx >= motsCartes.length - 1;
+    const bon = choixPris === mot.correct;
+    return (
+      <div className="max-w-3xl mx-auto px-4 pt-4 pb-10">
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={onHome} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
+          <div className="text-sm font-bold text-s4">Mot {choixIdx + 1} / {motsCartes.length}</div>
+          <button onClick={() => setPhase('ecrire')} className="text-xs font-bold text-lava">Passer à l'écriture →</button>
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-sm border-2 border-s1 border-l-4 border-l-lava p-6">
+          <div className="text-[10px] font-extrabold uppercase tracking-wide text-fox-d mb-3 text-center">
+            Écoute, puis choisis la bonne écriture
+          </div>
+          <button onClick={() => speakSlow(mot.correct)}
+            className="w-full py-4 mb-4 rounded-xl font-extrabold text-lg text-white"
+            style={{ background: 'linear-gradient(90deg, #3a5bc7, #5b4ad4)' }}>
+            🔊 Écouter le mot
+          </button>
+
+          <div className="grid grid-cols-2 gap-3">
+            {options.map((o) => {
+              let cls = 'bg-white border-2 border-s2 text-stone hover:border-fox';
+              if (choixPris) {
+                if (o === mot.correct) cls = 'bg-green-50 border-2 border-green-500 text-green-700';
+                else if (o === choixPris) cls = 'bg-red-50 border-2 border-red-400 text-red-600';
+                else cls = 'bg-gray-50 border-2 border-gray-200 text-gray-400';
+              }
+              return (
+                <button key={o} disabled={!!choixPris}
+                  onClick={() => { setChoixPris(o); if (o === mot.correct) speak('Bravo!'); }}
+                  className={`py-4 px-3 rounded-xl font-extrabold text-xl break-words ${cls}`}>
+                  {o}
+                </button>
+              );
+            })}
+          </div>
+
+          {choixPris && (
+            <div className={`mt-4 rounded-xl p-3 border-2 ${bon ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-300'}`}>
+              <p className={`font-extrabold text-center ${bon ? 'text-green-700' : 'text-amber-900'}`}>
+                {bon ? '✅ Oui — c’est bien comme ça que ça s’écrit.' : `C’est « ${mot.correct} ».`}
+              </p>
+              {mot.truc && <p className="text-sm font-semibold text-s6 mt-1 text-center">{mot.truc}</p>}
+              <button
+                onClick={() => {
+                  setChoixPris(null);
+                  if (derniere) { setPhase('ecrire'); return; }
+                  setChoixIdx((i) => i + 1);
+                }}
+                className="w-full mt-3 py-3 rounded-xl font-extrabold text-white"
+                style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
+                {derniere ? 'Maintenant je les écris →' : 'Mot suivant →'}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // La page du cahier avant les questions — à la demande avec « 📋 La liste ».
   if (estListeOrtho && memoireOuvert) {
     return (
       <>

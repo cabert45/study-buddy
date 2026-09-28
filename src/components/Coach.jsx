@@ -190,11 +190,18 @@ function buildRentreePlan(today) {
   // à 3/10. Lundi, mercredi et vendredi: dictée (la feuille se remet le
   // vendredi). Mardi et jeudi: le cahier. Le créneau garde la même durée:
   // l'heure par jour ne bouge pas.
-  const orthoStep = (mins) => (day === 1 || day === 3 || day === 5
-    ? { type: 'app', mode: 'dictee_liste', mins, icon: '🎧',
-        label: `🎧 Dictée — Liste ${liste.numero}: ${liste.titre}` }
-    : { type: 'app', mode: 'orthographe', mins, icon: '🐱',
-        label: `🐱 Orthographe — Liste ${liste.numero}: ${liste.titre}` });
+  // « Ryan n'aime pas la dictée à choix multiple. Il doit pratiquer les mots
+  // en cartes, et APRÈS les écrire. » (28 sept. 2026)
+  //
+  // Un jour sur deux, la liste passait par le mode `orthographe`: des questions
+  // à choix multiple sur les mots (quelle lettre est muette, etc.). Ce n'est pas
+  // ce qu'on lui demande à l'école — à l'école, il ÉCRIT le mot. Tous les jours
+  // passent donc maintenant par `dictee_liste`, qui montre les cartes une par
+  // une puis fait écrire chaque mot.
+  const orthoStep = (mins) => ({
+    type: 'app', mode: 'dictee_liste', mins, icon: '🎧',
+    label: `🎧 Mes mots — Liste ${liste.numero}: cartes, puis je les écris`,
+  });
 
 
   // Pas de message d'accueil ni de pause d'eau en semaine: Ryan clique sur
@@ -235,7 +242,7 @@ function buildRentreePlan(today) {
       { ...deuxieme, mins: 12 },
       { type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: 8, icon: r.french.icon },
       { type: 'break', label: 'Pause + collation 🍎', mins: 10, icon: '🍎' },
-      { type: 'app', mode: 'matcha_nombres', label: '📘 Cahier Matcha — valeur de position et comparaison', mins: 18, icon: '📘' },
+      { type: 'app', mode: 'matcha_nombres', label: '📘 Cahier Matcha — la décomposition et la valeur de position', mins: 18, icon: '📘' },
       { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 15, icon: '🧩' },
       { type: 'app', mode: 'calcul_rapide_3', label: '⚡ Calcul rapide 3 chiffres', mins: 10, icon: '⚡' },
       lecture(20),
@@ -249,10 +256,10 @@ function buildRentreePlan(today) {
     { type: 'app', mode: 'strategies', label: stratLabel, mins: 6, icon: '⚡' },
     orthoStep(8),
     { ...deuxieme, mins: 8 },
-    { type: 'app', mode: 'matcha_nombres', label: '📘 Cahier Matcha — valeur de position et comparaison', mins: 11, icon: '📘' },
+    { type: 'app', mode: 'matcha_nombres', label: '📘 Cahier Matcha — la décomposition et la valeur de position', mins: 11, icon: '📘' },
     { type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: 6, icon: r.french.icon },
     { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 5, icon: '🧩' },
-    lecture(15),
+    lecture(20), // 20 min demandees par le parent — la feuille de l ecole en demande 15
     fin,
   ];
 }
@@ -450,18 +457,27 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
   const today = new Date().getDay();
   const isPreviewMode = dayOverride != null && dayOverride !== today;
 
-  // Load dashboard data once
+  // Load dashboard data once.
+  //
+  // Le plan ne doit JAMAIS attendre le serveur indéfiniment. Railway → Neon se
+  // réveille parfois en plusieurs secondes; pendant ce temps, le plan restait
+  // vide — et un plan vide affichait « Tu as tout fait! » (voir plus bas).
+  // Les statistiques ne servent qu'à choisir la catégorie la plus faible; le
+  // plan de 3e année n'en a même pas besoin. Au pire on planifie sans elles.
   useEffect(() => {
     let cancelled = false;
+    const chrono = setTimeout(() => { if (!cancelled) setDashData((d) => (d == null ? {} : d)); }, 3000);
     (async () => {
       try {
         const d = await getDashboard();
-        if (!cancelled) setDashData(d);
+        if (!cancelled) setDashData(d || {});
       } catch {
         if (!cancelled) setDashData({});
+      } finally {
+        clearTimeout(chrono);
       }
     })();
-    return () => { cancelled = true; };
+    return () => { cancelled = true; clearTimeout(chrono); };
   }, []);
 
   // Build plan whenever dashData / overrides change
@@ -612,6 +628,23 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
     }
   }
 
+  // Tant que le plan n'est pas construit, on ne dit RIEN.
+  //
+  // Avant, la condition « tout fait » était `stepIdx >= plan.length` — et au
+  // premier rendu, plan est vide et stepIdx vaut 0: 0 >= 0. L'écran annonçait
+  // donc « Tu as tout fait! Bravo Ryan, tu mérites une grosse pause! » à un
+  // enfant qui venait d'ouvrir son chemin. Vu en vrai sur la prod le 28 sept.
+  // 2026, deux secondes après l'ouverture. Un enfant à qui on dit qu'il a fini
+  // ferme l'app — et il n'a rien fait.
+  if (!planReady) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 pt-12 text-center">
+        <div className="text-4xl mb-3 animate-bounce">🍁</div>
+        <p className="font-heading text-lg font-extrabold text-s4">Je prépare ton chemin…</p>
+      </div>
+    );
+  }
+
   // ALL DONE
   if (stepIdx >= plan.length) {
     return (
@@ -726,6 +759,14 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
             {restant === 0 ? 'Tout est fait!' : restant === 1 ? 'Plus qu’une case!' : `Encore ${restant} cases`}
           </div>
         </div>
+        {/* Le chemin propose un ordre, il ne l'impose pas — mais encore
+            faut-il que ça se voie: les cases avaient l'air d'un simple texte.
+            « On devrait pouvoir choisir laquelle il veut faire en premier. » */}
+        {!toutFini && plan.length > 1 && (
+          <div className="text-[11px] font-semibold text-s4 pl-14 pb-1">
+            Touche une case pour la choisir — tu n'es pas obligé de suivre l'ordre.
+          </div>
+        )}
 
         {/* Les cases, de la derniere a la premiere: on monte le chemin */}
         {plan.map((_, i) => plan.length - 1 - i).map((i) => {
@@ -766,15 +807,19 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
                     au lieu de recommencer la journée. */}
                 {!current && (
                   <button
-                    onClick={() => { if (!done) { setStepIdx(i); setRunning(false); } }}
-                    disabled={done}
-                    className={`text-left w-full font-heading font-bold leading-tight ${
-                      done ? 'text-s4 line-through cursor-default' : futur ? 'text-s4 hover:text-stone' : 'text-stone'
+                    onClick={() => { setStepIdx(i); setRunning(false); }}
+                    className={`text-left w-full font-heading font-bold leading-tight rounded-lg px-2 py-1 -ml-2 border border-transparent hover:border-s2 hover:bg-cream transition-colors ${
+                      done ? 'text-s4 line-through' : futur ? 'text-s4 hover:text-stone' : 'text-stone'
                     }`}>
                     {step.label}
                     {commence && (
                       <span className="ml-2 align-middle text-[10px] font-extrabold uppercase tracking-wide bg-amber-100 text-amber-800 rounded-full px-2 py-0.5">
                         commencé — à reprendre
+                      </span>
+                    )}
+                    {done && (
+                      <span className="ml-2 align-middle text-[10px] font-extrabold uppercase tracking-wide bg-green-100 text-green-800 rounded-full px-2 py-0.5">
+                        fait — touche pour refaire
                       </span>
                     )}
                   </button>
@@ -804,7 +849,7 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
                       <button onClick={startAppMode}
                         className="w-full py-4 rounded-xl font-extrabold text-white text-lg active:scale-[0.98] transition-transform"
                         style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
-                        {commence ? 'Reprendre →' : 'Commencer →'}
+                        {done ? 'Refaire →' : commence ? 'Reprendre →' : 'Commencer →'}
                       </button>
                     )}
 

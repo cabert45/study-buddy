@@ -72,22 +72,29 @@ const L2 = [
 ];
 
 // ===== LISTE 3 — Lettre muette (bloc 2) =====
+// LE TRUC DE LA SEMAINE CHANGE ICI. En liste 2, on mettait l'adjectif au
+// féminin (court → courte) pour entendre la lettre muette. Ces mots-ci sont
+// des NOMS: il faut chercher un mot de la même famille (bord → bordure).
+// Les familles sont donc des données, pas de la décoration — c'est ce que la
+// carte montre avant qu'il écrive, et c'est la leçon du 28 sept. au 2 oct.
+// « août » et « nid » n'en ont pas: ceux-là se retiennent par cœur, et la
+// carte le dit franchement plutôt que d'inventer une famille.
 const L3 = [
   { mot: 'août', muette: 't', circ: 1, nom: 1 },
-  { mot: 'bord', muette: 'd', nom: 1 },
-  { mot: 'but', muette: 't', nom: 1 },
-  { mot: 'doigt', muette: 't', nom: 1, chari: 'goidt' },
-  { mot: 'fond', muette: 'd', nom: 1, rime: 'on' },
-  { mot: 'long', muette: 'g', rime: 'on' },
+  { mot: 'bord', muette: 'd', nom: 1, fam: 'la bordure' },
+  { mot: 'but', muette: 't', nom: 1, fam: 'un buteur' },
+  { mot: 'doigt', muette: 't', nom: 1, chari: 'goidt', fam: 'le doigté' },
+  { mot: 'fond', muette: 'd', nom: 1, rime: 'on', fam: 'profonde, fonder' },
+  { mot: 'long', muette: 'g', rime: 'on', fam: 'la longueur' },
   { mot: 'nid', muette: 'd', nom: 1 },
-  { mot: 'part', muette: 't', nom: 1, genre: 'f' },
-  { mot: 'point', muette: 't', nom: 1 },
-  { mot: 'pot', muette: 't', nom: 1 },
-  { mot: 'retard', muette: 'd', nom: 1, chari: 'teardr' },
-  { mot: 'sabot', muette: 't', nom: 1, chari: 'tbsoa' },
-  { mot: 'salut', muette: 't', nom: 1, fam: 'salutation', intrus: ['salutation', 'salutaire', 'salon'] },
-  { mot: 'soie', muette: 'e', nom: 1, genre: 'f', dev: 'Je suis un type de tissu.' },
-  { mot: 'sourcil', muette: 'l', nom: 1, chari: 'losuric' },
+  { mot: 'part', muette: 't', nom: 1, genre: 'f', fam: 'partager' },
+  { mot: 'point', muette: 't', nom: 1, fam: 'pointer, pointu' },
+  { mot: 'pot', muette: 't', nom: 1, fam: 'la poterie' },
+  { mot: 'retard', muette: 'd', nom: 1, chari: 'teardr', fam: 'retarder' },
+  { mot: 'sabot', muette: 't', nom: 1, chari: 'tbsoa', fam: 'un sabotier' },
+  { mot: 'salut', muette: 't', nom: 1, fam: 'une salutation', intrus: ['salutation', 'salutaire', 'salon'] },
+  { mot: 'soie', muette: 'e', nom: 1, genre: 'f', dev: 'Je suis un type de tissu.', fam: 'la soierie' },
+  { mot: 'sourcil', muette: 'l', nom: 1, chari: 'losuric', fam: 'sourciller' },
 ];
 
 // ===== LISTE 4 — Le « c » se prononce [s] ou [k] =====
@@ -534,6 +541,83 @@ const TRUCS = {
   mbp: 'Devant un b ou un p, le n devient m.',
 };
 
+// Ce qu'on écrit sous le mot, sur sa carte. On prend le plus utile en
+// premier: un mot de la même famille fait ENTENDRE la lettre muette, ce qu'un
+// féminin ne fait pas toujours (« août » et « nid » n'ont ni l'un ni l'autre —
+// ceux-là se retiennent par cœur, et la carte le dit).
+function trucDuMot(m) {
+  // Écrit pour un enfant de 8 ans, pas pour une grammaire. « Lettre muette:
+  // « t » — à retenir par cœur » ne lui disait rien (son père, 28 sept. 2026).
+  // Une consigne se dit à la première personne et donne le GESTE à faire.
+  if (m.fam) {
+    return m.muette
+      ? `Je dis « ${m.fam} » : j'entends le ${m.muette.toUpperCase()}. Alors j'écris un ${m.muette.toUpperCase()} à la fin.`
+      : `Mot de la même famille : ${m.fam}.`;
+  }
+  if (m.fem) {
+    return m.muette
+      ? `Je dis « ${m.fem} » : j'entends le ${m.muette.toUpperCase()}. Alors j'écris un ${m.muette.toUpperCase()} à la fin.`
+      : `Au féminin, ça donne « ${m.fem} ».`;
+  }
+  if (m.muette) {
+    return `Je n'entends pas le ${m.muette.toUpperCase()} à la fin — et pourtant il est là. Celui-là, je le photographie.`;
+  }
+  if (m.c) return `Le « c » se prononce [${m.c === 'deux' ? 's] et [k' : m.c}]`;
+  if (m.g) return `Le « g » se prononce [${m.g === 'deux' ? 'g] et [j' : m.g}]`;
+  if (m.s) return `Le « s » se prononce [${m.s}]`;
+  if (m.jum) return 'Attention: deux consonnes pareilles';
+  if (m.circ) return 'Attention à l\'accent circonflexe';
+  return null;
+}
+
+// Les mauvaises orthographes à lui faire écarter — comme en 2e année.
+//
+// C'est le format qui l'a débloqué l'an dernier (`generators/dictee.js`, et
+// `data/dicteeWeekly.js`: chaque mot y a ses `wrongs`): l'app DIT le mot, et
+// il choisit la bonne écriture parmi quatre. Son père, le 28 sept. 2026: « le
+// choix multiple est correct pour qu'il choisisse le bon mot, les
+// flashcards » — c'est l'écriture qui ne doit pas être un choix multiple.
+//
+// Les listes de 3e année n'ont pas de `wrongs` écrits à la main: on les
+// fabrique à partir de SON erreur à lui, celle de toutes ses feuilles —
+// laisser tomber la lettre muette, ou en mettre une autre.
+const MUETTES_VOISINES = { d: ['t', 's'], t: ['d', 's'], s: ['t', 'x'], g: ['t', 'd'], l: ['t', 'e'], e: ['s', 't'], x: ['s', 't'] };
+
+export function mauvaisesOrthographes(m) {
+  const mot = m.mot;
+  const faux = new Set();
+  if (m.muette && mot.endsWith(m.muette)) {
+    const tronc = mot.slice(0, -m.muette.length);
+    faux.add(tronc);                                   // « bor » — la faute qu'il fait
+    (MUETTES_VOISINES[m.muette] || ['s']).forEach((l) => faux.add(tronc + l)); // « bort », « bors »
+  }
+  if (m.jum) faux.add(mot.replace(/([bcdflmnprst])\1/, '$1'));  // « comme » → « come »
+  if (m.circ) faux.add(mot.normalize('NFD').replace(/[̂]/g, '').normalize('NFC')); // sans le chapeau
+  // Le son de la lettre: on écrit ce qu'on ENTEND, l'erreur la plus banale.
+  if (m.c === 's') faux.add(mot.replace(/c/, 's'));
+  if (m.c === 'k') faux.add(mot.replace(/c/, 'k'));
+  if (m.g === 'j') faux.add(mot.replace(/g/, 'j'));
+  if (m.g === 'g') faux.add(mot.replace(/gu?/, 'gh'));
+  if (m.s === 'z') faux.add(mot.replace(/s/, 'z'));
+  if (m.s === 's') faux.add(mot.replace(/ss/, 's'));
+  // m devant b/p: c'est la liste 10 au complet, et c'est SA faute (« conbien »).
+  if (m.mbp || /m[bp]/.test(mot)) faux.add(mot.replace(/m([bp])/, 'n$1'));
+  faux.add(mot.endsWith('s') ? mot.slice(0, -1) : `${mot}s`);
+  // Derniers recours, dans l'ordre: doubler une consonne du milieu, puis
+  // enlever un accent. Il faut TOUJOURS trois mauvaises réponses, sinon le
+  // choix se devine sans lire.
+  // On double une consonne DU MILIEU (« carote » → « carotte »), jamais la
+  // première: « ccause » n'est pas une faute d'enfant, c'est du bruit, et un
+  // choix absurde se rejette sans lire le mot.
+  const doublee = mot[0] + mot.slice(1).replace(/([bcdflmnprst])(?=[aeiouéèê])/, '$1$1');
+  if (doublee !== mot) faux.add(doublee);
+  const sansAccent = mot.normalize('NFD').replace(/[̀-ͯ]/g, '').normalize('NFC');
+  if (sansAccent !== mot) faux.add(sansAccent);
+  faux.add(`${mot}e`);
+  faux.delete(mot);
+  return [...faux].filter(Boolean).slice(0, 3);
+}
+
 export function dicteeDeLaListe(cleOuId) {
   const id = String(cleOuId || '').replace(/^ortho_/, '');
   const liste = listeById(id);
@@ -547,6 +631,11 @@ export function dicteeDeLaListe(cleOuId) {
       phrase: PHRASES[m.mot] || null,
       fem: m.fem || null,
       muette: m.muette || null,
+      // Le truc de CE mot-là, pour la carte qu'il regarde avant d'écrire.
+      // Pas la règle générale de la liste: ce qui fait entendre la lettre
+      // dans CE mot (bord → bordure), parce que c'est ça qu'on applique.
+      truc: trucDuMot(m),
+      wrongs: mauvaisesOrthographes(m),
     })),
   };
 }
