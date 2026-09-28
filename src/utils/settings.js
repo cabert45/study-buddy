@@ -173,7 +173,19 @@ export function loadFonts(fonts = FONTS) {
 // ---- Lecture / écriture ----
 // Cayla a fait retirer l'arc-en-ciel et la licorne le 22 sept. 2026: si un profil
 // les avait choisis, on le ramene doucement sur un voisin.
-const REMPLACE = { color: { arc: 'barbe-papa' }, mascot: { licorne: 'chat' } };
+const REMPLACE = {
+  color: { arc: 'barbe-papa' },
+  mascot: { licorne: 'chat' },
+  // Les voix retirées, et par quoi on les remplace sur l'appareil.
+  //
+  // Changer le défaut ne suffit pas: un appareil qui a DÉJÀ une voix
+  // enregistrée garde la sienne, et c'est justement le cas de l'appareil de
+  // Ryan. Émilie disait « board » pour « bord » et « D'accord » pour
+  // « doigt » (mesuré le 28 sept. 2026, voir scripts/verif-voix.mjs). La
+  // laisser en place, c'est laisser un enfant apprendre une prononciation
+  // fausse pour sa dictée de vendredi.
+  ttsVoice: { DmA5Za3LKQf1NQcbHfdZ: 'LFtQZWdaqmvamcTNGpwl' },
+};
 
 export function loadSettings(profile) {
   try {
@@ -181,6 +193,7 @@ export function loadSettings(profile) {
     const s = { ...DEFAULT_SETTINGS, ...(raw ? JSON.parse(raw) : {}) };
     if (REMPLACE.color[s.color]) s.color = REMPLACE.color[s.color];
     if (REMPLACE.mascot[s.mascot]) s.mascot = REMPLACE.mascot[s.mascot];
+    if (REMPLACE.ttsVoice[s.ttsVoice]) s.ttsVoice = REMPLACE.ttsVoice[s.ttsVoice];
     return s;
   } catch {
     return { ...DEFAULT_SETTINGS };
