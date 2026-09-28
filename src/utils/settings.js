@@ -28,7 +28,7 @@ export const DEFAULT_SETTINGS = {
   // voix ici plutot que de dependre d'ELEVENLABS_VOICE_ID garantit que tous
   // les appareils parlent francais, sans toucher aux variables du deploiement.
   // Chacun peut en changer dans ⚙️ Reglages.
-  ttsVoice: 'DmA5Za3LKQf1NQcbHfdZ',
+  ttsVoice: 'LFtQZWdaqmvamcTNGpwl',
   debit: 'normal',  // 'lente' | 'normal' | 'rapide' — la vitesse de la voix
   color: 'orange',
   mascot: 'default',

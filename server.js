@@ -806,7 +806,27 @@ const TTS_MODEL_SLOW = process.env.ELEVENLABS_MODEL_SLOW || 'eleven_multilingual
 // La voix par defaut de l'app: francaise, calme, articulee.
 // ELEVENLABS_VOICE_ID (Railway) reste prioritaire s'il est defini — c'est
 // encore une voix anglaise aujourd'hui, d'ou la note dans le README du deploy.
-const VOIX_FR_DEFAUT = 'DmA5Za3LKQf1NQcbHfdZ'; // « Emilie » — femme, calme, française
+const VOIX_FR_DEFAUT = 'LFtQZWdaqmvamcTNGpwl'; // « Lucie (posée) » — voir la mesure ci-dessous
+// LA VOIX EST CHOISIE PAR MESURE, PAS À L'OREILLE D'UN ADULTE PRESSÉ.
+//
+// « La voix française a un accent anglais, elle dit les mots de travers. »
+// (28 sept. 2026) On ne peut pas juger un accent depuis une session, mais on
+// peut mesurer une chose qui ne ment pas: faire dire un mot français à la voix,
+// renvoyer le son à Scribe, et regarder si le MOT ressort. Les 6 mots durs de
+// la liste 3, sur les 7 voix de TTS_FALLBACK_VOICES:
+//
+//   Lucie (posée)  5/6   bord→Bord    doigt→Doigt   sourcil→Sourcil
+//   Alex           5/6   bord→Borde   doigt→Doit    soie→Свой (!)
+//   Emilie         3/6   bord→Bored   doigt→D'accord  nid→Need   soie→所以 (!)
+//   Victoria       3/6   Quentin 3/6  Chloe 2/6     Lucie 2/6
+//
+// « bord » qui revient « board » et « nid » qui revient « need », ce n'est pas
+// une nuance d'accent: c'est une voix anglaise qui lit du français. Sur les 15
+// mots de la semaine, Lucie (posée) en rend 12 intacts. C'est aussi la seule
+// décrite « lente et claire » — exactement ce qu'il faut pour une dictée.
+//
+// Pour refaire la mesure quand une liste change: scripts/verif-voix.mjs.
+//
 // On N'HONORE PLUS `ELEVENLABS_VOICE_ID` de Railway.
 //
 // « La voix française a un accent anglais, elle dit les mots de travers. »
