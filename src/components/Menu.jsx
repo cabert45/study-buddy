@@ -178,9 +178,16 @@ const summerModes = [
   { id: 'pluriels_ryan', label: 'Pluriel & féminin', desc: 'chevaux, heureuse...' },
 ];
 
+// LES DICTÉES DE 2e ANNÉE — une archive, et rien d'autre.
+//
+// Le 28 sept. 2026, son père est tombé dessus depuis l'app et a demandé:
+// « c'est ça que tu as fait? ça c'est 2e année. » Non — mais la liste s'en
+// donnait l'air: « Semaine 1 » portait encore l'étiquette CETTE SEMAINE, figée
+// depuis mai. Une archive qui se présente comme le travail du jour envoie un
+// enfant de 3e année réviser les mots de l'an dernier.
 const dicteeWeeksList = [
   { id: 'dictee_revision', label: 'Révision TOUTES dictées', desc: 'Préparer la dictée cumulative', highlight: true },
-  { id: 'dictee_s1', label: 'Semaine 1 — consonnes doubles', desc: 'arroser, carotte, mettre, patte, cannelle...', current: true },
+  { id: 'dictee_s1', label: 'Semaine 1 — consonnes doubles', desc: 'arroser, carotte, mettre, patte, cannelle...' },
   { id: 'dictee_s2', label: 'Semaine 2 — lettre muette (féminin)', desc: 'bas/basse, charmant/charmante, haut/haute...' },
   { id: 'dictee_s3', label: 'Semaine 3 — s muet final', desc: 'alors, jamais, parfois, toujours...' },
   { id: 'dictee_s4', label: "Semaine 4 — ne s'écrit pas comme se prononce", desc: 'automne, femme, monsieur, soixante...' },
@@ -316,15 +323,20 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
     const listes = listesVues(refSemaine).filter(Boolean).reverse().map((l) => ({
       id: cleDictee(l.id),
       flashKey: cleDictee(l.id),
-      practiceMode: l.id === courante.id ? 'orthographe' : null,
+      // Plus de bouton « Choix multiple » sur ses listes de 3e année: c'était
+      // le mode `orthographe`, des questions SUR les mots (quelle lettre est
+      // muette…), et c'est précisément ce que son père a écarté le 28 sept.
+      // 2026. « Écris les mots » contient déjà une étape où il choisit — entre
+      // quatre ÉCRITURES du mot, ce qui est l'exercice de l'école.
+      practiceMode: null,
       current: l.id === courante.id,
       groupe: '3e année — mon cahier d’orthographe',
       label: `Liste ${l.numero} — ${l.titre.toLowerCase()}`,
       desc: l.mots.slice(0, 5).map((m) => m.mot).join(', ') + '…',
     }));
     const archive = dicteeWeeksList.map((d) => ({
-      ...d, flashKey: d.id, practiceMode: d.id, current: false,
-      groupe: '2e année — Thème 7 (révision)',
+      ...d, flashKey: d.id, practiceMode: d.id, current: false, highlight: false,
+      groupe: '2e année — l’an dernier, pour réviser seulement',
     }));
     return [...listes, ...archive];
   })();
@@ -1000,7 +1012,16 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
           <div onClick={(e) => e.stopPropagation()}
             className="bg-cream rounded-2xl p-5 max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl border-2 border-s1">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-heading text-xl font-extrabold text-stone">🎧 Dictées</h3>
+              <h3 className="font-heading text-xl font-extrabold text-stone">
+                🎧 Dictées
+                {/* On dit de QUELLE année on parle. Sans ça, « Semaine 1 » de
+                    l'an dernier ressemble au travail de cette semaine. */}
+                {!isGrade3 && !isCayla && (
+                  <span className="ml-2 align-middle text-[10px] font-extrabold uppercase tracking-wide bg-s1 text-s5 rounded-full px-2 py-1">
+                    2e année · archive
+                  </span>
+                )}
+              </h3>
               <button onClick={() => setDicteesOpen(false)}
                 className="w-9 h-9 rounded-full bg-white border-2 border-s2 text-s4 font-bold hover:border-lava hover:text-lava">
                 ✕
