@@ -19,6 +19,7 @@ import DicteeFlashcard from './components/DicteeFlashcard';
 import Feuille from './components/Feuille';
 import FeuilleMatcha from './components/FeuilleMatcha';
 import { listeCetteSemaine, cleDictee } from './data/orthographeQuotidien';
+import { setListeDictee } from './generators/dicteeListe';
 import BiographieFlashcard from './components/BiographieFlashcard';
 import VerbesAvoirEtre from './components/VerbesAvoirEtre';
 import UniversSocial from './components/UniversSocial';
@@ -64,6 +65,8 @@ export default function App() {
   const [showNotifs, setShowNotifs] = useState(false);
   const [showStudyReminder, setShowStudyReminder] = useState(false);
   const [flashcardWeek, setFlashcardWeek] = useState(null);
+  // Par quelle porte on entre dans l'ecran de dictee: 'cartes' ou rien (ecrire).
+  const [departDictee, setDepartDictee] = useState(null);
   const [nylaDeck, setNylaDeck] = useState(null);
   const [showFamily, setShowFamily] = useState(false);
   const [activeBloc, setActiveBloc] = useState(null); // test de bloc en cours
@@ -142,6 +145,17 @@ export default function App() {
       setFlashcardWeek(null);
       setMode(null);
       setScreen('feuille');
+      return;
+    }
+    // « dictee_liste_choix:ortho_l3 » — le choix multiple sur UNE liste précise
+    // (celle de la semaine, ou une déjà vue qu'il révise).
+    if (typeof selectedMode === 'string' && selectedMode.startsWith('dictee_liste_choix')) {
+      const cle = selectedMode.includes(':') ? selectedMode.split(':')[1] : null;
+      setListeDictee(cle);
+      setNylaDeck(null);
+      setFlashcardWeek(null);
+      setMode('dictee_liste_choix');
+      setScreen('practice');
       return;
     }
     if (selectedMode === 'dictee_liste') {
@@ -359,6 +373,7 @@ export default function App() {
       {flashcardWeek && screen === 'menu' && (
         <DicteeFlashcard
           weekKey={flashcardWeek}
+          depart={departDictee}
           onHome={() => setFlashcardWeek(null)}
           onFinish={() => setFlashcardWeek(null)}
         />
@@ -430,7 +445,7 @@ export default function App() {
           onOpenDashboard={openDashboard}
           onOpenNotifications={() => setShowNotifs(true)}
           onOpenStudyReminder={() => setShowStudyReminder(true)}
-          onStartFlashcard={(weekKey) => {
+          onStartFlashcard={(weekKey, depart) => {
             // Menu uses dictee_sN; DicteeFlashcard looks up by theme7_sN
             const aliases = {
               dictee_s1: 'theme7_s1',
@@ -438,6 +453,7 @@ export default function App() {
               dictee_s3: 'theme7_s3',
               dictee_s4: 'theme7_s4',
             };
+            setDepartDictee(depart || null);
             setFlashcardWeek(aliases[weekKey] || weekKey);
           }}
           onOpenFamily={() => setShowFamily(true)}

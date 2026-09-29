@@ -69,6 +69,7 @@ import {
 } from '../generators/theme1';
 import { generateMatchaNombres } from '../generators/matcha1';
 import { generateQuatreClasses } from '../generators/quatreClasses';
+import { generateDicteeListe, setListeDictee } from '../generators/dicteeListe';
 import { saveSession } from '../utils/storage';
 import { modeTape, memeReponse, diagnosticTape } from '../utils/reponseTapee';
 import { incrementStudyRounds } from '../utils/studyRounds';
@@ -96,6 +97,8 @@ function biggestNumber(text) {
 function scratchPadUseful(q) {
   const cat = q.category || '';
   if (cat.startsWith('nyla')) return false;
+  // Une dictée ne se compte pas: des cadres de dix n'aident pas à écrire un mot.
+  if (cat.startsWith('dictee')) return false;
   if (q.aide) return true;
   if (cat.startsWith('matcha_')) return false;
   // Une question sans le moindre chiffre n'a rien à compter: « Mes boîtes de
@@ -167,6 +170,7 @@ function getGenerator(mode) {
     case 'biographie_jr': return generateBiographieJr;
     case 'classe_de_mots': return generateClasseDeMots;
     case 'quatre_classes': return generateQuatreClasses;
+    case 'dictee_liste_choix': return generateDicteeListe;
     case 'pluriels_cayla': return generatePlurielsCayla;
     case 'homophones': return generateHomophones;
     case 'present_indicatif': return generatePresentIndicatif;
@@ -689,6 +693,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           {question.category === 'on_ont' && 'ON / ONT'}
           {question.category === 'groupe_nom' && 'Groupe du nom'}
           {question.category === 'dictee_semaine' && `Dictée — ${question.weekName || 'Cette semaine'}`}
+          {question.category === 'dictee_liste' && `Dictée — ${question.weekName || 'Ma liste'}`}
           {question.category === 'passe_compose' && 'Passé composé'}
           {question.category === 'futur_simple' && 'Futur simple (1er groupe)'}
           {question.category === 'biographie_jr' && 'Biographie — Jean Rostand'}

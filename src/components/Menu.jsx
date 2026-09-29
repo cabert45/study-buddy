@@ -1060,8 +1060,20 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
                       </div>
                     </div>
                     <div className="flex gap-2">
+                      {/* Les mêmes deux boutons qu'en 2e année, pour chaque
+                          semaine: le choix multiple et l'écriture. En 3e, le
+                          choix multiple, c'est CHOISIR L'ÉCRITURE du mot parmi
+                          quatre (bord / bor / bort / bors) — pas des questions
+                          sur le mot. C'est le format qui l'avait débloqué. */}
                       {(d.practiceMode || !isGrade3) && (
                         <button onClick={() => { setDicteesOpen(false); onStartPractice(d.practiceMode || d.id); }}
+                          className="flex-1 py-2 rounded-lg font-bold text-white text-sm"
+                          style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
+                          ▶ Choix multiple
+                        </button>
+                      )}
+                      {isGrade3 && d.flashKey && d.id !== 'dictee_revision' && (
+                        <button onClick={() => { setDicteesOpen(false); onStartPractice(`dictee_liste_choix:${d.flashKey}`); }}
                           className="flex-1 py-2 rounded-lg font-bold text-white text-sm"
                           style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
                           ▶ Choix multiple
@@ -1071,6 +1083,15 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
                         <button onClick={() => { setDicteesOpen(false); onStartFlashcard(d.flashKey || d.id); }}
                           className="flex-1 py-2 rounded-lg font-bold text-fox-d text-sm bg-orange-50 border-2 border-orange-200 hover:border-fox">
                           🃏 Écris les mots
+                        </button>
+                      )}
+                      {/* Les cartes sont un exercice à part, comme en 2e année
+                          le choix multiple était un bouton à part. On ne force
+                          plus trois étapes à celui qui a cliqué « Écris ». */}
+                      {onStartFlashcard && isGrade3 && d.flashKey && d.id !== 'dictee_revision' && (
+                        <button onClick={() => { setDicteesOpen(false); onStartFlashcard(d.flashKey, 'cartes'); }}
+                          className="flex-1 py-2 rounded-lg font-bold text-s6 text-sm bg-white border-2 border-s2 hover:border-fox">
+                          🗂️ Les cartes
                         </button>
                       )}
                     </div>
