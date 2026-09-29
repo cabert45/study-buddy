@@ -18,6 +18,7 @@ const icons = {
   // Quatre traits de longueurs différentes: les quatre sortes de mots d'une
   // phrase, et celui qu'on cherche est mis en évidence. (Pas d'émoji: les
   // icônes sont à nous et suivent la couleur du module.)
+  prouve_nom: { bg: '#fdf0e6', color: '#b85d1a', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="4" width="13" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><line x1="5" y1="7.5" x2="10" y2="7.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><path d="M5 11l2 2 4-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg> },
   quatre_classes: { bg: '#e9f0fb', color: '#2b5ea8', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><line x1="3" y1="5" x2="11" y2="5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/><line x1="3" y1="13" x2="8" y2="13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><circle cx="15" cy="13" r="1.4" fill="currentColor"/></svg> },
   boukili: { bg: '#f3ecfb', color: '#6d28d9', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 4.5C7.6 3.4 5.9 3 4 3.2v9.4c1.9-.2 3.6.2 5 1.3 1.4-1.1 3.1-1.5 5-1.3V3.2c-1.9-.2-3.6.2-5 1.3Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/><line x1="9" y1="4.5" x2="9" y2="13.9" stroke="currentColor" strokeWidth="1.4"/></svg> },
   tuteur: { bg: '#e8eef8', color: '#3a5bc7', svg: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 4.5h12v7.5H9.5L6.5 15v-3H3V4.5Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/><line x1="6" y1="8" x2="12" y2="8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> },
@@ -140,6 +141,7 @@ const grade3FrenchModes = [
   { id: 'dictee_liste', label: '🎧 Dictée de la liste', desc: 'La liste, puis tu tapes chaque mot que tu entends', badge: 'Cette semaine' },
   { id: 'dictees_group', label: '🎴 Toutes mes dictées', desc: 'Les listes déjà vues + les dictées de 2e année', isGroup: true },
   { id: 'quatre_classes', label: 'Nom, adjectif ou verbe?', desc: 'Les reconnaître dans une phrase — avec le test qui décide', badge: 'À travailler' },
+  { id: 'prouve_nom', label: 'Trouve le nom — et prouve-le', desc: 'Comme dans i+: le déterminant, l’adjectif ou le remplacement', badge: 'Comme en classe' },
   { id: 'boukili', label: 'Boukili — ma lecture', desc: '20 minutes · 3 ou 4 livres, à voix haute', badge: 'Tous les jours' },
   // Le tuteur était au fond du menu, derrière « Plus »: « where the heck is
   // the tutor? » Un enfant bloqué ne fouille pas un sous-menu.

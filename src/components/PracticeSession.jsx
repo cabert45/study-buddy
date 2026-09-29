@@ -70,6 +70,7 @@ import {
 import { generateMatchaNombres } from '../generators/matcha1';
 import { generateQuatreClasses } from '../generators/quatreClasses';
 import { generateDicteeListe, setListeDictee } from '../generators/dicteeListe';
+import { generateProuveLeNom } from '../generators/prouveLeNom';
 import { saveSession } from '../utils/storage';
 import { modeTape, memeReponse, diagnosticTape } from '../utils/reponseTapee';
 import { incrementStudyRounds } from '../utils/studyRounds';
@@ -171,6 +172,7 @@ function getGenerator(mode) {
     case 'classe_de_mots': return generateClasseDeMots;
     case 'quatre_classes': return generateQuatreClasses;
     case 'dictee_liste_choix': return generateDicteeListe;
+    case 'prouve_nom': return generateProuveLeNom;
     case 'pluriels_cayla': return generatePlurielsCayla;
     case 'homophones': return generateHomophones;
     case 'present_indicatif': return generatePresentIndicatif;
@@ -694,6 +696,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           {question.category === 'groupe_nom' && 'Groupe du nom'}
           {question.category === 'dictee_semaine' && `Dictée — ${question.weekName || 'Cette semaine'}`}
           {question.category === 'dictee_liste' && `Dictée — ${question.weekName || 'Ma liste'}`}
+          {question.category === 'prouve_nom' && '📒 Trouve le nom — et prouve-le (comme dans i+)'}
           {question.category === 'passe_compose' && 'Passé composé'}
           {question.category === 'futur_simple' && 'Futur simple (1er groupe)'}
           {question.category === 'biographie_jr' && 'Biographie — Jean Rostand'}
