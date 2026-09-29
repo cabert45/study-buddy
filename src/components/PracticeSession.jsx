@@ -76,7 +76,7 @@ import { incrementStudyRounds } from '../utils/studyRounds';
 import { getLevel, recordSession, aideProblemes, NIVEAU_LABELS } from '../utils/mastery';
 import AideMemoire from './AideMemoire';
 import { notifySessionResult } from '../utils/notifications';
-import { speak, speakSlow } from '../utils/speech';
+import { speak, speakSlow, speakMotFrancais } from '../utils/speech';
 import TensOnes from './TensOnes';
 import CountingBoxes from './CountingBoxes';
 import InteractiveTenFrames from './InteractiveTenFrames';
@@ -320,8 +320,8 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
         // read each "❤️" as "cœur rouge, cœur rouge…").
         speak((question.text || '').split('\n')[0]);
       } else if (question.spokenWord) {
-        // For dictée, speak the word slowly and clearly
-        speakSlow(question.spokenWord);
+        // Une dictée: un mot seul n'a pas de langue (voir speakMotFrancais).
+        speakMotFrancais(question.spokenWord);
       } else {
         speak(question.text);
       }
@@ -814,7 +814,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
               } else if (isNyla) {
                 speak((question.text || '').split('\n')[0]);
               } else if (question.spokenWord) {
-                speakSlow(question.spokenWord);
+                speakMotFrancais(question.spokenWord);
               } else {
                 speak(question.text);
               }

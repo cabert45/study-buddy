@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { speak, speakSlow, speakAfter } from '../utils/speech';
+import { speak, speakSlow, speakAfter, speakMotFrancais } from '../utils/speech';
 import { saveSession, generateAISentence } from '../utils/storage';
 import { dicteeWeeks } from '../data/dicteeWeekly';
 import { dicteeDeLaListe } from '../data/orthographeQuotidien';
@@ -239,7 +239,7 @@ export default function DicteeFlashcard({ weekKey, depart, onHome, onFinish }) {
   // que la liste est affichée, il la REGARDE, il n'écrit pas encore.
   useEffect(() => {
     if (word && !memoireOuvert) {
-      speakAfter(400, () => speakSlow(word.correct));
+      speakAfter(400, () => speakMotFrancais(word.correct));
       setTimeout(() => inputRef.current?.focus(), 800);
     }
   }, [word, memoireOuvert]);
@@ -303,7 +303,7 @@ export default function DicteeFlashcard({ weekKey, depart, onHome, onFinish }) {
             </div>
           )}
           <button
-            onClick={() => speakSlow(mot?.correct || '')}
+            onClick={() => speakMotFrancais(mot?.correct)}
             className="mt-5 w-full py-3 rounded-xl font-bold text-s6 bg-white border-2 border-s2">
             🔊 Réécouter
           </button>
@@ -464,7 +464,7 @@ export default function DicteeFlashcard({ weekKey, depart, onHome, onFinish }) {
             qu'il touche le plus souvent pendant une dictée, avec des doigts de
             8 ans, sur un téléphone: il lui faut une vraie cible (44 px). */}
         <div className="flex flex-wrap gap-2 mb-4">
-          <button onClick={() => speakSlow(word.correct)}
+          <button onClick={() => speakMotFrancais(word.correct)}
             className="min-h-[44px] px-3 py-2 rounded-xl bg-orange-50 border-2 border-orange-200 text-sm text-fox-d font-bold hover:border-fox">
             🔊 Réécouter le mot
           </button>

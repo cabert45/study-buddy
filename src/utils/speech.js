@@ -522,6 +522,28 @@ function direAppareilEtAttendre(texte, rate) {
   });
 }
 
+// Un mot français SEUL n'a pas de langue.
+//
+// « Pour "but", elle le prononce en anglais, comme butt. En français, but,
+// c'est un objectif. » (29 sept. 2026) Le modèle reçoit un mot isolé, et
+// « but », « fond », « part », « point » s'écrivent pareil en anglais: il
+// choisit l'anglais. Ce n'est pas la voix qui est mauvaise, c'est la phrase
+// qui est trop courte pour dire de quelle langue il s'agit.
+//
+// Une amorce française règle le problème, et ça s'entend dans la mesure
+// (aller-retour voix → Scribe, même voix, 29 sept.):
+//
+//   « soie »               →  « 所以 »      « Le mot est : soie. »  →  « soie »
+//   « nid »                →  « Need »      « Le mot est : nid. »   →  « nid »
+//
+// L'amorce n'ajoute rien à ce que l'enfant doit écrire: on lui annonce le mot,
+// exactement comme une enseignante qui dicte.
+export function speakMotFrancais(mot) {
+  const m = String(mot || '').trim();
+  if (!m) return;
+  speakSlow(`Le mot est : ${m}.`);
+}
+
 // Speak slowly for dictée — clearer pronunciation
 export function speakSlow(text) {
   if (!speechEnabled || !window.speechSynthesis) return;
