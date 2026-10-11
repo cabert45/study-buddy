@@ -272,7 +272,13 @@ export const LISTE_SEMAINES = [
   { debut: [2026, 9, 21], liste: 'l2', remise: [2026, 9, 25] }, // confirmé
   { debut: [2026, 9, 28], liste: 'l3' },
   { debut: [2026, 10, 5], liste: 'l4' },
-  { debut: [2026, 10, 13], liste: 'l5' }, // mardi — lundi 12 = Action de grâce
+  // Feuille « Du 12 au 16 octobre 2026 »: Liste 5, à remettre le JEUDI 15 —
+  // pas le vendredi comme d'habitude. Le lundi 12 est férié (Action de grâce),
+  // la semaine d'école ne fait que quatre jours et tout remonte d'une journée.
+  // La semaine commence quand même le 12: c'est la semaine du 12, pas du 13 —
+  // sinon le dimanche et le lundi férié affichent encore la liste 4, et c'est
+  // justement la fin de semaine où il a le temps de l'étudier.
+  { debut: [2026, 10, 12], liste: 'l5', remise: [2026, 10, 15], confirme: true },
   { debut: [2026, 10, 19], liste: 'l6' },
   { debut: [2026, 10, 26], liste: 'l7' },
   { debut: [2026, 11, 2], liste: 'l8' },

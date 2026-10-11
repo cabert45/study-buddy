@@ -80,8 +80,16 @@ export const CAHIER_SEMAINES = [
   // Ne pas le supprimer du cahier pour autant — il reste au programme.
   { debut: [2026, 9, 28], module: 't1m4', confirme: true },
   { debut: [2026, 10, 5], module: 't1m3' },   // estimation: l'adjectif, en retard
-  { debut: [2026, 10, 13], module: 't1rev' }, // mardi — lundi 12 = Action de grâce
-  { debut: [2026, 10, 19], module: 't2m1' },
+  // Confirmé par la feuille du 12 au 16 oct.: « Grammaire: Le groupe du nom ·
+  // Aide-Mémoire Jazz p.6 ». La classe saute donc la révision du thème 1 et
+  // entre dans le thème 2 (« Les aventures d'un biscuit »). L'app annonçait
+  // t1rev — elle avait tort d'une case, comme la fois précédente.
+  // L'ADJECTIF n'a toujours jamais été annoncé dans une feuille. Il reste au
+  // programme et le module « Nom, adjectif ou verbe? » continue de le couvrir:
+  // c'est là qu'est son trou (1/4 au test de l'adjectif féminin), pas dans le
+  // calendrier de la classe.
+  { debut: [2026, 10, 12], module: 't2m1', confirme: true },
+  { debut: [2026, 10, 19], module: 't2m2' },
 ];
 
 const moduleIndex = {};

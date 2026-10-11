@@ -5,6 +5,7 @@ import { EXAMS, dicteeWeekForDate, dicteeActiveOn, daysBetween } from '../data/e
 import { moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data/cahierFrancais';
 import { listeCetteSemaine, semaineCourante } from '../data/orthographeQuotidien';
 import { strategiesCetteSemaine } from '../data/tablesStrategies';
+import { mathsCetteSemaine, labelMaths } from '../data/mathsSemaines';
 import { buildNylaPlan } from '../data/nylaPlanQuotidien';
 import { chargerAvancement, marquerEtape, estFini, estCommence, prochaineEtape } from '../utils/coachAvancement';
 
@@ -170,6 +171,10 @@ function buildRentreePlan(today) {
   const strats = strategiesCetteSemaine(ref);
   const remise = remiseDeLaSemaine(ref);
   const cahier = cahierStep(ref, isWeekend ? 6 : 7);
+  // Les maths suivent la feuille, elles aussi (data/mathsSemaines): la
+  // décomposition jusqu'au 9 octobre, l'heure à partir du 12.
+  const maths = mathsCetteSemaine(ref);
+  const mathsLabel = labelMaths(maths);
 
   // L'échauffement, c'est maintenant les stratégies de la semaine: c'est ce qui
   // s'effondre quand Ryan recompte au lieu de reconnaître (12/30 en mai).
@@ -242,7 +247,7 @@ function buildRentreePlan(today) {
       { ...deuxieme, mins: 12 },
       { type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: 8, icon: r.french.icon },
       { type: 'break', label: 'Pause + collation 🍎', mins: 10, icon: '🍎' },
-      { type: 'app', mode: 'matcha_nombres', label: '📘 Cahier Matcha — la décomposition et la valeur de position', mins: 18, icon: '📘' },
+      { type: 'app', mode: maths.mode, label: mathsLabel, mins: 18, icon: '📘' },
       { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 15, icon: '🧩' },
       { type: 'app', mode: 'calcul_rapide_3', label: '⚡ Calcul rapide 3 chiffres', mins: 10, icon: '⚡' },
       lecture(20),
@@ -256,7 +261,7 @@ function buildRentreePlan(today) {
     { type: 'app', mode: 'strategies', label: stratLabel, mins: 6, icon: '⚡' },
     orthoStep(8),
     { ...deuxieme, mins: 8 },
-    { type: 'app', mode: 'matcha_nombres', label: '📘 Cahier Matcha — la décomposition et la valeur de position', mins: 11, icon: '📘' },
+    { type: 'app', mode: maths.mode, label: mathsLabel, mins: 11, icon: '📘' },
     { type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: 6, icon: r.french.icon },
     { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 5, icon: '🧩' },
     lecture(20), // 20 min demandees par le parent — la feuille de l ecole en demande 15

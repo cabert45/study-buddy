@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Ma semaine — du 12 au 16 octobre 2026</title>
+<!--
+  PDF: chrome --headless=new --disable-gpu --no-pdf-header-footer \
+         --print-to-pdf=docs/semaine-12-oct-2026.pdf docs/semaine-12-oct-2026.html
+
+  Source: feuille de Mme Haidar « Du 12 au 16 octobre 2026 », photographiée le
+  11 oct. Tout ce qui est ici vient d'elle, sauf les trucs et les pièges, qui
+  viennent de ses propres feuilles corrigées (voir docs/passation-ryan.md).
+-->
+<style>
+  @page { size: Letter; margin: 10mm 11mm 8mm 11mm; }
+  * { box-sizing: border-box; }
+  html { font-size: 10.5pt; }
+  /* Tout est en points absolus dans cette feuille: réduire la taille de base ne
+     change presque rien. Le zoom, lui, réduit TOUT d'un coup — c'est ce qui
+     ramène la semaine sur UNE page, et tenir sur une page est tout l'intérêt
+     de ce document: il se pose à côté de lui, il ne se feuillette pas. */
+  body { zoom: 0.76; }
+  body {
+    margin: 0; color: #111; line-height: 1.32;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+
+  .head { border-bottom: 2.5pt solid #111; padding-bottom: 5pt; margin-bottom: 7pt; }
+  .head .kicker { font-size: 8pt; letter-spacing: .14em; text-transform: uppercase; color: #555; font-weight: 700; }
+  .head h1 { font-size: 17pt; margin: 2pt 0 1pt; line-height: 1.08; }
+  .head .sub { font-size: 9.5pt; color: #444; }
+
+  h2 {
+    font-size: 11pt; margin: 0 0 5pt; padding: 3.5pt 7pt;
+    background: #111; color: #fff;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  h2 .tag { font-size: 7.5pt; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
+  section { margin-bottom: 5.5pt; break-inside: avoid; }
+
+  /* le cadre pointillé du cahier */
+  .cadre { border: 2pt dashed #9a8a72; padding: 7pt 9pt; background: #fffdf8; }
+  .mots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4pt 8pt; }
+  .mots div { font-size: 11.5pt; font-weight: 700; letter-spacing: .01em; }
+  .mots .fam { display: block; font-size: 8pt; font-weight: 500; color: #6a5f4e; }
+  .mots b.g { color: #0b5f2a; }
+  .mots b.j { color: #8a2b86; }
+
+  .truc { border-left: 3pt solid #111; background: #f4f4f1; padding: 4pt 7pt; margin-top: 4pt; font-size: 8.9pt; }
+  .truc b { letter-spacing: .01em; }
+  .truc .gros { font-size: 11pt; display: block; margin-top: 2pt; }
+
+  .deux { display: flex; gap: 9pt; }
+  .deux > * { flex: 1; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
+  td, th { border: .7pt solid #bbb; padding: 3pt 5pt; text-align: left; }
+  th { background: #eee; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .06em; }
+  .verbe td { font-weight: 700; }
+
+  .piege { border: 1pt solid #111; padding: 4pt 7pt; font-size: 8.8pt; }
+  .piege h3 { margin: 0 0 3pt; font-size: 9pt; text-transform: uppercase; letter-spacing: .05em; }
+  .piege ol { margin: 0; padding-left: 15pt; }
+  .piege li { margin-bottom: 2pt; }
+  .piege .quoi { font-weight: 700; }
+
+  .jours { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5pt; margin-top: 4pt; }
+  .jour { border: .8pt solid #999; padding: 4pt 5pt; }
+  .jour.conge { background: #f2f2f2; border-style: dashed; }
+  .jour .nom { font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; border-bottom: .6pt solid #ccc; padding-bottom: 2pt; margin-bottom: 3pt; }
+  .case { display: flex; align-items: center; gap: 4pt; font-size: 8.5pt; margin-bottom: 2.5pt; }
+  .case span.b { width: 8pt; height: 8pt; border: .9pt solid #333; flex: none; }
+
+  /* l'horloge: dessinée ici aussi, pour qu'il ait le même cadran sur papier
+     et dans l'app (components/Horloge.jsx). */
+  .cadrans { display: flex; gap: 7pt; align-items: flex-start; }
+  .cadrans figure { margin: 0; text-align: center; font-size: 8pt; font-weight: 700; }
+
+  .pied { margin-top: 8pt; border-top: .8pt solid #999; padding-top: 5pt; font-size: 8.5pt; color: #555; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div class="kicker">Study Buddy · 3e année</div>
+  <h1>Ma semaine — du lundi 12 au vendredi 16 octobre</h1>
+  <div class="sub">Ryan · Liste 5 · Verbe <b>aimer</b> au présent · Stratégies I et J · Cahier Jazz : <b>le groupe du nom</b> · Maths : <b>la mesure du temps et l'heure</b></div>
+</div>
+
+<section>
+  <h2>Mes 16 mots — Liste 5 <span class="tag">Le « g » se dit [g] ou [j]</span></h2>
+  <div class="cadre">
+    <div class="mots">
+      <div>â<b class="j">ge</b><span class="fam">[j] · chapeau sur le â</span></div>
+      <div>ar<b class="j">ge</b>nt<span class="fam">[j] · monnaie</span></div>
+      <div>dan<b class="j">ge</b>r<span class="fam">[j] · un risque</span></div>
+      <div><b class="g">ga</b>gner<span class="fam">[g] · gagnant</span></div>
+      <div><b class="g">ga</b>rder<span class="fam">[g] · un gardien</span></div>
+      <div><b class="j">ge</b>nre<span class="fam">[j] · une sorte</span></div>
+      <div><b class="g">go</b>r<b class="j">ge</b><span class="fam"><b class="g">[g]</b> puis <b class="j">[j]</b> · les DEUX dans un seul mot</span></div>
+      <div><b class="g">go</b>utte<span class="fam">[g] · deux t</span></div>
+      <div><b class="g">gue</b>rre<span class="fam">[g] · le u protège le g · deux r</span></div>
+      <div>lan<b class="g">gue</b><span class="fam">[g] · le u protège le g</span></div>
+      <div>ma<b class="g">ga</b>sin<span class="fam">[g] · une boutique</span></div>
+      <div>ména<b class="j">ge</b><span class="fam">[j] · ménager</span></div>
+      <div>nua<b class="j">ge</b><span class="fam">[j] · nuageux</span></div>
+      <div>proté<b class="j">ge</b>r<span class="fam">[j] · garder</span></div>
+      <div>villa<b class="j">ge</b><span class="fam">[j] · villageois</span></div>
+      <div>voya<b class="j">ge</b><span class="fam">[j] · voyager</span></div>
+    </div>
+  </div>
+
+  <div class="truc">
+    <b>LE TRUC DE LA SEMAINE — ce n'est pas le g qui décide, c'est la lettre d'APRÈS.</b>
+    <span class="gros">
+      g + <b>a, o, u</b> → on entend <b class="g">[g]</b> : <i>gagner, gorge, goutte</i> ·
+      g + <b>e, i, y</b> → on entend <b class="j">[j]</b> : <i>genre, âge, village</i>
+    </span>
+    <span style="display:block;margin-top:3pt;font-size:9pt">
+      Et quand on veut le son <b>[g]</b> devant un <b>e</b>, on glisse un <b>u</b> entre les deux :
+      <i>g<b>u</b>erre</i>, <i>lang<b>u</b>e</i>. Le <b>u</b> ne s'entend pas — il est là pour protéger le <b>g</b>.
+      <b>gorge</b> est le mot à montrer à tout le monde : le même <i>g</i>, deux sons différents, dans un seul mot.
+    </span>
+  </div>
+</section>
+
+<div class="deux">
+  <section style="flex:1.05">
+    <h2>Mon verbe — aimer <span class="tag">au présent</span></h2>
+    <table class="verbe">
+      <tr><td>j'aime</td><td>nous aimons</td></tr>
+      <tr><td>tu aimes</td><td>vous aimez</td></tr>
+      <tr><td>il / elle aime</td><td>ils / elles aiment</td></tr>
+    </table>
+    <div class="truc" style="margin-top:6pt">
+      <b>aimer</b> est un verbe en <b>-er</b>, comme <i>gagner</i>, <i>garder</i> et <i>protéger</i> de ma liste.
+      <b>ils aiment</b> : le <b>-ent</b> ne s'entend pas, mais il s'écrit. Toujours.
+    </div>
+  </section>
+
+  <section style="flex:1">
+    <h2>Mes stratégies <span class="tag">Tables + / −</span></h2>
+    <table>
+      <tr><th>I — Est égal à 0</th><th>J — Est égal à 1</th></tr>
+      <tr>
+        <td>Un nombre <b>moins lui-même</b> fait toujours 0.<br>7 − 7 = 0</td>
+        <td>Moins le nombre <b>juste avant</b> fait toujours 1.<br>7 − 6 = 1</td>
+      </tr>
+    </table>
+    <div class="truc" style="margin-top:6pt">
+      Ces deux-là, il n'y a <b>rien à calculer</b> : on les reconnaît à l'œil.
+      Je regarde les deux nombres : pareils → 0 ; collés → 1.
+    </div>
+  </section>
+</div>
+
+<section>
+  <h2>Le groupe du nom <span class="tag">Aide-mémoire Jazz p. 6 · c'est le test qui décide</span></h2>
+  <table>
+    <tr><th>Nom seul</th><th>Dét. + nom</th><th>Dét. + nom + adjectif</th><th>Le test</th></tr>
+    <tr>
+      <td><i>Ryan</i>, <i>Laval</i><br>un nom propre se suffit</td>
+      <td><i>le village</i>, <i>une goutte</i></td>
+      <td><i>un vieux village</i>, <i>la langue rapide</i></td>
+      <td>Je le remplace par <b>il / elle / ils / elles</b>.<br>Si ça se dit, c'est un GN.</td>
+    </tr>
+  </table>
+  <div class="truc" style="margin-top:6pt">
+    <b>Le NOYAU, c'est le nom</b> — le seul mot que je ne peux pas enlever.
+    Dans <i>un vieux village</i> : j'enlève <i>vieux</i> → « un village » se dit encore.
+    J'enlève <i>village</i> → il ne reste rien. <b>L'adjectif est une expansion : il s'enlève. Le nom, non.</b>
+  </div>
+</section>
+
+<section>
+  <h2>La mesure du temps et l'heure <span class="tag">Aide-mémoire Matcha p. 12-13</span></h2>
+  <div class="deux">
+    <div style="flex:1.1">
+      <table>
+        <tr><th>La petite aiguille</th><th>La grande aiguille</th></tr>
+        <tr>
+          <td>Elle donne <b>les heures</b>.<br>Elle est entre deux chiffres → je garde <b>le plus petit</b>.</td>
+          <td>Elle donne <b>les minutes</b>.<br>Je compte <b>de 5 en 5</b> : le 1 vaut 5, le 4 vaut <b>20</b>, le 9 vaut 45.</td>
+        </tr>
+      </table>
+      <div class="truc" style="margin-top:4pt">
+        <b>60, pas 100.</b> 1 heure = <b>60</b> minutes · 1 demi-heure = 30 · 1 quart d'heure = 15.
+        Quand j'additionne des minutes et que je dépasse 60, <b>j'échange 60 minutes contre 1 heure</b> :
+        3 h 45 + 25 min = <b>4 h 10</b>, jamais « 3 h 70 ».
+      </div>
+    </div>
+    <div style="flex:.85">
+      <div class="cadrans">
+        <figure>
+          <svg width="92" height="92" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="52" fill="#fff" stroke="#111" stroke-width="2.5"/>
+            <text x="60" y="18" text-anchor="middle" font-size="11" font-weight="700">12</text>
+            <text x="102" y="64" text-anchor="middle" font-size="11" font-weight="700">3</text>
+            <text x="60" y="110" text-anchor="middle" font-size="11" font-weight="700">6</text>
+            <text x="18" y="64" text-anchor="middle" font-size="11" font-weight="700">9</text>
+            <line x1="60" y1="60" x2="60" y2="24" stroke="#1d4ed8" stroke-width="3" stroke-linecap="round"/>
+            <line x1="60" y1="60" x2="82" y2="72" stroke="#c2410c" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="60" cy="60" r="3.5" fill="#111"/>
+          </svg>
+          <figcaption>2 h pile</figcaption>
+        </figure>
+        <figure>
+          <svg width="92" height="92" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="52" fill="#fff" stroke="#111" stroke-width="2.5"/>
+            <text x="60" y="18" text-anchor="middle" font-size="11" font-weight="700">12</text>
+            <text x="102" y="64" text-anchor="middle" font-size="11" font-weight="700">3</text>
+            <text x="60" y="110" text-anchor="middle" font-size="11" font-weight="700">6</text>
+            <text x="18" y="64" text-anchor="middle" font-size="11" font-weight="700">9</text>
+            <line x1="60" y1="60" x2="60" y2="96" stroke="#1d4ed8" stroke-width="3" stroke-linecap="round"/>
+            <line x1="60" y1="60" x2="78" y2="42" stroke="#c2410c" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="60" cy="60" r="3.5" fill="#111"/>
+          </svg>
+          <figcaption>1 h 30</figcaption>
+        </figure>
+      </div>
+      <div style="font-size:8pt;color:#444;margin-top:3pt;text-align:center">
+        <b style="color:#c2410c">▬</b> courte = les heures &nbsp;·&nbsp;
+        <b style="color:#1d4ed8">—</b> longue = les minutes
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Les 3 pièges que je surveille <span class="tag">vus dans mes feuilles</span></h2>
+  <div class="piege">
+    <ol>
+      <li><span class="quoi">Je regarde la lettre d'APRÈS le g.</span>
+        Pas le g tout seul. <i>gagner</i> → a → <b>[g]</b>. <i>genre</i> → e → <b>[j]</b>.
+        Et si j'entends <b>[g]</b> devant un e, c'est qu'il y a un <b>u</b> caché : <i>guerre</i>, <i>langue</i>.</li>
+      <li><span class="quoi">Je ne lis pas les deux aiguilles à l'envers.</span>
+        La <b>courte</b> donne les heures, la <b>longue</b> les minutes. À 2 h 50, la courte est presque sur le 3 —
+        mais tant qu'elle ne l'a pas atteint, il est encore <b>2</b> heures.</li>
+      <li><span class="quoi">J'échange à 60, comme j'échange à 10.</span>
+        10 plaques = 1 gros cube (1 000) en numération · <b>60 minutes = 1 heure</b> sur l'horloge.
+        Une colonne ne dépasse jamais sa limite.</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2>Mon bloc de la semaine <span class="tag">1 heure par jour · 4 jours d'école</span></h2>
+  <div style="font-size:9pt;color:#444;margin-bottom:4pt;border-left:3px solid #c74a15;padding-left:6pt">
+    <b>De l'école cette semaine :</b>
+    <b>lundi 12 — CONGÉ</b> (Action de grâce) ·
+    <b>jeudi 15 — mini-test de sciences</b> et <b>remise des devoirs</b> (un jour plus tôt que d'habitude).
+    <br><b>À remettre jeudi :</b> feuille liste 5 (orthographe au quotidien) · feuille de mathématiques.
+    <br><b>À réviser :</b> <i>Éclair de génie</i>, pages 3 à 12 — « mini-test à venir ».
+  </div>
+  <div class="jours">
+    <div class="jour conge"><div class="nom">Lundi 12 — congé</div>
+      <div class="case"><span class="b"></span>Lecture 15 min</div>
+      <div class="case"><span class="b"></span>Liste 5 (les cartes)</div>
+      <div class="case"><span class="b"></span>L'heure</div>
+      <div class="case"><span class="b"></span>Éclair de génie p. 3-12</div></div>
+    <div class="jour"><div class="nom">Mardi 13</div>
+      <div class="case"><span class="b"></span>Lecture 15 min</div>
+      <div class="case"><span class="b"></span>Liste 5</div>
+      <div class="case"><span class="b"></span>Stratégies I / J</div>
+      <div class="case"><span class="b"></span>L'heure</div></div>
+    <div class="jour"><div class="nom">Mercredi 14</div>
+      <div class="case"><span class="b"></span>Lecture 15 min</div>
+      <div class="case"><span class="b"></span><b>Dictée</b> liste 5</div>
+      <div class="case"><span class="b"></span>Groupe du nom</div>
+      <div class="case"><span class="b"></span>L'heure</div></div>
+    <div class="jour"><div class="nom">Jeudi 15 — remise</div>
+      <div class="case"><span class="b"></span>Lecture 15 min</div>
+      <div class="case"><span class="b"></span><b>Feuilles à remettre</b></div>
+      <div class="case"><span class="b"></span><b>Test de sciences</b></div>
+      <div class="case"><span class="b"></span>Verbe aimer</div></div>
+    <div class="jour"><div class="nom">Vendredi 16</div>
+      <div class="case"><span class="b"></span>Lecture 15 min</div>
+      <div class="case"><span class="b"></span><b>Dictée</b> liste 5</div>
+      <div class="case"><span class="b"></span>Groupe du nom</div>
+      <div class="case"><span class="b"></span>L'heure</div></div>
+  </div>
+</section>
+
+<div class="pied">
+  <div>Dans l'app : <b>Français → Mes mots (liste 5)</b> · <b>Français → Groupe du nom</b> · <b>Mathématiques → L'heure et le temps</b></div>
+  <div>Signature : ______________</div>
+</div>
+
+</body>
+</html>
