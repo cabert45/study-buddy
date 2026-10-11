@@ -67,6 +67,12 @@ export const BLOCS = [
     debloque: 'Le sujet et l’accord du verbe conjugué (Aide-mémoire p.16-18).',
   },
   {
+    id: 'fr_verbe_semaine', matiere: 'francais', rangee: 1, mode: 'verbe_semaine',
+    nom: 'Mon verbe de la semaine',
+    aide: "Le tableau au complet d'abord, puis je l'écris — surtout au pluriel.",
+    debloque: "L'imparfait (listes 9 et 10, vers le 9 novembre).",
+  },
+  {
     id: 'fr_gn', matiere: 'francais', rangee: 1, mode: 'groupe_nom',
     nom: 'Le groupe du nom',
     aide: 'Dét + nom + adjectif: repérer le GN au complet.',
@@ -169,6 +175,12 @@ export const BLOCS = [
     nom: "L'heure et le temps",
     aide: 'La petite aiguille = les heures. La grande = les minutes, de 5 en 5.',
     debloque: "Les durées, et l'échange de 60 minutes contre 1 heure.",
+  },
+  {
+    id: 'ma_angles', matiere: 'maths', rangee: 3, mode: 'angles',
+    nom: 'Droites et angles',
+    aide: "Le coin d'une feuille, c'est l'angle droit. Tout se compare à lui.",
+    debloque: 'Les polygones (p.65) et les quadrilatères (p.67).',
   },
   {
     id: 'ma_mesure', matiere: 'maths', rangee: 3, mode: 'mesure',

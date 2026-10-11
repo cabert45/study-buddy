@@ -96,6 +96,11 @@ function placerAiguilles() {
   return {
     category: CATEGORY,
     type: 'placer_aiguilles',
+    // Le cadran est VIDE (la petite aiguille seule est deja placee): c'est
+    // l'exercice 6 du cahier, « dessine les aiguilles ». Sans dessin, la
+    // question demandait d'imaginer une horloge — Ryan l'a eue comme ca a
+    // l'ecran le 11 oct., et son pere a dit « Ryan needs a visual for this ».
+    horloge: { h, min: m, sansAiguilles: true, montrerHeure: true },
     text: `Il est ${ecrisHeure(h, m)}. Où pointe la GRANDE aiguille (celle des minutes)?`,
     correct: bonne,
     options: quatre(bonne, [
@@ -240,18 +245,25 @@ function uniteTemps() {
 
 // ===== 7. Les équivalences =====
 const equivalences = [
-  { q: '1 heure = ___ minutes', r: 60, pourquoi: 'Le tour complet de la grande aiguille: 12 chiffres × 5 minutes = 60.' },
+  { q: '1 heure = ___ minutes', r: 60, pourquoi: 'Le tour complet de la grande aiguille: 12 chiffres \u00d7 5 minutes = 60.' },
   { q: '1 minute = ___ secondes', r: 60, pourquoi: "Comme pour l'heure: 60." },
   { q: '2 heures = ___ minutes', r: 120, pourquoi: '60 + 60 = 120.' },
-  { q: '1 demi-heure = ___ minutes', r: 30, pourquoi: 'La moitié de 60.' },
-  { q: "1 quart d'heure = ___ minutes", r: 15, pourquoi: 'Le quart de 60: 60 ÷ 4 = 15.' },
+  { q: '1 demi-heure = ___ minutes', r: 30, pourquoi: 'La moiti\u00e9 de 60.' },
+  { q: "1 quart d'heure = ___ minutes", r: 15, pourquoi: 'Le quart de 60: 60 \u00f7 4 = 15.' },
   { q: '1 jour = ___ heures', r: 24, pourquoi: '12 heures de jour + 12 heures de nuit.' },
   { q: '1 semaine = ___ jours', r: 7, pourquoi: 'Du lundi au dimanche.' },
-  { q: '1 année = ___ mois', r: 12, pourquoi: 'De janvier à décembre.' },
-  { q: '1 année = ___ semaines', r: 52, pourquoi: '52 semaines dans une année.' },
-  { q: '120 minutes = ___ heures', r: 2, pourquoi: '120 ÷ 60 = 2.' },
+  { q: '1 ann\u00e9e = ___ mois', r: 12, pourquoi: 'De janvier \u00e0 d\u00e9cembre.' },
+  { q: '1 ann\u00e9e = ___ semaines', r: 52, pourquoi: '52 semaines dans une ann\u00e9e.' },
+  { q: '120 minutes = ___ heures', r: 2, pourquoi: '120 \u00f7 60 = 2.' },
   { q: '90 minutes = 1 heure et ___ minutes', r: 30, pourquoi: '90 = 60 + 30. Il reste 30 minutes.' },
   { q: '75 minutes = 1 heure et ___ minutes', r: 15, pourquoi: '75 = 60 + 15. Il reste 15 minutes.' },
+  // Les quatre \u00e9galit\u00e9s de la feuille AS.1.14, question 3, mot pour mot.
+  { q: '2 ans = ___ mois', r: 24, pourquoi: '1 an = 12 mois, donc 12 + 12 = 24.' },
+  { q: '4 semaines = ___ jours', r: 28, pourquoi: '1 semaine = 7 jours, donc 7 \u00d7 4 = 28.' },
+  { q: '3 minutes = ___ secondes', r: 180, pourquoi: '1 minute = 60 secondes, donc 60 \u00d7 3 = 180.' },
+  { q: '14 jours = ___ semaines', r: 2, pourquoi: '7 jours font 1 semaine: 14 = 7 + 7, donc 2 semaines.' },
+  { q: '21 jours = ___ semaines', r: 3, pourquoi: '7 + 7 + 7 = 21, donc 3 semaines.' },
+  { q: '3 ans = ___ mois', r: 36, pourquoi: '12 \u00d7 3 = 36.' },
 ];
 function conversion() {
   const it = pick(equivalences);
@@ -310,16 +322,155 @@ function calendrier() {
   };
 }
 
+// ===== 9. Compare deux dur\u00e9es (< > =) =====
+// Feuille AS.1.14, question 1: \u00ab 24 heures \u25cb 60 minutes \u00bb.
+// Reste \u00e0 CHOISIR, comme dans le cahier: classer n'est pas produire.
+const EN_SECONDES = {
+  seconde: 1, minute: 60, heure: 3600, jour: 86400,
+  semaine: 604800, mois: 2592000, an: 31536000,
+};
+const PLURIEL = {
+  seconde: 'secondes', minute: 'minutes', heure: 'heures', jour: 'jours',
+  semaine: 'semaines', mois: 'mois', an: 'ans',
+};
+const ecrisDuree = (n, u) => `${n} ${n > 1 ? PLURIEL[u] : u}`;
+
+function compareDuree() {
+  const paires = [
+    ['heure', 24, 'minute', 60], ['semaine', 1, 'jour', 7],
+    ['seconde', 60, 'semaine', 1], ['minute', 1, 'seconde', 60],
+    ['jour', 1, 'heure', 24], ['an', 1, 'mois', 12],
+    ['heure', 2, 'minute', 90], ['jour', 2, 'heure', 50],
+    ['minute', 3, 'seconde', 180], ['semaine', 2, 'jour', 14],
+    ['mois', 1, 'semaine', 5], ['heure', 1, 'minute', 45],
+  ];
+  const [uA, nA, uB, nB] = pick(paires);
+  const a = nA * EN_SECONDES[uA];
+  const b = nB * EN_SECONDES[uB];
+  const bonne = a > b ? '>' : a < b ? '<' : '=';
+  const gaucheEnB = Math.round(a / EN_SECONDES[uB]);
+  return {
+    category: CATEGORY,
+    type: 'compare_duree',
+    text: `${ecrisDuree(nA, uA)}  ___  ${ecrisDuree(nB, uB)}`,
+    correct: bonne,
+    options: ['<', '>', '='],
+    explanation: `${ecrisDuree(nA, uA)} ${bonne} ${ecrisDuree(nB, uB)}.\n\n`
+      + `Pour comparer, il faut la M\u00caME unit\u00e9 des deux c\u00f4t\u00e9s.\n`
+      + `${ecrisDuree(nA, uA)} = ${ecrisDuree(gaucheEnB, uB)}.\n`
+      + `${gaucheEnB} ${bonne} ${nB} \u2192 ${bonne}`,
+    hint: 'Transforme les deux dur\u00e9es dans la m\u00eame unit\u00e9 avant de comparer.',
+  };
+}
+
+// ===== 10. Quotidien, hebdomadaire ou annuel =====
+// Feuille AS.1.14, question 2 (le coloriage vert / jaune / bleu).
+const ACTIVITES = [
+  { quoi: "s'habiller", f: 'quotidienne' },
+  { quoi: 'faire son lit', f: 'quotidienne' },
+  { quoi: 'se brosser les dents', f: 'quotidienne' },
+  { quoi: 'faire une dict\u00e9e par semaine', f: 'hebdomadaire' },
+  { quoi: 'sortir le recyclage', f: 'hebdomadaire' },
+  { quoi: "aller \u00e0 la biblioth\u00e8que le mardi", f: 'hebdomadaire' },
+  { quoi: 'acheter des fournitures scolaires', f: 'annuelle' },
+  { quoi: 'bricoler un cadeau de No\u00ebl pour ses parents', f: 'annuelle' },
+  { quoi: 'f\u00eater son anniversaire', f: 'annuelle' },
+];
+function frequence() {
+  const a = pick(ACTIVITES);
+  return {
+    category: CATEGORY,
+    type: 'frequence',
+    text: `\u00ab ${a.quoi} \u00bb \u2014 c'est une activit\u00e9\u2026`,
+    correct: a.f,
+    options: ['quotidienne', 'hebdomadaire', 'annuelle'],
+    explanation: `${a.f}.\n\n`
+      + 'quotidienne = chaque JOUR \u00b7 hebdomadaire = chaque SEMAINE \u00b7 annuelle = chaque ANN\u00c9E.\n'
+      + `\u00ab ${a.quoi} \u00bb, \u00e7a revient ${a.f === 'quotidienne' ? 'tous les jours' : a.f === 'hebdomadaire' ? 'une fois par semaine' : 'une fois par ann\u00e9e'}.`,
+    hint: 'Combien de fois \u00e7a arrive: chaque jour, chaque semaine, ou une fois par ann\u00e9e?',
+  };
+}
+
+// ===== 11. La notation 24 heures =====
+// Les horloges du cahier portent un anneau int\u00e9rieur 13..24, et l'exercice 5
+// demande les DEUX \u00e9critures (\u00ab 1 h 45 ou 13 h 45 \u00bb).
+function heure24() {
+  const h = rand(1, 11);
+  const m = rand(0, 11) * 5;
+  const sens = pick(['vers24', 'vers12']);
+  if (sens === 'vers24') {
+    return {
+      category: CATEGORY,
+      type: 'heure_24',
+      horloge: { h, min: m, ring24: true },
+      text: `Il est ${ecrisHeure(h, m)} de l'APR\u00c8S-MIDI ou du SOIR. Comment l'\u00e9crit-on en notation 24 heures?`,
+      correct: cle(h + 12, m),
+      optionLabels: { [cle(h + 12, m)]: `${h + 12} h ${String(m).padStart(2, '0')}` },
+      tape: 'heure24',
+      maxHeure: 24,
+      explanation: `${h + 12} h ${String(m).padStart(2, '0')}.\n\n`
+        + `L'apr\u00e8s-midi, on continue de compter au lieu de repartir \u00e0 1: ${h} + 12 = ${h + 12}.\n`
+        + `C'est l'anneau gris \u00e0 l'int\u00e9rieur du cadran: en face du ${h}, il y a ${h + 12}.`,
+      hint: `Ajoute 12 \u00e0 l'heure: ${h} + 12 = ?`,
+    };
+  }
+  const h24 = h + 12;
+  return {
+    category: CATEGORY,
+    type: 'heure_24',
+    text: `Il est ${h24} h ${String(m).padStart(2, '0')}. Quelle heure montre la PETITE aiguille sur le cadran?`,
+    correct: cle(h, m),
+    optionLabels: { [cle(h, m)]: ecrisHeure(h, m) },
+    tape: 'heure24',
+    explanation: `${ecrisHeure(h, m)}.\n\n`
+      + `Une horloge \u00e0 aiguilles ne va que jusqu'\u00e0 12: on enl\u00e8ve 12.\n`
+      + `${h24} \u2212 12 = ${h}. Les minutes, elles, ne changent pas.`,
+    hint: `Enl\u00e8ve 12: ${h24} \u2212 12 = ?`,
+  };
+}
+
+// ===== 12. Une dur\u00e9e \u00e9crite \u00ab __ heures et __ minutes \u00bb =====
+// Feuille AS.1.14, question 7: la dur\u00e9e de l'observation de l'ours noir.
+function dureeHeuresMinutes() {
+  const h = rand(1, 9);
+  const m1 = rand(0, 11) * 5;
+  const ajoutH = rand(1, 3);
+  const ajoutM = pick([0, 10, 15, 20, 25, 30, 40, 45]);
+  const total = ajoutH * 60 + ajoutM;
+  const fin = h * 60 + m1 + total;
+  const fh = Math.floor(fin / 60), fm = fin % 60;
+  const th = Math.floor(total / 60), tm = total % 60;
+  return {
+    category: CATEGORY,
+    type: 'duree_h_min',
+    text: `L'activit\u00e9 commence \u00e0 ${ecrisHeure(h, m1)} et finit \u00e0 ${ecrisHeure(h12(fh), fm)}. `
+      + `Combien de temps dure-t-elle? \u00c9cris les HEURES, puis les MINUTES.`,
+    correct: cle(th, tm),
+    optionLabels: { [cle(th, tm)]: `${th} heures et ${tm} minutes` },
+    tape: 'heure',
+    tapeLabel: '\u00c9cris la dur\u00e9e',
+    explanation: `${th} heures et ${tm} minutes.\n\n`
+      + `De ${ecrisHeure(h, m1)} \u00e0 ${ecrisHeure(h12(h + th), m1)}: ${th} heures enti\u00e8res.\n`
+      + `Puis jusqu'\u00e0 ${ecrisHeure(h12(fh), fm)}: ${tm} minutes.\n`
+      + `On compte d'abord les heures enti\u00e8res, ensuite les minutes qui restent.`,
+    hint: "Compte les heures enti\u00e8res d'abord, puis les minutes en trop.",
+  };
+}
+
 function buildOne() {
   return pickAdaptive(CATEGORY, [
-    { type: 'lire_heure', w: 26, build: lireHeure },
-    { type: 'placer_aiguilles', w: 10, build: placerAiguilles },
-    { type: 'demie_quart', w: 12, build: demieQuart },
-    { type: 'duree', w: 14, build: duree },
-    { type: 'plus_tard', w: 14, build: plusTard },
-    { type: 'unite_temps', w: 8, build: uniteTemps },
-    { type: 'conversion', w: 10, build: conversion },
-    { type: 'calendrier', w: 6, build: calendrier },
+    { type: 'lire_heure', w: 22, build: lireHeure },
+    { type: 'placer_aiguilles', w: 12, build: placerAiguilles },
+    { type: 'demie_quart', w: 8, build: demieQuart },
+    { type: 'duree', w: 10, build: duree },
+    { type: 'duree_h_min', w: 10, build: dureeHeuresMinutes },
+    { type: 'plus_tard', w: 10, build: plusTard },
+    { type: 'heure_24', w: 10, build: heure24 },
+    { type: 'compare_duree', w: 12, build: compareDuree },
+    { type: 'conversion', w: 12, build: conversion },
+    { type: 'frequence', w: 8, build: frequence },
+    { type: 'unite_temps', w: 5, build: uniteTemps },
+    { type: 'calendrier', w: 5, build: calendrier },
   ], (q) => `${q.type}|${q.text}|${q.horloge ? q.horloge.h + ':' + q.horloge.min : ''}`);
 }
 

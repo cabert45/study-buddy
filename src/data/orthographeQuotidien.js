@@ -250,17 +250,27 @@ const L10 = [
 
 const VERBES_INF = "être, avoir, aimer, aller et finir à l'infinitif";
 
+// `verbeMode` dit OÙ se pratique le verbe de la semaine. Il n'était lu nulle
+// part jusqu'au 11 oct. 2026: le verbe ne s'affichait qu'en texte dans « La
+// liste » (« le verbe aimer au pluriel, where are the verbs? »).
+//
+// Deux listes pointaient vers le mauvais générateur: `finir` est du 2e groupe
+// et `aller` est irrégulier, mais toutes deux visaient `present_indicatif`,
+// qui ne sait faire que « enlève -er, ajoute -e ». Elles auraient enseigné
+// « nous finons » et « nous allons » tiré au hasard parmi des verbes en -er.
+// Chaque verbe a maintenant sa vraie table dans generators/verbeSemaine.js,
+// et `verbeCle` dit laquelle.
 export const LISTES = [
   { id: 'l1', numero: 1, titre: 'Mots sans grandes difficultés', kind: 'general', mots: L1, verbe: VERBES_INF, verbeMode: 'infinitif' },
   { id: 'l2', numero: 2, titre: 'Mots se terminant par une lettre muette', kind: 'muette', mots: L2, verbe: VERBES_INF, verbeMode: 'infinitif' },
-  { id: 'l3', numero: 3, titre: 'Mots se terminant par une lettre muette (bloc 2)', kind: 'muette', mots: L3, verbe: 'avoir au présent', verbeMode: 'verbes_avoir_etre' },
-  { id: 'l4', numero: 4, titre: 'Le « c » se prononce [s] ou [k]', kind: 'son_c', mots: L4, verbe: 'être au présent', verbeMode: 'verbes_avoir_etre' },
-  { id: 'l5', numero: 5, titre: 'Le « g » se prononce [g] ou [j]', kind: 'son_g', mots: L5, verbe: 'aimer au présent', verbeMode: 'present_indicatif' },
-  { id: 'l6', numero: 6, titre: 'Le « s » se prononce [s] ou [z]', kind: 'son_s', mots: L6, verbe: 'finir au présent', verbeMode: 'present_indicatif' },
-  { id: 'l7', numero: 7, titre: 'Les mots contenant le son [o]', kind: 'general', mots: L7, verbe: 'aller au présent', verbeMode: 'present_indicatif' },
-  { id: 'l8', numero: 8, titre: 'Les mots contenant le son [an]', kind: 'general', mots: L8, verbe: 'révision des verbes au présent', verbeMode: 'present_indicatif' },
-  { id: 'l9', numero: 9, titre: 'Les mots contenant les sons [in] ou [oin]', kind: 'general', mots: L9, verbe: "avoir à l'imparfait", verbeMode: null },
-  { id: 'l10', numero: 10, titre: 'Devant b et p, le n devient m', kind: 'mbp', mots: L10, verbe: "être à l'imparfait", verbeMode: null },
+  { id: 'l3', numero: 3, titre: 'Mots se terminant par une lettre muette (bloc 2)', kind: 'muette', mots: L3, verbe: 'avoir au présent', verbeMode: 'verbe_semaine', verbeCle: 'avoir_present' },
+  { id: 'l4', numero: 4, titre: 'Le « c » se prononce [s] ou [k]', kind: 'son_c', mots: L4, verbe: 'être au présent', verbeMode: 'verbe_semaine', verbeCle: 'etre_present' },
+  { id: 'l5', numero: 5, titre: 'Le « g » se prononce [g] ou [j]', kind: 'son_g', mots: L5, verbe: 'aimer au présent', verbeMode: 'verbe_semaine', verbeCle: 'aimer_present' },
+  { id: 'l6', numero: 6, titre: 'Le « s » se prononce [s] ou [z]', kind: 'son_s', mots: L6, verbe: 'finir au présent', verbeMode: 'verbe_semaine', verbeCle: 'finir_present' },
+  { id: 'l7', numero: 7, titre: 'Les mots contenant le son [o]', kind: 'general', mots: L7, verbe: 'aller au présent', verbeMode: 'verbe_semaine', verbeCle: 'aller_present' },
+  { id: 'l8', numero: 8, titre: 'Les mots contenant le son [an]', kind: 'general', mots: L8, verbe: 'révision des verbes au présent', verbeMode: 'verbe_semaine', verbeCle: 'aller_present' },
+  { id: 'l9', numero: 9, titre: 'Les mots contenant les sons [in] ou [oin]', kind: 'general', mots: L9, verbe: "avoir à l'imparfait", verbeMode: 'verbe_semaine', verbeCle: 'avoir_imparfait' },
+  { id: 'l10', numero: 10, titre: 'Devant b et p, le n devient m', kind: 'mbp', mots: L10, verbe: "être à l'imparfait", verbeMode: 'verbe_semaine', verbeCle: 'etre_imparfait' },
 ];
 
 // Semaine de classe (lundi) → liste à l'étude.

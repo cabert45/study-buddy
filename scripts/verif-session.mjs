@@ -91,7 +91,7 @@ const etat = () => ev(`(() => {
   // qu'il montre dans son aria-label: on peut donc jouer la bonne réponse et
   // vérifier du même coup que le dessin et l'étiquette disent la même chose.
   const horloge = document.querySelector('svg[aria-label^="Horloge"]');
-  const paveHeure = /ÉCRIS L'HEURE/i.test(document.body.innerText);
+  const paveHeure = !!document.querySelector('[data-pave="heure"]');
   const cadran = horloge ? horloge.getAttribute('aria-label') : '';
   const grille = [...document.querySelectorAll('div.grid')].find((g) => g.children.length >= 2
     && [...g.children].every((c) => c.tagName === 'BUTTON')
@@ -122,8 +122,17 @@ for (let i = 1; i <= nb && !fini; i++) {
     // Sans cadran (« Il est 3 h 15. Dans 40 minutes… »), on calcule a partir
     // de l'enonce: c'est la seule facon de voir l'ecran qui felicite.
     const calc = !m && e.question.match(/Il est (\d+) h ?(\d*)\..*Dans (\d+) minutes/);
+    // « commence a 7 h 40 et finit a 9 h 50 » -> la duree, en h et min
+    const dur = !m && !calc && e.question.match(/commence à (\d+) h ?(\d*) et finit à (\d+) h ?(\d*)/);
     let bonne = ['3', '45'];
     if (m) bonne = [m[1], m[2].padStart(2, '0')];
+    else if (dur) {
+      const d1 = Number(dur[1]) * 60 + Number(dur[2] || 0);
+      let d2 = Number(dur[3]) * 60 + Number(dur[4] || 0);
+      if (d2 < d1) d2 += 12 * 60;
+      const t2 = d2 - d1;
+      bonne = [String(Math.floor(t2 / 60)), String(t2 % 60).padStart(2, '0')];
+    }
     else if (calc) {
       const t = Number(calc[1]) * 60 + Number(calc[2] || 0) + Number(calc[3]);
       bonne = [String(((Math.floor(t / 60) - 1) % 12) + 1), String(t % 60).padStart(2, '0')];

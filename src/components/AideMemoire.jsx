@@ -2,6 +2,7 @@ import React from 'react';
 import { listeCetteSemaine, LISTES } from '../data/orthographeQuotidien';
 import { strategiesCetteSemaine, ecrireFait } from '../data/tablesStrategies';
 import { CLASSES, TESTS } from '../generators/quatreClasses';
+import { tableauVerbe, verbeCourant } from '../generators/verbeSemaine';
 
 // L'aide-mémoire de la semaine — la page du cahier, à l'écran.
 //
@@ -168,25 +169,73 @@ function TableauClasses() {
   );
 }
 
+// ===== Le verbe de la semaine: sa table de conjugaison =====
+// Meme regle que la liste de mots: on ne fait pas ecrire « ils aiment » a un
+// enfant a qui on n'a pas montre « ils aiment ». Le pluriel est mis en avant,
+// c'est la qu'il perd ses points (« le verbe aimer au pluriel », 11 oct.).
+function TableauVerbe() {
+  const v = verbeCourant();
+  const lignes = tableauVerbe(v);
+  return (
+    <>
+      <div className="flex items-baseline gap-2 mb-1 flex-wrap">
+        <span className="text-xs font-extrabold bg-stone text-white rounded-md px-2 py-1">
+          MON VERBE
+        </span>
+        <span className="font-heading text-lg font-extrabold text-stone leading-tight">
+          {v.verbe} au {v.temps}
+        </span>
+      </div>
+      <p className="text-xs font-bold text-s4 mb-3">{v.groupe}</p>
+
+      <CadreCahier>
+        {/* Deux colonnes comme dans le tableau de conjugaison du cahier:
+            le SINGULIER a gauche, le PLURIEL a droite. En remplissant ligne
+            par ligne, « nous aimons » se retrouvait a cote de « il aime » et
+            l'orange du pluriel partait dans tous les sens. */}
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2" style={{ gridAutoFlow: 'column', gridTemplateRows: 'repeat(3, auto)' }}>
+          {lignes.map((l, i) => (
+            <div key={l.personne} className="leading-tight">
+              <div className={`text-base font-extrabold ${i >= 3 ? 'text-lava' : 'text-stone'}`}>
+                {l.forme}
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs font-bold text-s4 mt-3 pt-2" style={{ borderTop: '1px dashed #c9b79a' }}>
+          En orange, les trois personnes du <b>pluriel</b> — celles qui ne s&apos;entendent presque pas.
+        </p>
+      </CadreCahier>
+
+      <div className="mt-3 rounded-xl bg-orange-50 border-2 border-orange-200 p-3">
+        <p className="text-sm font-extrabold text-fox-d">{v.regle}</p>
+        <p className="text-sm font-semibold text-stone mt-1">{v.note}</p>
+      </div>
+    </>
+  );
+}
+
 export default function AideMemoire({ mode, onStart, onClose, dejaCommence, listeNumero }) {
   const estOrtho = mode === 'orthographe';
   const estClasses = mode === 'quatre_classes';
+  const estVerbe = typeof mode === 'string' && mode.startsWith('verbe_semaine');
   // Par defaut la liste de la semaine. `listeNumero` sert quand on revient sur
   // une liste deja vue (revision) : la page du cahier doit montrer CES mots-la,
   // pas ceux de cette semaine.
   const liste = estOrtho
     ? (listeNumero ? LISTES.find((l) => l.numero === listeNumero) : null) || listeCetteSemaine()
     : null;
-  const strats = estOrtho || estClasses ? null : strategiesCetteSemaine();
+  const strats = estOrtho || estClasses || estVerbe ? null : strategiesCetteSemaine();
   if (estOrtho && !liste) return null;
-  if (!estOrtho && !estClasses && !strats?.length) return null;
+  if (!estOrtho && !estClasses && !estVerbe && !strats?.length) return null;
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-4 pb-10">
       <div className="bg-cream border-2 border-s1 rounded-3xl p-4 sm:p-6 shadow-sm">
         {estOrtho && <ListeOrthographe liste={liste} />}
         {estClasses && <TableauClasses />}
-        {!estOrtho && !estClasses && <TableauStrategies strats={strats} />}
+        {estVerbe && <TableauVerbe />}
+        {!estOrtho && !estClasses && !estVerbe && <TableauStrategies strats={strats} />}
 
         <div className="mt-5 flex flex-col sm:flex-row gap-2.5">
           <button
@@ -208,7 +257,7 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
 
         {!dejaCommence && (
           <p className="text-center text-xs font-semibold text-s4 mt-3">
-            Prends 30 secondes pour <b>regarder</b>{estClasses ? ' les 4 sortes de mots' : ' les mots'}. Tu pourras revenir
+            Prends 30 secondes pour <b>regarder</b>{estClasses ? ' les 4 sortes de mots' : estVerbe ? ' le verbe au complet' : ' les mots'}. Tu pourras revenir
             {estClasses ? ' les voir' : ' les voir'} avec le bouton « 📋 {estClasses ? 'Les 4 sortes' : 'La liste'} ».
           </p>
         )}

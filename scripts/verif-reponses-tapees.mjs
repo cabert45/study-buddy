@@ -65,6 +65,20 @@ verifie('bonnes minutes, mauvaise heure',
   /bonnes minutes/.test(diagnosticTape('7:15', '3:15', 'heure') || ''), true);
 verifie('bonne réponse: pas de diagnostic', diagnosticTape('3:45', '3:45', 'heure'), null);
 
+// La notation 24 heures ne se replie PAS: « 16 h » n'est pas « 4 h ».
+// Sans ce mode, la question « 4 h de l'après-midi en notation 24 heures? »
+// acceptait « 4 h » et ne pouvait plus être ratée.
+verifie('mode heure24 reconnu', modeTape({ category: 'heure', type: 'heure_24', tape: 'heure24', correct: '16:00' }), 'heure24');
+verifie('16 h accepté', memeReponse('16:00', '16:00', 'heure24'), true);
+verifie('4 h REFUSÉ pour 16 h', memeReponse('4:00', '16:00', 'heure24'), false);
+verifie('13 h 55 refusé pour 1 h 55', memeReponse('13:55', '1:55', 'heure24'), false);
+verifie('« 16h05 » sans deux-points', memeReponse('16h05', '16:05', 'heure24'), true);
+verifie('le +12 oublié est expliqué',
+  /12/.test(diagnosticTape('4:20', '16:20', 'heure24') || ''), true);
+verifie('le −12 oublié est expliqué',
+  /12/.test(diagnosticTape('13:20', '1:20', 'heure24') || ''), true);
+verifie('heure24 bonne réponse: pas de diagnostic', diagnosticTape('16:20', '16:20', 'heure24'), null);
+
 console.log('\n— Ce qu’on accepte (mots) —');
 verifie('majuscule', memeReponse("J'ai mangé", "j'ai mangé", 'mot'), true);
 verifie('apostrophe courbe', memeReponse('j’ai mangé', "j'ai mangé", 'mot'), true);

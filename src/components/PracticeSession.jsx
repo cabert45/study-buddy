@@ -34,6 +34,9 @@ import { generateRepresenter } from '../generators/representer';
 import { generateFigures } from '../generators/figures';
 import { generateMesure } from '../generators/mesure';
 import { generateHeure } from '../generators/heure';
+import { generateAngles } from '../generators/angles';
+import { generateVerbeSemaine, setVerbeSemaine } from '../generators/verbeSemaine';
+import { listeCetteSemaine } from '../data/orthographeQuotidien';
 import { generatePlurielsRyan } from '../generators/plurielsRyan';
 import { generateHistoire } from '../generators/histoire';
 import { generateComprehension } from '../generators/comprehension';
@@ -85,6 +88,7 @@ import InteractiveTenFrames from './InteractiveTenFrames';
 import { BarChart, Pictogram, DataTable } from './Diagramme';
 import { BlocsBase10, TableauNumeration, Abaque } from './Numeration';
 import { Horloge } from './Horloge';
+import { Angle, DeuxDroites, Triangle } from './Angles';
 import { getVideosForCategory } from '../data/videoLinks';
 
 const TOTAL_QUESTIONS = 15;
@@ -105,6 +109,7 @@ function scratchPadUseful(q) {
   // Le temps ne se compte pas en cadres de dix: il se compte de 5 en 5 et il
   // s'échange à 60. Quatre cadres de dix enseigneraient le contraire.
   if (cat === 'heure') return false;
+  if (cat === 'angles') return false;
   if (q.aide) return true;
   if (cat.startsWith('matcha_')) return false;
   // Une question sans le moindre chiffre n'a rien à compter: « Mes boîtes de
@@ -140,6 +145,12 @@ function AideNombre({ aide, onClose }) {
 function getGenerator(mode) {
   // « Mes sons »: le menu envoie nyla_son:son_ou. Comme la dictee de la
   // semaine de Ryan, on fixe le son courant avant de rendre le generateur.
+  // « verbe_semaine:aimer_present »: on fixe le verbe de la semaine avant de
+  // rendre le generateur, comme la dictee de la semaine plus bas.
+  if (typeof mode === 'string' && mode.startsWith('verbe_semaine:')) {
+    setVerbeSemaine(mode.slice('verbe_semaine:'.length));
+    return generateVerbeSemaine;
+  }
   if (typeof mode === 'string' && mode.startsWith('nyla_son:')) {
     setCurrentSon(mode.slice('nyla_son:'.length));
     return generateNyla1reSons;
@@ -188,6 +199,14 @@ function getGenerator(mode) {
     case 'figures': return generateFigures;
     case 'mesure': return generateMesure;
     case 'heure': return generateHeure;
+    case 'angles': return generateAngles;
+    // Sans cle explicite (le menu, « Mes blocs »), c'est le verbe de la
+    // semaine en cours — pas celui qui trainait dans le module.
+    case 'verbe_semaine': {
+      const l = listeCetteSemaine();
+      if (l && l.verbeCle) setVerbeSemaine(l.verbeCle);
+      return generateVerbeSemaine;
+    }
     case 'pluriels_ryan': return generatePlurielsRyan;
     case 'histoire': return generateHistoire;
     case 'comprehension': return generateComprehension;
@@ -307,7 +326,8 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
   const [showVideos, setShowVideos] = useState(false);
   // L'aide-mémoire (la liste de mots / le tableau de faits) s'ouvre AVANT les
   // questions: on ne mémorise pas ce qu'on ne nous a pas montré.
-  const aMemoire = mode === 'orthographe' || mode === 'strategies' || mode === 'quatre_classes';
+  const aMemoire = mode === 'orthographe' || mode === 'strategies' || mode === 'quatre_classes'
+    || (typeof mode === 'string' && mode.startsWith('verbe_semaine'));
   const [memoireOuvert, setMemoireOuvert] = useState(aMemoire);
   const [memoireVu, setMemoireVu] = useState(false);
 
@@ -484,11 +504,19 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
     }
     if (heureH === '') {
       setHeureH(String(d));
-      if (d >= 2) setCaseHeure('m');
+      // Un 1 peut encore devenir 10, 11, 12; en notation 24 heures, un 2 peut
+      // encore devenir 20..24. Au-dela, l'heure est complete: on passe aux
+      // minutes tout seul.
+      const seuil = ((question && question.maxHeure) || 12) >= 20 ? 3 : 2;
+      if (d >= seuil) setCaseHeure('m');
       return;
     }
+    // Jusqu'ou va la case des heures. C'est la QUESTION qui le dit, pas le mode
+    // de correction: « il est 13 h 35, que montre la petite aiguille? » attend
+    // 1 h 35, et si la case allait jusqu'a 24, taper 1 puis 3 donnerait 13 h.
+    const maxHeure = (question && question.maxHeure) || 12;
     const combine = Number(heureH + String(d));
-    if (heureH.length === 1 && combine >= 1 && combine <= 12) {
+    if (heureH.length === 1 && combine >= 1 && combine <= maxHeure) {
       setHeureH(String(combine));
       setCaseHeure('m');
       return;
@@ -695,7 +723,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           {aMemoire && (
             <button onClick={() => setMemoireOuvert(true)}
               className="text-xs font-bold text-lava bg-orange-50 border border-orange-200 rounded-lg px-2.5 py-1 hover:bg-orange-100">
-              📋 {mode === 'orthographe' ? 'La liste' : mode === 'quatre_classes' ? 'Les 4 sortes' : 'Le tableau'}
+              📋 {mode === 'orthographe' ? 'La liste' : mode === 'quatre_classes' ? 'Les 4 sortes' : String(mode).startsWith('verbe_semaine') ? 'Mon verbe' : 'Le tableau'}
             </button>
           )}
           <div className="text-sm font-bold text-s4">
@@ -760,6 +788,8 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           {question.category === 'figures' && 'Figures planes & solides'}
           {question.category === 'mesure' && 'Mesure en centimètres'}
           {question.category === 'heure' && "La mesure du temps et l'heure"}
+          {question.category === 'angles' && 'Droites et angles'}
+          {question.category === 'verbe_semaine' && `Mon verbe — ${question.memoireVerbe ? question.memoireVerbe.verbe + ' au ' + question.memoireVerbe.temps : 'la semaine'}`}
           {question.category === 'pluriels_ryan' && 'Pluriel & Féminin'}
           {question.category === 'histoire' && "Parties d'une histoire"}
           {question.category === 'comprehension' && '📖 Compréhension de lecture'}
@@ -942,6 +972,15 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
         {question.tableau && <TableauNumeration {...question.tableau} />}
         {question.abaque && <Abaque {...question.abaque} />}
         {question.horloge && <Horloge {...question.horloge} />}
+        {/* Droites et angles, dessines en code (components/Angles): un angle
+            « droit » trace a 85 degres rendrait la bonne reponse fausse. */}
+        {question.figure && (
+          <div className="flex justify-center mb-4">
+            {question.figure.kind === 'angle' && <Angle {...question.figure} />}
+            {question.figure.kind === 'droites' && <DeuxDroites {...question.figure} />}
+            {question.figure.kind === 'triangle' && <Triangle {...question.figure} />}
+          </div>
+        )}
 
         {/* Statistique visuals — bar chart, pictogram, data table */}
         {question.category === 'statistique' && question.chartData && (question.type === 'bar_chart' || question.type === 'weekly_chart') && (
@@ -1242,10 +1281,10 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
         {/* L'heure, en deux cases: « ___ h ___ », exactement la case vide du
             cahier Matcha. Il LIT le cadran et l'écrit — reconnaître la bonne
             horloge parmi quatre serait une autre compétence (utils/reponseTapee). */}
-        {tape === 'heure' && !showResult && (
-          <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200 mt-4 mb-4">
+        {(tape === 'heure' || tape === 'heure24') && !showResult && (
+          <div data-pave="heure" className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200 mt-4 mb-4">
             <div className="text-[10px] font-extrabold uppercase tracking-wide text-fox-d mb-1.5 text-center">
-              Écris l'heure
+              {question.tapeLabel || "Écris l'heure"}
             </div>
             <div className="flex items-center justify-center gap-3 my-2" style={{ fontVariantNumeric: 'tabular-nums' }}>
               <button onClick={() => setCaseHeure('h')}
@@ -1264,8 +1303,8 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
                 dessin qui n'existe pas. */}
             <p className="text-center text-xs font-bold text-s4 mb-2">
               {caseHeure === 'h'
-                ? (question.horloge ? "D'abord les heures (la petite aiguille)" : "D'abord les heures")
-                : (question.horloge ? 'Puis les minutes (la grande aiguille)' : 'Puis les minutes')}
+                ? (question.horloge && !question.tapeLabel ? "D'abord les heures (la petite aiguille)" : "D'abord les heures")
+                : (question.horloge && !question.tapeLabel ? 'Puis les minutes (la grande aiguille)' : 'Puis les minutes')}
             </p>
             <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto mt-3">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (

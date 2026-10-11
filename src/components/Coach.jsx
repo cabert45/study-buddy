@@ -176,6 +176,16 @@ function buildRentreePlan(today) {
   const maths = mathsCetteSemaine(ref);
   const mathsLabel = labelMaths(maths);
 
+  // Le VERBE de la semaine — la 4e ligne de la feuille, et la seule qui
+  // n'avait aucun exercice derriere elle jusqu'au 11 oct. 2026. Le creneau
+  // de conjugaison ne tombait sur le present que le vendredi, par hasard,
+  // avec un verbe tire au sort parmi 24. Maintenant c'est le verbe annonce.
+  const verbeStep = liste.verbeMode === 'verbe_semaine' && liste.verbeCle
+    ? { type: 'app', mode: `verbe_semaine:${liste.verbeCle}`, icon: '✏️',
+      label: `✏️ Mon verbe — ${liste.verbe}` }
+    : { type: 'app', mode: liste.verbeMode || 'infinitif', icon: '✏️',
+      label: `✏️ Mon verbe — ${liste.verbe}` };
+
   // L'échauffement, c'est maintenant les stratégies de la semaine: c'est ce qui
   // s'effondre quand Ryan recompte au lieu de reconnaître (12/30 en mai).
   const stratLabel = strats.length
@@ -245,7 +255,7 @@ function buildRentreePlan(today) {
       { type: 'app', mode: 'orthographe', label: `🐱 Orthographe — Liste ${liste.numero}: ${liste.titre}`, mins: 8, icon: '🐱' },
       { type: 'app', mode: 'dictee_liste', label: `🎧 Dictée — Liste ${liste.numero}`, mins: 7, icon: '🎧' },
       { ...deuxieme, mins: 12 },
-      { type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: 8, icon: r.french.icon },
+      { ...verbeStep, mins: 8 },
       { type: 'break', label: 'Pause + collation 🍎', mins: 10, icon: '🍎' },
       { type: 'app', mode: maths.mode, label: mathsLabel, mins: 18, icon: '📘' },
       { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 15, icon: '🧩' },
@@ -262,7 +272,7 @@ function buildRentreePlan(today) {
     orthoStep(8),
     { ...deuxieme, mins: 8 },
     { type: 'app', mode: maths.mode, label: mathsLabel, mins: 11, icon: '📘' },
-    { type: 'app', mode: r.french.mode, label: `${r.french.icon} ${r.french.label}`, mins: 6, icon: r.french.icon },
+    { ...verbeStep, mins: 6 },
     { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 5, icon: '🧩' },
     lecture(20), // 20 min demandees par le parent — la feuille de l ecole en demande 15
     fin,

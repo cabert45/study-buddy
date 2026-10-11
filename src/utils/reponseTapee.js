@@ -69,7 +69,8 @@ function listeContient(table, categorie, type) {
 // Renvoie 'nombre', 'mot' ou null (= garder les choix).
 export function modeTape(question) {
   if (!question) return null;
-  if (question.tape === 'nombre' || question.tape === 'mot' || question.tape === 'heure') return question.tape;
+  if (question.tape === 'nombre' || question.tape === 'mot'
+      || question.tape === 'heure' || question.tape === 'heure24') return question.tape;
   if (question.tape === false) return null;
   if (question.useDigitPad) return 'nombre';
   const cat = question.category;
@@ -135,7 +136,25 @@ export function versHeure(saisie) {
   return { h, min };
 }
 
+// Comme versHeure, mais SANS replier l'apres-midi sur le matin: 16 h reste
+// 16 h. Sans ca, « comment ecrit-on 4 h de l'apres-midi en notation 24
+// heures? » acceptait « 4 h » — la question ne pouvait plus etre ratee.
+// Vu en jouant une session le 11 oct.
+export function versHeure24(saisie) {
+  const t = String(saisie ?? '').trim().toLowerCase().replace(/[\s\u00a0\u202f]/g, '');
+  const m = t.match(/^(\d{1,2})[h:.](\d{0,2})$/) || t.match(/^(\d{1,2})()$/);
+  if (!m) return null;
+  const h = parseInt(m[1], 10);
+  const min = m[2] === '' ? 0 : parseInt(m[2], 10);
+  if (!Number.isFinite(h) || !Number.isFinite(min) || min > 59 || h > 24) return null;
+  return { h, min };
+}
+
 export function memeReponse(saisie, correct, mode) {
+  if (mode === 'heure24') {
+    const a = versHeure24(saisie), b = versHeure24(correct);
+    return !!a && !!b && a.h === b.h && a.min === b.min;
+  }
   if (mode === 'heure') {
     const a = versHeure(saisie), b = versHeure(correct);
     return !!a && !!b && a.h === b.h && a.min === b.min;
@@ -174,6 +193,23 @@ const memesChiffres = (a, b) =>
 export function diagnosticTape(saisie, correct, mode, contexte = {}) {
   // L'horloge a ses propres « presque »: trois erreurs, et une seule est une
   // vraie incompréhension. Les nommer vaut mieux que « c'est faux ».
+  if (mode === 'heure24') {
+    const a = versHeure24(saisie), b = versHeure24(correct);
+    const brut24 = String(saisie ?? '').replace(/[\s\u00a0\u202f]/g, '').match(/^(\d{1,2})[h:.](\d{1,3})$/);
+    if (brut24 && parseInt(brut24[2], 10) > 59) {
+      return `Une heure n'a que 60 minutes. Passé 60, on échange 60 minutes contre 1 heure.`;
+    }
+    if (!a || !b) return null;
+    if (a.h === b.h && a.min === b.min) return null;
+    // L'erreur de la notation 24 heures: oublier d'ajouter (ou d'enlever) 12.
+    if (a.min === b.min && (a.h + 12 === b.h || a.h - 12 === b.h)) {
+      return b.h > 12
+        ? `Les minutes sont bonnes! Mais l'après-midi on CONTINUE de compter: ${a.h} + 12 = ${b.h}.`
+        : `Les minutes sont bonnes! Une horloge à aiguilles ne va que jusqu'à 12: ${a.h} − 12 = ${b.h}.`;
+    }
+    if (a.h === b.h) return 'La bonne heure, mais pas les bonnes minutes.';
+    return null;
+  }
   if (mode === 'heure') {
     // 3. Pas d'échange à 60: 3 h 45 + 25 min écrit « 3 h 70 ». C'est son
     //    réflexe des blocs (dix plaques ≠ mille) transposé au temps. Ce test

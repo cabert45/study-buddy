@@ -70,6 +70,7 @@ const ryanMathModes = [
   { id: 'representer', label: '📏 Représenter un nombre', desc: 'Dizaines, unités, décomposition', badge: 'Examen' },
   { id: 'figures', label: '⬜ Figures & solides', desc: 'Carré, cube, cône, cylindre...', badge: 'Examen' },
   { id: 'heure', label: "🕐 L'heure et le temps", desc: "Lire l'horloge, les durées, le calendrier", badge: 'Cette semaine' },
+  { id: 'angles', label: '📐 Droites et angles', desc: 'Aigu, droit, obtus · parallèles et perpendiculaires', badge: 'Cahier' },
   { id: 'mesure', label: '📐 Mesure en cm', desc: 'Estimer, comparer, lire la règle', badge: 'Examen' },
   { id: 'calcul', label: 'Calcul', desc: 'Addition et soustraction', badge: 'Priorité' },
   { id: 'terme', label: 'Terme manquant', desc: 'Trouve le nombre mystère', badge: 'Priorité' },
@@ -103,6 +104,7 @@ const ryanFrenchModes = [
   { id: 'verbes', label: 'Verbes', desc: 'être, avoir, aller, faire...' },
   { id: 'adjectif', label: 'Adjectifs', desc: 'Accord et familles de mots' },
   { id: 'on_ont', label: 'ON / ONT', desc: 'Pronom ou verbe avoir?' },
+  { id: 'verbe_semaine', label: 'Mon verbe de la semaine', desc: 'Celui de la feuille — surtout au pluriel' },
   { id: 'groupe_nom', label: 'Groupe du nom', desc: 'GN: nom seul, dét+nom, dét+nom+adj' },
 ];
 
@@ -124,6 +126,7 @@ const grade3MathModes = [
   { id: 'representer', label: '📏 Représenter un nombre', desc: 'Centaines, dizaines, unités, décomposition' },
   { id: 'suites', label: '🔢 Suites & régularités', desc: 'Trouve la règle et le prochain nombre' },
   { id: 'heure', label: "🕐 L'heure et le temps", desc: "Lire l'horloge, les durées, le calendrier", badge: 'Cette semaine' },
+  { id: 'angles', label: '📐 Droites et angles', desc: 'Aigu, droit, obtus · parallèles et perpendiculaires', badge: 'Cahier' },
   { id: 'mesure', label: '📐 Mesure en cm', desc: 'Estimer, comparer, lire la règle' },
   { id: 'figures', label: '⬜ Figures & solides', desc: 'Carré, cube, cône, cylindre...' },
   { id: 'statistique', label: '📊 Diagrammes', desc: 'Légendes, tableaux, totaux' },
@@ -156,6 +159,7 @@ const grade3FrenchModes = [
   { id: 'homophones', label: '🔀 Homophones', desc: 'a/à · et/est · son/sont · ont/on' },
   { id: 'pluriels_ryan', label: '🔤 Pluriel & Féminin', desc: 'chevaux, gâteaux, heureuse, première...' },
   { id: 'adjectif', label: '🎨 Adjectifs', desc: 'Accord en genre et en nombre' },
+  { id: 'verbe_semaine', label: '✏️ Mon verbe de la semaine', desc: "Celui de la feuille — surtout au pluriel", badge: 'Cette semaine' },
   { id: 'groupe_nom', label: '🧱 Groupe du nom', desc: 'GN: dét + nom + adjectif' },
   { id: 'apostrophe', label: "' Apostrophe", desc: "l'ami, j'ai, c'est..." },
   { id: 'm_devant_bmp', label: 'm devant b/m/p', desc: 'tomber, immense, campagne' },

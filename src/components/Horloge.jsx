@@ -32,7 +32,14 @@ function pointAt(fraction, rayon) {
   return [CX + Math.cos(a) * rayon, CY + Math.sin(a) * rayon];
 }
 
-export function Horloge({ h = 12, min = 0, aide = false, taille = 220 }) {
+// `ring24` = l'anneau interieur 13..24 des cadrans du cahier Matcha. Il ne
+// decore pas: l'exercice 5 de AS.1.14 demande DEUX reponses par horloge
+// (« 1 h 45 ou 13 h 45 »), et c'est cet anneau qui les donne.
+// `sansAiguilles` = le cadran vide de l'exercice 6, « dessine les aiguilles ».
+// Sans lui, « ou pointe la grande aiguille? » s'affichait sans aucun dessin —
+// la question que Ryan a eue a l'ecran le 11 oct.
+export function Horloge({ h = 12, min = 0, aide = false, taille = 220,
+  ring24 = false, sansAiguilles = false, montrerHeure = false }) {
   const heure12 = ((h % 12) + 12) % 12;
   // La petite aiguille avance pendant l'heure: à 3 h 30 elle est entre 3 et 4.
   const fracHeure = (heure12 + min / 60) / 12;
@@ -66,6 +73,14 @@ export function Horloge({ h = 12, min = 0, aide = false, taille = 220 }) {
           fontSize="13" fontWeight="700" fill={MINUTE}>{(i * 5) % 60}</text>
       );
     }
+    // L'anneau 13..24, a l'interieur, comme sur les horloges du cahier.
+    if (ring24) {
+      const [ix, iy] = pointAt(i / 12, R - 48);
+      chiffres.push(
+        <text key={`i${i}`} x={ix} y={iy} textAnchor="middle" dominantBaseline="central"
+          fontSize="12" fontWeight="700" fill="#6b7280">{i + 12}</text>
+      );
+    }
   }
 
   const [hx, hy] = pointAt(fracHeure, R * 0.52);
@@ -80,14 +95,21 @@ export function Horloge({ h = 12, min = 0, aide = false, taille = 220 }) {
         {ticks}
         {chiffres}
         {/* grande aiguille (minutes) — longue et fine */}
-        <line x1={CX} y1={CY} x2={mx2} y2={my2} stroke={MINUTE} strokeWidth="5" strokeLinecap="round" />
-        {/* petite aiguille (heures) — courte et épaisse, dessinée par-dessus */}
-        <line x1={CX} y1={CY} x2={hx} y2={hy} stroke={HEURE} strokeWidth="9" strokeLinecap="round" />
+        {!sansAiguilles && (
+          <line x1={CX} y1={CY} x2={mx2} y2={my2} stroke={MINUTE} strokeWidth="5" strokeLinecap="round" />
+        )}
+        {/* petite aiguille (heures) — courte et épaisse, dessinée par-dessus.
+            `montrerHeure` la garde seule sur un cadran sinon vide: l'enfant
+            doit placer la grande, pas deviner l'heure. */}
+        {(!sansAiguilles || montrerHeure) && (
+          <line x1={CX} y1={CY} x2={hx} y2={hy} stroke={HEURE} strokeWidth="9" strokeLinecap="round" />
+        )}
         <circle cx={CX} cy={CY} r="6" fill={OUTLINE} />
       </svg>
       <div className="flex justify-center gap-4 mt-1 text-xs font-bold">
-        <span style={{ color: HEURE }}>▬ petite = les heures</span>
-        <span style={{ color: MINUTE }}>— grande = les minutes</span>
+        {(!sansAiguilles || montrerHeure) && <span style={{ color: HEURE }}>▬ petite = les heures</span>}
+        {!sansAiguilles && <span style={{ color: MINUTE }}>— grande = les minutes</span>}
+        {sansAiguilles && !montrerHeure && <span className="text-s4">cadran vide — à toi de placer les aiguilles</span>}
       </div>
     </div>
   );
