@@ -165,6 +165,12 @@ export const BLOCS = [
     debloque: 'Comparer une fraction à 0, ½ ou 1 (p.93).',
   },
   {
+    id: 'ma_heure', matiere: 'maths', rangee: 3, mode: 'heure',
+    nom: "L'heure et le temps",
+    aide: 'La petite aiguille = les heures. La grande = les minutes, de 5 en 5.',
+    debloque: "Les durées, et l'échange de 60 minutes contre 1 heure.",
+  },
+  {
     id: 'ma_mesure', matiere: 'maths', rangee: 3, mode: 'mesure',
     nom: 'Mesurer en cm',
     aide: 'Bien partir du 0 de la règle.',

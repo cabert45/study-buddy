@@ -61,6 +61,20 @@ const clic = (t) => ev(`(() => {
   el.click(); return 'clic: ' + ${JSON.stringify(t)};
 })()`);
 
+// Un chiffre du PAVE, pas la case de reponse. Depuis que l'heure s'ecrit dans
+// deux cases cliquables, « le bouton dont le texte est 5 » peut etre la case
+// des heures qui affiche deja 5 — le clic changeait de case au lieu de taper,
+// et le dernier chiffre se perdait en silence.
+const clicChiffre = (d) => ev(`(() => {
+  const grilles = [...document.querySelectorAll('div.grid')].filter((g) =>
+    [...g.children].some((b) => (b.textContent || '').trim() === '⌫'));
+  for (const g of grilles) {
+    const el = [...g.querySelectorAll('button')].find((e) => (e.textContent || '').trim() === ${JSON.stringify('')} + ${JSON.stringify(String(d))});
+    if (el) { el.click(); return 'ok'; }
+  }
+  return 'INTROUVABLE';
+})()`);
+
 const clicExact = (t) => ev(`(() => {
   const el = [...document.querySelectorAll('button')].find((e) => (e.textContent || '').trim() === ${JSON.stringify(t)});
   if (!el) return 'INTROUVABLE'; el.click(); return 'ok';
@@ -73,11 +87,17 @@ const etat = () => ev(`(() => {
   const question = (carte ? (carte.querySelector('p.text-xl, .text-lg.font-heading') || {}).innerText : '') || '';
   const champ = !!document.querySelector('input[type=text]');
   const pave = [...document.querySelectorAll('button')].some((b) => b.textContent.trim() === 'OK');
+  // L'heure se répond en DEUX cases (« ___ h ___ »). Le cadran dit l'heure
+  // qu'il montre dans son aria-label: on peut donc jouer la bonne réponse et
+  // vérifier du même coup que le dessin et l'étiquette disent la même chose.
+  const horloge = document.querySelector('svg[aria-label^="Horloge"]');
+  const paveHeure = /ÉCRIS L'HEURE/i.test(document.body.innerText);
+  const cadran = horloge ? horloge.getAttribute('aria-label') : '';
   const grille = [...document.querySelectorAll('div.grid')].find((g) => g.children.length >= 2
     && [...g.children].every((c) => c.tagName === 'BUTTON')
     && !g.querySelector('button').textContent.match(/^[0-9⌫]$/));
   const choix = grille ? [...grille.children].map((b) => b.textContent.trim()) : [];
-  return JSON.stringify({ question: question.trim(), champ, pave, choix, texte: txt.slice(0, 700) });
+  return JSON.stringify({ question: question.trim(), champ, pave, paveHeure, cadran, choix, texte: txt.slice(0, 700) });
 })()`);
 
 console.log(await clic('Ryan'));
@@ -90,12 +110,31 @@ await wait(1500);
 let fini = false;
 for (let i = 1; i <= nb && !fini; i++) {
   const e = JSON.parse(await etat());
-  const commentRepondre = e.champ ? 'champ texte' : e.pave ? 'pavé de chiffres' : e.choix.length ? `${e.choix.length} choix` : 'RIEN';
+  const commentRepondre = e.paveHeure ? "pave de l'heure" : e.champ ? 'champ texte' : e.pave ? 'pavé de chiffres' : e.choix.length ? `${e.choix.length} choix` : 'RIEN';
   console.log(`\nQ${i} [${commentRepondre}] ${e.question.replace(/\n/g, ' / ').slice(0, 90)}`);
   if (commentRepondre === 'RIEN') { console.log('  ⚠ ÉCRAN SANS ISSUE\n' + e.texte); break; }
   if (e.champ && e.choix.length) console.log('  ⚠ champ ET choix en même temps');
 
-  if (e.pave) {
+  if (e.paveHeure) {
+    // Le cadran annonce ce qu'il dessine; on repond juste une fois sur deux
+    // pour voir aussi l'ecran qui corrige.
+    const m = (e.cadran || '').match(/(\d+) heures (\d+) minutes/);
+    // Sans cadran (« Il est 3 h 15. Dans 40 minutes… »), on calcule a partir
+    // de l'enonce: c'est la seule facon de voir l'ecran qui felicite.
+    const calc = !m && e.question.match(/Il est (\d+) h ?(\d*)\..*Dans (\d+) minutes/);
+    let bonne = ['3', '45'];
+    if (m) bonne = [m[1], m[2].padStart(2, '0')];
+    else if (calc) {
+      const t = Number(calc[1]) * 60 + Number(calc[2] || 0) + Number(calc[3]);
+      bonne = [String(((Math.floor(t / 60) - 1) % 12) + 1), String(t % 60).padStart(2, '0')];
+    }
+    const aTaper = i % 2 === 1 ? bonne : [String((Number(bonne[0]) % 12) + 1), '70'];
+    console.log(`  cadran: ${e.cadran} -> je tape ${aTaper[0]} h ${aTaper[1]}`);
+    for (const d of (aTaper[0] + aTaper[1]).split('')) { await clicChiffre(d); await wait(90); }
+    const cases = await ev(`[...document.querySelectorAll('.border-fox')].map((e) => e.textContent.trim()).filter(Boolean).join(' h ')`);
+    console.log(`  les cases montrent: ${cases}`);
+    await clicExact('OK');
+  } else if (e.pave) {
     // « ? + 45 = 72 », « 45 + 9 = ? »: on calcule la bonne réponse quand on peut
     const m = e.question.replace(/\s/g, '').match(/^(\?|\d+)([+−–-])(\?|\d+)=(\?|\d+)$/);
     let rep = null;

@@ -69,7 +69,7 @@ function listeContient(table, categorie, type) {
 // Renvoie 'nombre', 'mot' ou null (= garder les choix).
 export function modeTape(question) {
   if (!question) return null;
-  if (question.tape === 'nombre' || question.tape === 'mot') return question.tape;
+  if (question.tape === 'nombre' || question.tape === 'mot' || question.tape === 'heure') return question.tape;
   if (question.tape === false) return null;
   if (question.useDigitPad) return 'nombre';
   const cat = question.category;
@@ -120,7 +120,26 @@ function sansPronom(s) {
   return n;
 }
 
+// « 3 h 45 », « 3h45 », « 3:45 », « 03:05 » → « 3:45 ». Deux cases à remplir,
+// comme dans le cahier Matcha (« ___ h ___ »), et 12 h plutôt que 0 h.
+export function versHeure(saisie) {
+  const s = String(saisie ?? '').trim().toLowerCase().replace(/[\s  ]/g, '');
+  const m = s.match(/^(\d{1,2})[h:.](\d{0,2})$/) || s.match(/^(\d{1,2})()$/);
+  if (!m) return null;
+  let h = parseInt(m[1], 10);
+  const min = m[2] === '' ? 0 : parseInt(m[2], 10);
+  if (!Number.isFinite(h) || !Number.isFinite(min) || min > 59) return null;
+  if (h === 0) h = 12;
+  if (h > 24) return null;
+  if (h > 12) h -= 12;  // 15 h 20 et 3 h 20, c'est la même aiguille
+  return { h, min };
+}
+
 export function memeReponse(saisie, correct, mode) {
+  if (mode === 'heure') {
+    const a = versHeure(saisie), b = versHeure(correct);
+    return !!a && !!b && a.h === b.h && a.min === b.min;
+  }
   if (mode === 'nombre') return versNombre(saisie) === Number(correct);
   if (mode === 'mot') {
     if (!String(saisie || '').trim()) return false;
@@ -153,6 +172,38 @@ const memesChiffres = (a, b) =>
 // Quand on reconnaît l'un des trois, l'écran dit « presque », pas rouge: il
 // pleure quand il se trompe, et un mur de rouge le fait fermer l'app.
 export function diagnosticTape(saisie, correct, mode, contexte = {}) {
+  // L'horloge a ses propres « presque »: trois erreurs, et une seule est une
+  // vraie incompréhension. Les nommer vaut mieux que « c'est faux ».
+  if (mode === 'heure') {
+    // 3. Pas d'échange à 60: 3 h 45 + 25 min écrit « 3 h 70 ». C'est son
+    //    réflexe des blocs (dix plaques ≠ mille) transposé au temps. Ce test
+    //    passe AVANT la lecture de l'heure: « 3 h 70 » n'est pas une heure du
+    //    tout, donc versHeure la refuse — et c'est justement celle-là qu'il
+    //    faut expliquer plutôt que de l'afficher en rouge.
+    const brut = String(saisie ?? '').replace(/[\s  ]/g, '').match(/^(\d{1,2})[h:.](\d{1,3})$/);
+    if (brut && parseInt(brut[2], 10) > 59) {
+      return `Une horloge ne va pas jusqu'à ${parseInt(brut[2], 10)} minutes. Passé 60, on échange 60 minutes contre 1 heure.`;
+    }
+    const a = versHeure(saisie), b = versHeure(correct);
+    if (!a || !b) return null;
+    if (a.h === b.h && a.min === b.min) return null;
+    // 1. Les aiguilles lues à l'envers: 2 h 50 devient 10 h 10.
+    //    Les minutes lues donnent l'heure, et l'heure lue donne les minutes.
+    if (a.min === (b.h % 12) * 5 && Math.floor(b.min / 5) === (a.h % 12)) {
+      return 'Tu as lu les deux aiguilles à l\'envers. La PETITE (la courte) donne les heures, la GRANDE (la longue) donne les minutes.';
+    }
+    // 2. La petite aiguille est presque rendue à l'heure suivante: à 3 h 50
+    //    elle frôle le 4. On garde toujours le chiffre DÉJÀ passé.
+    if (a.min === b.min && a.h === (b.h % 12) + 1 && b.min >= 30) {
+      return `Les minutes sont bonnes! Mais la petite aiguille n'a pas fini son tour: tant qu'elle n'a pas atteint le ${a.h}, il est encore ${b.h} heures.`;
+    }
+    if (a.h === b.h && a.min !== b.min && Math.abs(a.min - b.min) <= 5) {
+      return 'L\'heure est bonne! Pour les minutes, repars du 12 et compte de 5 en 5 jusqu\'à la grande aiguille.';
+    }
+    if (a.h === b.h) return 'La bonne heure, mais pas les bonnes minutes.';
+    if (a.min === b.min) return 'Les bonnes minutes! C\'est l\'heure qui n\'est pas la bonne — regarde la petite aiguille.';
+    return null;
+  }
   if (mode === 'nombre') {
     const v = versNombre(saisie);
     const c = Number(correct);

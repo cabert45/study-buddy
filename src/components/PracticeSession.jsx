@@ -33,6 +33,7 @@ import { generateMultDiv } from '../generators/multDiv';
 import { generateRepresenter } from '../generators/representer';
 import { generateFigures } from '../generators/figures';
 import { generateMesure } from '../generators/mesure';
+import { generateHeure } from '../generators/heure';
 import { generatePlurielsRyan } from '../generators/plurielsRyan';
 import { generateHistoire } from '../generators/histoire';
 import { generateComprehension } from '../generators/comprehension';
@@ -83,6 +84,7 @@ import CountingBoxes from './CountingBoxes';
 import InteractiveTenFrames from './InteractiveTenFrames';
 import { BarChart, Pictogram, DataTable } from './Diagramme';
 import { BlocsBase10, TableauNumeration, Abaque } from './Numeration';
+import { Horloge } from './Horloge';
 import { getVideosForCategory } from '../data/videoLinks';
 
 const TOTAL_QUESTIONS = 15;
@@ -100,6 +102,9 @@ function scratchPadUseful(q) {
   if (cat.startsWith('nyla')) return false;
   // Une dictée ne se compte pas: des cadres de dix n'aident pas à écrire un mot.
   if (cat.startsWith('dictee')) return false;
+  // Le temps ne se compte pas en cadres de dix: il se compte de 5 en 5 et il
+  // s'échange à 60. Quatre cadres de dix enseigneraient le contraire.
+  if (cat === 'heure') return false;
   if (q.aide) return true;
   if (cat.startsWith('matcha_')) return false;
   // Une question sans le moindre chiffre n'a rien à compter: « Mes boîtes de
@@ -182,6 +187,7 @@ function getGenerator(mode) {
     case 'representer': return generateRepresenter;
     case 'figures': return generateFigures;
     case 'mesure': return generateMesure;
+    case 'heure': return generateHeure;
     case 'pluriels_ryan': return generatePlurielsRyan;
     case 'histoire': return generateHistoire;
     case 'comprehension': return generateComprehension;
@@ -281,6 +287,11 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
   // Réponse écrite en lettres (conjugaison). Les nombres passent par le pavé de
   // chiffres, donc par stepInput.
   const [saisie, setSaisie] = useState('');
+  // L'heure se tape en DEUX cases — « ___ h ___ », comme dans le cahier Matcha.
+  // Une seule case obligerait à taper « h », et on mesurerait le clavier.
+  const [heureH, setHeureH] = useState('');
+  const [heureM, setHeureM] = useState('');
+  const [caseHeure, setCaseHeure] = useState('h');
   // Per-step "pick the operands + operator" phase — forces Ryan to decide
   // WHICH numbers and operation, not just compute. Cleared each step.
   const [pickedA, setPickedA] = useState(null);
@@ -342,6 +353,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
     setFinalAnswerGate(null);
     setStepInput('');
     setSaisie('');
+    setHeureH(''); setHeureM(''); setCaseHeure('h');
   }, [currentIndex, stepIdx]);
 
   if (!question) {
@@ -453,6 +465,41 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
   function pressBackspace() {
     if (stepFeedback !== null) return;
     setStepInput((v) => v.slice(0, -1));
+  }
+
+  // Le pavé de l'heure remplit la case active et saute aux minutes dès que
+  // l'heure ne peut plus prendre de chiffre. Une horloge n'a que 12 heures:
+  // après un 7, il n'y a pas de 70 h, donc le chiffre suivant est une minute.
+  // Après un 1, si, il reste 10, 11 et 12 — on attend le deuxième chiffre, et
+  // s'il donne une heure qui n'existe pas (15 h sur un cadran), il part aux
+  // minutes au lieu d'être avalé.
+  //
+  // À ne pas refaire: la première version appelait setCaseHeure DANS la
+  // fonction de mise à jour de setHeureH. React ne la rejoue pas comme un
+  // effet — la case ne changeait jamais et « 7 h 70 » s'écrivait « 70 h ».
+  function pressHeure(d) {
+    if (caseHeure === 'm') {
+      setHeureM((v) => (v.length >= 2 ? v : v + String(d)));
+      return;
+    }
+    if (heureH === '') {
+      setHeureH(String(d));
+      if (d >= 2) setCaseHeure('m');
+      return;
+    }
+    const combine = Number(heureH + String(d));
+    if (heureH.length === 1 && combine >= 1 && combine <= 12) {
+      setHeureH(String(combine));
+      setCaseHeure('m');
+      return;
+    }
+    setCaseHeure('m');
+    setHeureM(String(d));
+  }
+  function backspaceHeure() {
+    if (caseHeure === 'm' && heureM === '') { setCaseHeure('h'); setHeureH((v) => v.slice(0, -1)); return; }
+    if (caseHeure === 'm') { setHeureM((v) => v.slice(0, -1)); return; }
+    setHeureH((v) => v.slice(0, -1));
   }
   function submitStep() {
     if (stepFeedback !== null) return;
@@ -590,6 +637,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
     setStepFeedback(null);
     setStepInput('');
     setSaisie('');
+    setHeureH(''); setHeureM(''); setCaseHeure('h');
   }
 
   function finishSession() {
@@ -711,6 +759,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           {question.category === 'representer' && 'Représenter un nombre'}
           {question.category === 'figures' && 'Figures planes & solides'}
           {question.category === 'mesure' && 'Mesure en centimètres'}
+          {question.category === 'heure' && "La mesure du temps et l'heure"}
           {question.category === 'pluriels_ryan' && 'Pluriel & Féminin'}
           {question.category === 'histoire' && "Parties d'une histoire"}
           {question.category === 'comprehension' && '📖 Compréhension de lecture'}
@@ -892,6 +941,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
         {question.blocs && <BlocsBase10 {...question.blocs} />}
         {question.tableau && <TableauNumeration {...question.tableau} />}
         {question.abaque && <Abaque {...question.abaque} />}
+        {question.horloge && <Horloge {...question.horloge} />}
 
         {/* Statistique visuals — bar chart, pictogram, data table */}
         {question.category === 'statistique' && question.chartData && (question.type === 'bar_chart' || question.type === 'weekly_chart') && (
@@ -1181,6 +1231,60 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
               <button
                 onClick={() => { const v = parseInt(stepInput, 10); if (!isNaN(v)) { setStepInput(''); handleAnswer(v); } }}
                 disabled={stepInput === ''}
+                className="py-4 rounded-xl font-extrabold text-lg text-white disabled:opacity-40"
+                style={{ background: 'linear-gradient(90deg, #2d7a3a, #4ca65b)' }}>
+                OK
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* L'heure, en deux cases: « ___ h ___ », exactement la case vide du
+            cahier Matcha. Il LIT le cadran et l'écrit — reconnaître la bonne
+            horloge parmi quatre serait une autre compétence (utils/reponseTapee). */}
+        {tape === 'heure' && !showResult && (
+          <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200 mt-4 mb-4">
+            <div className="text-[10px] font-extrabold uppercase tracking-wide text-fox-d mb-1.5 text-center">
+              Écris l'heure
+            </div>
+            <div className="flex items-center justify-center gap-3 my-2" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <button onClick={() => setCaseHeure('h')}
+                className={`min-w-[88px] h-16 px-4 rounded-xl border-4 flex items-center justify-center text-3xl font-extrabold bg-white text-stone ${caseHeure === 'h' ? 'border-fox' : 'border-s2'}`}>
+                {heureH || <span className="text-s2">?</span>}
+              </button>
+              <span className="text-3xl font-extrabold text-stone">h</span>
+              <button onClick={() => setCaseHeure('m')}
+                className={`min-w-[88px] h-16 px-4 rounded-xl border-4 flex items-center justify-center text-3xl font-extrabold bg-white text-stone ${caseHeure === 'm' ? 'border-fox' : 'border-s2'}`}>
+                {heureM || <span className="text-s2">?</span>}
+              </button>
+            </div>
+            {/* On ne parle des aiguilles que s'il y en a à l'écran. Sur « dans
+                40 minutes, quelle heure sera-t-il? » il n'y a pas de cadran:
+                lui parler de la petite aiguille l'enverrait chercher un
+                dessin qui n'existe pas. */}
+            <p className="text-center text-xs font-bold text-s4 mb-2">
+              {caseHeure === 'h'
+                ? (question.horloge ? "D'abord les heures (la petite aiguille)" : "D'abord les heures")
+                : (question.horloge ? 'Puis les minutes (la grande aiguille)' : 'Puis les minutes')}
+            </p>
+            <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto mt-3">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
+                <button key={d} onClick={() => pressHeure(d)}
+                  className="py-4 rounded-xl font-extrabold text-2xl bg-white border-2 border-s2 text-stone hover:border-fox active:bg-orange-100">
+                  {d}
+                </button>
+              ))}
+              <button onClick={backspaceHeure} disabled={!heureH && !heureM}
+                className="py-4 rounded-xl font-extrabold text-xl bg-white border-2 border-s2 text-s4 hover:border-fox active:bg-orange-100 disabled:opacity-50">
+                ⌫
+              </button>
+              <button onClick={() => pressHeure(0)}
+                className="py-4 rounded-xl font-extrabold text-2xl bg-white border-2 border-s2 text-stone hover:border-fox active:bg-orange-100">
+                0
+              </button>
+              <button
+                onClick={() => { const v = `${heureH}:${heureM}`; setHeureH(''); setHeureM(''); setCaseHeure('h'); handleAnswer(v); }}
+                disabled={heureH === '' || heureM === ''}
                 className="py-4 rounded-xl font-extrabold text-lg text-white disabled:opacity-40"
                 style={{ background: 'linear-gradient(90deg, #2d7a3a, #4ca65b)' }}>
                 OK

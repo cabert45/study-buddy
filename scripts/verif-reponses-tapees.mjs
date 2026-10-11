@@ -42,6 +42,29 @@ verifie('« 2 407 » avec espace', memeReponse('2 407', 2407, 'nombre'), true);
 verifie('247 refusé', memeReponse('247', 2407, 'nombre'), false);
 verifie('vide refusé', memeReponse('', 2407, 'nombre'), false);
 
+// L'heure s'écrit en deux cases (« ___ h ___ »), et ses erreurs à lui ne sont
+// pas celles des nombres: les aiguilles inversées, la petite aiguille lue trop
+// loin, et surtout pas d'échange à 60 — « 3 h 70 ».
+console.log('\n— L’heure: ce qu’on accepte et ce qu’on explique —');
+verifie('mode heure reconnu', modeTape({ category: 'heure', type: 'lire_heure', tape: 'heure', correct: '3:45' }), 'heure');
+verifie('3 h 45 tapé « 3:45 »', memeReponse('3:45', '3:45', 'heure'), true);
+verifie('« 3h45 » sans deux-points', memeReponse('3h45', '3:45', 'heure'), true);
+verifie('« 03:05 » avec le zéro devant', memeReponse('03:05', '3:05', 'heure'), true);
+verifie('« 15:20 » vaut 3 h 20 sur un cadran', memeReponse('15:20', '3:20', 'heure'), true);
+verifie('0 h 30 vaut 12 h 30', memeReponse('0:30', '12:30', 'heure'), true);
+verifie('3 h 20 ≠ 3 h 25', memeReponse('3:25', '3:20', 'heure'), false);
+verifie('vide refusé', memeReponse('', '3:20', 'heure'), false);
+verifie('70 minutes refusées', memeReponse('3:70', '4:10', 'heure'), false);
+verifie('aiguilles inversées reconnues',
+  /envers/.test(diagnosticTape('10:10', '2:50', 'heure') || ''), true);
+verifie('petite aiguille lue trop loin',
+  /tour/.test(diagnosticTape('4:50', '3:50', 'heure') || ''), true);
+verifie('pas d’échange à 60',
+  /60 minutes contre 1 heure/.test(diagnosticTape('3:70', '4:10', 'heure') || ''), true);
+verifie('bonnes minutes, mauvaise heure',
+  /bonnes minutes/.test(diagnosticTape('7:15', '3:15', 'heure') || ''), true);
+verifie('bonne réponse: pas de diagnostic', diagnosticTape('3:45', '3:45', 'heure'), null);
+
 console.log('\n— Ce qu’on accepte (mots) —');
 verifie('majuscule', memeReponse("J'ai mangé", "j'ai mangé", 'mot'), true);
 verifie('apostrophe courbe', memeReponse('j’ai mangé', "j'ai mangé", 'mot'), true);
@@ -97,6 +120,7 @@ await build({
       export { generateConjugaison } from './src/generators/conjugaison.js';
       export { generateStrategies } from './src/generators/strategies.js';
       export { generateCalculRapide3 } from './src/generators/calculRapide3.js';
+      export { generateHeure } from './src/generators/heure.js';
     `,
     resolveDir: racine,
     sourcefile: 'generateurs.js',
@@ -122,7 +146,7 @@ if (typeof globalThis.localStorage === 'undefined') {
 const {
   generateMatchaNombres, generateTerme, generateRelational, generateMental,
   generatePasseCompose, generatePresentIndicatif, generateConjugaison,
-  generateStrategies, generateCalculRapide3,
+  generateStrategies, generateCalculRapide3, generateHeure,
 } = await import(pathToFileURL(paquet).href);
 
 const générateurs = {
@@ -134,6 +158,7 @@ const générateurs = {
   present_indicatif: generatePresentIndicatif,
   conjugaison: generateConjugaison,
   strategies: generateStrategies,
+  heure: generateHeure,
   calcul_rapide_3: generateCalculRapide3,
 };
 
