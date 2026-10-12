@@ -8,7 +8,7 @@ import { strategiesCetteSemaine } from '../data/tablesStrategies';
 import { mathsCetteSemaine, labelMaths } from '../data/mathsSemaines';
 import { testAReviser, quandLeTest } from '../data/testsPonctuels';
 import { buildNylaPlan } from '../data/nylaPlanQuotidien';
-import { chargerAvancement, marquerEtape, estFini, estCommence, prochaineEtape } from '../utils/coachAvancement';
+import { chargerAvancement, marquerEtape, estFini, estCommence, prochaineEtape, joursFaits } from '../utils/coachAvancement';
 
 // The Coach decides what Ryan does and when.
 // Given the time of day and what's coming up this week,
@@ -199,9 +199,13 @@ function buildRentreePlan(today) {
 
   // L'échauffement, c'est maintenant les stratégies de la semaine: c'est ce qui
   // s'effondre quand Ryan recompte au lieu de reconnaître (12/30 en mai).
+  // « Enleve ces tables plus-moins. Ca devrait etre calcule. » (12 oct. 2026)
+  // Le creneau garde les MEMES faits (ceux de la feuille de l'enseignante),
+  // mais il les fait CALCULER au lieu de poser des questions sur le nom de la
+  // strategie. Voir generators/calculRapideTables.js.
   const stratLabel = strats.length
-    ? `⚡ Tables +/− · Stratégie${strats.length > 1 ? 's' : ''} ${strats.map((x) => x.id).join(' et ')} — ${strats[0].court}`
-    : '⚡ Calcul rapide';
+    ? `⚡ Calcul rapide — tables + / − (${strats.map((x) => x.court).join(', ')})`
+    : '⚡ Calcul rapide — tables + / −';
 
   // 2e exercice de français: le cahier Jazz les jours où il y a un module,
   // les verbes à l'infinitif les autres jours.
@@ -262,7 +266,7 @@ function buildRentreePlan(today) {
   // collation sépare les deux moitiés. (En semaine, il n'y en a aucune.)
   if (isWeekend) {
     return [
-      { type: 'app', mode: 'strategies', label: stratLabel, mins: 8, icon: '⚡' },
+      { type: 'app', mode: 'calcul_rapide_tables', label: stratLabel, mins: 8, icon: '⚡' },
       { type: 'app', mode: 'orthographe', label: `🐱 Orthographe — Liste ${liste.numero}: ${liste.titre}`, mins: 8, icon: '🐱' },
       { type: 'app', mode: 'dictee_liste', label: `🎧 Dictée — Liste ${liste.numero}`, mins: 7, icon: '🎧' },
       { ...deuxieme, mins: 12 },
@@ -279,7 +283,7 @@ function buildRentreePlan(today) {
   // ===== Semaine: 1 heure après l'école =====
   return [
     ...rappelRemise,
-    { type: 'app', mode: 'strategies', label: stratLabel, mins: 6, icon: '⚡' },
+    { type: 'app', mode: 'calcul_rapide_tables', label: stratLabel, mins: 6, icon: '⚡' },
     orthoStep(8),
     { ...deuxieme, mins: 8 },
     { type: 'app', mode: maths.mode, label: mathsLabel, mins: 11, icon: '📘' },
@@ -306,7 +310,10 @@ function findWeakest(stats, type = null) {
 // Build a smart plan based on current time + dashboard data
 // opts.dayOverride: 0-6 to force a specific day's plan (preview mode)
 // opts.dateOverride: a Date to preview the plan for a different calendar day
-function buildPlan(dashboardData, opts = {}) {
+// Exporte: l'Agenda construit le plan d'un jour donne avec la MEME fonction.
+// Deux listes qui se contredisent (le Coach dit une chose, le calendrier une
+// autre) seraient pires que pas de calendrier du tout.
+export function buildPlan(dashboardData, opts = {}) {
   const realNow = new Date();
   const baseDate = opts.dateOverride || realNow;
   // dayOverride still snaps to the current week if no date override is provided
@@ -482,6 +489,17 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
   const currentStep = plan[stepIdx];
   const today = new Date().getDay();
   const isPreviewMode = dayOverride != null && dayOverride !== today;
+  // La DATE que les onglets Lun..Dim designent, calculee comme dans buildPlan:
+  // c'est elle qui sert de cle a l'avancement (utils/coachAvancement), pour
+  // que les crochets d'hier soient encore la demain.
+  const dateAffichee = (() => {
+    const maintenant = new Date();
+    if (dayOverride == null || dayOverride === maintenant.getDay()) return maintenant;
+    const d = new Date(maintenant);
+    d.setDate(d.getDate() + (dayOverride - maintenant.getDay()));
+    return d;
+  })();
+  const cleJourAffiche = `${dateAffichee.getFullYear()}-${dateAffichee.getMonth()}-${dateAffichee.getDate()}`;
 
   // Load dashboard data once.
   //
@@ -512,13 +530,14 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
     const built = buildPlan(dashData, { dayOverride, profile });
     setPlan(built);
     setPlanReady(true);
-    // On reprend la ou il en etait aujourd'hui (voir utils/coachAvancement).
-    // En mode apercu d'un autre jour, on repart a zero: ce n'est pas son plan.
-    const enCours = isPreviewMode ? {} : chargerAvancement(profile);
+    // On charge l'avancement du jour AFFICHE, pas d'aujourd'hui. En mode
+    // apercu, l'app renvoyait expres un objet vide: les crochets de dimanche
+    // disparaissaient alors qu'ils etaient bien enregistres.
+    const enCours = chargerAvancement(profile, dateAffichee);
     setEtats(enCours);
     setStepIdx(prochaineEtape(enCours, built.length));
     setRunning(false);
-  }, [dashData, dayOverride, profile, isPreviewMode]);
+  }, [dashData, dayOverride, profile, cleJourAffiche]);
 
   // Greet on first load
   useEffect(() => {
@@ -588,7 +607,7 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
   function handleStepEnd() {
     // Même règle qu'ailleurs: on écrit d'abord, on met l'état à jour ensuite.
     // Un effet de bord dans un setState n'a aucune garantie de s'exécuter.
-    setEtats(marquerEtape(profile, stepIdx, 'fini'));
+    setEtats(marquerEtape(profile, stepIdx, 'fini', dateAffichee));
     if (currentStep?.type === 'break') {
       playAlarm();
       speak('PAUSE TERMINÉE! Retour au travail!');
@@ -640,7 +659,7 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
       // en attente, et la fonction passée à setState n'est jamais appelée.
       // Mesuré le 26 sept. 2026: aucune clé `sb_coach_fait_*` après un
       // exercice complet, et le chemin repartait éternellement de la case 1.
-      setEtats(marquerEtape(profile, stepIdx, 'commence'));
+      setEtats(marquerEtape(profile, stepIdx, 'commence', dateAffichee));
       // On emporte le nom de l'étape suivante: à la fin de l'exercice, l'écran
       // de résultats l'annonce et propose UN bouton pour continuer, au lieu de
       // le relâcher dans le menu. Le Coach a déjà décidé — on le lui dit.

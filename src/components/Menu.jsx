@@ -82,6 +82,7 @@ const ryanMathModes = [
   { id: 'pair_impair', label: 'Pair / Impair', desc: 'Nombres pairs et impairs' },
   { id: 'mental', label: 'Mental', desc: 'Calcul rapide' },
   { id: 'calcul_rapide_3', label: '⚡ Calcul rapide 3 chiffres', desc: '±9 / ±10 sur les centaines — 12/30 au dernier test!', badge: 'Test' },
+  { id: 'calcul_rapide_tables', label: '⚡ Calcul rapide — tables + / −', desc: 'Les faits de la semaine, à écrire', badge: 'Cette semaine' },
   { id: 'probabilite', label: '🎲 Probabilité', desc: 'Certain / possible / impossible — 6.5/13 au dernier test', badge: 'Examen' },
 ];
 
@@ -120,6 +121,7 @@ const grade3MathModes = [
   { id: 'mixed', label: 'Pratique ciblée', desc: 'Mix de tous tes exercices' },
   { id: 'multi_step', label: '🧩 Problèmes', desc: 'Problèmes à étapes — le gros morceau de juin', badge: 'Priorité' },
   { id: 'calcul_rapide_3', label: '⚡ Calcul rapide 3 chiffres', desc: 'Garde ta vitesse: ±9 / ±10 sur les centaines', badge: 'Vitesse' },
+  { id: 'calcul_rapide_tables', label: '⚡ Calcul rapide — tables + / −', desc: 'Les faits de la semaine, à écrire', badge: 'Cette semaine' },
   { id: 'mult_div', label: '✖️ Multiplication & division', desc: 'La base des tables — au cœur de la 3e année', badge: 'Clé 3e' },
   { id: 'calcul', label: '🔢 Calcul', desc: 'Addition et soustraction avec échange', badge: 'Clé 3e' },
   { id: 'terme', label: '➕ Terme manquant', desc: 'Trouve le nombre mystère' },
@@ -176,6 +178,7 @@ const grade3FrenchModes = [
 const summerModes = [
   { id: 'multi_step', label: 'Problèmes', desc: 'Problèmes à étapes' },
   { id: 'calcul_rapide_3', label: '⚡ Calcul rapide', desc: '3 chiffres ±9 / ±10' },
+  { id: 'calcul_rapide_tables', label: '⚡ Calcul rapide — tables + / −', desc: 'Les faits de la semaine, à écrire' },
   { id: 'calcul', label: 'Addition', desc: 'Avec échange (retenue)' },
   { id: 'terme', label: 'Terme manquant', desc: 'Le nombre mystère' },
   { id: 'relational', label: 'De plus / moins', desc: 'Comparaisons' },

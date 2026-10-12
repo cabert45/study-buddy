@@ -19,6 +19,14 @@
 //   (absent)  pas encore touché
 const ETATS = ['commence', 'fini'];
 
+// LE JOUR QU'ON REGARDE, PAS « AUJOURD'HUI » (12 oct. 2026).
+// Le parent: « si je reviens sur dimanche, il avait fait quelque chose, mais
+// le crochet est parti. » C'etait vrai deux fois:
+//   - le Coach ne CHARGEAIT rien quand on regardait un autre jour (il passait
+//     un objet vide expres, voir Coach.jsx);
+//   - et tout ce qu'on marquait partait dans la cle d'AUJOURD'HUI, donc le
+//     travail de dimanche se serait de toute facon ecrit sur lundi.
+// Chaque fonction prend donc la date du jour AFFICHE.
 function cleDuJour(profile, date = new Date()) {
   const jour = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   return `sb_coach_fait_${profile}_${jour}`;
@@ -42,27 +50,27 @@ function normaliser(brut) {
   return {};
 }
 
-export function chargerAvancement(profile) {
+export function chargerAvancement(profile, date = new Date()) {
   try {
-    return normaliser(JSON.parse(localStorage.getItem(cleDuJour(profile)) || '{}'));
+    return normaliser(JSON.parse(localStorage.getItem(cleDuJour(profile, date)) || '{}'));
   } catch {
     return {};
   }
 }
 
-export function sauverAvancement(profile, etats) {
-  try { localStorage.setItem(cleDuJour(profile), JSON.stringify(etats || {})); } catch {}
+export function sauverAvancement(profile, etats, date = new Date()) {
+  try { localStorage.setItem(cleDuJour(profile, date), JSON.stringify(etats || {})); } catch {}
 }
 
 // Marquer une case. Une case FINIE ne redevient jamais « commencée »: s'il
 // rouvre un exercice déjà terminé pour le plaisir, ça ne doit pas défaire son
 // travail de la journée.
-export function marquerEtape(profile, index, etat) {
-  if (!ETATS.includes(etat)) return chargerAvancement(profile);
-  const etats = chargerAvancement(profile);
+export function marquerEtape(profile, index, etat, date = new Date()) {
+  if (!ETATS.includes(etat)) return chargerAvancement(profile, date);
+  const etats = chargerAvancement(profile, date);
   if (etats[index] === 'fini' && etat === 'commence') return etats;
   etats[index] = etat;
-  sauverAvancement(profile, etats);
+  sauverAvancement(profile, etats, date);
   return etats;
 }
 
@@ -72,6 +80,20 @@ export const estCommence = (etats, i) => etats?.[i] === 'commence';
 // Combien de cases ont été TERMINÉES aujourd'hui — pour l'accueil.
 export function coachFaitAujourdhui(profile) {
   return Object.values(chargerAvancement(profile)).filter((v) => v === 'fini').length;
+}
+
+// Les jours de la semaine ou il a termine au moins une case — pour allumer les
+// onglets Lun..Dim. Sans ca, rien ne dit d'un coup d'oeil ce qui a ete fait.
+export function joursFaits(profile, semaineDe = new Date()) {
+  const base = new Date(semaineDe.getFullYear(), semaineDe.getMonth(), semaineDe.getDate());
+  const faits = {};
+  for (let d = 0; d <= 6; d++) {
+    const jour = new Date(base);
+    jour.setDate(base.getDate() + (d - base.getDay()));
+    const n = Object.values(chargerAvancement(profile, jour)).filter((v) => v === 'fini').length;
+    if (n) faits[d] = n;
+  }
+  return faits;
 }
 
 // Où le chemin s'ouvre: la première case PAS FINIE, dans l'ordre. Si c'est une

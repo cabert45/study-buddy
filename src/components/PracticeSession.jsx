@@ -36,6 +36,7 @@ import { generateMesure } from '../generators/mesure';
 import { generateHeure } from '../generators/heure';
 import { generateAngles } from '../generators/angles';
 import { generateSciencesQueue } from '../generators/sciencesQueue';
+import { generateCalculRapideTables } from '../generators/calculRapideTables';
 import { generateVerbeSemaine, setVerbeSemaine } from '../generators/verbeSemaine';
 import { listeCetteSemaine } from '../data/orthographeQuotidien';
 import { generatePlurielsRyan } from '../generators/plurielsRyan';
@@ -203,6 +204,7 @@ function getGenerator(mode) {
     case 'heure': return generateHeure;
     case 'angles': return generateAngles;
     case 'sciences_queue': return generateSciencesQueue;
+    case 'calcul_rapide_tables': return generateCalculRapideTables;
     // Sans cle explicite (le menu, « Mes blocs »), c'est le verbe de la
     // semaine en cours — pas celui qui trainait dans le module.
     case 'verbe_semaine': {
@@ -329,7 +331,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
   const [showVideos, setShowVideos] = useState(false);
   // L'aide-mémoire (la liste de mots / le tableau de faits) s'ouvre AVANT les
   // questions: on ne mémorise pas ce qu'on ne nous a pas montré.
-  const aMemoire = mode === 'orthographe' || mode === 'strategies' || mode === 'quatre_classes'
+  const aMemoire = mode === 'orthographe' || mode === 'strategies' || mode === 'calcul_rapide_tables' || mode === 'quatre_classes'
     || mode === 'sciences_queue'
     || (typeof mode === 'string' && mode.startsWith('verbe_semaine'));
   const [memoireOuvert, setMemoireOuvert] = useState(aMemoire);
@@ -794,6 +796,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           {question.category === 'heure' && "La mesure du temps et l'heure"}
           {question.category === 'angles' && 'Droites et angles'}
           {question.category === 'sciences_queue' && 'Sciences — pourquoi une queue?'}
+          {question.category === 'calcul_rapide_tables' && 'Calcul rapide — tables + / −'}
           {question.category === 'verbe_semaine' && `Mon verbe — ${question.memoireVerbe ? question.memoireVerbe.verbe + ' au ' + question.memoireVerbe.temps : 'la semaine'}`}
           {question.category === 'pluriels_ryan' && 'Pluriel & Féminin'}
           {question.category === 'histoire' && "Parties d'une histoire"}
