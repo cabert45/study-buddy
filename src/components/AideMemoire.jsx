@@ -3,6 +3,9 @@ import { listeCetteSemaine, LISTES } from '../data/orthographeQuotidien';
 import { strategiesCetteSemaine, ecrireFait } from '../data/tablesStrategies';
 import { CLASSES, TESTS } from '../generators/quatreClasses';
 import { tableauVerbe, verbeCourant } from '../generators/verbeSemaine';
+// `CLASSES` existe deja ici (les 4 classes de MOTS, generators/quatreClasses):
+// les classes de VERTEBRES sont donc renommees a l'import.
+import { CLASSES as CLASSES_VERTEBRES, UTILITES, DEPLACEMENTS } from '../data/sciencesVertebres';
 
 // L'aide-mémoire de la semaine — la page du cahier, à l'écran.
 //
@@ -215,19 +218,84 @@ function TableauVerbe() {
   );
 }
 
+// ===== Sciences: la fiche du mini-test (Éclair de génie, Étape 1) =====
+// Un mini-test se révise sur SA page de cahier. Les trois encadrés sont les
+// trois choses que le test demande, et la première est celle qu'il a ratée.
+function FicheSciences() {
+  return (
+    <>
+      <div className="flex items-baseline gap-2 mb-1 flex-wrap">
+        <span className="text-xs font-extrabold bg-stone text-white rounded-md px-2 py-1">
+          SCIENCES
+        </span>
+        <span className="font-heading text-lg font-extrabold text-stone leading-tight">
+          Pourquoi certains animaux ont-ils une queue?
+        </span>
+      </div>
+      <p className="text-xs font-bold text-s4 mb-3">Éclair de génie · p. 3 à 12 · mini-test jeudi</p>
+
+      <div className="rounded-xl bg-orange-50 border-2 border-orange-200 p-3 mb-3">
+        <p className="text-sm font-extrabold text-fox-d mb-1">LA PHRASE À SAVOIR PAR CŒUR</p>
+        <p className="text-base font-bold text-stone leading-snug">
+          La queue est un <b>prolongement de la colonne vertébrale</b>.
+          Donc tous les animaux à queue sont des <b>vertébrés</b>.
+        </p>
+        <p className="text-sm font-semibold text-s4 mt-1">
+          Un vertébré a une colonne vertébrale · un <b>in</b>vertébré n’en a pas
+          (la méduse, la limace, l’étoile de mer, l’escargot, l’araignée, la pieuvre).
+        </p>
+      </div>
+
+      <CadreCahier>
+        <p className="text-sm font-extrabold text-stone mb-2">LES 5 CLASSES DE VERTÉBRÉS</p>
+        {CLASSES_VERTEBRES.map((c) => (
+          <div key={c.id} className="mb-2 leading-tight">
+            <div className="text-base font-extrabold text-lava">{c.nom}</div>
+            <div className="text-sm font-semibold text-stone">{c.traits.join(' · ')}</div>
+            <div className="text-xs font-bold text-s4">{c.animaux.slice(0, 4).join(', ')}…</div>
+          </div>
+        ))}
+        <p className="text-xs font-bold text-fox-d mt-2 pt-2" style={{ borderTop: '1px dashed #c9b79a' }}>
+          Celle qu’on oublie: <b>les amphibiens</b>. Il y en a <b>CINQ</b>, pas quatre.
+        </p>
+      </CadreCahier>
+
+      <div className="mt-3 rounded-xl bg-white border-2 border-s2 p-3">
+        <p className="text-sm font-extrabold text-stone mb-1">LES 7 UTILITÉS DE LA QUEUE</p>
+        <div className="text-sm font-semibold text-stone leading-snug">
+          {UTILITES.slice(0, 7).map((u) => (
+            <div key={u.action}>• {u.action} <span className="text-s4">({u.qui})</span></div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-3 rounded-xl bg-white border-2 border-s2 p-3">
+        <p className="text-sm font-extrabold text-stone mb-1">SE DÉPLACER, C’EST AUTRE CHOSE</p>
+        <p className="text-sm font-semibold text-stone leading-snug">
+          {DEPLACEMENTS.map((d) => `${d.verbe} (${d.qui})`).join(' · ')}
+        </p>
+        <p className="text-xs font-bold text-fox-d mt-1">
+          Se déplacer = <b>changer de place</b>. Exprimer son humeur, ce n’est pas un déplacement.
+        </p>
+      </div>
+    </>
+  );
+}
+
 export default function AideMemoire({ mode, onStart, onClose, dejaCommence, listeNumero }) {
   const estOrtho = mode === 'orthographe';
   const estClasses = mode === 'quatre_classes';
   const estVerbe = typeof mode === 'string' && mode.startsWith('verbe_semaine');
+  const estSciences = mode === 'sciences_queue';
   // Par defaut la liste de la semaine. `listeNumero` sert quand on revient sur
   // une liste deja vue (revision) : la page du cahier doit montrer CES mots-la,
   // pas ceux de cette semaine.
   const liste = estOrtho
     ? (listeNumero ? LISTES.find((l) => l.numero === listeNumero) : null) || listeCetteSemaine()
     : null;
-  const strats = estOrtho || estClasses || estVerbe ? null : strategiesCetteSemaine();
+  const strats = estOrtho || estClasses || estVerbe || estSciences ? null : strategiesCetteSemaine();
   if (estOrtho && !liste) return null;
-  if (!estOrtho && !estClasses && !estVerbe && !strats?.length) return null;
+  if (!estOrtho && !estClasses && !estVerbe && !estSciences && !strats?.length) return null;
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-4 pb-10">
@@ -235,7 +303,8 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
         {estOrtho && <ListeOrthographe liste={liste} />}
         {estClasses && <TableauClasses />}
         {estVerbe && <TableauVerbe />}
-        {!estOrtho && !estClasses && !estVerbe && <TableauStrategies strats={strats} />}
+        {estSciences && <FicheSciences />}
+        {!estOrtho && !estClasses && !estVerbe && !estSciences && <TableauStrategies strats={strats} />}
 
         <div className="mt-5 flex flex-col sm:flex-row gap-2.5">
           <button
@@ -257,8 +326,8 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
 
         {!dejaCommence && (
           <p className="text-center text-xs font-semibold text-s4 mt-3">
-            Prends 30 secondes pour <b>regarder</b>{estClasses ? ' les 4 sortes de mots' : estVerbe ? ' le verbe au complet' : ' les mots'}. Tu pourras revenir
-            {estClasses ? ' les voir' : ' les voir'} avec le bouton « 📋 {estClasses ? 'Les 4 sortes' : 'La liste'} ».
+            Prends 30 secondes pour <b>regarder</b>{estClasses ? ' les 4 sortes de mots' : estVerbe ? ' le verbe au complet' : estSciences ? ' ta fiche' : ' les mots'}. Tu pourras revenir
+            {' les voir'} avec le bouton « 📋 {estClasses ? 'Les 4 sortes' : estVerbe ? 'Mon verbe' : estSciences ? 'Ma fiche' : 'La liste'} ».
           </p>
         )}
       </div>

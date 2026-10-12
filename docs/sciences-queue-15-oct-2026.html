@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Sciences — Pourquoi certains animaux ont-ils une queue?</title>
+<!--
+  PDF (chemins ABSOLUS, sinon Chrome headless n'écrit rien):
+  chrome --headless=new --disable-gpu --no-pdf-header-footer \
+    --print-to-pdf=<abs>/docs/sciences-queue-15-oct-2026.pdf \
+    file:///<abs>/docs/sciences-queue-15-oct-2026.html
+
+  Source: Éclair de génie 3e année, Étape 1, p. 3 à 12 (DOC 1 p. 8-9, DOC 2
+  p. 10-11, Bilan p. 12), photographié par le parent le 11 oct. 2026.
+  Mini-test en classe le jeudi 15 octobre.
+
+  Les trois encadrés rouges sont les trois choses que Ryan a ratées sur ses
+  propres pages — pas une sélection au hasard.
+-->
+<style>
+  @page { size: Letter; margin: 10mm 11mm 8mm 11mm; }
+  * { box-sizing: border-box; }
+  html { font-size: 10.5pt; }
+  body { zoom: 0.80; }
+  body {
+    margin: 0; color: #111; line-height: 1.32;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .head { border-bottom: 2.5pt solid #111; padding-bottom: 5pt; margin-bottom: 7pt; }
+  .head .kicker { font-size: 8pt; letter-spacing: .14em; text-transform: uppercase; color: #555; font-weight: 700; }
+  .head h1 { font-size: 17pt; margin: 2pt 0 1pt; line-height: 1.08; }
+  .head .sub { font-size: 9.5pt; color: #444; }
+
+  h2 {
+    font-size: 11pt; margin: 0 0 5pt; padding: 3.5pt 7pt;
+    background: #111; color: #fff;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  h2 .tag { font-size: 7.5pt; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
+  section { margin-bottom: 5.5pt; break-inside: avoid; }
+
+  .cle {
+    border: 2.5pt solid #c74a15; background: #fff6f1;
+    padding: 6pt 9pt; margin-bottom: 7pt;
+  }
+  .cle .titre { font-size: 8pt; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #c74a15; }
+  .cle .phrase { font-size: 13pt; font-weight: 800; line-height: 1.25; margin-top: 2pt; }
+  .cle .note { font-size: 9pt; color: #444; margin-top: 3pt; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 9.3pt; }
+  td, th { border: .7pt solid #bbb; padding: 3pt 5pt; text-align: left; vertical-align: top; }
+  th { background: #eee; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .06em; }
+  .classe { font-weight: 800; white-space: nowrap; }
+  .ex { color: #555; font-size: 8.4pt; }
+
+  .deux { display: flex; gap: 9pt; }
+  .deux > * { flex: 1; }
+
+  .truc { border-left: 3pt solid #111; background: #f4f4f1; padding: 4pt 7pt; margin-top: 4pt; font-size: 8.9pt; }
+  .piege { border: 1.4pt solid #c74a15; padding: 4pt 7pt; font-size: 8.9pt; background: #fffaf7; }
+  .piege b { color: #c74a15; }
+
+  ul { margin: 2pt 0 0; padding-left: 14pt; }
+  li { margin-bottom: 1.5pt; }
+
+  .quiz { font-size: 9pt; }
+  .quiz li { margin-bottom: 4pt; }
+  .ligne { display: inline-block; border-bottom: .7pt solid #999; min-width: 120pt; }
+
+  .pied { margin-top: 8pt; border-top: .8pt solid #999; padding-top: 5pt; font-size: 8.5pt; color: #555; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div class="kicker">Study Buddy · 3e année · Sciences</div>
+  <h1>Pourquoi certains animaux ont-ils une queue?</h1>
+  <div class="sub">Ryan · <i>Éclair de génie</i>, Étape 1, p. 3 à 12 · <b>mini-test le jeudi 15 octobre</b></div>
+</div>
+
+<div class="cle">
+  <div class="titre">La phrase à savoir par cœur</div>
+  <div class="phrase">
+    La queue est un <u>prolongement de la colonne vertébrale</u>.
+    Donc tous les animaux qui ont une queue sont des <u>vertébrés</u>.
+  </div>
+  <div class="note">
+    Un <b>vertébré</b> possède une colonne vertébrale. Un <b>invertébré</b> n'en possède pas :
+    la méduse, la limace, l'étoile de mer, l'escargot, l'araignée, la coccinelle, la pieuvre.
+    <br>C'est la réponse à « <i>Qu'ont en commun les animaux à queue?</i> » (p. 4).
+  </div>
+</div>
+
+<section>
+  <h2>Les 5 classes de vertébrés <span class="tag">il y en a CINQ, pas quatre</span></h2>
+  <table>
+    <tr><th style="width:22%">Classe</th><th>Comment on la reconnaît</th><th style="width:26%">Exemples</th></tr>
+    <tr>
+      <td class="classe">les mammifères</td>
+      <td>Ils ont des <b>poils</b>. · Ils <b>ne pondent pas</b> d'œufs. · Les femelles <b>allaitent</b> leurs petits.</td>
+      <td class="ex">la souris, le chien, la vache, le cheval, la girafe, le kangourou, le singe</td>
+    </tr>
+    <tr>
+      <td class="classe">les reptiles</td>
+      <td>Ils ont la peau <b>sèche</b>. · Ils ont des écailles. · Ils pondent des œufs.</td>
+      <td class="ex">la tortue, le serpent, l'iguane, le crocodile, le lézard</td>
+    </tr>
+    <tr>
+      <td class="classe">les oiseaux</td>
+      <td>Ils volent. · Ils ont des <b>plumes</b>. · Ils pondent des œufs <b>et les couvent</b>.</td>
+      <td class="ex">le paon, le perroquet, la poule</td>
+    </tr>
+    <tr>
+      <td class="classe">les poissons</td>
+      <td>Ils vivent dans l'eau et respirent avec des <b>branchies</b>. · Ils ont des <b>nageoires</b>. · Des écailles. · Ils pondent des œufs.</td>
+      <td class="ex">le poisson-clown, le requin, la truite</td>
+    </tr>
+    <tr style="background:#fff6f1">
+      <td class="classe" style="color:#c74a15">les amphibiens</td>
+      <td>Ils ont la peau <b>lisse et humide</b>. · Les bébés, les <b>têtards</b>, naissent dans l'eau et leurs pattes se développent en grandissant. · Ils pondent des œufs.</td>
+      <td class="ex">la grenouille, le crapaud, la salamandre</td>
+    </tr>
+  </table>
+  <div class="piege" style="margin-top:4pt">
+    <b>LE PIÈGE N° 1 — celui que tu as eu.</b> À la page 4 tu as coché reptiles, oiseaux, poissons et
+    mammifères : il manquait <b>les amphibiens</b> (la grenouille). Il y en a <b>CINQ</b>.
+    Et attention : « les invertébrés » n'est <b>pas</b> une classe de vertébrés — c'est le contraire.
+  </div>
+</section>
+
+<div class="deux">
+  <section style="flex:1.1">
+    <h2>Les 7 utilités de la queue <span class="tag">p. 5 · DOC 2</span></h2>
+    <ul>
+      <li><b>Se déplacer</b> — le poisson avance dans l'eau</li>
+      <li><b>Exprimer son humeur</b> — le chien</li>
+      <li><b>Chasser les moustiques</b> — la vache</li>
+      <li><b>Garder l'équilibre en sautant</b> — le kangourou</li>
+      <li><b>Se protéger du froid</b> — le renard arctique s'enroule dedans</li>
+      <li><b>Séduire les femelles</b> — le paon</li>
+      <li><b>Fouetter ses ennemis</b> — l'iguane</li>
+    </ul>
+    <div class="truc">
+      Aussi dans le DOC 2 : le <b>singe</b> s'agrippe aux arbres, et l'<b>oiseau</b> garde
+      l'équilibre en vol et ralentit avant d'atterrir.
+    </div>
+  </section>
+
+  <section style="flex:1">
+    <h2>Se déplacer, c'est autre chose <span class="tag">p. 12 · question 3</span></h2>
+    <table>
+      <tr><th>Moyen</th><th>Un animal</th></tr>
+      <tr><td>marcher</td><td>l'être humain</td></tr>
+      <tr><td>courir</td><td>le cheval</td></tr>
+      <tr><td>sauter</td><td>le kangourou</td></tr>
+      <tr><td>nager</td><td>le poisson</td></tr>
+      <tr><td>voler</td><td>l'oiseau</td></tr>
+      <tr><td>ramper</td><td>le serpent</td></tr>
+    </table>
+    <div class="piege" style="margin-top:4pt">
+      <b>LE PIÈGE N° 2.</b> À la page 12 tu as écrit « la queue du chien exprime son humeur »
+      pour un moyen de <b>déplacement</b>. Se déplacer, c'est <b>changer de place</b>.
+      Exprimer son humeur, ce n'en est pas un.
+    </div>
+  </section>
+</div>
+
+<section>
+  <h2>Deux pièges de vocabulaire <span class="tag">ce qui se ressemble</span></h2>
+  <div class="deux">
+    <div class="truc" style="flex:1">
+      <b>Qui pond des œufs?</b> QUATRE classes sur cinq : les reptiles, les oiseaux, les poissons
+      et les amphibiens. La seule qui <b>ne pond pas</b>, ce sont <b>les mammifères</b>.
+    </div>
+    <div class="truc" style="flex:1">
+      <b>Qui a des écailles?</b> Les reptiles <b>et</b> les poissons. Donc les écailles ne suffisent
+      pas : le reptile a la peau <b>sèche</b>, le poisson a des <b>branchies</b>.
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Je me teste avant jeudi <span class="tag">réponses au dos, ou dans l'app</span></h2>
+  <ol class="quiz">
+    <li>Qu'ont en commun tous les animaux qui ont une queue? <span class="ligne"></span></li>
+    <li>La queue est le prolongement de quoi? <span class="ligne"></span></li>
+    <li>Nomme les <b>cinq</b> classes de vertébrés : <span class="ligne" style="min-width:300pt"></span></li>
+    <li>Quelle est la différence entre un vertébré et un invertébré? <span class="ligne" style="min-width:230pt"></span></li>
+    <li>La grenouille est un&nbsp;: <span class="ligne" style="min-width:90pt"></span> ·
+        la tortue&nbsp;: <span class="ligne" style="min-width:90pt"></span> ·
+        le paon&nbsp;: <span class="ligne" style="min-width:90pt"></span></li>
+    <li>Donne <b>quatre</b> moyens de déplacement et un animal pour chacun&nbsp;:
+        <span class="ligne" style="min-width:290pt"></span></li>
+    <li>À quoi sert la queue du kangourou? <span class="ligne" style="min-width:150pt"></span>
+        Du renard arctique? <span class="ligne" style="min-width:120pt"></span></li>
+  </ol>
+</section>
+
+<div class="pied">
+  <div>Dans l'app : <b>Mathématiques → Sciences — la queue des animaux</b> (la fiche s'ouvre avant les questions)</div>
+  <div>Mini-test : jeudi 15 octobre</div>
+</div>
+
+</body>
+</html>

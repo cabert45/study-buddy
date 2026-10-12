@@ -35,6 +35,7 @@ import { generateFigures } from '../generators/figures';
 import { generateMesure } from '../generators/mesure';
 import { generateHeure } from '../generators/heure';
 import { generateAngles } from '../generators/angles';
+import { generateSciencesQueue } from '../generators/sciencesQueue';
 import { generateVerbeSemaine, setVerbeSemaine } from '../generators/verbeSemaine';
 import { listeCetteSemaine } from '../data/orthographeQuotidien';
 import { generatePlurielsRyan } from '../generators/plurielsRyan';
@@ -110,6 +111,7 @@ function scratchPadUseful(q) {
   // s'échange à 60. Quatre cadres de dix enseigneraient le contraire.
   if (cat === 'heure') return false;
   if (cat === 'angles') return false;
+  if (cat === 'sciences_queue') return false;
   if (q.aide) return true;
   if (cat.startsWith('matcha_')) return false;
   // Une question sans le moindre chiffre n'a rien à compter: « Mes boîtes de
@@ -200,6 +202,7 @@ function getGenerator(mode) {
     case 'mesure': return generateMesure;
     case 'heure': return generateHeure;
     case 'angles': return generateAngles;
+    case 'sciences_queue': return generateSciencesQueue;
     // Sans cle explicite (le menu, « Mes blocs »), c'est le verbe de la
     // semaine en cours — pas celui qui trainait dans le module.
     case 'verbe_semaine': {
@@ -327,6 +330,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
   // L'aide-mémoire (la liste de mots / le tableau de faits) s'ouvre AVANT les
   // questions: on ne mémorise pas ce qu'on ne nous a pas montré.
   const aMemoire = mode === 'orthographe' || mode === 'strategies' || mode === 'quatre_classes'
+    || mode === 'sciences_queue'
     || (typeof mode === 'string' && mode.startsWith('verbe_semaine'));
   const [memoireOuvert, setMemoireOuvert] = useState(aMemoire);
   const [memoireVu, setMemoireVu] = useState(false);
@@ -723,7 +727,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           {aMemoire && (
             <button onClick={() => setMemoireOuvert(true)}
               className="text-xs font-bold text-lava bg-orange-50 border border-orange-200 rounded-lg px-2.5 py-1 hover:bg-orange-100">
-              📋 {mode === 'orthographe' ? 'La liste' : mode === 'quatre_classes' ? 'Les 4 sortes' : String(mode).startsWith('verbe_semaine') ? 'Mon verbe' : 'Le tableau'}
+              📋 {mode === 'orthographe' ? 'La liste' : mode === 'quatre_classes' ? 'Les 4 sortes' : String(mode).startsWith('verbe_semaine') ? 'Mon verbe' : mode === 'sciences_queue' ? 'Ma fiche' : 'Le tableau'}
             </button>
           )}
           <div className="text-sm font-bold text-s4">
@@ -789,6 +793,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
           {question.category === 'mesure' && 'Mesure en centimètres'}
           {question.category === 'heure' && "La mesure du temps et l'heure"}
           {question.category === 'angles' && 'Droites et angles'}
+          {question.category === 'sciences_queue' && 'Sciences — pourquoi une queue?'}
           {question.category === 'verbe_semaine' && `Mon verbe — ${question.memoireVerbe ? question.memoireVerbe.verbe + ' au ' + question.memoireVerbe.temps : 'la semaine'}`}
           {question.category === 'pluriels_ryan' && 'Pluriel & Féminin'}
           {question.category === 'histoire' && "Parties d'une histoire"}

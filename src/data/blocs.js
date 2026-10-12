@@ -177,6 +177,12 @@ export const BLOCS = [
     debloque: "Les durées, et l'échange de 60 minutes contre 1 heure.",
   },
   {
+    id: 'sc_queue', matiere: 'maths', rangee: 3, mode: 'sciences_queue',
+    nom: 'Sciences — la queue des animaux',
+    aide: "La queue est un prolongement de la colonne vertébrale: tous les animaux à queue sont des vertébrés.",
+    debloque: 'Les autres étapes d’Éclair de génie.',
+  },
+  {
     id: 'ma_angles', matiere: 'maths', rangee: 3, mode: 'angles',
     nom: 'Droites et angles',
     aide: "Le coin d'une feuille, c'est l'angle droit. Tout se compare à lui.",

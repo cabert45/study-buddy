@@ -6,6 +6,7 @@ import { moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data
 import { listeCetteSemaine, semaineCourante } from '../data/orthographeQuotidien';
 import { strategiesCetteSemaine } from '../data/tablesStrategies';
 import { mathsCetteSemaine, labelMaths } from '../data/mathsSemaines';
+import { testAReviser, quandLeTest } from '../data/testsPonctuels';
 import { buildNylaPlan } from '../data/nylaPlanQuotidien';
 import { chargerAvancement, marquerEtape, estFini, estCommence, prochaineEtape } from '../utils/coachAvancement';
 
@@ -176,6 +177,16 @@ function buildRentreePlan(today) {
   const maths = mathsCetteSemaine(ref);
   const mathsLabel = labelMaths(maths);
 
+  // Un test annonce sur la feuille (data/testsPonctuels) s'AJOUTE au plan de
+  // la semaine, il ne le remplace pas: remplir `EXAMS` ferait basculer le
+  // Coach dans l'ancienne machinerie et abandonnerait la liste, les
+  // strategies et le cahier. Le jour du test, on ne revise plus: c'est fait.
+  const test = testAReviser(ref);
+  const testStep = test && test.reste > 0
+    ? { type: 'app', mode: test.mode, icon: test.icon,
+      label: `${test.icon} ${test.label} — ${quandLeTest(test.reste)}` }
+    : null;
+
   // Le VERBE de la semaine — la 4e ligne de la feuille, et la seule qui
   // n'avait aucun exercice derriere elle jusqu'au 11 oct. 2026. Le creneau
   // de conjugaison ne tombait sur le present que le vendredi, par hasard,
@@ -258,7 +269,7 @@ function buildRentreePlan(today) {
       { ...verbeStep, mins: 8 },
       { type: 'break', label: 'Pause + collation 🍎', mins: 10, icon: '🍎' },
       { type: 'app', mode: maths.mode, label: mathsLabel, mins: 18, icon: '📘' },
-      { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 15, icon: '🧩' },
+      testStep ? { ...testStep, mins: 15 } : { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 15, icon: '🧩' },
       { type: 'app', mode: 'calcul_rapide_3', label: '⚡ Calcul rapide 3 chiffres', mins: 10, icon: '⚡' },
       lecture(20),
       fin,
@@ -273,7 +284,7 @@ function buildRentreePlan(today) {
     { ...deuxieme, mins: 8 },
     { type: 'app', mode: maths.mode, label: mathsLabel, mins: 11, icon: '📘' },
     { ...verbeStep, mins: 6 },
-    { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 5, icon: '🧩' },
+    testStep ? { ...testStep, mins: 8 } : { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 5, icon: '🧩' },
     lecture(20), // 20 min demandees par le parent — la feuille de l ecole en demande 15
     fin,
   ];
