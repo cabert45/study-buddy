@@ -119,7 +119,7 @@ const categoryLabels = {
   memory: 'Mémoire',
 };
 
-export default function Results({ results, onHome, onRetry, onContinueFocused, onRetourCoach, suivant }) {
+export default function Results({ results, onHome, onRetry, onContinueFocused, onRetourCoach, suivant, onRefaireErreurs }) {
   if (!results) return null;
 
   const { correct, total, streak } = results;
@@ -127,9 +127,12 @@ export default function Results({ results, onHome, onRetry, onContinueFocused, o
   const reaction = getReaction(pct);
   const analysis = analyzeSession(results);
 
-  const wrongAnswers = results.results
-    .filter((r) => !r.correct)
-    .slice(0, 4);
+  // TOUTES ses erreurs, pas les quatre premieres: on ne peut pas refaire ce
+  // qu'on ne voit pas. L'ecran en montre quatre, le bouton les refait toutes.
+  const toutesErreurs = results.results.filter((r) => !r.correct);
+  const wrongAnswers = toutesErreurs.slice(0, 4);
+  // On ne peut refaire que les questions dont on a garde l'objet complet.
+  const erreursRejouables = toutesErreurs.map((r) => r.full).filter(Boolean);
 
   const videos = analysis.worstCategory ? getVideosForCategory(analysis.worstCategory) : [];
 
@@ -189,7 +192,19 @@ export default function Results({ results, onHome, onRetry, onContinueFocused, o
       {/* Wrong answers review */}
       {wrongAnswers.length > 0 && (
         <div className="bg-white rounded-2xl shadow-sm p-4 mb-4 border-2 border-s1">
-          <h3 className="font-heading font-bold text-stone mb-3">📝 À revoir:</h3>
+          <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+            <h3 className="font-heading font-bold text-stone">
+              📝 À revoir{toutesErreurs.length > 4 ? ` (${toutesErreurs.length})` : ''}:
+            </h3>
+            {onRefaireErreurs && erreursRejouables.length > 0 && (
+              <button
+                onClick={() => onRefaireErreurs(erreursRejouables)}
+                className="rounded-xl px-4 py-2 font-heading font-extrabold text-white text-sm shadow-sm active:scale-[0.98] transition-all"
+                style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
+                ↺ Refaire {erreursRejouables.length === 1 ? 'cette question' : `ces ${erreursRejouables.length} questions`}
+              </button>
+            )}
+          </div>
           <div className="space-y-3">
             {wrongAnswers.map((item, i) => (
               <div key={i} className="bg-red-50 rounded-xl p-3 border-l-4 border-red-400">

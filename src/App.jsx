@@ -72,6 +72,9 @@ export default function App() {
   const [activeBloc, setActiveBloc] = useState(null); // test de bloc en cours
   const [showCompose, setShowCompose] = useState(false);
   const [showAgenda, setShowAgenda] = useState(false);
+  // Les questions ratees qu'on refait telles quelles (bouton de l'ecran de
+  // resultats). Vide = session normale, generee.
+  const [aRefaire, setARefaire] = useState(null);
   const [showBioFlashcard, setShowBioFlashcard] = useState(false);
   const [showTestResults, setShowTestResults] = useState(false);
   const [showBoukili, setShowBoukili] = useState(false);
@@ -106,6 +109,9 @@ export default function App() {
   }
 
   function startPractice(selectedMode, contexte = null) {
+    // Toute session NORMALE repart de questions generees: sans ca, une fois
+    // qu'il a refait ses erreurs, l'app lui redonnerait les memes a vie.
+    setARefaire(null);
     setVenuDuCoach(contexte && contexte.depuisCoach ? contexte : null);
     // La dictee de la semaine n'est pas un exercice a choix multiple: elle se
     // tape. Le menu ET le Coach demandent le meme mode `dictee_liste`, et on
@@ -479,6 +485,7 @@ export default function App() {
         <PracticeSession
           mode={mode}
           questionCount={activeBloc ? BLOC_TEST_LENGTH : undefined}
+          questionsFournies={aRefaire}
           onFinish={finishSession}
           onHome={goHome}
         />
@@ -492,7 +499,12 @@ export default function App() {
           onHome={goHome}
           onRetourCoach={venuDuCoach ? () => { setVenuDuCoach(null); setMode(null); setSessionResults(null); setScreen('coach'); } : undefined}
           suivant={venuDuCoach ? venuDuCoach.suivant : null}
-          onRetry={() => startPractice(mode)}
+          onRetry={() => { setARefaire(null); startPractice(mode); }}
+          onRefaireErreurs={(questions) => {
+            setARefaire(questions);
+            setSessionResults(null);
+            setScreen('practice');
+          }}
           onContinueFocused={(weakCategory) => {
             // Switch to weak category mode if we recognize it, else retry same
             const validModes = ['calcul', 'terme', 'multi_step', 'relational', 'compare',

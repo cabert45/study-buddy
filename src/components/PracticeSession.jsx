@@ -291,7 +291,9 @@ function getGenerator(mode) {
   }
 }
 
-export default function PracticeSession({ mode, onFinish, onHome, questionCount }) {
+// `questionsFournies` = refaire EXACTEMENT ces questions-la (les erreurs de
+// la serie precedente), au lieu d'en generer de nouvelles. Voir Results.
+export default function PracticeSession({ mode, onFinish, onHome, questionCount, questionsFournies }) {
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState(null);
@@ -340,12 +342,19 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
   const generate = useCallback(() => getGenerator(mode), [mode]);
 
   useEffect(() => {
+    // Refaire ses erreurs: ce sont les MEMES questions, pas des nouvelles du
+    // meme type. « Je l'ai refaite et j'ai eu bon » ne veut rien dire si la
+    // question a change.
+    if (Array.isArray(questionsFournies) && questionsFournies.length) {
+      setQuestions(questionsFournies);
+      return;
+    }
     const gen = generate();
     // Nyla (5 ans) gets short sessions — 15 is too long for a preschooler.
     const total = questionCount || (String(mode).startsWith('nyla') ? 6 : TOTAL_QUESTIONS);
     const qs = Array.from({ length: total }, () => gen());
     setQuestions(qs);
-  }, [generate, mode]);
+  }, [generate, mode, questionsFournies]);
 
   const question = questions[currentIndex];
 
@@ -604,6 +613,9 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount 
       correct: isCorrect,
       userAnswer: value,
       correctAnswer: question.correct,
+      // L'objet complet, pour pouvoir REFAIRE exactement cette question.
+      // Il ne part pas au serveur: finishSession n'envoie que les champs plats.
+      full: question,
       // Écrite à la main ou choisie parmi quatre: sans ça, deux réussites qui
       // ne valent pas la même chose se ressemblent dans les statistiques.
       tape: tape || null,

@@ -11,7 +11,7 @@
 //   • « ils sont tous des vertébrés », la réponse centrale qu'il a ratée;
 //   • déplacement ≠ utilité de la queue, les deux listes qu'il a fusionnées.
 import { pickAdaptive } from '../utils/skillStats';
-import { CLASSES, INVERTEBRES, UTILITES, DEPLACEMENTS, DEMARCHE, PARTAGES } from '../data/sciencesVertebres';
+import { CLASSES, INVERTEBRES, UTILITES, DEPLACEMENTS, PARTAGES } from '../data/sciencesVertebres';
 
 const CATEGORY = 'sciences_queue';
 
@@ -317,20 +317,13 @@ function commentSeDeplace() {
   };
 }
 
-// ===== 10. La démarche scientifique =====
-function demarche() {
-  const i = Math.floor(Math.random() * (DEMARCHE.length - 1));
-  return {
-    category: CATEGORY,
-    type: 'demarche',
-    text: `Dans ta démarche, qu’est-ce qui vient juste APRÈS « ${DEMARCHE[i]} »?`,
-    correct: DEMARCHE[i + 1],
-    options: shuffle(DEMARCHE),
-    explanation: `${DEMARCHE[i + 1]}.\n\nLa démarche, dans l’ordre:\n`
-      + DEMARCHE.map((e, k) => `${k + 1}. ${e}`).join('\n'),
-    hint: 'On se pose une question, on devine, on essaie, on lit, puis on conclut.',
-  };
-}
+// LA DEMARCHE SCIENTIFIQUE N'EST PLUS DEMANDEE (12 oct. 2026).
+// Le parent, en voyant « Dans ta demarche, qu'est-ce qui vient juste APRES
+// « Se poser une question »? » a l'ecran: « enleve ».
+// Meme raison que les strategies de calcul: c'est la procedure du cahier,
+// le vocabulaire des adultes, pas la matiere du mini-test. Les cinq etapes
+// restent dans data/sciencesVertebres (DEMARCHE) parce qu'elles sont dans son
+// cahier — mais on ne les lui fait plus reciter.
 
 function buildOne() {
   return pickAdaptive(CATEGORY, [
@@ -345,7 +338,6 @@ function buildOne() {
     { type: 'utilite', w: 10, build: utiliteQueue },
     { type: 'qui_utilite', w: 8, build: quiFaitCa },
     { type: 'comment_deplace', w: 8, build: commentSeDeplace },
-    { type: 'demarche', w: 6, build: demarche },
   ], (q) => `${q.type}|${q.text}`);
 }
 
