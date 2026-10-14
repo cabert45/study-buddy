@@ -221,6 +221,33 @@ export default function DicteeFlashcard({ weekKey, depart, onHome, onFinish }) {
   }, [week]);
   const inputRef = useRef(null);
 
+  // LES ACCENTS À PORTÉE DE DOIGT (14 oct. 2026).
+  // Le parent: « notre clavier est en anglais, ça lui fait faire des fautes ».
+  // Il a raison et c'est mesurable: sur les 171 mots de ses dix listes, cinq
+  // caractères accentués apparaissent (é 15 fois, puis û è â ô) — et sans
+  // touche, chacun devient une faute d'orthographe qui n'en est pas une.
+  // Même rangée, même ordre que la case de réponse tapée (PracticeSession):
+  // une seule disposition à apprendre, pas deux.
+  const ACCENTS = ['é', 'è', 'ê', 'à', 'â', 'ç', 'ô', 'î', 'û'];
+
+  // On insère À L'ENDROIT DU CURSEUR, pas à la fin: quand il se relit et
+  // revient corriger le « e » de « pièce », l'accent doit tomber là, pas
+  // au bout du mot.
+  function insererAccent(c) {
+    const el = inputRef.current;
+    if (!el) { setTyped((v) => v + c); return; }
+    const debut = el.selectionStart ?? typed.length;
+    const fin = el.selectionEnd ?? typed.length;
+    const nouveau = typed.slice(0, debut) + c + typed.slice(fin);
+    setTyped(nouveau);
+    // Le curseur se replace APRÈS la lettre ajoutée, et le clavier reste
+    // ouvert: sinon il doit retoucher le champ entre chaque lettre.
+    requestAnimationFrame(() => {
+      el.focus();
+      try { el.setSelectionRange(debut + 1, debut + 1); } catch {}
+    });
+  }
+
   // Reset AI sentence when word changes
   useEffect(() => { setAiSentence(null); }, [idx, round]);
 
@@ -492,6 +519,28 @@ export default function DicteeFlashcard({ weekKey, depart, onHome, onFinish }) {
               'bg-red-50 border-red-400 text-red-600'
             }`}
           />
+
+          {/* La rangée d'accents. Elle disparaît une fois le mot corrigé:
+              à ce moment-là le champ est bloqué et elle ne ferait qu'encombrer. */}
+          {!showResult && (
+            <div className="mt-3">
+              <div className="text-[10px] font-extrabold uppercase tracking-wide text-s4 text-center mb-1.5">
+                Les accents
+              </div>
+              <div className="flex flex-wrap justify-center gap-2">
+                {ACCENTS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => insererAccent(c)}
+                    className="w-11 h-11 rounded-xl font-heading font-extrabold text-xl bg-white border-2 border-s2 text-stone hover:border-lava active:bg-orange-100"
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Diff display when revealed */}
           {revealed && (
