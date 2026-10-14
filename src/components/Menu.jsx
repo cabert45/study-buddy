@@ -147,6 +147,7 @@ const grade3FrenchModes = [
   // remettre: un badge qui ment, c'est le parent qui cherche une feuille déjà
   // dans le sac.
   { id: 'feuille_l2', label: 'Ma feuille — Liste 2', desc: 'La vraie feuille du cahier, question par question', badge: 'Déjà remise' },
+  { id: 'dictee_liste_choix', label: '🔎 La bonne écriture', desc: 'La voix dit le mot — tu choisis comment il s’écrit', badge: 'Avant d’écrire' },
   { id: 'dictee_liste', label: '🎧 Dictée de la liste', desc: 'La liste, puis tu tapes chaque mot que tu entends', badge: 'Cette semaine' },
   { id: 'dictees_group', label: '🎴 Toutes mes dictées', desc: 'Les listes déjà vues + les dictées de 2e année', isGroup: true },
   { id: 'quatre_classes', label: 'Nom, adjectif ou verbe?', desc: 'Les reconnaître dans une phrase — avec le test qui décide', badge: 'À travailler' },

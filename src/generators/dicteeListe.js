@@ -39,6 +39,16 @@ export function generateDicteeListe() {
 
   // Trois mauvaises écritures, jamais moins: un choix à deux options se devine.
   const faux = (mot.wrongs || []).filter((w) => w && w !== mot.correct);
+  // S'il manque une mauvaise ecriture, on prend un AUTRE MOT de la liste
+  // plutot que d'inventer « coursee » puis « courseee ». Un choix absurde se
+  // rejette sans lire; un vrai mot de la semaine, lui, se lit — et distinguer
+  // « rendre » de « reprendre » est exactement l'exercice.
+  const voisins = liste.words
+    .map((w) => w.correct)
+    .filter((w) => w !== mot.correct && !faux.includes(w));
+  while (faux.length < 3 && voisins.length) {
+    faux.push(voisins.splice(Math.floor(Math.random() * voisins.length), 1)[0]);
+  }
   while (faux.length < 3) faux.push(mot.correct + 'e'.repeat(faux.length + 1));
 
   // L'écran préfixe déjà « Dictée — »; `liste.name` vaut « Dictée — Liste 3 ».

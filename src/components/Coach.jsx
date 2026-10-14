@@ -3,7 +3,7 @@ import { getDashboard } from '../utils/storage';
 import { speak as speakVoice } from '../utils/speech';
 import { EXAMS, dicteeWeekForDate, dicteeActiveOn, daysBetween } from '../data/examSchedule';
 import { moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data/cahierFrancais';
-import { listeCetteSemaine, semaineCourante } from '../data/orthographeQuotidien';
+import { listeCetteSemaine, semaineCourante, cleDictee } from '../data/orthographeQuotidien';
 import { strategiesCetteSemaine } from '../data/tablesStrategies';
 import { mathsCetteSemaine, labelMaths } from '../data/mathsSemaines';
 import { testAReviser, quandLeTest } from '../data/testsPonctuels';
@@ -228,10 +228,34 @@ function buildRentreePlan(today) {
   // ce qu'on lui demande à l'école — à l'école, il ÉCRIT le mot. Tous les jours
   // passent donc maintenant par `dictee_liste`, qui montre les cartes une par
   // une puis fait écrire chaque mot.
-  const orthoStep = (mins) => ({
-    type: 'app', mode: 'dictee_liste', mins, icon: '🎧',
-    label: `🎧 Mes mots — Liste ${liste.numero}: cartes, puis je les écris`,
-  });
+  // RECONNAÎTRE AVANT D'ÉCRIRE (14 oct. 2026).
+  // Le parent: « des flashcards où c'est mal écrit et où c'est bien écrit,
+  // qu'il choisisse. C'est la première étape — il a besoin de le voir
+  // quelques fois avant de l'écrire. »
+  //
+  // L'écran existait depuis le 28 sept. (la voix dit le mot, quatre
+  // écritures à l'écran, les fausses fabriquées à partir de SES erreurs —
+  // voir mauvaisesOrthographes). Il était seulement enterré dans le panneau
+  // « Dictées », et rien ne le plaçait AVANT l'écriture.
+  //
+  // Alors c'est la semaine qui donne l'ordre, pas un enchainement dans un
+  // même écran — ça, c'était l'erreur du 29 sept. (« tu continues à gâcher
+  // la dictée »): deux boutons séparés, comme en 2e année.
+  //   début de semaine  → il RECONNAÎT la bonne écriture
+  //   à partir du mercredi → il l'ÉCRIT
+  // Et la veille de la remise, on écrit: c'est ce que l'école demande.
+  const jourSemaine = ref.getDay();
+  const veilleRemise = remise && remise.jours <= 1;
+  const phaseReconnaissance = !veilleRemise && (jourSemaine === 1 || jourSemaine === 2 || jourSemaine === 0);
+  const orthoStep = (mins) => (phaseReconnaissance
+    ? {
+      type: 'app', mode: `dictee_liste_choix:${cleDictee(liste.id)}`, mins, icon: '🎧',
+      label: `🎧 Mes mots — Liste ${liste.numero}: je reconnais la bonne écriture`,
+    }
+    : {
+      type: 'app', mode: 'dictee_liste', mins, icon: '🎧',
+      label: `🎧 Mes mots — Liste ${liste.numero}: cartes, puis je les écris`,
+    });
 
 
   // Pas de message d'accueil ni de pause d'eau en semaine: Ryan clique sur

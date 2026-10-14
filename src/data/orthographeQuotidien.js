@@ -612,24 +612,84 @@ export function mauvaisesOrthographes(m) {
   // Le son de la lettre: on écrit ce qu'on ENTEND, l'erreur la plus banale.
   if (m.c === 's') faux.add(mot.replace(/c/, 's'));
   if (m.c === 'k') faux.add(mot.replace(/c/, 'k'));
+  // Le son [j] s'ecrit avec un j: « jenre », « nuaje ». C'est l'erreur n° 1
+  // de la liste 5.
   if (m.g === 'j') faux.add(mot.replace(/g/, 'j'));
-  if (m.g === 'g') faux.add(mot.replace(/gu?/, 'gh'));
+  if (m.g === 'g') {
+    // PAS de « gh »: aucun enfant n'ecrit « ghagner ». Un choix absurde se
+    // rejette sans lire le mot, et la question ne mesure plus rien.
+    // La vraie erreur tourne autour du u qui protege le g:
+    //   il l'oublie            guerre → gerre, langue → lange
+    //   ou il le met en trop   garder → guarder (il applique la regle partout)
+    if (/gu/.test(mot)) faux.add(mot.replace('gu', 'g'));
+    else faux.add(mot.replace(/g([aou])/, 'gu$1'));
+  }
+  // « gorge »: les DEUX sons dans un mot. L'erreur, c'est le deuxieme g.
+  if (m.g === 'deux') {
+    faux.add(mot.replace(/g(?=[eiy])/, 'j'));
+    faux.add(mot.replace(/^g/, 'j'));
+  }
   if (m.s === 'z') faux.add(mot.replace(/s/, 'z'));
   if (m.s === 's') faux.add(mot.replace(/ss/, 's'));
   // m devant b/p: c'est la liste 10 au complet, et c'est SA faute (« conbien »).
   if (m.mbp || /m[bp]/.test(mot)) faux.add(mot.replace(/m([bp])/, 'n$1'));
   faux.add(mot.endsWith('s') ? mot.slice(0, -1) : `${mot}s`);
+
+  // LES CONFUSIONS DE SON, celles qui traversent toutes ses listes.
+  //
+  // Sans elles, 44 mots des listes 1 et 6 à 9 n'avaient que deux fausses
+  // écritures, et le générateur complétait avec « coursee », « courseee ».
+  // Un choix absurde se rejette sans lire le mot: la question ne mesure plus
+  // rien, et c'est tout l'inverse de ce qu'on veut avant la dictée.
+  //
+  // Chacune est une faute que fait un enfant de 8 ans, pas une deformation au
+  // hasard: le son [an] s'ecrit an ou en, le son [in] s'ecrit in, ain ou ein,
+  // le son [o] s'ecrit o, au ou eau, et « danser » s'entend comme « dansé ».
+  const SONS = [
+    [/an/, 'en'], [/en/, 'an'],
+    [/ain/, 'in'], [/ein/, 'ain'], [/aim/, 'ain'],
+    // « in » devient « ain » SEULEMENT si le mot n'a pas deja un « ain »:
+    // sinon « certain » devenait « certaain », qui n'est la faute de personne.
+    [/in(?=[^aeiouy]|$)/, 'ain', (m) => !m.includes('ain')],
+    [/eau/, 'o'], [/au/, 'o'],
+    // Pas de « o → au »: la regle attrapait le o de « invitation » et
+    // rendait « invitatiaun ». On ne garde que le sens que l'enfant ecrit
+    // vraiment — il entend [o] et pose le o tout simple.
+    [/([aeiouyéèê])s(?=[aeiouyéèê])/, '$1z'],
+    [/er$/, 'é'], [/é$/, 'er'],
+    // Le e muet qui saute: « bande » → « band », « danse » → « dans ».
+    // Seulement apres voyelle + UNE consonne: « ventre » → « ventr » n'est
+    // pas une faute d'enfant, c'est un mot coupe.
+    [/([aeiouy])([bcdfgklmnpstvz])e$/, '$1$2'],
+  ];
+  for (const [quoi, par, siok] of SONS) {
+    if (faux.size >= 3) break;
+    if (siok && !siok(mot)) continue;
+    const essai = mot.replace(quoi, par);
+    if (essai !== mot && essai.length > 1) faux.add(essai);
+  }
   // Derniers recours, dans l'ordre: doubler une consonne du milieu, puis
   // enlever un accent. Il faut TOUJOURS trois mauvaises réponses, sinon le
   // choix se devine sans lire.
   // On double une consonne DU MILIEU (« carote » → « carotte »), jamais la
   // première: « ccause » n'est pas une faute d'enfant, c'est du bruit, et un
   // choix absurde se rejette sans lire le mot.
-  const doublee = mot[0] + mot.slice(1).replace(/([bcdflmnprst])(?=[aeiouéèê])/, '$1$1');
+  // On double une consonne ENTRE DEUX VOYELLES (« protéger » → « prottéger »).
+  // L'ancienne version doublait la premiere consonne venue apres la lettre
+  // initiale: elle produisait « prrotéger » et « villlage » — du bruit, pas
+  // des fautes d'enfant, et le choix se devinait sans lire.
+  const VOY = 'aeiouyàâäéèêëîïôöùûü';
+  const doublee = mot.replace(
+    new RegExp(`([${VOY}])([bcdflmnprst])(?=[${VOY}])`),
+    '$1$2$2',
+  );
   if (doublee !== mot) faux.add(doublee);
   const sansAccent = mot.normalize('NFD').replace(/[̀-ͯ]/g, '').normalize('NFC');
   if (sansAccent !== mot) faux.add(sansAccent);
-  faux.add(`${mot}e`);
+  // PLUS de « ${mot}e » en bouche-trou: il fabriquait « bandee », « rendree »,
+  // « biene ». Quand il manque une mauvaise ecriture, c'est le generateur qui
+  // complete avec un AUTRE MOT DE LA LISTE (generators/dicteeListe) — un vrai
+  // mot se lit, une invention se rejette sans lire.
   faux.delete(mot);
   return [...faux].filter(Boolean).slice(0, 3);
 }
