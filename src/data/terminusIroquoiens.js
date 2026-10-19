@@ -19,25 +19,30 @@
 //      se vêtir (les peaux, les fourrures).
 //   Et l'orthographe: « érière » pour Érié, « sedenterre » pour sédentaire.
 
+// Les illustrations du graphiste (studio/briefs/terminus-iroquoiens.json),
+// revues une à une le 19 oct. Ce sont des paysages et des scènes: rien à
+// compter, donc le modèle d'images est fiable ici.
+export const IMG = (nom) => `/visuels/terminus/${nom}.jpg`;
+
 // ===== Les mots du cahier (les encadrés « définition ») =====
 // `relief: true` = les quatre de la page 11, qu'il a ratés — ils se TAPENT.
 export const MOTS = [
-  { mot: 'colline', def: 'petite élévation de terrain arrondi', relief: true, piege: 'terrain arrondi' },
-  { mot: 'plaine', def: 'grande étendue de terrain plat', relief: true, piege: 'terrain plat' },
-  { mot: 'vallée', def: 'creux entre des montagnes', relief: true, piege: 'des montagnes' },
-  { mot: 'fleuve', def: "grand cours d'eau", relief: true, piege: "cours d'eau" },
+  { mot: 'colline', img: 'colline', def: 'petite élévation de terrain arrondi', relief: true, piege: 'terrain arrondi' },
+  { mot: 'plaine', img: 'plaine', def: 'grande étendue de terrain plat', relief: true, piege: 'terrain plat' },
+  { mot: 'vallée', img: 'vallee', def: 'creux entre des montagnes', relief: true, piege: 'des montagnes' },
+  { mot: 'fleuve', img: 'fleuve', def: "grand cours d'eau", relief: true, piege: "cours d'eau" },
   { mot: 'nomade', def: 'qui se déplace souvent et habite à des endroits différents' },
   { mot: 'sédentaire', def: 'qui vit longtemps au même endroit, qui a une habitation fixe' },
   { mot: 'Autochtones', def: "premiers peuples d'un territoire et leurs descendants" },
   { mot: 'société', def: 'groupe de personnes vivant sur le même territoire et partageant le même mode de vie' },
   { mot: 'atout', def: 'avantage' },
   { mot: 'contrainte', def: 'inconvénient' },
-  { mot: 'portage', def: 'action de porter un canot pour contourner un obstacle' },
-  { mot: 'chute', def: "partie d'un cours d'eau où l'eau tombe de très haut" },
-  { mot: 'rapide', def: "partie d'un cours d'eau très agitée" },
+  { mot: 'portage', img: 'portage', def: 'action de porter un canot pour contourner un obstacle' },
+  { mot: 'chute', img: 'chute', def: "partie d'un cours d'eau où l'eau tombe de très haut" },
+  { mot: 'rapide', img: 'rapides', def: "partie d'un cours d'eau très agitée" },
   { mot: 'fertile', def: "qui favorise l'agriculture" },
-  { mot: 'feuillu', def: 'arbre avec des feuilles qui poussent au printemps et qui tombent à l’automne' },
-  { mot: 'conifère', def: 'arbre avec des aiguilles qui produit des fruits en forme de cône (cocottes)' },
+  { mot: 'feuillu', img: 'feuillus', def: 'arbre avec des feuilles qui poussent au printemps et qui tombent à l’automne' },
+  { mot: 'conifère', img: 'coniferes', def: 'arbre avec des aiguilles qui produit des fruits en forme de cône (cocottes)' },
 ];
 
 // ===== Les ressources et leurs utilités (p. 13 à 15) =====

@@ -34,6 +34,7 @@ import { generateRepresenter } from '../generators/representer';
 import { generateFigures } from '../generators/figures';
 import { generateMesure } from '../generators/mesure';
 import { generateHeure } from '../generators/heure';
+import DroiteNumerique from './DroiteNumerique';
 import { generateIroquoiens } from '../generators/iroquoiens';
 import { generateAngles } from '../generators/angles';
 import { generateSciencesQueue } from '../generators/sciencesQueue';
@@ -338,7 +339,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
   // L'aide-mémoire (la liste de mots / le tableau de faits) s'ouvre AVANT les
   // questions: on ne mémorise pas ce qu'on ne nous a pas montré.
   const aMemoire = mode === 'orthographe' || mode === 'strategies' || mode === 'calcul_rapide_tables' || mode === 'quatre_classes'
-    || mode === 'sciences_queue' || mode === 'us_iroquoiens'
+    || mode === 'sciences_queue' || mode === 'us_iroquoiens' || mode === 'matcha_ordre'
     || (typeof mode === 'string' && mode.startsWith('verbe_semaine'));
   const [memoireOuvert, setMemoireOuvert] = useState(aMemoire);
   const [memoireVu, setMemoireVu] = useState(false);
@@ -746,7 +747,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
           {aMemoire && (
             <button onClick={() => setMemoireOuvert(true)}
               className="text-xs font-bold text-lava bg-orange-50 border border-orange-200 rounded-lg px-2.5 py-1 hover:bg-orange-100">
-              📋 {mode === 'orthographe' ? 'La liste' : mode === 'quatre_classes' ? 'Les 4 sortes' : String(mode).startsWith('verbe_semaine') ? 'Mon verbe' : mode === 'sciences_queue' || mode === 'us_iroquoiens' ? 'Ma fiche' : 'Le tableau'}
+              📋 {mode === 'orthographe' ? 'La liste' : mode === 'quatre_classes' ? 'Les 4 sortes' : String(mode).startsWith('verbe_semaine') ? 'Mon verbe' : mode === 'sciences_queue' || mode === 'us_iroquoiens' || mode === 'matcha_ordre' ? 'Ma fiche' : 'Le tableau'}
             </button>
           )}
           <div className="text-sm font-bold text-s4">
@@ -939,25 +940,25 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
               {showScratchPad ? '📝 Fermer les boîtes' : '📝 Mes boîtes de travail'}
             </button>
           )}
-          {getVideosForCategory(question.category).length > 0 && (
+          {getVideosForCategory(question.category, question.type).length > 0 && (
             <button
               onClick={() => setShowVideos((v) => !v)}
               className="text-sm text-ok font-semibold"
             >
-              📺 Vidéo d'aide ({getVideosForCategory(question.category).length})
+              📺 Vidéo d'aide ({getVideosForCategory(question.category, question.type).length})
             </button>
           )}
         </div>
 
         {/* Video list panel */}
-        {showVideos && getVideosForCategory(question.category).length > 0 && (
+        {showVideos && getVideosForCategory(question.category, question.type).length > 0 && (
           <div className="bg-green-50 rounded-xl p-3 mb-4 border-2 border-green-200">
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-bold text-green-700 uppercase tracking-wide">📺 Vidéos pour t'aider</p>
               <button onClick={() => setShowVideos(false)} className="text-xs font-bold text-s4">✕</button>
             </div>
             <div className="space-y-2">
-              {getVideosForCategory(question.category).map((v, i) => (
+              {getVideosForCategory(question.category, question.type).map((v, i) => (
                 <a
                   key={i}
                   href={v.url}
@@ -998,6 +999,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
         {question.tableau && <TableauNumeration {...question.tableau} />}
         {question.abaque && <Abaque {...question.abaque} />}
         {question.horloge && <Horloge {...question.horloge} />}
+        {question.droite && <DroiteNumerique {...question.droite} />}
         {/* Droites et angles, dessines en code (components/Angles): un angle
             « droit » trace a 85 degres rendrait la bonne reponse fausse. */}
         {question.figure && (
@@ -1497,6 +1499,11 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
                       <p key={i} className="font-semibold">{step.label}: {step.text}</p>
                     ))}
                   </div>
+                )}
+                {/* Arrondir raté sans dessin: la droite apparaît dans la correction —
+                    voir le nombre ENTRE 1 300 et 1 400 explique mieux qu'une phrase. */}
+                {question.droiteCorrection && !question.droite && (
+                  <div className="mt-2"><DroiteNumerique {...question.droiteCorrection} /></div>
                 )}
                 {question.explanation && !question.steps && (
                   <p className={`text-sm font-semibold mt-1 whitespace-pre-line ${diagnostic ? 'text-amber-900' : 'text-red-600'}`}>{question.explanation}</p>

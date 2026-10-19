@@ -820,6 +820,8 @@ function arrondir() {
   const nom = pas === 100 ? 'centaine' : 'dizaine';
   const voisin = pas === 100 ? 'dizaines' : 'unités';
   const chiffreDecide = Math.floor(n / (pas / 10)) % 10;
+  const ligne = { marques: Array.from({ length: 11 }, (_, k) => bas + k * (pas / 10)), etiquettes: [0, 5, 10], point: { valeur: n } };
+  const montrerDroite = Math.random() < 0.6;
   const presque = {};
   presque[correct === bas ? haut : bas] = `Regarde le chiffre des ${voisin} (${chiffreDecide}): 5 ou plus → on monte · 4 ou moins → on garde.`;
   if (correct >= 1000) {
@@ -836,6 +838,10 @@ function arrondir() {
     text: `Arrondis ${fmt(n)} à la ${nom} près.`,
     correct,
     presque,
+    // La droite montre le nombre ENTRE ses deux centaines (ou dizaines), milliers compris.
+    // Pas toujours: au test, il n'y aura pas de dessin.
+    droite: montrerDroite ? ligne : undefined,
+    droiteCorrection: ligne,
     explanation: `${fmt(n)} est entre ${fmt(bas)} et ${fmt(haut)}.
 Le chiffre des ${voisin} est ${chiffreDecide}: ${chiffreDecide >= 5 ? '5 ou plus → on monte' : '4 ou moins → on garde'} → ${fmt(correct)}.${correct >= 1000 ? `\nLes milliers ne bougent pas: le nombre arrondi est presque pareil, pas plus petit.` : ''}`,
     hint: `Entre quelles deux ${nom}s est ${fmt(n)}? Écris le nombre AU COMPLET.`,
@@ -922,8 +928,8 @@ function droiteNumerique() {
   return {
     category: CATEGORY,
     type: 'droite',
-    text: `Sur la droite numérique: ${marques.map(fmt).join(' — ')} — ___ — ___
-${lesPas ? 'Quel est le pas de graduation?' : 'Quel nombre va dans la PREMIÈRE case vide?'}`,
+    text: lesPas ? 'Quel est le pas de graduation de cette droite?' : 'Quel nombre va dans la PREMIÈRE case vide?',
+    droite: { marques, vides: 2 },
     correct,
     presque,
     explanation: `${fmt(marques[1])} − ${fmt(marques[0])} = ${pas}: on avance de ${pas} à chaque trait (pas de graduation: +${pas}).

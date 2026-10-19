@@ -7,6 +7,7 @@ import { tableauVerbe, verbeCourant } from '../generators/verbeSemaine';
 // les classes de VERTEBRES sont donc renommees a l'import.
 import { CLASSES as CLASSES_VERTEBRES, UTILITES, DEPLACEMENTS } from '../data/sciencesVertebres';
 import { MOTS as MOTS_TERMINUS, RESSOURCES } from '../data/terminusIroquoiens';
+import DroiteNumerique from './DroiteNumerique';
 
 // L'aide-mémoire de la semaine — la page du cahier, à l'écran.
 //
@@ -222,6 +223,49 @@ function TableauVerbe() {
 // ===== Sciences: la fiche du mini-test (Éclair de génie, Étape 1) =====
 // Un mini-test se révise sur SA page de cahier. Les trois encadrés sont les
 // trois choses que le test demande, et la première est celle qu'il a ratée.
+// L'ordre des nombres — la leçon AVANT les questions. Feuille AS.2.02: il
+// arrondissait 1 312 en « 300 ». On lui montre le nombre posé sur la droite,
+// entre 1 300 et 1 400: on VOIT que les milliers ne disparaissent pas.
+function FicheOrdre() {
+  return (
+    <>
+      <div className="flex items-baseline gap-2 mb-1 flex-wrap">
+        <span className="text-xs font-extrabold bg-stone text-white rounded-md px-2 py-1">MATCHA</span>
+        <span className="font-heading text-lg font-extrabold text-stone leading-tight">L’ordre des nombres</span>
+      </div>
+      <p className="text-xs font-bold text-s4 mb-3">Aide-mémoire p. 14 · ranger, la droite, arrondir</p>
+
+      <div className="rounded-xl bg-orange-50 border-2 border-orange-200 p-3 mb-3">
+        <p className="text-sm font-extrabold text-fox-d mb-1">ARRONDIR 1 312 À LA CENTAINE</p>
+        <DroiteNumerique marques={Array.from({ length: 11 }, (_, k) => 1300 + k * 10)} etiquettes={[0, 5, 10]} point={{ valeur: 1312 }} />
+        <div className="text-sm font-semibold text-stone leading-snug">
+          <div>1. Entre quelles centaines? <b>1 300</b> et <b>1 400</b>.</div>
+          <div>2. Le chiffre d’à côté (les dizaines): <b>1</b> → 4 ou moins, on <b>garde</b>.</div>
+          <div>3. J’écris le nombre <b>AU COMPLET</b>: <b className="text-lava">1 300</b> — jamais « 300 ».</div>
+        </div>
+        <p className="text-xs font-bold text-fox-d mt-1">Arrondir, c’est trouver le nombre rond le plus PROCHE. Il reste presque pareil: les milliers ne bougent pas.</p>
+      </div>
+
+      <CadreCahier>
+        <p className="text-sm font-extrabold text-stone mb-1">RANGER: 8 037 ou 8 730?</p>
+        <div className="text-sm font-semibold text-stone leading-snug">
+          <div>1. Je compte les chiffres: <b>783</b> (3 chiffres) est plus petit que tous les nombres de 4 chiffres.</div>
+          <div>2. Même nombre de chiffres? Je compare de <b>GAUCHE</b> à droite: 8 = 8, puis <b>0 &lt; 7</b> → <b>8 037 &lt; 8 730</b>.</div>
+          <div className="text-xs font-bold text-s4 mt-1">Croissant = ça monte (petit → grand) · Décroissant = ça descend (grand → petit)</div>
+        </div>
+      </CadreCahier>
+
+      <div className="mt-3 rounded-xl bg-white border-2 border-s2 p-3">
+        <p className="text-sm font-extrabold text-stone mb-1">LE PAS DE GRADUATION</p>
+        <DroiteNumerique marques={[680, 690, 700, 710, 720]} vides={2} />
+        <p className="text-sm font-semibold text-stone leading-snug">
+          D’un trait au trait <b>juste à côté</b>: 690 − 680 = <b>10</b>. Le pas est <b>+10</b>, alors les cases vides: <b>730</b> et <b>740</b>.
+        </p>
+      </div>
+    </>
+  );
+}
+
 // Univers social — Terminus p. 6 à 18. Les mots du relief viennent en
 // premier: c'est la page qu'il a ratée au complet (il écrivait la définition).
 function FicheTerminus() {
@@ -361,15 +405,16 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
   const estVerbe = typeof mode === 'string' && mode.startsWith('verbe_semaine');
   const estSciences = mode === 'sciences_queue';
   const estTerminus = mode === 'us_iroquoiens';
+  const estOrdre = mode === 'matcha_ordre';
   // Par defaut la liste de la semaine. `listeNumero` sert quand on revient sur
   // une liste deja vue (revision) : la page du cahier doit montrer CES mots-la,
   // pas ceux de cette semaine.
   const liste = estOrtho
     ? (listeNumero ? LISTES.find((l) => l.numero === listeNumero) : null) || listeCetteSemaine()
     : null;
-  const strats = estOrtho || estClasses || estVerbe || estSciences || estTerminus ? null : strategiesCetteSemaine();
+  const strats = estOrtho || estClasses || estVerbe || estSciences || estTerminus || estOrdre ? null : strategiesCetteSemaine();
   if (estOrtho && !liste) return null;
-  if (!estOrtho && !estClasses && !estVerbe && !estSciences && !estTerminus && !strats?.length) return null;
+  if (!estOrtho && !estClasses && !estVerbe && !estSciences && !estTerminus && !estOrdre && !strats?.length) return null;
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-4 pb-10">
@@ -379,7 +424,8 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
         {estVerbe && <TableauVerbe />}
         {estSciences && <FicheSciences />}
         {estTerminus && <FicheTerminus />}
-        {!estOrtho && !estClasses && !estVerbe && !estSciences && !estTerminus && <TableauStrategies strats={strats} />}
+        {estOrdre && <FicheOrdre />}
+        {!estOrtho && !estClasses && !estVerbe && !estSciences && !estTerminus && !estOrdre && <TableauStrategies strats={strats} />}
 
         <div className="mt-5 flex flex-col sm:flex-row gap-2.5">
           <button
@@ -401,8 +447,8 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
 
         {!dejaCommence && (
           <p className="text-center text-xs font-semibold text-s4 mt-3">
-            Prends 30 secondes pour <b>regarder</b>{estClasses ? ' les 4 sortes de mots' : estVerbe ? ' le verbe au complet' : estSciences || estTerminus ? ' ta fiche' : ' les mots'}. Tu pourras revenir
-            {' les voir'} avec le bouton « 📋 {estClasses ? 'Les 4 sortes' : estVerbe ? 'Mon verbe' : estSciences || estTerminus ? 'Ma fiche' : 'La liste'} ».
+            Prends 30 secondes pour <b>regarder</b>{estClasses ? ' les 4 sortes de mots' : estVerbe ? ' le verbe au complet' : estSciences || estTerminus || estOrdre ? ' ta fiche' : ' les mots'}. Tu pourras revenir
+            {' les voir'} avec le bouton « 📋 {estClasses ? 'Les 4 sortes' : estVerbe ? 'Mon verbe' : estSciences || estTerminus || estOrdre ? 'Ma fiche' : 'La liste'} ».
           </p>
         )}
       </div>

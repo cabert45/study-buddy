@@ -6,7 +6,7 @@
 //   • une ressource peut avoir plusieurs utilités (les animaux).
 import { pickAdaptive } from '../utils/skillStats';
 import {
-  MOTS, RESSOURCES, ATOUTS, CONTRAINTES, ETE, HIVER, FEUILLUS, CONIFERES,
+  MOTS, RESSOURCES, ATOUTS, CONTRAINTES, ETE, HIVER, FEUILLUS, CONIFERES, IMG,
 } from '../data/terminusIroquoiens';
 
 const CATEGORY = 'us_iroquoiens';
@@ -26,17 +26,21 @@ const q = (type, text, correct, options, explanation, hint) => ({
 });
 
 const RELIEF = MOTS.filter((m) => m.relief);
+const avecImage = (x, nom, alt) => (nom ? { ...x, image: IMG(nom), imageAlt: alt } : x);
 
 // ===== 1. Le mot de la définition (tapé) — son erreur de la page 11 =====
 function motRelief() {
   const m = pick(RELIEF);
+  // Comme la page 11: une image, et on écrit le MOT dessous. Une fois sur
+  // deux, la définition est là pour aider — c'est elle qu'il recopiait.
+  const aide = Math.random() < 0.5 ? `\nAide: « ${m.def} »` : '';
   return {
-    ...q('mot_relief',
-      `« ${maj(m.def)} »\n\nQuel est le MOT?\n(colline · plaine · vallée · fleuve)`,
+    ...avecImage(q('mot_relief',
+      `Écris le bon MOT sous l'image.${aide}\n(colline · plaine · vallée · fleuve)`,
       m.mot, null,
       `${maj(m.mot)}.\n\n« ${maj(m.def)} », c'est sa définition — l'explication. `
       + `Sous l'image, on écrit le MOT: ${m.mot}.`,
-      'Un seul mot, pris dans la liste entre parenthèses.'),
+      'Un seul mot, pris dans la liste entre parenthèses.'), m.img, 'Un paysage'),
     tape: 'mot',
     // Son erreur exacte de la page 11: un morceau de la définition.
     presque: {
@@ -66,11 +70,11 @@ function motVocab() {
   const autres = MOTS.filter((m) => !m.relief);
   const m = pick(autres);
   const leurres = shuffle(autres.filter((x) => x.mot !== m.mot)).slice(0, 3).map((x) => x.mot);
-  return q('mot_vocab',
+  return avecImage(q('mot_vocab',
     `« ${maj(m.def)} » — quel est le mot?`,
     m.mot, [m.mot, ...leurres],
     `${maj(m.mot)}: ${m.def}.`,
-    'Relis bien chaque mot du cahier: lequel veut dire exactement ça?');
+    'Relis bien chaque mot du cahier: lequel veut dire exactement ça?'), m.img, 'Une illustration du mot');
 }
 
 // ===== 4. À quoi sert cette ressource? — les plantes, deux fois ratées =====
@@ -81,13 +85,19 @@ function ressource() {
     : pick(RESSOURCES.filter((x) => x.utilites.length === 1 || x.nom.startsWith('le bois')));
   const bonne = r.utilites[0];
   const toutes = ['se soigner', 'se nourrir', 'se vêtir', 'faire des feux'];
-  return q('ressource',
+  // L'image raconte la réponse (la grand-mère qui soigne un genou avec une
+  // plante): le but est qu'il s'en SOUVIENNE, pas qu'il devine.
+  const img = r.nom === 'les plantes' ? 'plantes-soigner'
+    : r.nom.startsWith('les petits fruits') ? 'cueillette'
+      : r.nom.startsWith('le bois') ? 'maison-longue' : null;
+  return avecImage(q('ressource',
     `À quoi servent ${r.nom} aux Iroquoiens?`,
     bonne, [bonne, ...toutes.filter((t) => !r.utilites.includes(t))].slice(0, 4),
     `${maj(r.nom)}: ${r.utilites.join(' ET ')}.\n\n`
       + 'Le bois et l’écorce → feux et habitations · les plantes → SE SOIGNER · '
       + 'fruits, noix, champignons, poissons → se nourrir · animaux → se nourrir ET se vêtir.',
-    r.nom === 'les plantes' ? 'Quand on est malade, qu’est-ce qu’on cherche?' : 'Pense à ce qu’on en fait dans la page du cahier.');
+    r.nom === 'les plantes' ? 'Quand on est malade, qu’est-ce qu’on cherche?' : 'Pense à ce qu’on en fait dans la page du cahier.'),
+  img, maj(r.nom));
 }
 
 // ===== 5. Plusieurs utilités — les animaux, page 15 =====
@@ -97,14 +107,16 @@ function plusieurs() {
   const leurres = r.nom === 'les animaux'
     ? ['se nourrir seulement', 'se vêtir seulement', 'se soigner']
     : ['faire des feux seulement', 'se soigner', 'se nourrir'];
-  return q('plusieurs',
+  return avecImage(q('plusieurs',
     `Attention: une ressource peut avoir PLUS D'UNE utilité. Les Iroquoiens utilisent ${r.nom} pour…`,
     tout, [tout, ...leurres],
     `${tout}.\n\n`
       + (r.nom === 'les animaux'
         ? 'Ils chassent pour manger la viande, et les peaux, les fourrures et les plumes deviennent des vêtements et des bijoux.'
         : 'Le bois et l’écorce font des feux, et aussi les maisons longues et les canots.'),
-    'Une seule case cochée, c’est souvent trop peu.');
+    'Une seule case cochée, c’est souvent trop peu.'),
+  r.nom === 'les animaux' ? 'peaux-fourrures' : 'maison-longue',
+  r.nom === 'les animaux' ? 'Des vêtements faits de peaux, de fourrures et de plumes' : 'Une maison longue en bois et en écorce');
 }
 
 // ===== 6. Atout ou contrainte? =====
@@ -182,7 +194,15 @@ function lacs() {
 
 // ===== 11. La forêt (p. 13) =====
 function foret() {
-  const genre = pick(['arbre', 'arbre', 'ou']);
+  const genre = pick(['arbre', 'arbre', 'ou', 'image']);
+  if (genre === 'image') {
+    const f = Math.random() < 0.5;
+    return avecImage(q('foret', 'Ces arbres sont des…',
+      f ? 'feuillus' : 'conifères', ['feuillus', 'conifères'],
+      f ? 'Des feuillus: des feuilles larges qui poussent au printemps et tombent à l’automne (érable, chêne, bouleau).'
+        : 'Des conifères: des aiguilles et des cocottes (sapin, épinette, cèdre). Ils restent verts l’hiver.',
+      'Des feuilles, ou des aiguilles?'), f ? 'feuillus' : 'coniferes', 'Trois arbres');
+  }
   if (genre === 'ou') {
     return q('foret', 'Au SUD du territoire iroquoien, les forêts se composent surtout…',
       'de feuillus', ['de feuillus', 'de conifères', 'de palmiers'],
@@ -199,28 +219,42 @@ function foret() {
 }
 
 // ===== 12. Le village et la maison longue (p. 16 à 18) =====
+// [question, réponse, choix, POURQUOI, image]. Le « pourquoi » est ce qui
+// reste: une réponse sans raison se reperd au test suivant.
 const VILLAGE = [
-  ['Hochelaga, un village iroquoien, se trouvait où est aujourd’hui la ville de…', 'Montréal', ['Montréal', 'Québec', 'Laval', 'Toronto']],
-  ['Stadaconé, un village iroquoien, se trouvait où est aujourd’hui la ville de…', 'Québec', ['Montréal', 'Québec', 'Trois-Rivières', 'Ottawa']],
+  ['Hochelaga, un village iroquoien, se trouvait où est aujourd’hui la ville de…', 'Montréal', ['Montréal', 'Québec', 'Laval', 'Toronto'],
+    'Hochelaga → Montréal, tout près de Laval, chez nous. Le quartier Hochelaga existe encore aujourd’hui à Montréal!', null],
+  ['Stadaconé, un village iroquoien, se trouvait où est aujourd’hui la ville de…', 'Québec', ['Montréal', 'Québec', 'Trois-Rivières', 'Ottawa'],
+    'Stadaconé → la ville de Québec, plus loin sur le fleuve. Hochelaga, c’est Montréal.', null],
   ['Pourquoi appelle-t-on la maison iroquoienne une « maison longue »?', 'elle est beaucoup plus longue que large',
-    ['elle est beaucoup plus longue que large', 'elle est très haute', 'on met longtemps à la construire']],
-  ['De quoi est recouvert l’extérieur d’une maison longue?', 'd’écorce', ['d’écorce', 'de pierres', 'de neige', 'de peaux']],
+    ['elle est beaucoup plus longue que large', 'elle est très haute', 'on met longtemps à la construire'],
+    'Regarde l’image: environ 25 mètres de long et seulement 10 de large — aussi longue qu’une piscine de quartier. Le nom dit sa forme.', 'maison-longue'],
+  ['De quoi est recouvert l’extérieur d’une maison longue?', 'd’écorce', ['d’écorce', 'de pierres', 'de neige', 'de peaux'],
+    'La structure est en BOIS, et on la recouvre de grandes feuilles d’ÉCORCE d’arbre — la forêt donne tout.', 'maison-longue'],
   ['Combien de personnes vivent dans une maison longue?', '25 à 60 personnes (plusieurs familles)',
-    ['25 à 60 personnes (plusieurs familles)', 'une seule famille', '2 000 personnes']],
+    ['25 à 60 personnes (plusieurs familles)', 'une seule famille', '2 000 personnes'],
+    'Plusieurs familles ensemble: 25 à 60 personnes. 2 000, c’est un village entier (plusieurs maisons longues).', 'interieur'],
   ['À quoi sert le foyer dans la maison longue?', 'à la cuisson et au chauffage',
-    ['à la cuisson et au chauffage', 'à dormir', 'à entreposer les objets']],
-  ['À quoi servent les ouvertures dans le toit?', 'à évacuer la fumée', ['à évacuer la fumée', 'à entrer', 'à regarder les étoiles']],
+    ['à la cuisson et au chauffage', 'à dormir', 'à entreposer les objets'],
+    'Le feu au milieu (le foyer) fait cuire la nourriture ET réchauffe la maison. On dort sur les plateformes, sur les côtés.', 'interieur'],
+  ['À quoi servent les ouvertures dans le toit?', 'à évacuer la fumée', ['à évacuer la fumée', 'à entrer', 'à regarder les étoiles'],
+    'Il y a un feu dans la maison: la fumée doit sortir par en haut, sinon on ne pourrait plus respirer.', 'maison-longue'],
   ['À quoi sert la palissade autour du village?', 'à protéger du vent, des animaux et des ennemis',
-    ['à protéger du vent, des animaux et des ennemis', 'à garder les enfants', 'à faire sécher la viande']],
-  ['Combien d’entrées y a-t-il dans un village iroquoien?', 'une seule', ['une seule', 'deux', 'une par maison']],
+    ['à protéger du vent, des animaux et des ennemis', 'à garder les enfants', 'à faire sécher la viande'],
+    'La palissade, c’est la grande clôture de troncs pointus tout autour: elle protège du vent, des animaux et des ennemis. On peut y grimper pour surveiller.', 'village'],
+  ['Combien d’entrées y a-t-il dans un village iroquoien?', 'une seule', ['une seule', 'deux', 'une par maison'],
+    'Une seule entrée: c’est plus facile à surveiller et à défendre.', 'village'],
   ['Pourquoi les Iroquoiens construisent-ils leur village près d’un cours d’eau?', 'pour boire, pêcher, se laver, arroser les champs et se déplacer',
-    ['pour boire, pêcher, se laver, arroser les champs et se déplacer', 'pour la vue', 'parce qu’il fait plus chaud']],
+    ['pour boire, pêcher, se laver, arroser les champs et se déplacer', 'pour la vue', 'parce qu’il fait plus chaud'],
+    'L’eau sert à tout: boire, pêcher, se laver, arroser les champs, et se déplacer en canot. « Les cours d’eau, ce sont les routes des Autochtones. »', 'village'],
   ['Comment contourner une chute ou des rapides en canot?', 'faire du portage: porter le canot',
-    ['faire du portage: porter le canot', 'sauter la chute', 'attendre l’hiver']],
+    ['faire du portage: porter le canot', 'sauter la chute', 'attendre l’hiver'],
+    'En canot, on ne peut pas passer une chute ni la plupart des rapides. Alors on sort de l’eau et on PORTE le canot à pied: c’est le portage.', 'portage'],
 ];
 function village() {
-  const [t, c, o] = pick(VILLAGE);
-  return q('village', t, c, o, `${maj(c)}.`, 'Repense à l’image du village et de la maison longue.');
+  const [t, c, o, pourquoi, img] = pick(VILLAGE);
+  return avecImage(q('village', t, c, o, `${maj(c)}.\n\n${pourquoi}`, 'Repense à l’image du village et de la maison longue.'),
+    img, 'Le village iroquoien');
 }
 
 function buildOne() {

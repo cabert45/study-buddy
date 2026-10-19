@@ -139,6 +139,36 @@ export const videoLinks = {
     { title: 'Edmond Rostand & Cyrano de Bergerac', url: 'https://www.youtube.com/results?search_query=edmond+rostand+cyrano+de+bergerac', channel: 'Recherche' },
   ],
 
+  // === Feuille AS.2.02 (19 oct. 2026) — par TYPE de question ===
+  // Vérifiées une à une (oEmbed YouTube: titre + chaîne) le 19 oct. Les
+  // vidéos du Québec d'abord (« 4e année », 2e cycle), puis une de France
+  // quand c'est la seule à montrer la droite numérique.
+  'matcha_nombres|arrondir': [
+    { title: "L'arrondissement (4e année)", url: 'https://www.youtube.com/watch?v=dTk_Y4rxCaE', channel: 'Trucs de classe' },
+    { title: 'Arrondir et placer sur une droite', url: 'https://www.youtube.com/watch?v=ftjL4JqbeBE', channel: 'Prof de CM' },
+    { title: 'Arrondir un nombre — 2e cycle', url: 'https://www.alloprof.qc.ca/fr/eleves/bv/mathematiques/arrondir-un-nombre-2e-cycle-m1643p34', channel: 'Alloprof' },
+  ],
+  'matcha_nombres|approximation': [
+    { title: "L'arrondissement (4e année)", url: 'https://www.youtube.com/watch?v=dTk_Y4rxCaE', channel: 'Trucs de classe' },
+    { title: 'Arrondir un nombre — 2e cycle', url: 'https://www.alloprof.qc.ca/fr/eleves/bv/mathematiques/arrondir-un-nombre-2e-cycle-m1643p34', channel: 'Alloprof' },
+  ],
+  'matcha_nombres|ranger': [
+    { title: 'Ordre croissant (3e à 6e année)', url: 'https://www.youtube.com/watch?v=Xpq2fSC1Q6c', channel: 'Les capsules scolaires de Jessica' },
+    { title: 'Ordre décroissant', url: 'https://www.youtube.com/watch?v=iJekWb0i33g', channel: 'Les capsules scolaires de Jessica' },
+    { title: 'Comparer des nombres', url: 'https://www.alloprof.qc.ca/fr/eleves/bv/mathematiques/comparer-des-nombres-1er-cycle-m1648p12', channel: 'Alloprof' },
+  ],
+  'matcha_nombres|droite': [
+    { title: 'Placer des nombres sur une droite', url: 'https://www.youtube.com/watch?v=ftjL4JqbeBE', channel: 'Prof de CM' },
+  ],
+
+  // === Univers social — Les Iroquoiens vers 1500 (Terminus p. 6-20) ===
+  us_iroquoiens: [
+    { title: 'Le territoire des Iroquoiens vers 1500', url: 'https://www.youtube.com/watch?v=LGdhvry-SVw', channel: 'Services éducatifs CSSDM' },
+    { title: 'Les ressources du territoire des Iroquoiens', url: 'https://www.youtube.com/watch?v=tIL4mCTIPNc', channel: 'Mélanie Pelletier' },
+    { title: 'Les activités de subsistance des Iroquoiens', url: 'https://www.youtube.com/watch?v=P0VEfiZFvws', channel: 'RÉCIT Univers social' },
+    { title: 'Le village iroquoien vers 1500', url: 'https://www.youtube.com/watch?v=Cfmp0A3RCvg', channel: 'Zeina Cafiti' },
+  ],
+
   // === English oral ===
   english_oral: [
     { title: 'Days of the Week song (Maple Leaf Learning)', url: 'https://www.youtube.com/results?search_query=days+of+the+week+song+kids', channel: 'Recherche' },
@@ -148,6 +178,10 @@ export const videoLinks = {
   ],
 };
 
-export function getVideosForCategory(category) {
-  return videoLinks[category] || [];
+// La vidéo suit la QUESTION: une question d'arrondi ne doit pas proposer une
+// vidéo sur la valeur de position. `catégorie|type` d'abord, sinon la catégorie.
+videoLinks['matcha_nombres|ordre'] = videoLinks['matcha_nombres|ranger'];
+
+export function getVideosForCategory(category, type) {
+  return videoLinks[`${category}|${type}`] || videoLinks[category] || [];
 }
