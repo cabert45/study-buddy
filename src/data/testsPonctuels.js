@@ -18,6 +18,19 @@ export const TESTS = [
     label: 'Sciences — pourquoi certains animaux ont-ils une queue?',
     icon: '🔬',
     source: 'Éclair de génie, p. 3 à 12',
+    // Résultat: 18/20. Ses deux fautes: « garder l'équilibre » pas coché
+    // (q. 2), et « tous les animaux ont une colonne vertébrale » = VRAI (q. 3c).
+  },
+  {
+    // Feuille du 19 au 23 oct.: « Révision des pages 6 à 20 dans Terminus,
+    // test à venir! » · « 22 octobre: Test d'univers social ».
+    // Pas de `mode`: aucune photo de Terminus encore. Le Coach en fait une
+    // révision sur papier, cahier ouvert, avec un adulte.
+    date: [2026, 10, 22], jours: 4,
+    nom: "Test d'univers social",
+    label: 'Univers social — relire Terminus p. 6 à 20 avec un adulte',
+    icon: '🗺️',
+    source: 'Terminus, p. 6 à 20',
   },
 ];
 

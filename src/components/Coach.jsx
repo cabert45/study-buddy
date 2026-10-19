@@ -182,9 +182,14 @@ function buildRentreePlan(today) {
   // Coach dans l'ancienne machinerie et abandonnerait la liste, les
   // strategies et le cahier. Le jour du test, on ne revise plus: c'est fait.
   const test = testAReviser(ref);
+  // Un test sans exercice dans l'app (pas encore de photos des pages) se
+  // révise sur papier: minuterie + « Fait! », comme la lecture.
   const testStep = test && test.reste > 0
-    ? { type: 'app', mode: test.mode, icon: test.icon,
-      label: `${test.icon} ${test.label} — ${quandLeTest(test.reste)}` }
+    ? test.mode
+      ? { type: 'app', mode: test.mode, icon: test.icon,
+        label: `${test.icon} ${test.label} — ${quandLeTest(test.reste)}` }
+      : { type: 'chore', icon: test.icon,
+        label: `${test.icon} ${test.label} — ${quandLeTest(test.reste)}` }
     : null;
 
   // Le VERBE de la semaine — la 4e ligne de la feuille, et la seule qui

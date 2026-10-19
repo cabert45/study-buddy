@@ -25,7 +25,7 @@ const NOMBRE = {
   // demandent UN nombre — et c'est justement là que la colonne vide se perd.
   matcha_nombres: ['blocs', 'tableau_zero', 'jetons', 'abaque', 'lettres_chiffres',
     'position_valeur', 'ajouter', 'ajouter_deux', 'groupements', 'sacs', 'plus_grand_petit',
-    'decomposition_nombre', 'decomposition_trou'],
+    'decomposition_nombre', 'decomposition_trou', 'avant_apres', 'bonds'],
   terme: '*',       // sa catégorie la plus faible: 27/54
   relational: '*',
   mental: '*',
@@ -244,6 +244,8 @@ export function diagnosticTape(saisie, correct, mode, contexte = {}) {
     const v = versNombre(saisie);
     const c = Number(correct);
     if (!Number.isFinite(v) || v === c) return null;
+    // Une erreur prévue par la question elle-même (« 2 9910 » pour 2 999 + 1).
+    if (contexte.presque && contexte.presque[v]) return contexte.presque[v];
     // Les deux messages de valeur de position ne valent que pour de vrais
     // nombres à colonnes. Répondre 1 au lieu de 10 dans un problème de
     // bonbons, ce n'est pas « la colonne vide » — c'est juste faux, et lui

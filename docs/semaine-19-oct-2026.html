@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Ma semaine — du 19 au 23 octobre 2026</title>
+<!--
+  PDF: chrome --headless=new --disable-gpu --no-pdf-header-footer \
+         --print-to-pdf=docs/semaine-19-oct-2026.pdf docs/semaine-19-oct-2026.html
+
+  Source: feuille de Mme Haidar « Du 19 au 23 octobre 2026 », photographiée le
+  19 oct. Tout ce qui est ici vient d'elle, sauf les trucs et les pièges, qui
+  viennent de ses propres feuilles corrigées (voir docs/passation-ryan.md).
+-->
+<style>
+  @page { size: Letter; margin: 10mm 11mm 8mm 11mm; }
+  * { box-sizing: border-box; }
+  html { font-size: 10.5pt; }
+  /* Tout est en points absolus dans cette feuille: réduire la taille de base ne
+     change presque rien. Le zoom, lui, réduit TOUT d'un coup — c'est ce qui
+     ramène la semaine sur UNE page, et tenir sur une page est tout l'intérêt
+     de ce document: il se pose à côté de lui, il ne se feuillette pas. */
+  body { zoom: 0.76; }
+  body {
+    margin: 0; color: #111; line-height: 1.32;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+
+  .head { border-bottom: 2.5pt solid #111; padding-bottom: 5pt; margin-bottom: 7pt; }
+  .head .kicker { font-size: 8pt; letter-spacing: .14em; text-transform: uppercase; color: #555; font-weight: 700; }
+  .head h1 { font-size: 17pt; margin: 2pt 0 1pt; line-height: 1.08; }
+  .head .sub { font-size: 9.5pt; color: #444; }
+
+  h2 {
+    font-size: 11pt; margin: 0 0 5pt; padding: 3.5pt 7pt;
+    background: #111; color: #fff;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  h2 .tag { font-size: 7.5pt; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
+  section { margin-bottom: 5.5pt; break-inside: avoid; }
+
+  /* le cadre pointillé du cahier */
+  .cadre { border: 2pt dashed #9a8a72; padding: 7pt 9pt; background: #fffdf8; }
+  .mots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4pt 8pt; }
+  .mots div { font-size: 11.5pt; font-weight: 700; letter-spacing: .01em; }
+  .mots .fam { display: block; font-size: 8pt; font-weight: 500; color: #6a5f4e; }
+  .mots b.s, b.s { color: #0b5f2a; }
+  .mots b.z, b.z { color: #8a2b86; }
+  .ligne { display: flex; gap: 4pt; align-items: center; font-size: 11pt; font-weight: 700; margin: 3pt 0; }
+  .ligne span { border: .9pt solid #111; padding: 2pt 6pt; background: #fff; }
+  .ligne span.trou { border-style: dashed; }
+
+  .truc { border-left: 3pt solid #111; background: #f4f4f1; padding: 4pt 7pt; margin-top: 4pt; font-size: 8.9pt; }
+  .truc b { letter-spacing: .01em; }
+  .truc .gros { font-size: 11pt; display: block; margin-top: 2pt; }
+
+  .deux { display: flex; gap: 9pt; }
+  .deux > * { flex: 1; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
+  td, th { border: .7pt solid #bbb; padding: 3pt 5pt; text-align: left; }
+  th { background: #eee; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .06em; }
+  .verbe td { font-weight: 700; }
+
+  .piege { border: 1pt solid #111; padding: 4pt 7pt; font-size: 8.8pt; }
+  .piege h3 { margin: 0 0 3pt; font-size: 9pt; text-transform: uppercase; letter-spacing: .05em; }
+  .piege ol { margin: 0; padding-left: 15pt; }
+  .piege li { margin-bottom: 2pt; }
+  .piege .quoi { font-weight: 700; }
+
+  .jours { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5pt; margin-top: 4pt; }
+  .jour { border: .8pt solid #999; padding: 4pt 5pt; }
+  .jour.conge { background: #f2f2f2; border-style: dashed; }
+  .jour .nom { font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; border-bottom: .6pt solid #ccc; padding-bottom: 2pt; margin-bottom: 3pt; }
+  .case { display: flex; align-items: center; gap: 4pt; font-size: 8.5pt; margin-bottom: 2.5pt; }
+  .case span.b { width: 8pt; height: 8pt; border: .9pt solid #333; flex: none; }
+
+  /* l'horloge: dessinée ici aussi, pour qu'il ait le même cadran sur papier
+     et dans l'app (components/Horloge.jsx). */
+  .cadrans { display: flex; gap: 7pt; align-items: flex-start; }
+  .cadrans figure { margin: 0; text-align: center; font-size: 8pt; font-weight: 700; }
+
+  .pied { margin-top: 8pt; border-top: .8pt solid #999; padding-top: 5pt; font-size: 8.5pt; color: #555; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div class="kicker">Study Buddy · 3e année</div>
+  <h1>Ma semaine — du lundi 19 au vendredi 23 octobre</h1>
+  <div class="sub">Ryan · Liste 6 · Verbe <b>finir</b> au présent · Stratégies K et L · Cahier Jazz : <b>les constructions d'un groupe du nom</b> · Maths : <b>l'ordre des nombres</b></div>
+</div>
+
+<section>
+  <h2>Mes 19 mots — Liste 6 <span class="tag">Le « s » se dit [s] ou [z]</span></h2>
+  <div class="cadre">
+    <div class="mots">
+      <div>choi<b class="z">s</b>ir<span class="fam">[z] · comme finir : je choisis</span></div>
+      <div>con<b class="s">s</b>oler<span class="fam">[s] · après le n</span></div>
+      <div>cour<b class="s">s</b>e<span class="fam">[s] · après le r</span></div>
+      <div>dan<b class="s">s</b>e<span class="fam">[s] · après le n</span></div>
+      <div>dan<b class="s">s</b>er<span class="fam">[s] · un danseur</span></div>
+      <div>de<b class="s">s</b>cendre<span class="fam">[s] · sc</span></div>
+      <div>égli<b class="z">s</b>e<span class="fam">[z] · accent sur le é</span></div>
+      <div>gli<b class="s">ss</b>er<span class="fam">[s] · deux s</span></div>
+      <div>lai<b class="s">ss</b>er<span class="fam">[s] · deux s</span></div>
+      <div>pa<b class="s">ss</b>age<span class="fam">[s] · passer</span></div>
+      <div>po<b class="z">s</b>er<span class="fam">[z] · un seul s</span></div>
+      <div>po<b class="s">ss</b>éder<span class="fam">[s] · deux s, puis un é</span></div>
+      <div>pou<b class="s">ss</b>er<span class="fam">[s] · deux s</span></div>
+      <div>pré<b class="z">s</b>enter<span class="fam">[z] · un présent</span></div>
+      <div>réu<b class="s">ss</b>ir<span class="fam">[s] · comme finir : je réussis</span></div>
+      <div>tré<b class="z">s</b>or<span class="fam">[z] · dans un coffre</span></div>
+      <div>u<b class="z">s</b>ine<span class="fam">[z] · on y fabrique</span></div>
+      <div>vi<b class="z">s</b>ite<span class="fam">[z] · visiter</span></div>
+      <div>vite<b class="s">ss</b>e<span class="fam">[s] · deux s</span></div>
+    </div>
+  </div>
+
+  <div class="truc">
+    <b>LE TRUC DE LA SEMAINE — je regarde ce qu'il y a de CHAQUE CÔTÉ du s.</b>
+    <span class="gros">
+      voyelle + <b>s</b> + voyelle → <b class="z">[z]</b> : <i>poser, église, visite</i> ·
+      <b>ss</b> → <b class="s">[s]</b> : <i>pousser, vitesse</i> ·
+      consonne + <b>s</b> → <b class="s">[s]</b> : <i>danse, course</i>
+    </span>
+    <span style="display:block;margin-top:3pt;font-size:9pt">
+      Donc si j'entends <b>[s]</b> entre deux voyelles, il me faut <b>deux s</b> : <i>poser</i> (un s, [z]) ≠ <i>pousser</i> (deux s, [s]).
+      Et <b>choisir</b> et <b>réussir</b> se conjuguent comme mon verbe de la semaine : <i>je choisis, nous choisissons</i>.
+    </span>
+  </div>
+</section>
+
+<div class="deux">
+  <section style="flex:1.05">
+    <h2>Mon verbe — finir <span class="tag">au présent · 2e groupe</span></h2>
+    <table class="verbe">
+      <tr><td>je finis</td><td>nous fini<u>ss</u>ons</td></tr>
+      <tr><td>tu finis</td><td>vous fini<u>ss</u>ez</td></tr>
+      <tr><td>il / elle finit</td><td>ils / elles fini<u>ss</u>ent</td></tr>
+    </table>
+    <div class="truc" style="margin-top:6pt">
+      <b>finir</b> n'est PAS un verbe en -er : jamais « je fine ».
+      Au singulier : <b>-is, -is, -it</b> (on ne les entend pas). Au pluriel, il arrive un <b>-ss-</b> : <i>nous finissons</i>.
+      Même modèle : <i>choisir, réussir</i>.
+    </div>
+  </section>
+
+  <section style="flex:1">
+    <h2>Mes stratégies <span class="tag">Tables + / −</span></h2>
+    <table>
+      <tr><th>K — 2 de plus</th><th>L — 2 de moins</th></tr>
+      <tr>
+        <td>J'ajoute 2 : je saute <b>deux nombres</b> en avant.<br>7 + 2 = 9</td>
+        <td>J'enlève 2 : je recule de <b>deux nombres</b>.<br>9 − 2 = 7</td>
+      </tr>
+    </table>
+    <div class="truc" style="margin-top:6pt">
+      Pas besoin des doigts : <b>+ 2</b>, c'est « le nombre d'après l'autre ».
+      Et <b>9 − 7 = 2</b> : deux nombres séparés d'une case font toujours 2.
+    </div>
+  </section>
+</div>
+
+<section>
+  <h2>Les constructions d'un groupe du nom <span class="tag">Aide-mémoire Jazz p. 7</span></h2>
+  <table>
+    <tr><th>Nom propre</th><th>Dét. + nom</th><th>Dét. + adjectif + nom</th><th>Dét. + nom + adjectif</th></tr>
+    <tr>
+      <td><i>Ryan</i>, <i>Laval</i></td>
+      <td><i>une église</i>, <i>le trésor</i></td>
+      <td><i>un <b>grand</b> trésor</i>, <i>une <b>petite</b> usine</i></td>
+      <td><i>une course <b>rapide</b></i>, <i>une visite <b>courte</b></i></td>
+    </tr>
+  </table>
+  <div class="truc" style="margin-top:6pt">
+    L'adjectif peut se placer <b>avant</b> ou <b>après</b> le nom. Le test ne change pas : je remplace par <b>il / elle / ils / elles</b>.
+    Le <b>noyau</b> reste le nom : <i>une <b>petite</b> usine</i> → « une usine » se dit encore; « une petite », non.
+  </div>
+</section>
+
+<section>
+  <h2>L'ordre des nombres <span class="tag">Aide-mémoire Matcha p. 14</span></h2>
+  <div class="deux">
+    <div style="flex:1.1">
+      <table>
+        <tr><th>Croissant ↗</th><th>Décroissant ↘</th></tr>
+        <tr>
+          <td>Du plus <b>petit</b> au plus <b>grand</b> — ça monte.<br>2 408 · 2 480 · 4 028</td>
+          <td>Du plus <b>grand</b> au plus <b>petit</b> — ça descend.<br>4 028 · 2 480 · 2 408</td>
+        </tr>
+      </table>
+      <div class="truc" style="margin-top:4pt">
+        <b>Je compare toujours à partir de la GAUCHE</b> (les unités de mille) et je m'arrête à la première différence —
+        jamais par le dernier chiffre. <i>2 480 &gt; 2 408</i> : même mille, même centaine, c'est la <b>dizaine</b> qui décide.
+      </div>
+    </div>
+    <div style="flex:.9">
+      <div style="font-size:9pt;font-weight:700">Juste avant · juste après</div>
+      <div class="ligne"><span>2 998</span><span>2 999</span><span class="trou">3 000</span></div>
+      <div style="font-size:8.5pt">2 999 + 1 = <b>3 000</b> — pas « 2 9910 ». 10 unités, je les <b>échange</b>, comme les blocs.</div>
+      <div style="font-size:9pt;font-weight:700;margin-top:4pt">Les bonds</div>
+      <div class="ligne"><span>4 970</span><span>4 980</span><span>4 990</span><span class="trou">5 000</span></div>
+      <div style="font-size:8.5pt">De 10 en 10 : après 4 990, c'est <b>5 000</b>.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Les 3 pièges que je surveille <span class="tag">vus dans mes feuilles</span></h2>
+  <div class="piege">
+    <ol>
+      <li><span class="quoi">Un s entre deux voyelles chante [z].</span>
+        Pour entendre <b>[s]</b> entre deux voyelles, il faut <b>deux s</b> : <i>poser</i> / <i>pousser</i>, <i>visite</i> / <i>vitesse</i>.</li>
+      <li><span class="quoi">Une colonne ne garde jamais 10.</span>
+        2 999 + 1 = <b>3 000</b>. 4 990 + 10 = <b>5 000</b>. Le même échange que les blocs, et que les 60 minutes de la semaine passée.</li>
+      <li><span class="quoi">« TOUS les animaux » : je lis le mot TOUS.</span>
+        Au test de sciences (<b>18/20 !</b>), j'ai dit VRAI à « tous les animaux ont une colonne vertébrale ».
+        Les <b>invertébrés</b> (ver, escargot, insectes) n'en ont pas. Quand une phrase dit <b>tous</b>, je cherche UN exemple qui ne marche pas.</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <h2>Mon bloc de la semaine <span class="tag">1 heure par jour</span></h2>
+  <div style="font-size:9pt;color:#444;margin-bottom:4pt;border-left:3px solid #c74a15;padding-left:6pt">
+    <b>De l'école cette semaine :</b>
+    <b>mercredi 21 — photo d'école</b> ·
+    <b>jeudi 22 — test d'univers social</b> et <b>remise des devoirs</b> (encore un jeudi).
+    <br><b>À remettre jeudi :</b> feuille liste 6 (orthographe au quotidien) · feuille de mathématiques.
+    <br><b>À réviser :</b> <i>Terminus</i>, pages 6 à 20 — « test à venir ».
+  </div>
+  <div class="jours">
+    <div class="jour"><div class="nom">Lundi 19</div>
+      <div class="case"><span class="b"></span>Lecture 15 min</div>
+      <div class="case"><span class="b"></span>Liste 6 (les cartes)</div>
+      <div class="case"><span class="b"></span>L'ordre des nombres</div>
+      <div class="case"><span class="b"></span>Terminus p. 6-10</div></div>
+    <div class="jour"><div class="nom">Mardi 20</div>
+      <div class="case"><span class="b"></span>Lecture 15 min</div>
+      <div class="case"><span class="b"></span>Liste 6</div>
+      <div class="case"><span class="b"></span>Stratégies K / L</div>
+      <div class="case"><span class="b"></span>Terminus p. 11-15</div></div>
+    <div class="jour"><div class="nom">Mercredi 21 — photo</div>
+      <div class="case"><span class="b"></span>Lecture 15 min</div>
+      <div class="case"><span class="b"></span>Verbe finir</div>
+      <div class="case"><span class="b"></span>Groupe du nom</div>
+      <div class="case"><span class="b"></span>Terminus p. 16-20</div></div>
+    <div class="jour"><div class="nom">Jeudi 22 — remise</div>
+      <div class="case"><span class="b"></span>Lecture 15 min</div>
+      <div class="case"><span class="b"></span><b>Feuilles à remettre</b></div>
+      <div class="case"><span class="b"></span><b>Test univers social</b></div>
+      <div class="case"><span class="b"></span><b>Dictée</b> liste 6</div></div>
+    <div class="jour"><div class="nom">Vendredi 23</div>
+      <div class="case"><span class="b"></span>Lecture 15 min</div>
+      <div class="case"><span class="b"></span>Groupe du nom</div>
+      <div class="case"><span class="b"></span>L'ordre des nombres</div>
+      <div class="case"><span class="b"></span>Verbe finir</div></div>
+  </div>
+</section>
+
+<div class="pied">
+  <div>Dans l'app : <b>Français → Mes mots (liste 6)</b> · <b>Français → Mon verbe de la semaine</b> · <b>Mathématiques → L'ordre des nombres</b></div>
+  <div>Signature : ______________</div>
+</div>
+
+</body>
+</html>

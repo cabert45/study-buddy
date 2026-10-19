@@ -178,7 +178,7 @@ export const STRATEGIE_SEMAINES = [
   { debut: [2026, 9, 28], ids: ['E', 'F'], confirme: true }, // feuille du 28 sept. au 2 oct.
   { debut: [2026, 10, 5], ids: ['G', 'H'] },
   { debut: [2026, 10, 12], ids: ['I', 'J'], confirme: true }, // feuille du 12 au 16 oct.
-  { debut: [2026, 10, 19], ids: ['K', 'L'] },
+  { debut: [2026, 10, 19], ids: ['K', 'L'], confirme: true }, // feuille du 19 au 23 oct.
   { debut: [2026, 10, 26], ids: ['M', 'N'] },
   { debut: [2026, 11, 2], ids: ['O', 'P'] },
   { debut: [2026, 11, 9], ids: ['Q'] },

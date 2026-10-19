@@ -289,7 +289,7 @@ export const LISTE_SEMAINES = [
   // sinon le dimanche et le lundi férié affichent encore la liste 4, et c'est
   // justement la fin de semaine où il a le temps de l'étudier.
   { debut: [2026, 10, 12], liste: 'l5', remise: [2026, 10, 15], confirme: true },
-  { debut: [2026, 10, 19], liste: 'l6' },
+  { debut: [2026, 10, 19], liste: 'l6', remise: [2026, 10, 22], confirme: true }, // remise jeudi 22 (test d'univers social le même jour)
   { debut: [2026, 10, 26], liste: 'l7' },
   { debut: [2026, 11, 2], liste: 'l8' },
   { debut: [2026, 11, 9], liste: 'l9' },

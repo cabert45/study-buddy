@@ -687,6 +687,142 @@ On compare toujours à partir de la GAUCHE (les unités de mille), pas par le de
   };
 }
 
+// ===== L'ordre des nombres — feuille du 19 au 23 oct. (Aide-mémoire p. 14) =====
+// Le piège est le même que celui des blocs: 2 999 + 1, ce n'est pas « 2 9910 ».
+// Une colonne ne garde jamais 10 — on échange. Les nombres sont choisis exprès
+// sur une frontière (… 9 → … 0) une fois sur deux.
+
+// 2 999 → « 2 9910 »: on ajoute 1 au dernier chiffre sans échanger.
+const sansEchange = (n, pas) => {
+  const s = String(n);
+  const k = s.length - String(pas).length; // le chiffre de la position du pas
+  if (k < 0) return null;
+  return Number(s.slice(0, k) + String(Number(s[k]) + 1) + s.slice(k + 1));
+};
+const MSG_ECHANGE = 'Une colonne ne peut pas garder 10. Dix d\'une position, on les échange contre 1 de la position suivante — comme avec les blocs.';
+
+function nombreFrontiere() {
+  const um = rand(1, 8);
+  const c = rand(0, 9);
+  return pick([
+    um * 1000,                            // 3 000
+    um * 1000 + c * 100,                  // 3 400
+    um * 1000 + c * 100 + rand(1, 9) * 10, // 3 470
+    um * 1000 + 999,                      // 3 999
+    um * 1000 + c * 100 + 99,             // 3 499
+    nombreAuHasard(),
+  ]);
+}
+
+function avantApres() {
+  const avant = Math.random() < 0.5;
+  let n = nombreFrontiere();
+  // « juste APRÈS 3 000 » ne passe aucune frontière: on garde les frontières
+  // du bon côté (avant un rond, après un 9).
+  if (avant && n % 10 === 9) n += 1;
+  if (!avant && n % 10 === 0 && n % 100 !== 0) n -= 1;
+  if (n < 1001) n += 1000;
+  const correct = avant ? n - 1 : n + 1;
+  const presque = {};
+  const inverse = avant ? n + 1 : n - 1;
+  presque[inverse] = avant
+    ? `${fmt(inverse)}, c'est juste APRÈS. Juste AVANT, on recule d'un: ${fmt(n)} − 1.`
+    : `${fmt(inverse)}, c'est juste AVANT. Juste APRÈS, on avance d'un: ${fmt(n)} + 1.`;
+  if (!avant) {
+    const naif = sansEchange(n, 1);
+    if (naif && naif !== correct) presque[naif] = MSG_ECHANGE;
+  }
+  return {
+    category: CATEGORY,
+    type: 'avant_apres',
+    text: `Quel nombre vient juste ${avant ? 'AVANT' : 'APRÈS'} ${fmt(n)}?`,
+    correct,
+    presque,
+    explanation: `${fmt(n)} ${avant ? '− 1' : '+ 1'} = ${fmt(correct)}
+${avant && n % 10 === 0 ? `Pour reculer d'un, on défait une dizaine (ou une centaine, ou un mille) en 10: le 0 devient 9.` : ''}${!avant && n % 10 === 9 ? `10 unités = 1 dizaine: on échange, et le 9 devient 0.` : ''}`.trim(),
+    hint: avant ? 'Juste avant = 1 de MOINS.' : 'Juste après = 1 de PLUS.',
+  };
+}
+
+function bonds() {
+  const pas = pick([1, 10, 10, 100, 100, 1000]);
+  const monte = Math.random() < 0.7;
+  // On place la frontière (le changement de colonne) au 4e ou 5e terme.
+  // De 1 000 en 1 000, on reste au milieu (5 000): quatre bonds de chaque
+  // côté tiennent entre 1 000 et 9 999.
+  const frontiere = pas === 1000 ? 5000 : (rand(2, 8) * 1000) + rand(1, 9) * (pas * 10) % 1000;
+  const fin = monte ? frontiere + pas * rand(0, 1) : frontiere - pas * rand(0, 1);
+  const termes = Array.from({ length: 5 }, (_, i) => (monte ? fin - pas * (4 - i) : fin + pas * (4 - i)));
+  const vus = termes.slice(0, 4);
+  const correct = termes[4];
+  const presque = {};
+  const avant = vus[3];
+  if (monte) {
+    const naif = sansEchange(avant, pas);
+    if (naif && naif !== correct) presque[naif] = MSG_ECHANGE;
+  }
+  presque[monte ? avant - pas : avant + pas] = monte
+    ? 'Regarde bien: la suite MONTE. Chaque nombre est plus grand que le précédent.'
+    : 'Regarde bien: la suite DESCEND. Chaque nombre est plus petit que le précédent.';
+  const de = pas === 1 ? 'de 1 en 1' : `de ${fmt(pas)} en ${fmt(pas)}`;
+  return {
+    category: CATEGORY,
+    type: 'bonds',
+    text: `Continue la suite:
+${vus.map(fmt).join(' , ')} , ___`,
+    correct,
+    presque,
+    explanation: `On ${monte ? 'avance' : 'recule'} ${de}: ${fmt(avant)} ${monte ? '+' : '−'} ${fmt(pas)} = ${fmt(correct)}`,
+    hint: `Regarde de combien on ${monte ? 'monte' : 'descend'} d'un nombre à l'autre.`,
+  };
+}
+
+function entre() {
+  const pas = pick([10, 100]);
+  const a = rand(1, 8) * 1000 + rand(0, 8) * 100 + (pas === 10 ? rand(0, 8) * 10 : 0);
+  const b = a + pas;
+  const correct = a + (pas === 10 ? rand(1, 9) : rand(1, 9) * 10 + rand(0, 9));
+  // Les mauvais choix: les mêmes chiffres mal placés, et juste à côté.
+  const s = String(correct);
+  const inverse = Number(s.slice(0, 2) + s[3] + s[2]);
+  const candidats = [inverse, b + rand(1, pas - 1), a - rand(1, pas - 1), Number(s[0] + s[2] + s[1] + s[3])]
+    .filter((x) => x !== correct && (x <= a || x >= b));
+  const choix = [...new Set(candidats)].slice(0, 3);
+  return {
+    category: CATEGORY,
+    type: 'entre',
+    text: `Quel nombre est ENTRE ${fmt(a)} et ${fmt(b)}?`,
+    correct,
+    options: shuffle([correct, ...choix]),
+    explanation: `${fmt(a)} < ${fmt(correct)} < ${fmt(b)}
+Il doit être plus grand que ${fmt(a)} ET plus petit que ${fmt(b)}.`,
+    hint: 'Compare avec les DEUX nombres: plus grand que le premier, plus petit que le deuxième.',
+  };
+}
+
+const RULE_ORDRE = `Croissant = du plus PETIT au plus GRAND (ça monte) · Décroissant = du plus GRAND au plus PETIT
+Pour comparer: on part de la GAUCHE (les unités de mille) et on s'arrête à la première différence.
+Juste avant = 1 de moins · Juste après = 1 de plus · 2 999 + 1 = 3 000 (on échange!)`;
+
+export function generateMatchaOrdre() {
+  const q = pickAdaptive(CATEGORY, [
+    { type: 'ordre', w: 20, build: ordreCroissant },
+    { type: 'avant_apres', w: 18, build: avantApres },
+    { type: 'bonds', w: 18, build: bonds },
+    { type: 'comparer', w: 14, build: comparer },
+    { type: 'plus_grand_petit', w: 10, build: plusGrandPlusPetit },
+    { type: 'entre', w: 10, build: entre },
+  ]);
+  q.rule = getStudyRounds('matcha_ordre') < 3 ? RULE_ORDRE : undefined;
+  if (q.options && q.options.every((o) => typeof o === 'number')) {
+    q.optionLabels = Object.fromEntries(q.options.map((o) => [o, fmt(o)]));
+  } else if (!q.options) {
+    // Une réponse tapée s'affiche « 6 401 », comme dans le cahier, pas « 6401 ».
+    q.optionLabels = { [q.correct]: fmt(q.correct) };
+  }
+  return q;
+}
+
 // Poids de base = ses erreurs du cahier + ce qui s'en vient; pickAdaptive ajuste selon ses réponses.
 function buildOne() {
   return pickAdaptive(CATEGORY, [

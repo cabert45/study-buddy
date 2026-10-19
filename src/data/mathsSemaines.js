@@ -33,6 +33,12 @@ export const MATHS_SEMAINES = [
     debut: [2026, 10, 12], mode: 'heure', confirme: true,
     nom: "la mesure du temps et l'heure", page: 'p. 12-13',
   },
+  {
+    // Feuille « Du 19 au 23 octobre 2026 »: « Mathématiques: L'ordre des
+    // nombres · Aide-mémoire Matcha p.14 ».
+    debut: [2026, 10, 19], mode: 'matcha_ordre', confirme: true,
+    nom: "l'ordre des nombres", page: 'p. 14',
+  },
 ];
 
 const dateOf = ([y, m, d]) => new Date(y, m - 1, d);

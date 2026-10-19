@@ -148,6 +148,8 @@ export const SKILL_LABELS = {
   'matcha_nombres|sacs': 'Faire des sacs de 10 / 100',
   'matcha_nombres|comparer': 'Comparer avec < > =', 'matcha_nombres|plus_grand_petit': 'Le plus grand / le plus petit',
   'matcha_nombres|ordre': 'Ranger en ordre croissant / décroissant',
+  'matcha_nombres|avant_apres': 'Juste avant / juste après', 'matcha_nombres|bonds': 'Continuer une suite (bonds)',
+  'matcha_nombres|entre': 'Un nombre entre deux nombres',
   'infinitif|trouver_infinitif': "Trouver l'infinitif d'un verbe conjugué",
   'infinitif|reconnaitre': "Reconnaître la forme infinitive",
   'infinitif|piege_er': 'Après un 2e verbe: -ER', 'infinitif|piege_er_inverse': 'Après avoir: -É',

@@ -89,7 +89,9 @@ export const CAHIER_SEMAINES = [
   // c'est là qu'est son trou (1/4 au test de l'adjectif féminin), pas dans le
   // calendrier de la classe.
   { debut: [2026, 10, 12], module: 't2m1', confirme: true },
-  { debut: [2026, 10, 19], module: 't2m2' },
+  // Confirmé par la feuille du 19 au 23 oct.: « Grammaire: Les constructions
+  // d'un groupe du nom · Aide-Mémoire Jazz p.7 ». Cette fois l'app avait vu juste.
+  { debut: [2026, 10, 19], module: 't2m2', confirme: true },
 ];
 
 const moduleIndex = {};

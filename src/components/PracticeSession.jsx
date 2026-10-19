@@ -73,7 +73,7 @@ import {
   generateT1Nom, generateT1Determinant, generateT1Adjectif, generateT1Verbe,
   generateT1Pronom, generateT1Dialogue, generateT1Voc, generateT1Revision,
 } from '../generators/theme1';
-import { generateMatchaNombres } from '../generators/matcha1';
+import { generateMatchaNombres, generateMatchaOrdre } from '../generators/matcha1';
 import { generateQuatreClasses } from '../generators/quatreClasses';
 import { generateDicteeListe, setListeDictee } from '../generators/dicteeListe';
 import { generateProuveLeNom } from '../generators/prouveLeNom';
@@ -250,6 +250,7 @@ function getGenerator(mode) {
     case 'orthographe': return generateOrthographe;
     case 'strategies': return generateStrategies;
     case 'matcha_nombres': return generateMatchaNombres;
+    case 'matcha_ordre': return generateMatchaOrdre;
     case 't1_revision': return generateT1Revision;
     case 'francais_mix':
       // Weighted by Ryan's French exam results:
@@ -726,6 +727,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
   const diagnostic = showResult && tape && !estBonne(selected)
     ? diagnosticTape(selected, question.correct, tape, {
       deuxConsignes: question.type === 'ajouter_deux' || / ET /.test(question.text || ''),
+      presque: question.presque,
     })
     : null;
   const bonneReponseAffichee = (question.optionLabels && question.optionLabels[question.correct]) || question.correct;
