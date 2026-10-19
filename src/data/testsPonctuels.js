@@ -24,11 +24,11 @@ export const TESTS = [
   {
     // Feuille du 19 au 23 oct.: « Révision des pages 6 à 20 dans Terminus,
     // test à venir! » · « 22 octobre: Test d'univers social ».
-    // Pas de `mode`: aucune photo de Terminus encore. Le Coach en fait une
-    // révision sur papier, cahier ouvert, avec un adulte.
+    // Pages 6 à 18 photographiées le 19 oct. (les p. 19-20 manquent).
     date: [2026, 10, 22], jours: 4,
     nom: "Test d'univers social",
-    label: 'Univers social — relire Terminus p. 6 à 20 avec un adulte',
+    mode: 'us_iroquoiens',
+    label: 'Univers social — les Iroquoiens vers 1500',
     icon: '🗺️',
     source: 'Terminus, p. 6 à 20',
   },

@@ -49,6 +49,8 @@ const MOT = {
   futur_simple: ['conjugate'],
   futur_etre_avoir: ['conjugate'],
   conjugaison: '*',
+  // p. 11: il a écrit la définition au lieu du mot. Choisir ne le corrigerait pas.
+  us_iroquoiens: ['mot_relief'],
 };
 
 // Un nombre, écrit comme un nombre ou comme du texte: calculRapide3 répond
@@ -279,6 +281,10 @@ export function diagnosticTape(saisie, correct, mode, contexte = {}) {
   }
   if (mode === 'mot') {
     if (!String(saisie || '').trim()) return null;
+    if (contexte.presque) {
+      const cle = Object.keys(contexte.presque).find((k) => squelette(k) === squelette(saisie));
+      if (cle) return contexte.presque[cle];
+    }
     if (sansAccents(saisie) === sansAccents(correct)) {
       return "C'est le bon mot — il manque juste l'accent. En français, l'accent fait partie du mot.";
     }

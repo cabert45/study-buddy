@@ -6,6 +6,7 @@ import { tableauVerbe, verbeCourant } from '../generators/verbeSemaine';
 // `CLASSES` existe deja ici (les 4 classes de MOTS, generators/quatreClasses):
 // les classes de VERTEBRES sont donc renommees a l'import.
 import { CLASSES as CLASSES_VERTEBRES, UTILITES, DEPLACEMENTS } from '../data/sciencesVertebres';
+import { MOTS as MOTS_TERMINUS, RESSOURCES } from '../data/terminusIroquoiens';
 
 // L'aide-mémoire de la semaine — la page du cahier, à l'écran.
 //
@@ -221,6 +222,78 @@ function TableauVerbe() {
 // ===== Sciences: la fiche du mini-test (Éclair de génie, Étape 1) =====
 // Un mini-test se révise sur SA page de cahier. Les trois encadrés sont les
 // trois choses que le test demande, et la première est celle qu'il a ratée.
+// Univers social — Terminus p. 6 à 18. Les mots du relief viennent en
+// premier: c'est la page qu'il a ratée au complet (il écrivait la définition).
+function FicheTerminus() {
+  const relief = MOTS_TERMINUS.filter((m) => m.relief);
+  const autres = MOTS_TERMINUS.filter((m) => !m.relief);
+  return (
+    <>
+      <div className="flex items-baseline gap-2 mb-1 flex-wrap">
+        <span className="text-xs font-extrabold bg-stone text-white rounded-md px-2 py-1">
+          UNIVERS SOCIAL
+        </span>
+        <span className="font-heading text-lg font-extrabold text-stone leading-tight">
+          Les Iroquoiens vers 1500
+        </span>
+      </div>
+      <p className="text-xs font-bold text-s4 mb-3">Terminus · p. 6 à 20 · test jeudi 22</p>
+
+      <div className="rounded-xl bg-orange-50 border-2 border-orange-200 p-3 mb-3">
+        <p className="text-sm font-extrabold text-fox-d mb-1">LE MOT, PAS LA DÉFINITION</p>
+        <p className="text-sm font-semibold text-s4 mb-2">
+          Sous l’image, j’écris <b>le mot en gras</b>. La définition m’aide à le trouver — ce n’est pas la réponse.
+        </p>
+        {relief.map((m) => (
+          <div key={m.mot} className="text-base leading-snug">
+            <b className="text-lava">{m.mot}</b> <span className="text-sm font-semibold text-stone">= {m.def}</span>
+          </div>
+        ))}
+      </div>
+
+      <CadreCahier>
+        <p className="text-sm font-extrabold text-stone mb-2">À QUOI SERVENT LES RESSOURCES</p>
+        {RESSOURCES.map((r) => (
+          <div key={r.nom} className="text-sm font-semibold text-stone leading-snug">
+            • {r.nom} → <b>{r.utilites.join(' ET ')}</b>
+          </div>
+        ))}
+        <p className="text-xs font-bold text-fox-d mt-2 pt-2" style={{ borderTop: '1px dashed #c9b79a' }}>
+          Les <b>plantes</b> servent à <b>se soigner</b>. Une ressource peut avoir <b>plus d’une</b> utilité.
+        </p>
+      </CadreCahier>
+
+      <div className="mt-3 rounded-xl bg-white border-2 border-s2 p-3">
+        <p className="text-sm font-extrabold text-stone mb-1">L’HISTOIRE EN 3 DATES</p>
+        <p className="text-sm font-semibold text-stone leading-snug">
+          Il y a <b>30 000 ans</b>: des chasseurs <b>nomades</b> traversent la <b>Béringie</b> (Asie → Amérique) ·
+          il y a <b>10 000 ans</b>: les glaces fondent, ils s’installent au Québec ·
+          vers <b>1500</b>: les Iroquoiens sont <b>sédentaires</b> (villages, agriculture), vallée du Saint-Laurent et
+          Grands Lacs <b>Huron, Érié, Ontario</b>.
+        </p>
+      </div>
+
+      <div className="mt-3 rounded-xl bg-white border-2 border-s2 p-3">
+        <p className="text-sm font-extrabold text-stone mb-1">LE VILLAGE</p>
+        <p className="text-sm font-semibold text-stone leading-snug">
+          Maisons longues (25 m × 10 m, bois, recouvertes d’<b>écorce</b>, 25 à 60 personnes) · foyer = cuisson et chauffage ·
+          ouverture dans le toit = la fumée sort · <b>palissade</b> = protège du vent, des animaux, des ennemis · une seule entrée ·
+          près d’un cours d’eau · <b>Hochelaga = Montréal</b>, <b>Stadaconé = Québec</b>.
+        </p>
+      </div>
+
+      <div className="mt-3 rounded-xl bg-white border-2 border-s2 p-3">
+        <p className="text-sm font-extrabold text-stone mb-1">LES AUTRES MOTS</p>
+        <div className="text-sm font-semibold text-stone leading-snug">
+          {autres.map((m) => (
+            <div key={m.mot}><b>{m.mot}</b>: {m.def}</div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
 function FicheSciences() {
   return (
     <>
@@ -287,15 +360,16 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
   const estClasses = mode === 'quatre_classes';
   const estVerbe = typeof mode === 'string' && mode.startsWith('verbe_semaine');
   const estSciences = mode === 'sciences_queue';
+  const estTerminus = mode === 'us_iroquoiens';
   // Par defaut la liste de la semaine. `listeNumero` sert quand on revient sur
   // une liste deja vue (revision) : la page du cahier doit montrer CES mots-la,
   // pas ceux de cette semaine.
   const liste = estOrtho
     ? (listeNumero ? LISTES.find((l) => l.numero === listeNumero) : null) || listeCetteSemaine()
     : null;
-  const strats = estOrtho || estClasses || estVerbe || estSciences ? null : strategiesCetteSemaine();
+  const strats = estOrtho || estClasses || estVerbe || estSciences || estTerminus ? null : strategiesCetteSemaine();
   if (estOrtho && !liste) return null;
-  if (!estOrtho && !estClasses && !estVerbe && !estSciences && !strats?.length) return null;
+  if (!estOrtho && !estClasses && !estVerbe && !estSciences && !estTerminus && !strats?.length) return null;
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-4 pb-10">
@@ -304,7 +378,8 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
         {estClasses && <TableauClasses />}
         {estVerbe && <TableauVerbe />}
         {estSciences && <FicheSciences />}
-        {!estOrtho && !estClasses && !estVerbe && !estSciences && <TableauStrategies strats={strats} />}
+        {estTerminus && <FicheTerminus />}
+        {!estOrtho && !estClasses && !estVerbe && !estSciences && !estTerminus && <TableauStrategies strats={strats} />}
 
         <div className="mt-5 flex flex-col sm:flex-row gap-2.5">
           <button
@@ -326,8 +401,8 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
 
         {!dejaCommence && (
           <p className="text-center text-xs font-semibold text-s4 mt-3">
-            Prends 30 secondes pour <b>regarder</b>{estClasses ? ' les 4 sortes de mots' : estVerbe ? ' le verbe au complet' : estSciences ? ' ta fiche' : ' les mots'}. Tu pourras revenir
-            {' les voir'} avec le bouton « 📋 {estClasses ? 'Les 4 sortes' : estVerbe ? 'Mon verbe' : estSciences ? 'Ma fiche' : 'La liste'} ».
+            Prends 30 secondes pour <b>regarder</b>{estClasses ? ' les 4 sortes de mots' : estVerbe ? ' le verbe au complet' : estSciences || estTerminus ? ' ta fiche' : ' les mots'}. Tu pourras revenir
+            {' les voir'} avec le bouton « 📋 {estClasses ? 'Les 4 sortes' : estVerbe ? 'Mon verbe' : estSciences || estTerminus ? 'Ma fiche' : 'La liste'} ».
           </p>
         )}
       </div>
