@@ -800,18 +800,188 @@ Il doit être plus grand que ${fmt(a)} ET plus petit que ${fmt(b)}.`,
   };
 }
 
+// ===== Ses erreurs sur la feuille AS.2.02 (19 oct.) =====
+//   • Arrondir à la centaine: 1/6. Il garde les centaines et PERD les milliers:
+//     1 312 → « 300 », 7 449 → « 400 », 3 168 → « 200 ». Il sait arrondir;
+//     c'est le début du nombre qui disparaît (même famille que le 0 oublié).
+//   • Ranger: il inverse deux nombres faits des mêmes chiffres (8 730 avant
+//     8 037) et 4 569 avant 6 495 dans un ordre décroissant.
+//   • Le pas de graduation d'une droite numérique.
+//   • AS.1.05 n° 6, laissé en blanc: 19 dizaines contre 1 c 8 d 6 u.
+
+function arrondir() {
+  const pas = Math.random() < 0.6 ? 100 : 10;
+  // Des milliers trois fois sur quatre: c'est là qu'il les perd.
+  let n = Math.random() < 0.75 ? rand(1001, 9849) : rand(105, 989);
+  if (n % pas === 0) n += rand(1, pas - 1);
+  const correct = Math.round(n / pas) * pas;
+  const bas = Math.floor(n / pas) * pas;
+  const haut = bas + pas;
+  const nom = pas === 100 ? 'centaine' : 'dizaine';
+  const voisin = pas === 100 ? 'dizaines' : 'unités';
+  const chiffreDecide = Math.floor(n / (pas / 10)) % 10;
+  const presque = {};
+  presque[correct === bas ? haut : bas] = `Regarde le chiffre des ${voisin} (${chiffreDecide}): 5 ou plus → on monte · 4 ou moins → on garde.`;
+  if (correct >= 1000) {
+    presque[correct % 1000] = `Tu as bien arrondi, mais tu as PERDU les milliers! ${fmt(n)} arrondi reste dans les ${Math.floor(correct / 1000)} 000: c'est ${fmt(correct)}.`;
+  }
+  const autrePas = pas === 100 ? 10 : 100;
+  const autre = Math.round(n / autrePas) * autrePas;
+  if (autre !== correct && !presque[autre]) {
+    presque[autre] = `Ça, c'est arrondi à la ${pas === 100 ? 'dizaine' : 'centaine'}. On demande la ${nom}.`;
+  }
+  return {
+    category: CATEGORY,
+    type: 'arrondir',
+    text: `Arrondis ${fmt(n)} à la ${nom} près.`,
+    correct,
+    presque,
+    explanation: `${fmt(n)} est entre ${fmt(bas)} et ${fmt(haut)}.
+Le chiffre des ${voisin} est ${chiffreDecide}: ${chiffreDecide >= 5 ? '5 ou plus → on monte' : '4 ou moins → on garde'} → ${fmt(correct)}.${correct >= 1000 ? `\nLes milliers ne bougent pas: le nombre arrondi est presque pareil, pas plus petit.` : ''}`,
+    hint: `Entre quelles deux ${nom}s est ${fmt(n)}? Écris le nombre AU COMPLET.`,
+  };
+}
+
+// L'estimation de la feuille (Juliette, 433 + 278): arrondir PUIS additionner.
+function approximation() {
+  const a = rand(110, 489), b = rand(110, 489);
+  const ra = Math.round(a / 10) * 10, rb = Math.round(b / 10) * 10;
+  const correct = ra + rb;
+  const presque = {};
+  if (a + b !== correct) presque[a + b] = `Ça, c'est le compte exact. On demande une APPROXIMATION: arrondis d'abord chaque nombre à la dizaine.`;
+  return {
+    category: CATEGORY,
+    type: 'approximation',
+    text: `Un bocal contient ${a} billes, l'autre ${b}.\nArrondis chaque nombre à la dizaine près, puis additionne.\nEnviron combien de billes en tout?`,
+    correct,
+    presque,
+    explanation: `${a} → ${ra} · ${b} → ${rb}\n${ra} + ${rb} = ${fmt(correct)}`,
+    hint: 'Deux étapes: arrondir chacun, puis additionner les nombres ronds.',
+  };
+}
+
+// Ranger 4 nombres faits des MÊMES chiffres (8 037, 783, 3 807, 8 730).
+function rangerMemesChiffres() {
+  const croissant = Math.random() < 0.5;
+  let nombres;
+  for (;;) {
+    const ch = shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]).slice(0, 4);
+    if (ch.filter((c) => c !== 0).length < 3) continue;
+    const [a, b, c, d] = ch;
+    const nz = ch.filter((x) => x !== 0);
+    const m = nz[0];
+    const reste = ch.filter((x) => x !== m);
+    // deux nombres de 4 chiffres qui commencent pareil, un autre, un de 3 chiffres
+    const n1 = Number(`${m}${reste[0]}${reste[1]}${reste[2]}`);
+    const n2 = Number(`${m}${reste[2]}${reste[1]}${reste[0]}`);
+    const n3 = Number(`${nz[1]}${[a, b, c, d].filter((x) => x !== nz[1]).join('')}`);
+    const n4 = Number(nz.slice(0, 3).reverse().join(''));
+    nombres = [n1, n2, n3, n4];
+    if (new Set(nombres).size === 4 && nombres.every((x) => x >= 100)) break;
+  }
+  const tri = (arr) => [...arr].sort((x, y) => (croissant ? x - y : y - x));
+  const bon = tri(nombres);
+  const label = (arr) => arr.map(fmt).join(' , ');
+  // Son erreur: les deux qui commencent pareil, inversés.
+  const i = bon.findIndex((x, k) => k < 3 && String(x)[0] === String(bon[k + 1])[0] && String(x).length === String(bon[k + 1]).length);
+  const inverse = [...bon];
+  if (i >= 0) [inverse[i], inverse[i + 1]] = [inverse[i + 1], inverse[i]];
+  // L'autre: lire le premier chiffre sans compter les chiffres (783 « après » 3 807).
+  const parChiffre = [...nombres].sort((x, y) => (croissant ? String(x).localeCompare(String(y)) : String(y).localeCompare(String(x))));
+  const choix = [...new Set([label(bon), label(inverse), label(parChiffre), label([...bon].reverse())])];
+  return {
+    category: CATEGORY,
+    type: 'ranger',
+    text: `Place ces nombres par ordre ${croissant ? 'CROISSANT (du plus petit au plus grand)' : 'DÉCROISSANT (du plus grand au plus petit)'}:
+${shuffle(nombres).map(fmt).join('   ·   ')}`,
+    correct: label(bon),
+    options: shuffle(choix),
+    explanation: `${label(bon)}
+1. Je compte les chiffres: un nombre de 3 chiffres est plus petit qu'un nombre de 4 chiffres.
+2. Même nombre de chiffres? Je compare de GAUCHE à droite et je m'arrête à la première différence.`,
+    hint: 'Deux nombres commencent par le même chiffre: regarde le DEUXIÈME chiffre.',
+  };
+}
+
+// La droite numérique: le pas de graduation, puis les nombres manquants.
+function droiteNumerique() {
+  const pas = pick([1, 2, 5, 10, 10, 20, 25, 50, 100]);
+  // Un début aligné sur le pas, assez bas pour que les 7 traits restent sous 10 000.
+  const debut = pas * rand(Math.ceil(100 / pas), Math.floor((9999 - 7 * pas) / pas));
+  const marques = Array.from({ length: 5 }, (_, k) => debut + k * pas);
+  const lesPas = Math.random() < 0.5;
+  const correct = lesPas ? pas : marques[4] + pas;
+  const presque = {};
+  if (lesPas) {
+    presque[marques[0]] = `Ça, c'est un nombre de la droite. Le pas, c'est de COMBIEN on avance d'un trait au suivant: ${fmt(marques[1])} − ${fmt(marques[0])}.`;
+    if (!presque[2 * pas]) presque[2 * pas] = 'Tu as sauté deux traits. Le pas, c\'est d\'un trait au trait JUSTE à côté.';
+  } else {
+    const naif = sansEchange(marques[4], pas);
+    if (naif && naif !== correct) presque[naif] = MSG_ECHANGE;
+  }
+  return {
+    category: CATEGORY,
+    type: 'droite',
+    text: `Sur la droite numérique: ${marques.map(fmt).join(' — ')} — ___ — ___
+${lesPas ? 'Quel est le pas de graduation?' : 'Quel nombre va dans la PREMIÈRE case vide?'}`,
+    correct,
+    presque,
+    explanation: `${fmt(marques[1])} − ${fmt(marques[0])} = ${pas}: on avance de ${pas} à chaque trait (pas de graduation: +${pas}).
+Les cases vides: ${fmt(marques[4] + pas)} et ${fmt(marques[4] + 2 * pas)}.`,
+    hint: 'Regarde deux traits côte à côte: de combien ça avance?',
+  };
+}
+
+// AS.1.05 n° 6, laissé en blanc: des dizaines contre centaines-dizaines-unités.
+function champs() {
+  const dMax = rand(15, 29);
+  const max = dMax * 10;
+  let manu;
+  do { manu = 100 + rand(3, 9) * 10 + rand(1, 9); } while (manu === max);
+  const etape = pick(['max', 'diff', 'diff']);
+  const desc = `Dans le champ de Max: ${dMax} dizaines de carottes.\nDans le champ de Manu: 1 centaine, ${Math.floor(manu / 10) % 10} dizaines et ${manu % 10} carottes.`;
+  if (etape === 'max') {
+    return {
+      category: CATEGORY,
+      type: 'champs',
+      text: `${desc}\n\nCombien de carottes dans le champ de MAX?`,
+      correct: max,
+      presque: { [dMax]: `${dMax} dizaines, ce n'est pas ${dMax} carottes: chaque dizaine en vaut 10 → ${dMax} × 10.` },
+      explanation: `${dMax} dizaines = ${max} carottes (10 dizaines = 1 centaine, donc ${dMax} dizaines = 1 centaine et ${dMax - 10} dizaines).`,
+      hint: '1 dizaine = 10 carottes.',
+    };
+  }
+  const plus = Math.abs(max - manu);
+  return {
+    category: CATEGORY,
+    type: 'champs',
+    text: `${desc}\n\nLes lièvres vont au champ qui a le PLUS de carottes. Combien de carottes de plus y a-t-il dans ce champ?`,
+    correct: plus,
+    presque: { [max]: 'Ça, c\'est le champ de Max. On demande la DIFFÉRENCE entre les deux champs.', [manu]: 'Ça, c\'est le champ de Manu. On demande la DIFFÉRENCE entre les deux champs.' },
+    explanation: `Max: ${max} · Manu: ${manu}\nLe plus grand: ${max > manu ? 'Max' : 'Manu'}. ${Math.max(max, manu)} − ${Math.min(max, manu)} = ${plus} de plus.`,
+    hint: 'Trois étapes: le nombre de Max, le nombre de Manu, puis la différence.',
+  };
+}
+
 const RULE_ORDRE = `Croissant = du plus PETIT au plus GRAND (ça monte) · Décroissant = du plus GRAND au plus PETIT
-Pour comparer: on part de la GAUCHE (les unités de mille) et on s'arrête à la première différence.
-Juste avant = 1 de moins · Juste après = 1 de plus · 2 999 + 1 = 3 000 (on échange!)`;
+Pour comparer: on compte les chiffres, puis on part de la GAUCHE et on s'arrête à la première différence.
+Arrondir: 1 312 à la centaine → 1 300 (les milliers RESTENT!) · le chiffre d'à côté: 5 ou plus → on monte.`;
 
 export function generateMatchaOrdre() {
   const q = pickAdaptive(CATEGORY, [
-    { type: 'ordre', w: 20, build: ordreCroissant },
-    { type: 'avant_apres', w: 18, build: avantApres },
-    { type: 'bonds', w: 18, build: bonds },
-    { type: 'comparer', w: 14, build: comparer },
-    { type: 'plus_grand_petit', w: 10, build: plusGrandPlusPetit },
-    { type: 'entre', w: 10, build: entre },
+    // Ses erreurs de la feuille AS.2.02 d'abord.
+    { type: 'arrondir', w: 24, build: arrondir },
+    { type: 'ranger', w: 16, build: rangerMemesChiffres },
+    { type: 'droite', w: 12, build: droiteNumerique },
+    { type: 'approximation', w: 8, build: approximation },
+    { type: 'champs', w: 8, build: champs },
+    { type: 'sacs', w: 6, build: faireDesSacs },
+    { type: 'ordre', w: 8, build: ordreCroissant },
+    { type: 'avant_apres', w: 10, build: avantApres },
+    { type: 'bonds', w: 10, build: bonds },
+    { type: 'comparer', w: 10, build: comparer },
+    { type: 'plus_grand_petit', w: 6, build: plusGrandPlusPetit },
+    { type: 'entre', w: 6, build: entre },
   ]);
   q.rule = getStudyRounds('matcha_ordre') < 3 ? RULE_ORDRE : undefined;
   if (q.options && q.options.every((o) => typeof o === 'number')) {

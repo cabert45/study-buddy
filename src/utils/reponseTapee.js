@@ -25,7 +25,8 @@ const NOMBRE = {
   // demandent UN nombre — et c'est justement là que la colonne vide se perd.
   matcha_nombres: ['blocs', 'tableau_zero', 'jetons', 'abaque', 'lettres_chiffres',
     'position_valeur', 'ajouter', 'ajouter_deux', 'groupements', 'sacs', 'plus_grand_petit',
-    'decomposition_nombre', 'decomposition_trou', 'avant_apres', 'bonds'],
+    'decomposition_nombre', 'decomposition_trou', 'avant_apres', 'bonds',
+    'arrondir', 'approximation', 'droite', 'champs'],
   terme: '*',       // sa catégorie la plus faible: 27/54
   relational: '*',
   mental: '*',
