@@ -54,15 +54,16 @@ function motRelief() {
 // Pas de calcul ici: on lui montre son propre réflexe et on le fait choisir.
 function motOuDefinition() {
   const m = pick(RELIEF);
-  return q('mot_ou_def',
-    `Sur l'image: ${m.def}. Le cahier dit: « Écris le bon MOT sous l'image. »
-
-Qu'est-ce que j'écris?`,
+  // L'image d'abord, comme dans le cahier. (Le 20 oct., le parent l'a vue à
+  // l'écran SANS image: la question décrivait le paysage avec sa définition —
+  // elle répétait exactement ce qu'on veut qu'il cesse de recopier.)
+  return avecImage(q('mot_ou_def',
+    `Le cahier dit: « Écris le bon MOT sous l'image. »\n\nQu'est-ce que j'écris?`,
     m.mot,
     [m.mot, m.piege, m.def],
     `J'écris ${m.mot}.\n\n« ${m.piege} », c'est un morceau de la définition. `
     + "La définition m'AIDE à trouver le mot — ce n'est pas la réponse.",
-    'La réponse, c’est un seul mot: celui qui est en gras dans la définition.');
+    'La réponse, c’est un seul mot: celui qui est en gras dans la définition.'), m.img, 'Un paysage');
 }
 
 // ===== 3. Les autres mots du cahier (choix) =====
@@ -123,24 +124,33 @@ function plusieurs() {
 function atoutContrainte() {
   const atout = Math.random() < 0.5;
   const e = pick(atout ? ATOUTS : CONTRAINTES);
-  return q('atout',
+  // L'image de l'énoncé: les rapides, la chute, le fleuve, la plaine, l'hiver.
+  const img = /rapides/.test(e) ? 'rapides' : /chute/i.test(e) ? 'chute'
+    : /hiver|gelés/.test(e) ? 'hiver' : /été/.test(e) ? 'ete'
+      : /fertile/.test(e) ? 'plaine' : /cours d'eau/.test(e) ? 'fleuve' : null;
+  return avecImage(q('atout',
     `« ${e} » — c'est un atout ou une contrainte?`,
     atout ? 'un atout' : 'une contrainte', ['un atout', 'une contrainte'],
     `${atout ? 'Un atout = un avantage' : 'Une contrainte = un inconvénient'}.\n\n`
       + (atout ? 'Ça AIDE les Iroquoiens à vivre sur le territoire.' : 'Ça rend la vie PLUS DIFFICILE aux Iroquoiens.'),
-    'Est-ce que ça aide, ou est-ce que ça complique la vie?');
+    'Est-ce que ça aide, ou est-ce que ça complique la vie?'), img, 'Le territoire iroquoien');
 }
 
 // ===== 7. Été ou hiver? =====
 function saison() {
   const ete = Math.random() < 0.5;
   const e = pick(ete ? ETE : HIVER);
-  return q('saison',
-    `« ${e} » — c'est l'été ou l'hiver sur le territoire iroquoien?`,
-    ete ? "l'été" : "l'hiver", ["l'été", "l'hiver"],
-    ete ? "L'été: chaud et court, pluie abondante, déplacements plus faciles, agriculture possible. C'est un ATOUT."
-      : "L'hiver: long et froid, neige abondante, cours d'eau et sols gelés, déplacements difficiles, agriculture impossible. C'est une CONTRAINTE.",
-    'Le climat a quatre saisons, mais le cahier compare surtout l’été et l’hiver.');
+  // Pas d'image dans la question (elle donnerait la réponse): l'image de la
+  // bonne saison s'affiche dans la correction, pour qu'il s'en souvienne.
+  return {
+    ...q('saison',
+      `« ${e} » — c'est l'été ou l'hiver sur le territoire iroquoien?`,
+      ete ? "l'été" : "l'hiver", ["l'été", "l'hiver"],
+      ete ? "L'été: chaud et court, pluie abondante, déplacements plus faciles, agriculture possible. C'est un ATOUT."
+        : "L'hiver: long et froid, neige abondante, cours d'eau et sols gelés, déplacements difficiles, agriculture impossible. C'est une CONTRAINTE.",
+      'Le climat a quatre saisons, mais le cahier compare surtout l’été et l’hiver.'),
+    imageCorrection: IMG(ete ? 'ete' : 'hiver'),
+  };
 }
 
 // ===== 8. Nomade ou sédentaire — et la carte d'identité de la p. 8 =====
@@ -159,7 +169,12 @@ const MODE_DE_VIE = [
 ];
 function modeDeVie() {
   const [t, c, o, e] = pick(MODE_DE_VIE);
-  return q('mode_vie', t, c, o, e, 'Nomade = se déplace souvent · sédentaire = reste au même endroit.');
+  // Les deux images côte à côte dans sa tête: ceux qui marchent derrière les
+  // caribous (nomades), le village et ses champs (sédentaires).
+  return {
+    ...q('mode_vie', t, c, o, e, 'Nomade = se déplace souvent · sédentaire = reste au même endroit.'),
+    imageCorrection: IMG(c === 'nomades' ? 'nomades' : 'village'),
+  };
 }
 
 // ===== 9. La ligne du temps et la Béringie (p. 6-7) =====
@@ -186,7 +201,7 @@ function lacs() {
       'Les trois Grands Lacs du territoire iroquoien: Huron, Érié et Ontario. Le lac Supérieur et le lac Michigan sont plus à l’ouest.',
       'Trois lacs: Huron, É…, Ontario.');
   }
-  return q('lacs', 'Comment s’écrit le nom de ce Grand Lac du territoire iroquoien?',
+  return q('lacs', 'Les trois Grands Lacs du territoire iroquoien sont le lac Huron, le lac Ontario et le lac… Comment s’écrit-il?',
     'Érié', ['Érié', 'Érière', 'Érier', 'Éri'],
     'Érié: quatre lettres, deux é. Les trois lacs: Huron, Érié, Ontario.',
     'Il est court: 4 lettres.');

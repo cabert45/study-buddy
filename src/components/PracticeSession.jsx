@@ -995,6 +995,13 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
             className="block mx-auto mb-4 rounded-xl border-2 border-s1 bg-white"
             style={{ maxHeight: 260, maxWidth: '100%', objectFit: 'contain' }} />
         )}
+        {/* L'image qui donnerait la réponse ne vient qu'APRÈS: elle sert à
+            s'en souvenir (l'été, l'hiver, les nomades, le village). */}
+        {showResult && question.imageCorrection && (
+          <img src={question.imageCorrection} alt="" loading="lazy"
+            className="block mx-auto mb-4 rounded-xl border-2 border-s1 bg-white"
+            style={{ maxHeight: 220, maxWidth: '100%', objectFit: 'contain' }} />
+        )}
         {question.blocs && <BlocsBase10 {...question.blocs} />}
         {question.tableau && <TableauNumeration {...question.tableau} />}
         {question.abaque && <Abaque {...question.abaque} />}
