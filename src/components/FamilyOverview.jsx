@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { getHistorique } from '../utils/storage';
+import { nomExercice } from '../utils/nomsExercices';
 
 const profileMeta = {
   ryan: { name: 'Ryan', grade: '3e année', emoji: '🧑‍🚀', color: '#c74a15' },
@@ -8,6 +10,65 @@ const profileMeta = {
 
 function pct(c, t) {
   return t > 0 ? Math.round((c / t) * 100) : 0;
+}
+
+const JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+function jourLisible(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  return `${JOURS[dt.getDay()]} ${d} ${MOIS[m - 1]}`;
+}
+
+// « Ce qu'il a fait »: chaque exercice, combien de fois, et ses scores dans
+// l'ordre — vu de n'importe quel appareil, parce que ça vient de la base.
+// (27 oct. 2026: « I can't see any of that. »)
+function HistoriqueEnfant({ profile, nom }) {
+  const [h, setH] = useState(null);
+  const [erreur, setErreur] = useState(false);
+  const [tout, setTout] = useState(false);
+  useEffect(() => { getHistorique(14, profile).then(setH).catch(() => setErreur(true)); }, [profile]);
+  if (erreur) return <p className="text-xs text-s4 font-semibold">Historique indisponible pour l'instant.</p>;
+  if (!h) return <p className="text-xs text-s4 font-semibold">Chargement de l'historique…</p>;
+  const parJour = [];
+  h.rows.forEach((r) => {
+    let j = parJour.find((x) => x.date === r.date);
+    if (!j) { j = { date: r.date, rows: [] }; parJour.push(j); }
+    j.rows.push(r);
+  });
+  if (!parJour.length) return <p className="text-xs text-s4 font-semibold">Rien dans les 14 derniers jours.</p>;
+  const montres = tout ? parJour : parJour.slice(0, 4);
+  return (
+    <div className="mt-3">
+      <div className="text-[11px] font-extrabold text-stone uppercase tracking-wide mb-1.5">Ce que {nom} a fait</div>
+      <div className="space-y-2">
+        {montres.map((j) => (
+          <div key={j.date} className="bg-cream rounded-lg p-2 border border-s1">
+            <div className="text-[11px] font-extrabold text-fox-d mb-1">{jourLisible(j.date)}</div>
+            {j.rows.map((r) => {
+              const justes = r.scores.reduce((s, x) => s + x.c, 0);
+              const total = r.scores.reduce((s, x) => s + x.t, 0);
+              return (
+                <div key={r.mode} className="flex items-baseline gap-2 text-xs py-0.5">
+                  <span className="font-extrabold text-green-800 whitespace-nowrap">✓ ×{r.fois}</span>
+                  <span className="font-bold text-stone flex-1">{nomExercice(r.mode)}</span>
+                  <span className="font-semibold text-s4 whitespace-nowrap">
+                    {r.scores.map((s) => `${s.c}/${s.t}`).join(' · ')}
+                    {r.fois > 1 && total > 0 && <> <b className="text-stone">({pct(justes, total)}%)</b></>}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+      {parJour.length > 4 && (
+        <button onClick={() => setTout((v) => !v)} className="mt-1.5 text-xs font-bold text-lava">
+          {tout ? 'Moins de jours' : `Voir les ${parJour.length} jours`}
+        </button>
+      )}
+    </div>
+  );
 }
 
 function GuestStats() {
@@ -155,26 +216,9 @@ export default function FamilyOverview({ onClose }) {
                         </div>
                       )}
 
-                      {/* Recent sessions */}
-                      {d.recentSessions && d.recentSessions.length > 0 && (
-                        <div>
-                          <p className="text-[10px] font-bold text-s4 uppercase mb-1">Dernières sessions</p>
-                          <div className="space-y-1">
-                            {d.recentSessions.slice(0, 3).map((s, i) => {
-                              const sPct = pct(s.correct, s.total);
-                              return (
-                                <div key={i} className="flex justify-between items-center text-xs">
-                                  <span className="text-s4">{s.date}</span>
-                                  <span className="text-s6 font-bold flex-1 ml-2 truncate">{s.mode}</span>
-                                  <span className={`font-bold ${sPct >= 70 ? 'text-ok' : sPct >= 50 ? 'text-fox' : 'text-red-500'}`}>
-                                    {s.correct}/{s.total} ({sPct}%)
-                                  </span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
+                      {/* Ce qu'il a fait, jour par jour — remplace « Dernières
+                          sessions » (3 lignes, identifiants bruts). */}
+                      <HistoriqueEnfant profile={profileId} nom={meta.name} />
                     </>
                   )}
                 </div>

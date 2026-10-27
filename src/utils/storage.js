@@ -71,6 +71,13 @@ export async function saveSession(mode, total, correct, details) {
   }
 }
 
+// Combien de fois il a fait chaque exercice, par jour (voir /api/historique).
+export async function getHistorique(jours = 14, profile = getProfile()) {
+  const res = await fetch(`${API_BASE}/historique?profile=${profile}&jours=${jours}`);
+  if (!res.ok) throw new Error('historique');
+  return res.json();
+}
+
 export async function getProgress() {
   const res = await fetch(`${API_BASE}/progress?profile=${getProfile()}`);
   return res.json();

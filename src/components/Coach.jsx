@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getDashboard } from '../utils/storage';
+import { getDashboard, getHistorique } from '../utils/storage';
 import { speak as speakVoice } from '../utils/speech';
 import { EXAMS, dicteeWeekForDate, dicteeActiveOn, daysBetween } from '../data/examSchedule';
 import { moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data/cahierFrancais';
@@ -568,6 +568,46 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
     setRunning(false);
   }, [dashData, dayOverride, profile, cleJourAffiche]);
 
+  // Combien de fois il a fait chaque exercice — lu dans la BASE, pas sur
+  // l'appareil. « Make a check mark on how many times Ryan does smt on the
+  // list… I can't see any of that. » (27 oct. 2026) Les crochets locaux ne
+  // voyaient ni les reprises, ni le travail fait sur un autre appareil.
+  const [historique, setHistorique] = useState(null);
+  useEffect(() => {
+    let vivant = true;
+    getHistorique(14, profile).then((h) => { if (vivant) setHistorique(h); }).catch(() => {});
+    return () => { vivant = false; };
+  }, [profile, cleJourAffiche]);
+  const jourIso = `${dateAffichee.getFullYear()}-${String(dateAffichee.getMonth() + 1).padStart(2, '0')}-${String(dateAffichee.getDate()).padStart(2, '0')}`;
+  const lundiIso = (() => {
+    const l = new Date(dateAffichee); l.setDate(l.getDate() - ((l.getDay() + 6) % 7));
+    return `${l.getFullYear()}-${String(l.getMonth() + 1).padStart(2, '0')}-${String(l.getDate()).padStart(2, '0')}`;
+  })();
+  const faitsDuJour = (mode) => {
+    if (!historique || !mode) return null;
+    const jour = historique.rows.find((r) => r.date === jourIso && r.mode === mode);
+    const semaine = historique.rows.filter((r) => r.mode === mode && r.date >= lundiIso && r.date <= jourIso)
+      .reduce((s, r) => s + r.fois, 0);
+    return { fois: jour ? jour.fois : 0, scores: jour ? jour.scores : [], semaine };
+  };
+
+  // Une série finie ailleurs (sur le téléphone, l'ordinateur) coche aussi la
+  // case ici: la base fait foi.
+  useEffect(() => {
+    if (!historique || !plan.length || running) return;
+    setEtats((prev) => {
+      let change = false;
+      const m = { ...prev };
+      plan.forEach((p, i) => {
+        if (p.type === 'app' && m[i] !== 'fini' && historique.rows.some((r) => r.date === jourIso && r.mode === p.mode)) {
+          m[i] = 'fini'; change = true;
+        }
+      });
+      if (change) setStepIdx(prochaineEtape(m, plan.length));
+      return change ? m : prev;
+    });
+  }, [historique, plan, jourIso]);
+
   // Greet on first load
   useEffect(() => {
     if (!greetedRef.current && planReady && plan.length > 0) {
@@ -898,6 +938,21 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
                     )}
                   </button>
                 )}
+                {(() => {
+                  const f = stepApp ? faitsDuJour(step.mode) : null;
+                  if (!f || (!f.fois && !f.semaine)) return null;
+                  return (
+                    <div className="text-[11px] font-bold text-green-800 mt-0.5 flex flex-wrap items-center gap-x-2">
+                      {f.fois > 0 && (
+                        <span className="bg-green-100 rounded-full px-2 py-0.5">
+                          ✓ {f.fois} fois aujourd'hui
+                        </span>
+                      )}
+                      {f.scores.map((s, k) => <span key={k} className="text-s4">{s.c}/{s.t}</span>)}
+                      {f.semaine > f.fois && <span className="text-s4">· {f.semaine} fois cette semaine</span>}
+                    </div>
+                  );
+                })()}
 
                 {current && (
                   <div className={`rounded-2xl p-4 border-2 ${

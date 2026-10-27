@@ -409,7 +409,10 @@ app.post('/api/session', async (req, res) => {
   try {
     const { mode, total, correct, details, profile } = req.body;
     const profileId = profile || 'ryan';
-    const date = new Date().toISOString().split('T')[0];
+    // La date de MONTRÉAL, pas l'UTC: avec toISOString, une session faite
+    // après 20 h (19 h l'hiver) était rangée au lendemain — et le compte des
+    // exercices du jour (« ✓ 2 fois ») se serait trompé de journée.
+    const date = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Toronto' });
 
     await pool.query(
       'INSERT INTO sessions (date, mode, total, correct, details, profile) VALUES ($1, $2, $3, $4, $5, $6)',
@@ -432,6 +435,32 @@ app.post('/api/session', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('Session save error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// Ce qu'il a fait, jour par jour et exercice par exercice: combien de fois,
+// et ses résultats dans l'ordre. Le parent: « make a check mark on how many
+// times Ryan does smt on the list… if he were to do it again we need to keep
+// tabs on what he has done. I can't see any of that. » (27 oct. 2026)
+// Les crochets du Coach vivent sur l'appareil de l'enfant; ceci vient de la
+// base, donc on le voit de n'importe quel téléphone.
+app.get('/api/historique', async (req, res) => {
+  try {
+    const profile = req.query.profile || 'ryan';
+    const jours = Math.min(Math.max(parseInt(req.query.jours, 10) || 14, 1), 90);
+    const depuis = new Date(Date.now() - (jours - 1) * 86400000)
+      .toLocaleDateString('en-CA', { timeZone: 'America/Toronto' });
+    const rows = await queryAll(`
+      SELECT date, mode, COUNT(*)::int AS fois,
+             json_agg(json_build_object('c', correct, 't', total) ORDER BY id) AS scores,
+             MIN(id) AS premier
+      FROM sessions WHERE profile = $1 AND date >= $2
+      GROUP BY date, mode ORDER BY date DESC, premier ASC
+    `, [profile, depuis]);
+    res.json({ depuis, rows: rows.map(({ premier, ...r }) => r) });
+  } catch (err) {
+    console.error('Historique error:', err);
     res.status(500).json({ error: 'Database error' });
   }
 });
