@@ -949,7 +949,7 @@ export default function Coach({ onHome, onStartPractice, onOpenBoukili, onStartT
                         </span>
                       )}
                       {f.scores.map((s, k) => <span key={k} className="text-s4">{s.c}/{s.t}</span>)}
-                      {f.semaine > f.fois && <span className="text-s4">· {f.semaine} fois cette semaine</span>}
+                      {f.semaine > f.fois && <span className="text-s4">{f.fois > 0 ? '· ' : ''}{f.semaine} fois cette semaine</span>}
                     </div>
                   );
                 })()}

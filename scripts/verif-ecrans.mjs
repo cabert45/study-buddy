@@ -1,14 +1,14 @@
 // Photographie des écrans SANS jouer de session — sûr sur le site en ligne:
 // rien n'est répondu, donc rien n'est écrit dans l'historique de l'enfant.
 //
-//   node scripts/verif-ecrans.mjs <url> <profil> "<clic1||clic2>" <sortie.png>
+//   node scripts/verif-ecrans.mjs <url> <profil> "<clic1||clic2>" <sortie.png> [attente ms après chaque clic]
 //
 // « @La famille » = un bouton-icône, trouvé par son aria-label.
 // Pourquoi pas verif-session: le site en ligne charge plus lentement, et
 // verif-session cliquait le profil avant que la page soit prête.
 import { writeFileSync } from 'node:fs';
 
-const [url, profil, chemin = '', out] = process.argv.slice(2);
+const [url, profil, chemin = '', out, attenteTxt = '4000'] = process.argv.slice(2);
 const list = await (await fetch('http://127.0.0.1:9222/json/list')).json();
 const page = list.find((t) => t.type === 'page');
 const ws = new WebSocket(page.webSocketDebuggerUrl);
@@ -47,7 +47,14 @@ const clic = (t) => ev(`(() => {
 })()`);
 for (const t of chemin.split('||').filter(Boolean)) {
   console.log(await clic(t));
-  await wait(4000);
+  await wait(Number(attenteTxt));
+}
+// TEXTE="Ce que Ryan" → imprime les lignes de l'écran à partir de ce texte
+// (utile dans un panneau qui défile, que la capture ne montre pas en entier).
+if (process.env.TEXTE) {
+  const lignes = await ev(`document.body.innerText.split('\\n').map((l) => l.trim()).filter(Boolean)`);
+  const i = lignes.findIndex((l) => l.toLowerCase().includes(process.env.TEXTE.toLowerCase()));
+  console.log(i < 0 ? 'TEXTE introuvable' : lignes.slice(i, i + 30).join('\n'));
 }
 console.log(erreurs.length ? '⚠ ERREURS JS:\n' + erreurs.join('\n') : 'Aucune erreur JS.');
 if (out) {
