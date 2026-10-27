@@ -187,7 +187,7 @@ function buildRentreePlan(today) {
   const testStep = test && test.reste > 0
     ? test.mode
       ? { type: 'app', mode: test.mode, icon: test.icon,
-        label: `${test.icon} ${test.label} — ${quandLeTest(test.reste)}` }
+        label: test.revision ? `${test.icon} ${test.label}` : `${test.icon} ${test.label} — ${quandLeTest(test.reste)}` }
       : { type: 'chore', icon: test.icon,
         label: `${test.icon} ${test.label} — ${quandLeTest(test.reste)}` }
     : null;

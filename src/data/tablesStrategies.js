@@ -179,11 +179,14 @@ export const STRATEGIE_SEMAINES = [
   { debut: [2026, 10, 5], ids: ['G', 'H'] },
   { debut: [2026, 10, 12], ids: ['I', 'J'], confirme: true }, // feuille du 12 au 16 oct.
   { debut: [2026, 10, 19], ids: ['K', 'L'], confirme: true }, // feuille du 19 au 23 oct.
-  { debut: [2026, 10, 26], ids: ['M', 'N'] },
-  { debut: [2026, 11, 2], ids: ['O', 'P'] },
-  { debut: [2026, 11, 9], ids: ['Q'] },
-  { debut: [2026, 11, 16], ids: ['R', 'S'] },
-  { debut: [2026, 11, 23], ids: ['T'] },
+  // Semaine du 26 oct.: consolidation, aucune nouvelle stratégie annoncée →
+  // on repasse tout ce qui a été vu (A à L). Le reste glisse d'une semaine.
+  { debut: [2026, 10, 26], ids: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'], confirme: true },
+  { debut: [2026, 11, 2], ids: ['M', 'N'] },
+  { debut: [2026, 11, 9], ids: ['O', 'P'] },
+  { debut: [2026, 11, 16], ids: ['Q'] },
+  { debut: [2026, 11, 23], ids: ['R', 'S'] },
+  { debut: [2026, 11, 30], ids: ['T'] },
 ];
 
 const dateOf = ([y, m, d]) => new Date(y, m - 1, d);

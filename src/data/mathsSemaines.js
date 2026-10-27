@@ -39,6 +39,13 @@ export const MATHS_SEMAINES = [
     debut: [2026, 10, 19], mode: 'matcha_ordre', confirme: true,
     nom: "l'ordre des nombres", page: 'p. 14',
   },
+  {
+    // Plan du 26 au 30 oct.: « Consolidation des notions abordées depuis le
+    // début de l'année » + évaluations. Un mélange de tout le Matcha vu,
+    // pondéré par SES erreurs (voir matcha_revision dans PracticeSession).
+    debut: [2026, 10, 26], mode: 'matcha_revision', confirme: true,
+    nom: 'révision de tout depuis septembre', page: '',
+  },
 ];
 
 const dateOf = ([y, m, d]) => new Date(y, m - 1, d);

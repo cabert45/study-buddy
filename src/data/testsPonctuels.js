@@ -32,6 +32,18 @@ export const TESTS = [
     icon: '🗺️',
     source: 'Terminus, p. 6 à 20',
   },
+  {
+    // Plan du 26 au 30 oct.: « Univers social — Révision: pages 6 à 20 », et
+    // « Devoir plus évaluations ». La date de l'évaluation n'est pas écrite:
+    // `revision: true` = on révise toute la semaine, SANS compte à rebours
+    // (un « c'est vendredi » inventé lui mentirait).
+    date: [2026, 10, 30], jours: 4, revision: true,
+    nom: "Révision d'univers social",
+    mode: 'us_iroquoiens',
+    label: 'Univers social — révision Terminus p. 6 à 20',
+    icon: '🗺️',
+    source: 'Terminus, p. 6 à 20',
+  },
 ];
 
 const dateOf = ([y, m, d]) => new Date(y, m - 1, d);

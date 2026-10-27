@@ -71,7 +71,7 @@ const ryanMathModes = [
   { id: 'figures', label: '⬜ Figures & solides', desc: 'Carré, cube, cône, cylindre...', badge: 'Examen' },
   { id: 'heure', label: "🕐 L'heure et le temps", desc: "Lire l'horloge, les durées, le calendrier", badge: 'Cahier' },
   { id: 'angles', label: '📐 Droites et angles', desc: 'Aigu, droit, obtus · parallèles et perpendiculaires', badge: 'Cahier' },
-  { id: 'us_iroquoiens', label: '🏹 Univers social — les Iroquoiens', desc: 'Terminus p. 6-18: le relief, les ressources, la maison longue', badge: 'Test jeudi' },
+  { id: 'us_iroquoiens', label: '🏹 Univers social — les Iroquoiens', desc: 'Terminus p. 6-18: le relief, les ressources, la maison longue', badge: 'Révision' },
   { id: 'sciences_queue', label: '🔬 Sciences — la queue des animaux', desc: 'Vertébrés, les 5 classes, l’utilité de la queue', badge: '18/20' },
   { id: 'mesure', label: '📐 Mesure en cm', desc: 'Estimer, comparer, lire la règle', badge: 'Examen' },
   { id: 'calcul', label: 'Calcul', desc: 'Addition et soustraction', badge: 'Priorité' },
@@ -118,7 +118,8 @@ const ryanFrenchModes = [
 // (situations-problèmes 2.95/11, passé composé 9/17, vitesse de calcul).
 const grade3MathModes = [
   { id: 'feuille_matcha', label: '📐 Ma feuille de maths', desc: 'Matcha AS.1.02 — échanger les blocs, poser les colonnes', badge: 'À revoir' },
-  { id: 'matcha_ordre', label: "🔢 L'ordre des nombres", desc: 'Arrondir, ranger, la droite numérique — sur ses erreurs de la feuille', badge: 'Cette semaine' },
+  { id: 'matcha_revision', label: 'Révision Matcha — tout depuis septembre', desc: 'Arrondir, ranger, les blocs, les sacs de 100, l’heure, les angles', badge: 'Cette semaine' },
+  { id: 'matcha_ordre', label: "🔢 L'ordre des nombres", desc: 'Arrondir, ranger, la droite numérique — sur ses erreurs de la feuille', badge: 'Révision' },
   { id: 'matcha_nombres', label: '📘 Mon cahier Matcha', desc: 'Thème 1 en classe: blocs, valeur de position, nombres jusqu\'à 9 999', featured: true },
   { id: 'mixed', label: 'Pratique ciblée', desc: 'Mix de tous tes exercices' },
   { id: 'multi_step', label: '🧩 Problèmes', desc: 'Problèmes à étapes — le gros morceau de juin', badge: 'Priorité' },
@@ -132,7 +133,7 @@ const grade3MathModes = [
   { id: 'suites', label: '🔢 Suites & régularités', desc: 'Trouve la règle et le prochain nombre' },
   { id: 'heure', label: "🕐 L'heure et le temps", desc: "Lire l'horloge, les durées, le calendrier", badge: 'Cahier' },
   { id: 'angles', label: '📐 Droites et angles', desc: 'Aigu, droit, obtus · parallèles et perpendiculaires', badge: 'Cahier' },
-  { id: 'us_iroquoiens', label: '🏹 Univers social — les Iroquoiens', desc: 'Terminus p. 6-18: le relief, les ressources, la maison longue', badge: 'Test jeudi' },
+  { id: 'us_iroquoiens', label: '🏹 Univers social — les Iroquoiens', desc: 'Terminus p. 6-18: le relief, les ressources, la maison longue', badge: 'Révision' },
   { id: 'sciences_queue', label: '🔬 Sciences — la queue des animaux', desc: 'Vertébrés, les 5 classes, l’utilité de la queue', badge: '18/20' },
   { id: 'mesure', label: '📐 Mesure en cm', desc: 'Estimer, comparer, lire la règle' },
   { id: 'figures', label: '⬜ Figures & solides', desc: 'Carré, cube, cône, cylindre...' },

@@ -49,6 +49,8 @@ function marqueursDuJour(date) {
   });
 
   TESTS.forEach((t) => {
+    // Une semaine de révision n'a pas de jour de test: ne pas en inventer un.
+    if (t.revision) return;
     if (memeJour(dateOf(t.date), date)) m.push({ kind: 'test', icon: t.icon, label: t.nom });
   });
 

@@ -290,10 +290,14 @@ export const LISTE_SEMAINES = [
   // justement la fin de semaine où il a le temps de l'étudier.
   { debut: [2026, 10, 12], liste: 'l5', remise: [2026, 10, 15], confirme: true },
   { debut: [2026, 10, 19], liste: 'l6', remise: [2026, 10, 22], confirme: true }, // remise jeudi 22 (test d'univers social le même jour)
-  { debut: [2026, 10, 26], liste: 'l7' },
-  { debut: [2026, 11, 2], liste: 'l8' },
-  { debut: [2026, 11, 9], liste: 'l9' },
-  { debut: [2026, 11, 16], liste: 'l10' },
+  // « Plan de travail semaine du 26 au 30 octobre » (nouvelle mise en page):
+  // semaine de CONSOLIDATION et d'évaluations — la classe reste sur la
+  // liste 6. Tout ce qui suit glisse d'une semaine (non confirmé).
+  { debut: [2026, 10, 26], liste: 'l6', confirme: true },
+  { debut: [2026, 11, 2], liste: 'l7' },
+  { debut: [2026, 11, 9], liste: 'l8' },
+  { debut: [2026, 11, 16], liste: 'l9' },
+  { debut: [2026, 11, 23], liste: 'l10' },
 ];
 
 export const listeById = (id) => LISTES.find((l) => l.id === id) || null;

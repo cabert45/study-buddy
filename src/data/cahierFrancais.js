@@ -92,6 +92,12 @@ export const CAHIER_SEMAINES = [
   // Confirmé par la feuille du 19 au 23 oct.: « Grammaire: Les constructions
   // d'un groupe du nom · Aide-Mémoire Jazz p.7 ». Cette fois l'app avait vu juste.
   { debut: [2026, 10, 19], module: 't2m2', confirme: true },
+  // Plan du 26 au 30 oct.: « Français — consolidation des notions abordées
+  // depuis le début de l'année ». La révision du thème 1 (nom, déterminant,
+  // adjectif, verbe, pronom) est ce qui couvre ça; le GN (t2m1-2) est dans
+  // « Nom, adjectif ou verbe? ».
+  { debut: [2026, 10, 26], module: 't1rev', confirme: true },
+  { debut: [2026, 11, 2], module: 't2m3' },
 ];
 
 const moduleIndex = {};

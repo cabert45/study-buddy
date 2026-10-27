@@ -271,6 +271,19 @@ function getGenerator(mode) {
         if (r < 0.95) return generateVerbes();
         return generateAdjectif();
       };
+    // Semaine de consolidation (26 oct.): tout le Matcha vu depuis septembre.
+    // Les poids suivent ses feuilles: l'arrondi et le rangement (1/6 et deux
+    // inversions sur AS.2.02) d'abord, puis les blocs et les sacs de 100
+    // (2 175 → « 25 »), l'heure et les angles. Chaque question garde sa
+    // catégorie, donc ses statistiques restent justes.
+    case 'matcha_revision':
+      return () => {
+        const r = Math.random();
+        if (r < 0.40) return generateMatchaOrdre();
+        if (r < 0.70) return generateMatchaNombres();
+        if (r < 0.85) return generateHeure();
+        return generateAngles();
+      };
     case 'mixed':
     default:
       // Weighted by Ryan's exam weaknesses:
