@@ -54,9 +54,13 @@ await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, devi
 await send('Page.navigate', { url });
 await wait(3500);
 
+// « @La famille » = un bouton-icône, trouvé par son aria-label (il n'a pas de texte).
 const clic = (t) => ev(`(() => {
   const els = [...document.querySelectorAll('button,a,[role=button]')];
-  const el = els.find((e) => (e.textContent || '').includes(${JSON.stringify(t)}));
+  const t = ${JSON.stringify(t)};
+  const el = t.startsWith('@')
+    ? els.find((e) => e.getAttribute('aria-label') === t.slice(1))
+    : els.find((e) => (e.textContent || '').includes(t));
   if (!el) return 'INTROUVABLE: ' + ${JSON.stringify(t)};
   el.click(); return 'clic: ' + ${JSON.stringify(t)};
 })()`);

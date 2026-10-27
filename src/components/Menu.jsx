@@ -6,7 +6,7 @@ import { themeDuJour } from '../data/nylaPlanQuotidien';
 import { coachFaitAujourdhui } from '../utils/coachAvancement';
 import { CAHIER_THEMES, CAHIER_SEMAINES, moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data/cahierFrancais';
 import { listeCetteSemaine, semaineCourante, listesVues, cleDictee } from '../data/orthographeQuotidien';
-import { strategiesCetteSemaine } from '../data/tablesStrategies';
+import { strategiesCetteSemaine, nomsStrategies } from '../data/tablesStrategies';
 import { syncSkillStats, weakSkills } from '../utils/skillStats';
 import { NotificationBell } from './Notifications';
 import { BarChart3, BookOpen, Users, Clock, Moon, Sun, BookMarked, Mic2, Target, ListTodo, Sparkles, GraduationCap, ChevronRight, Send, Calendar, Trophy, RefreshCw, Settings } from 'lucide-react';
@@ -489,7 +489,7 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
             </button>
           )}
           {onOpenFamily && !isDemo && (
-            <button onClick={onOpenFamily}
+            <button onClick={onOpenFamily} aria-label="La famille" title="La famille — ce que chacun a fait"
               className="bg-white border-2 border-s2 rounded-xl p-2 text-s6 hover:border-lava hover:text-lava transition-all">
               <Users size={18} />
             </button>
@@ -670,7 +670,7 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
                 <div className="font-heading text-xl font-extrabold text-white leading-tight">Ma semaine — le plan du jour</div>
                 <div className="text-xs font-semibold text-white/90 leading-snug">
                   Liste {listeSemaine.numero} · {listeSemaine.titre.toLowerCase()}<br />
-                  Stratégie{stratsSemaine.length > 1 ? 's' : ''} {stratsSemaine.map((x) => x.id).join(' et ')} · {cahierActuel ? cahierActuel.notions[0].toLowerCase() : 'cahier Jazz'}
+                  Stratégie{stratsSemaine.length > 1 ? 's' : ''} {nomsStrategies(stratsSemaine)} · {cahierActuel ? cahierActuel.notions[0].toLowerCase() : 'cahier Jazz'}
                 </div>
                 {remiseSemaine && (
                   <div className="inline-block mt-1.5 text-[11px] font-extrabold bg-white/25 text-white rounded-full px-2.5 py-0.5">

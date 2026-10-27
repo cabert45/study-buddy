@@ -203,6 +203,14 @@ function semaineIndex(rawDate) {
 }
 
 // Les stratégies travaillées en classe cette semaine
+// « A et B », ou « A à L (révision) » une semaine de consolidation — douze
+// lettres reliées par « et » ne se lisaient plus (26 oct. 2026).
+export function nomsStrategies(strats) {
+  if (!strats || !strats.length) return '';
+  if (strats.length > 3) return `${strats[0].id} à ${strats[strats.length - 1].id} (révision)`;
+  return strats.map((x) => x.id).join(' et ');
+}
+
 export function strategiesCetteSemaine(date = new Date()) {
   const i = semaineIndex(date);
   const w = i >= 0 ? STRATEGIE_SEMAINES[i] : STRATEGIE_SEMAINES[0];

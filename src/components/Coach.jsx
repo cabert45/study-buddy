@@ -4,7 +4,7 @@ import { speak as speakVoice } from '../utils/speech';
 import { EXAMS, dicteeWeekForDate, dicteeActiveOn, daysBetween } from '../data/examSchedule';
 import { moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data/cahierFrancais';
 import { listeCetteSemaine, semaineCourante, cleDictee } from '../data/orthographeQuotidien';
-import { strategiesCetteSemaine } from '../data/tablesStrategies';
+import { strategiesCetteSemaine, nomsStrategies } from '../data/tablesStrategies';
 import { mathsCetteSemaine, labelMaths } from '../data/mathsSemaines';
 import { testAReviser, quandLeTest } from '../data/testsPonctuels';
 import { buildNylaPlan } from '../data/nylaPlanQuotidien';
@@ -209,7 +209,7 @@ function buildRentreePlan(today) {
   // mais il les fait CALCULER au lieu de poser des questions sur le nom de la
   // strategie. Voir generators/calculRapideTables.js.
   const stratLabel = strats.length
-    ? `⚡ Calcul rapide — tables + / − (${strats.map((x) => x.court).join(', ')})`
+    ? `⚡ Calcul rapide — tables + / − (${strats.length > 3 ? nomsStrategies(strats) : strats.map((x) => x.court).join(', ')})`
     : '⚡ Calcul rapide — tables + / −';
 
   // 2e exercice de français: le cahier Jazz les jours où il y a un module,
