@@ -45,6 +45,17 @@ export const TESTS = [
     source: 'Terminus, p. 6 à 20',
   },
   {
+    // « Évaluation en mathématique » de la feuille du 2 au 6 nov. — passée le
+    // mercredi 4 (dit par le parent le jour même). Déjà passée: elle marque le
+    // jour dans l'agenda, le Coach ne la révise plus.
+    date: [2026, 11, 4], jours: 0, passe: true,
+    nom: 'Évaluation de mathématiques',
+    mode: 'matcha_ordre',
+    label: "Maths — l'arrondissement et l'approximation",
+    icon: '🧮',
+    source: 'Aide-mémoire Matcha p. 16-17',
+  },
+  {
     // Plan du 2 au 6 nov.: « Univers social — Révision: pages 6 à 20 » et
     // « Évaluation en univers social ». Toujours sans date écrite → révision
     // sans compte à rebours.
@@ -67,6 +78,8 @@ export function testAReviser(date = new Date()) {
   TESTS.forEach((t) => {
     const quand = dateOf(t.date);
     const reste = Math.round((quand - jour) / 86400000);
+    // Déjà passé (dit par le parent): on ne le révise plus, même le jour même.
+    if (t.passe) return;
     if (reste < 0 || reste > t.jours) return;
     if (!trouve || reste < trouve.reste) trouve = { ...t, reste };
   });

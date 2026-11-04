@@ -302,7 +302,8 @@ export const LISTE_SEMAINES = [
     verbe: 'révision aimer et finir au présent', verbeCle: 'aimer_present+finir_present',
     // « Devoir plus évaluations » — sans jour écrit. L'agenda les montre pour
     // la semaine, il n'en place aucune sur un jour inventé.
-    evaluations: ['Mathématiques', 'Univers social (Terminus p. 6 à 20)', 'Dictée — liste 7', 'Verbes aimer et finir au présent'] },
+    // Le parent, le 4 nov.: « he had his math test today, Wednesday ».
+    evaluations: ['Mathématiques — faite mercredi 4 nov.','Univers social (Terminus p. 6 à 20)', 'Dictée — liste 7', 'Verbes aimer et finir au présent'] },
   { debut: [2026, 11, 9], liste: 'l8' },
   { debut: [2026, 11, 16], liste: 'l9' },
   { debut: [2026, 11, 23], liste: 'l10' },
