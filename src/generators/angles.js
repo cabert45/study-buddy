@@ -108,7 +108,7 @@ function droites() {
     correct: nom[relation],
     options: ['parallèles', 'perpendiculaires', 'ni l’un ni l’autre'],
     explanation: `Elles sont ${nom[relation]}.\n\n`
-      + 'PARALLÈLES (//): elles vont dans la même direction et ne se touchent JAMAIS, '
+      + 'PARALLÈLES (∥): toujours à égale distance l’une de l’autre, elles ne se touchent JAMAIS, '
       + 'comme les deux rails d’un chemin de fer.\n'
       + 'PERPENDICULAIRES (⊥): elles se croisent en formant un ANGLE DROIT, '
       + 'comme les deux côtés du coin d’une feuille.\n'
@@ -120,8 +120,9 @@ function droites() {
 // ===== 4. Le mot pour le symbole =====
 function symbole() {
   const cas = pick([
-    { s: '//', r: 'parallèles', why: 'Les deux traits du symbole // sont eux-mêmes parallèles.' },
-    { s: '⊥', r: 'perpendiculaires', why: 'Le symbole ⊥ montre un angle droit.' },
+    // Le cahier écrit ∥ (a ∥ b), pas « // ».
+    { s: '∥', r: 'parallèles', why: 'Les deux traits du symbole ∥ sont eux-mêmes parallèles: a ∥ b veut dire « a est parallèle à b ».' },
+    { s: '⊥', r: 'perpendiculaires', why: 'Le symbole ⊥ montre un angle droit: c ⊥ d veut dire « c est perpendiculaire à d ». On trace un petit carré là où elles se rencontrent.' },
   ]);
   return {
     category: CATEGORY,

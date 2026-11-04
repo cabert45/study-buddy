@@ -97,7 +97,11 @@ export const CAHIER_SEMAINES = [
   // adjectif, verbe, pronom) est ce qui couvre ça; le GN (t2m1-2) est dans
   // « Nom, adjectif ou verbe? ».
   { debut: [2026, 10, 26], module: 't1rev', confirme: true },
-  { debut: [2026, 11, 2], module: 't2m3' },
+  // Feuille du 2 au 6 nov.: « Français: Aide-mémoire p. 8 ». La page 8 de
+  // l'aide-mémoire, c'est LE VERBE À L'INFINITIF (p. 6 = le GN, p. 7 = ses
+  // constructions — les deux semaines précédentes). Le module du cahier qui
+  // le travaille est t3m3. La page est confirmée; le module en est déduit.
+  { debut: [2026, 11, 2], module: 't3m3', confirme: true },
 ];
 
 const moduleIndex = {};

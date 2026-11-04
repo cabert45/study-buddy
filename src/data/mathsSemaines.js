@@ -46,6 +46,14 @@ export const MATHS_SEMAINES = [
     debut: [2026, 10, 26], mode: 'matcha_revision', confirme: true,
     nom: 'révision de tout depuis septembre', page: '',
   },
+  {
+    // Feuille du 2 au 6 nov.: « Mathématiques: Aide-mémoire p. 16 et 17 » +
+    // une évaluation. Le parent, le 28 oct.: en classe, la page de Matcha est
+    // « L'arrondissement et l'approximation » (et les fractions viennent
+    // après). matcha_ordre porte l'arrondi et ses exercices n° 7, 8, 10, 12.
+    debut: [2026, 11, 2], mode: 'matcha_ordre', confirme: true,
+    nom: "l'arrondissement et l'approximation", page: 'p. 16-17',
+  },
 ];
 
 const dateOf = ([y, m, d]) => new Date(y, m - 1, d);

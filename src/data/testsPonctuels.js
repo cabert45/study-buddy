@@ -44,6 +44,17 @@ export const TESTS = [
     icon: '🗺️',
     source: 'Terminus, p. 6 à 20',
   },
+  {
+    // Plan du 2 au 6 nov.: « Univers social — Révision: pages 6 à 20 » et
+    // « Évaluation en univers social ». Toujours sans date écrite → révision
+    // sans compte à rebours.
+    date: [2026, 11, 6], jours: 4, revision: true,
+    nom: "Évaluation d'univers social",
+    mode: 'us_iroquoiens',
+    label: 'Univers social — évaluation, Terminus p. 6 à 20',
+    icon: '🗺️',
+    source: 'Terminus, p. 6 à 20',
+  },
 ];
 
 const dateOf = ([y, m, d]) => new Date(y, m - 1, d);

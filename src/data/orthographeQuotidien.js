@@ -294,7 +294,12 @@ export const LISTE_SEMAINES = [
   // semaine de CONSOLIDATION et d'évaluations — la classe reste sur la
   // liste 6. Tout ce qui suit glisse d'une semaine (non confirmé).
   { debut: [2026, 10, 26], liste: 'l6', confirme: true },
-  { debut: [2026, 11, 2], liste: 'l7' },
+  // « Plan de travail semaine du 2 au 6 novembre »: Orthographe au quotidien
+  // liste 7, dictée (liste 7) en évaluation — et le verbe n'est PAS celui de
+  // la liste 7 (aller): c'est la « révision des verbes aimer et finir au
+  // présent de l'indicatif », évaluée aussi. Lundi 2 = journée pédagogique.
+  { debut: [2026, 11, 2], liste: 'l7', confirme: true,
+    verbe: 'révision aimer et finir au présent', verbeCle: 'aimer_present+finir_present' },
   { debut: [2026, 11, 9], liste: 'l8' },
   { debut: [2026, 11, 16], liste: 'l9' },
   { debut: [2026, 11, 23], liste: 'l10' },
@@ -317,7 +322,12 @@ function semaineIndex(rawDate) {
 
 export function listeCetteSemaine(date = new Date()) {
   const i = semaineIndex(date);
-  return i >= 0 ? listeById(LISTE_SEMAINES[i].liste) : LISTES[0];
+  if (i < 0) return LISTES[0];
+  const w = LISTE_SEMAINES[i];
+  // Une semaine peut annoncer un autre verbe que celui de sa liste (2 nov.:
+  // liste 7, mais révision aimer + finir). La feuille tranche.
+  const l = listeById(w.liste);
+  return w.verbeCle ? { ...l, verbe: w.verbe, verbeMode: 'verbe_semaine', verbeCle: w.verbeCle } : l;
 }
 
 export function semaineCourante(date = new Date()) {

@@ -1019,7 +1019,9 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
         {question.tableau && <TableauNumeration {...question.tableau} />}
         {question.abaque && <Abaque {...question.abaque} />}
         {question.horloge && <Horloge {...question.horloge} />}
-        {question.droite && <DroiteNumerique {...question.droite} />}
+        {/* Une fois répondu, la droite d'arrondir montre aussi où le nombre
+            « tombe » (point rouge et flèche), comme l'exemple du cahier. */}
+        {question.droite && <DroiteNumerique {...(showResult && question.droiteCorrection ? question.droiteCorrection : question.droite)} />}
         {/* Droites et angles, dessines en code (components/Angles): un angle
             « droit » trace a 85 degres rendrait la bonne reponse fausse. */}
         {question.figure && (

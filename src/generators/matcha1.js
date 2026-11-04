@@ -841,9 +841,21 @@ function arrondir() {
     // La droite montre le nombre ENTRE ses deux centaines (ou dizaines), milliers compris.
     // Pas toujours: au test, il n'y aura pas de dessin.
     droite: montrerDroite ? ligne : undefined,
-    droiteCorrection: ligne,
+    // La correction montre où il « tombe », comme l'exemple du cahier
+    // (Matcha, « L'arrondissement et l'approximation »: 1 237 → 1 240).
+    droiteCorrection: { ...ligne, vers: correct },
+    // Le cahier raisonne par la DISTANCE (« il est plus près de 1 240 que de
+    // 1 230 »); le chiffre « 5 ou plus » ne vient qu'après, comme raccourci.
     explanation: `${fmt(n)} est entre ${fmt(bas)} et ${fmt(haut)}.
-Le chiffre des ${voisin} est ${chiffreDecide}: ${chiffreDecide >= 5 ? '5 ou plus → on monte' : '4 ou moins → on garde'} → ${fmt(correct)}.${correct >= 1000 ? `\nLes milliers ne bougent pas: le nombre arrondi est presque pareil, pas plus petit.` : ''}`,
+${n - bas === haut - n
+    ? `Il est pile au milieu (à ${n - bas} de chaque bout): dans ce cas, on monte → ${fmt(correct)}.`
+    : `Il est plus près de ${fmt(correct)} que de ${fmt(correct === bas ? haut : bas)} (à ${Math.abs(n - correct)} de ${fmt(correct)}, à ${Math.abs(n - (correct === bas ? haut : bas))} de ${fmt(correct === bas ? haut : bas)}).
+${fmt(n)} arrondi à la ${nom} près est ${fmt(correct)}.`}
+Raccourci: le chiffre des ${voisin} est ${chiffreDecide} → ${chiffreDecide >= 5 ? '5 ou plus, on monte' : '4 ou moins, on garde'}.${correct >= 1000 ? (Math.floor(correct / 1000) === Math.floor(n / 1000)
+    ? `\nLes milliers ne bougent pas: le nombre arrondi est presque pareil, pas plus petit.`
+    // 2 970 → 3 000: ici les milliers changent, et c'est juste. Dire le
+    // contraire lui apprendrait une règle fausse.
+    : `\nEn montant, on passe aux ${fmt(Math.floor(correct / 1000) * 1000)}: le nombre arrondi reste presque pareil, pas plus petit.`) : ''}`,
     hint: `Entre quelles deux ${nom}s est ${fmt(n)}? Écris le nombre AU COMPLET.`,
   };
 }
@@ -863,6 +875,94 @@ function approximation() {
     presque,
     explanation: `${a} → ${ra} · ${b} → ${rb}\n${ra} + ${rb} = ${fmt(correct)}`,
     hint: 'Deux étapes: arrondir chacun, puis additionner les nombres ronds.',
+  };
+}
+
+// ===== Les exercices de la page « L'arrondissement et l'approximation » =====
+// Matcha 3e, photographiée par le parent le 28 oct. 2026 (la page de la
+// classe cette semaine-là). Le cahier: au mi-chemin, on arrondit « au nombre
+// le plus grand » (15 → 20) — Math.round fait exactement ça.
+const arr = (n, pas) => Math.round(n / pas) * pas;
+
+// N° 7: « Arrondis chaque nombre à la centaine près. Entoure la bonne réponse. »
+// Les pièges du cahier: 6 490 (le 4 des centaines tente, mais 90 monte) et
+// 4 075 (le 0 des centaines).
+function entoureArrondi() {
+  const n = pick([
+    () => rand(1, 9) * 1000 + rand(0, 9) * 100 + rand(5, 9) * 10 + rand(0, 9), // monte: 6 490
+    () => rand(1, 9) * 1000 + rand(0, 3) * 10 + rand(0, 9) + rand(0, 9) * 100, // garde
+    () => rand(1, 9) * 1000 + rand(50, 99),                                    // 4 075 → 4 100
+    () => rand(1, 9) * 100 + rand(0, 99),                                      // 829
+  ])();
+  if (n % 100 === 0) return entoureArrondi();
+  const bas = Math.floor(n / 100) * 100;
+  const correct = arr(n, 100);
+  return {
+    category: CATEGORY,
+    type: 'entoure_arrondi',
+    text: `Arrondis ${fmt(n)} à la centaine près. Entoure la bonne réponse.`,
+    correct,
+    options: [bas, bas + 100],
+    droiteCorrection: { marques: Array.from({ length: 11 }, (_, k) => bas + k * 10), etiquettes: [0, 5, 10], point: { valeur: n }, vers: correct },
+    explanation: `${fmt(n)} est entre ${fmt(bas)} et ${fmt(bas + 100)}; le milieu, c'est ${fmt(bas + 50)}.
+${n - bas >= 50 ? `Il est au milieu ou après → ${fmt(bas + 100)}.` : `Il est avant le milieu → ${fmt(bas)}.`}`,
+    hint: `Le milieu entre ${fmt(bas)} et ${fmt(bas + 100)}, c'est ${fmt(bas + 50)}. ${fmt(n)} est avant ou après?`,
+  };
+}
+
+// N° 8: « Arrondis chaque terme à la dizaine près. Fais une approximation.
+// Calcule ensuite la somme exacte. » — on demande l'EXACTE, après avoir
+// montré l'approximation: c'est la 2e case du cahier.
+function approxPuisExact() {
+  const a = rand(112, 289), b = rand(112, 289);
+  const ra = arr(a, 10), rb = arr(b, 10);
+  const exact = a + b;
+  const presque = {};
+  if (ra + rb !== exact) presque[ra + rb] = `Ça, c'est l'APPROXIMATION (${ra} + ${rb}). Maintenant la somme EXACTE: ${a} + ${b}.`;
+  return {
+    category: CATEGORY,
+    type: 'approx_exact',
+    text: `${a} + ${b}\nApproximation: ${ra} + ${rb} = ${ra + rb}.\nCalcule maintenant la somme EXACTE.`,
+    correct: exact,
+    presque,
+    explanation: `${a} + ${b} = ${fmt(exact)}.\nL'approximation (${ra + rb}) était tout près: c'est comme ça qu'on vérifie sa réponse.`,
+    hint: `Additionne les vrais nombres, ${a} et ${b}. Ta réponse doit être proche de ${ra + rb}.`,
+  };
+}
+
+// N° 10 (la colle de madame Tamara) et n° 12 (les ampoules du planétarium).
+function approxProbleme() {
+  if (Math.random() < 0.5) {
+    const noms = shuffle(['Léo', 'Maya', 'Samir', 'Rose', 'Noah', 'Lina']).slice(0, 3);
+    const v = [rand(105, 249), rand(105, 249), rand(105, 249)];
+    const r = v.map((x) => arr(x, 10));
+    const correct = r.reduce((s, x) => s + x, 0);
+    const exact = v.reduce((s, x) => s + x, 0);
+    const presque = {};
+    if (exact !== correct) presque[exact] = 'Ça, c\'est le total EXACT. On demande une approximation: arrondis d\'abord CHAQUE nombre à la dizaine.';
+    return {
+      category: CATEGORY,
+      type: 'approx_probleme',
+      text: `Pour leur maquette, ${noms[0]} a utilisé ${v[0]} ml de colle, ${noms[1]} ${v[1]} ml et ${noms[2]} ${v[2]} ml.\nArrondis chaque nombre à la dizaine près.\nEnviron combien de ml de colle en tout?`,
+      correct,
+      presque,
+      explanation: `${v.map((x, i) => `${x} → ${r[i]}`).join(' · ')}\n${r.join(' + ')} = ${fmt(correct)} ml environ.`,
+      hint: 'Trois nombres à arrondir, puis on additionne les trois nombres ronds.',
+    };
+  }
+  const a = rand(5, 9) * 100 + rand(1, 49), b = rand(51, 149);
+  const ra = arr(a, 100), rb = arr(b, 100);
+  const correct = ra - rb;
+  const presque = {};
+  if (a - b !== correct) presque[a - b] = 'Ça, c\'est le résultat EXACT. On demande d\'abord l\'approximation: arrondis chaque terme à la CENTAINE.';
+  return {
+    category: CATEGORY,
+    type: 'approx_probleme',
+    text: `Le plafond du planétarium a ${a} ampoules. ${b} ampoules se sont éteintes.\nArrondis chaque terme à la centaine près.\nEnviron combien d'ampoules restent allumées?`,
+    correct,
+    presque,
+    explanation: `${a} → ${ra} · ${b} → ${rb}\n${ra} − ${rb} = ${correct} ampoules environ.\n(Le résultat exact, ${a} − ${b} = ${a - b}, est tout près.)`,
+    hint: `${b} à la centaine près: c'est plus près de 0 ou de 100? Puis enlève.`,
   };
 }
 
@@ -971,7 +1071,8 @@ function champs() {
 
 const RULE_ORDRE = `Croissant = du plus PETIT au plus GRAND (ça monte) · Décroissant = du plus GRAND au plus PETIT
 Pour comparer: on compte les chiffres, puis on part de la GAUCHE et on s'arrête à la première différence.
-Arrondir: 1 312 à la centaine → 1 300 (les milliers RESTENT!) · le chiffre d'à côté: 5 ou plus → on monte.`;
+Arrondir = remplacer par le nombre qui finit par 0 le plus PRÈS: 1 237 est plus près de 1 240 que de 1 230 → 1 240.
+1 312 à la centaine → 1 300 (les milliers RESTENT!) · raccourci: le chiffre d'à côté, 5 ou plus → on monte.`;
 
 export function generateMatchaOrdre() {
   const q = pickAdaptive(CATEGORY, [
@@ -980,6 +1081,10 @@ export function generateMatchaOrdre() {
     { type: 'ranger', w: 16, build: rangerMemesChiffres },
     { type: 'droite', w: 12, build: droiteNumerique },
     { type: 'approximation', w: 8, build: approximation },
+    // La page de la classe le 28 oct. (n° 7, 8, 10, 12).
+    { type: 'entoure_arrondi', w: 12, build: entoureArrondi },
+    { type: 'approx_exact', w: 8, build: approxPuisExact },
+    { type: 'approx_probleme', w: 10, build: approxProbleme },
     { type: 'champs', w: 8, build: champs },
     { type: 'sacs', w: 6, build: faireDesSacs },
     { type: 'ordre', w: 8, build: ordreCroissant },

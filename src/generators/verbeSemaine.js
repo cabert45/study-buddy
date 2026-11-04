@@ -48,6 +48,13 @@ export const VERBES = {
     muette: { tu: 's', ils: 'nt' },
     regle: 'Radical AIM- + e · es · e · ons · ez · ent',
     note: "« aimer » commence par une voyelle: je devient j' → j'aime.",
+    radical: 'aim',
+    // La faute n° 1: le -ent muet oublié (« ils aime »).
+    presque: {
+      ils: { 'ils aime': 'Presque! Avec ils/elles, il faut le -NT qu’on n’entend pas: ils aimeNT.', aime: 'Presque! Avec ils/elles, il faut le -NT qu’on n’entend pas: ils aimeNT.', 'ils aimes': 'Avec ils/elles, ce n’est pas -s: c’est -ENT → ils aiment.' },
+      nous: { 'nous aimont': 'Presque! Avec nous, c’est -ONS (avec un S): nous aimons.', aimont: 'Presque! Avec nous, c’est -ONS (avec un S): nous aimons.' },
+      vous: { 'vous aimer': 'Attention: aimER, c’est l’infinitif. Avec vous: -EZ → vous aimez.', aimer: 'Attention: aimER, c’est l’infinitif. Avec vous: -EZ → vous aimez.', 'vous aimé': 'Avec vous, ça s’écrit -EZ: vous aimez.', aimé: 'Avec vous, ça s’écrit -EZ: vous aimez.' },
+    },
   },
   finir_present: {
     verbe: 'finir', temps: 'présent', groupe: '2e groupe (-IR)',
@@ -55,6 +62,14 @@ export const VERBES = {
     muette: { je: 's', tu: 's', il: 't', ils: 'ent' },
     regle: 'Radical FIN- + is · is · it · issons · issez · issent',
     note: 'Au pluriel, il arrive un -SS- qui n\'était pas là au singulier: nous finiSSons.',
+    radical: 'fin',
+    // Ses fautes de 2e année au test de finir (6/10): « finissont », « finissonts ».
+    presque: {
+      nous: { 'nous finons': 'Presque! finir n’est pas comme aimer: au pluriel il prend -ISS- → nous finiSSons.', finons: 'Presque! finir n’est pas comme aimer: au pluriel il prend -ISS- → nous finiSSons.', 'nous finissont': 'Presque! Avec nous, c’est -ONS (avec un S): nous finissons.', finissont: 'Presque! Avec nous, c’est -ONS (avec un S): nous finissons.' },
+      ils: { 'ils finissont': 'Presque! -ONT, c’est pour « ils vont » ou « ils ont ». finir: ils finissENT.', finissont: 'Presque! -ONT, c’est pour « ils vont » ou « ils ont ». finir: ils finissENT.', 'ils finent': 'Presque! Au pluriel, finir prend -ISS-: ils finiSSent.', finent: 'Presque! Au pluriel, finir prend -ISS-: ils finiSSent.', 'ils finit': 'Ça, c’est « il finit » (un seul). Avec ils, c’est le pluriel: ils finissent.', finit: 'Ça, c’est « il finit » (un seul). Avec ils, c’est le pluriel: ils finissent.', 'ils finisent': 'Presque! Deux S: ils finiSSent.', finisent: 'Presque! Deux S: ils finiSSent.' },
+      vous: { 'vous finez': 'Presque! Au pluriel, finir prend -ISS-: vous finiSSez.', finez: 'Presque! Au pluriel, finir prend -ISS-: vous finiSSez.', 'vous finisez': 'Presque! Deux S: vous finiSSez.', finisez: 'Presque! Deux S: vous finiSSez.' },
+      il: { 'il fini': 'Presque! Avec il/elle, finir finit par un T muet: il finiT.', fini: 'Presque! Avec il/elle, finir finit par un T muet: il finiT.', 'il finis': 'Avec il/elle, c’est -T: il finit. (-S, c’est pour je et tu.)', finis: 'Avec il/elle, c’est -T: il finit. (-S, c’est pour je et tu.)' },
+    },
   },
   aller_present: {
     verbe: 'aller', temps: 'présent', groupe: 'verbe irrégulier',
@@ -96,8 +111,17 @@ export const VERBES = {
 // Le verbe courant, posé par PracticeSession avant de rendre le générateur —
 // même montage que la dictée de la semaine (setCurrentWeek).
 let courant = 'aimer_present';
-export function setVerbeSemaine(cle) { if (VERBES[cle]) courant = cle; }
+// Une semaine de RÉVISION a plusieurs verbes (« aimer_present+finir_present »,
+// feuille du 2 nov.): chaque question en tire un, et le tableau les montre tous.
+let groupe = ['aimer_present'];
+export function setVerbeSemaine(cle) {
+  const cles = String(cle).split('+').filter((k) => VERBES[k]);
+  if (!cles.length) return;
+  groupe = cles;
+  courant = cles[0];
+}
 export const verbeCourant = () => VERBES[courant];
+export const verbesCourants = () => groupe.map((k) => VERBES[k]);
 
 // Le tableau complet, montré AVANT les questions (« la liste avant les
 // exercices », règle du parent du 20 sept.).
@@ -134,6 +158,7 @@ function conjugue(forcerPluriel = false) {
     text: `Conjugue « ${v.verbe} » au ${v.temps} avec « ${AFFICHE[p]} ».`,
     correct,
     tape: 'mot',
+    presque: v.presque?.[p],
     explanation: `${correct}.\n\n${v.regle}\n${EST_PLURIEL[p] ? `C'est une personne du PLURIEL: ${correct}.` : v.note}`,
     hint: `${v.verbe} au ${v.temps}: ${v.formes.je} · ${v.formes.tu} · ${v.formes.il} · …`,
   };
@@ -223,8 +248,33 @@ function corrige() {
   };
 }
 
+// ===== 6. La bonne terminaison (révision de deux verbes) =====
+// « nous fin___ »: -ons comme aimer, ou -issons? C'est exactement l'endroit
+// où les deux verbes se mélangent (en 2e année: « finissont », « finissonts »).
+function terminaison() {
+  const v = VERBES[courant];
+  if (!v.radical) return conjugue(true);
+  const p = personneFraiche(['nous', 'vous', 'ils']);
+  const forme = sansPronom(v.formes[p]);
+  const correct = forme.slice(v.radical.length);
+  const leurres = ['ons', 'ez', 'ent', 'issons', 'issez', 'issent', 'issont', 'ont'].filter((t) => t !== correct);
+  const pr = AFFICHE[p].split(' / ')[0];
+  return {
+    category: CATEGORY,
+    type: 'terminaison',
+    text: `Complète avec la bonne terminaison: « ${pr} ${v.radical}___ » (${v.verbe}).`,
+    correct,
+    options: quatre(correct, shuffle(leurres)),
+    explanation: `${v.formes[p]}.\n\n${v.regle}\n${v.note}`,
+    hint: `${v.verbe} est du ${v.groupe}. ${v.verbe === 'finir' ? 'Au pluriel, il prend -ISS-.' : 'Pas de -iss- pour lui.'}`,
+  };
+}
+
 function buildOne() {
+  // Révision: un verbe différent à chaque question.
+  if (groupe.length > 1) courant = pick(groupe);
   return pickAdaptive(CATEGORY, [
+    { type: 'terminaison', w: groupe.length > 1 ? 18 : 0, build: terminaison },
     // Le pluriel d'abord: « le verbe aimer au pluriel » (le parent, 11 oct.)
     { type: 'conjugate', w: 24, build: () => conjugue(true) },
     { type: 'conjugate_tout', w: 14, build: () => conjugue(false) },

@@ -19,7 +19,9 @@ const Y = 46;
 const TRAIT = '#3b3b4f';
 const ACCENT = '#c2410c';
 
-export default function DroiteNumerique({ marques, vides = 0, point = null, etiquettes = null }) {
+// `vers` (correction d'arrondir): le nombre rond le plus près, marqué d'un
+// point rouge avec une flèche qui part du nombre — l'exemple du cahier.
+export default function DroiteNumerique({ marques, vides = 0, point = null, etiquettes = null, vers = null }) {
   const n = marques.length + vides;
   const x = (i) => PAD + (i * (W - 2 * PAD)) / Math.max(1, n - 1);
   // `etiquettes` = les indices dont on écrit le nombre (arrondir: les deux bouts et le milieu).
@@ -52,6 +54,20 @@ export default function DroiteNumerique({ marques, vides = 0, point = null, etiq
               fill="#fff7ed" stroke={ACCENT} strokeWidth="1.5" strokeDasharray="4 3" />
           );
         })}
+        {point && vers != null && (() => {
+          const vx = PAD + ((vers - marques[0]) / (marques[marques.length - 1] - marques[0])) * (W - 2 * PAD);
+          const dir = vx > px ? 1 : -1;
+          return (
+            <g>
+              <path d={`M ${px} ${Y - 3} Q ${(px + vx) / 2} ${Y - 22} ${vx - dir * 6} ${Y - 5}`}
+                fill="none" stroke={ACCENT} strokeWidth="2" />
+              <circle cx={vx} cy={Y} r="5" fill="#dc2626" />
+              <text x={vx} y={Y + 26} textAnchor="middle" fontSize="12.5" fontWeight="800" fill="#dc2626">
+                {fmt(vers)}
+              </text>
+            </g>
+          );
+        })()}
         {point && (
           <g>
             <path d={`M ${px} ${Y - 10} l -6 -10 h 12 z`} fill={ACCENT} />

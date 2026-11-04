@@ -2,7 +2,7 @@ import React from 'react';
 import { listeCetteSemaine, LISTES } from '../data/orthographeQuotidien';
 import { strategiesCetteSemaine, ecrireFait } from '../data/tablesStrategies';
 import { CLASSES, TESTS } from '../generators/quatreClasses';
-import { tableauVerbe, verbeCourant } from '../generators/verbeSemaine';
+import { tableauVerbe, verbeCourant, verbesCourants } from '../generators/verbeSemaine';
 // `CLASSES` existe deja ici (les 4 classes de MOTS, generators/quatreClasses):
 // les classes de VERTEBRES sont donc renommees a l'import.
 import { CLASSES as CLASSES_VERTEBRES, UTILITES, DEPLACEMENTS } from '../data/sciencesVertebres';
@@ -178,8 +178,21 @@ function TableauClasses() {
 // Meme regle que la liste de mots: on ne fait pas ecrire « ils aiment » a un
 // enfant a qui on n'a pas montre « ils aiment ». Le pluriel est mis en avant,
 // c'est la qu'il perd ses points (« le verbe aimer au pluriel », 11 oct.).
+// Une semaine de révision (aimer + finir, 2 nov.) montre les deux tableaux
+// l'un sous l'autre: la différence (-ons / -issons) se voit en les comparant.
 function TableauVerbe() {
-  const v = verbeCourant();
+  const tous = verbesCourants();
+  if (tous.length > 1) {
+    return (
+      <div className="space-y-5">
+        {tous.map((v) => <UnTableau key={v.verbe} v={v} />)}
+      </div>
+    );
+  }
+  return <UnTableau v={verbeCourant()} />;
+}
+
+function UnTableau({ v }) {
   const lignes = tableauVerbe(v);
   return (
     <>

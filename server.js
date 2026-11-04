@@ -20,7 +20,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
+// Le carnet reçoit des photos (plusieurs pages d'un test): il a son propre
+// lecteur JSON plus large. Le lecteur général à 100 ko refuserait la requête
+// avant même qu'elle n'arrive à sa route.
+const jsonCarnet = express.json({ limit: '25mb' });
+const jsonGeneral = express.json();
+app.use((req, res, next) => (req.path.startsWith('/api/carnet') ? next() : jsonGeneral(req, res, next)));
 
 // --- Database setup with PostgreSQL ---
 const pool = new pg.Pool({
@@ -122,6 +127,54 @@ async function initDb() {
         PRIMARY KEY (guest_id, date, event)
       )
     `);
+
+    // Le carnet de notes: chaque note rapportée de l'école, avec la photo du
+    // papier. « Keep Ryan's grades somewhere whenever we get them… I don't
+    // want to lose them. » (28 oct. 2026). Avant, les notes étaient écrites à
+    // la main dans data/ryanTestResults.js: sans photo, et impossibles à
+    // ajouter du téléphone.
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS carnet (
+        id SERIAL PRIMARY KEY,
+        profile TEXT NOT NULL DEFAULT 'ryan',
+        date TEXT NOT NULL,
+        matiere TEXT NOT NULL,
+        categorie TEXT,
+        titre TEXT NOT NULL,
+        note NUMERIC,
+        sur NUMERIC,
+        appreciation TEXT,
+        fautes TEXT,
+        prepare TEXT,
+        cle TEXT UNIQUE,
+        cree TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS carnet_photos (
+        id SERIAL PRIMARY KEY,
+        carnet_id INTEGER NOT NULL REFERENCES carnet(id) ON DELETE CASCADE,
+        type TEXT NOT NULL,
+        data BYTEA NOT NULL
+      )
+    `);
+    // Les notes de 3e année déjà connues avant le carnet. `cle` empêche de
+    // les remettre à chaque démarrage, et une note effacée à la main ne
+    // revient pas non plus (ON CONFLICT ne touche que la clé).
+    const DEJA_CONNUES = [
+      ['2026-10-15', 'sciences', 'Test', 'Éclair de génie, leçon 1 — les animaux à queue (p. 3-12)', 18, 20, null,
+        '« garder l’équilibre » pas coché (à quoi sert la queue) · VRAI à « tous les animaux ont une colonne vertébrale »: il n’a pas lu le mot TOUS',
+        'Mode « La queue des animaux » + fiche, construits le 12 oct.', 'sciences-2026-10-15'],
+      ['2026-10-23', 'français', 'Dictée', 'Dictée du vendredi 23 octobre', null, null, 'Bravo',
+        '« les garçon » → garçons (le s du pluriel ajouté en rouge) · « aime » → aiment (le verbe s’accorde avec « les garçons ») — lu sur la photo, à vérifier',
+        'Liste 6 ([s]/[z]) dans la Dictée orale et Orthographe au quotidien', 'dictee-2026-10-23'],
+    ];
+    for (const [date, matiere, categorie, titre, note, sur, appreciation, fautes, prepare, cle] of DEJA_CONNUES) {
+      await client.query(`
+        INSERT INTO carnet (date, matiere, categorie, titre, note, sur, appreciation, fautes, prepare, cle)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT (cle) DO NOTHING
+      `, [date, matiere, categorie, titre, note, sur, appreciation, fautes, prepare, cle]);
+    }
 
     console.log('Database tables ready');
   } finally {
@@ -461,6 +514,111 @@ app.get('/api/historique', async (req, res) => {
     res.json({ depuis, rows: rows.map(({ premier, ...r }) => r) });
   } catch (err) {
     console.error('Historique error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// ===== Le carnet de notes =====
+// Les photos arrivent en data URL (le téléphone les réduit d'abord) et sont
+// gardées dans la base: Railway efface son disque à chaque déploiement.
+function photosDepuis(dataUrls) {
+  return (Array.isArray(dataUrls) ? dataUrls : []).map((u) => {
+    const m = /^data:(image\/(?:jpeg|png|webp));base64,(.+)$/.exec(String(u));
+    return m ? { type: m[1], data: Buffer.from(m[2], 'base64') } : null;
+  }).filter(Boolean);
+}
+const nombreOuNul = (v) => (v === '' || v == null || Number.isNaN(Number(v)) ? null : Number(v));
+const CHAMPS_CARNET = ['date', 'matiere', 'categorie', 'titre', 'note', 'sur', 'appreciation', 'fautes', 'prepare'];
+const valeurCarnet = (k, v) => (k === 'note' || k === 'sur' ? nombreOuNul(v) : (v ?? null) === '' ? null : v ?? null);
+
+app.get('/api/carnet', async (req, res) => {
+  try {
+    const rows = await queryAll(`
+      SELECT c.id, c.date, c.matiere, c.categorie, c.titre, c.note::float AS note, c.sur::float AS sur,
+             c.appreciation, c.fautes, c.prepare,
+             COALESCE(array_agg(p.id ORDER BY p.id) FILTER (WHERE p.id IS NOT NULL), '{}') AS photos
+      FROM carnet c LEFT JOIN carnet_photos p ON p.carnet_id = c.id
+      WHERE c.profile = $1 GROUP BY c.id ORDER BY c.date DESC, c.id DESC
+    `, [req.query.profile || 'ryan']);
+    res.json({ rows });
+  } catch (err) {
+    console.error('Carnet error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+app.get('/api/carnet/photo/:id', async (req, res) => {
+  try {
+    const p = await queryOne('SELECT type, data FROM carnet_photos WHERE id = $1', [parseInt(req.params.id, 10)]);
+    if (!p) return res.status(404).end();
+    res.set('Content-Type', p.type).set('Cache-Control', 'private, max-age=31536000, immutable').send(p.data);
+  } catch (err) {
+    console.error('Carnet photo error:', err);
+    res.status(500).end();
+  }
+});
+
+app.post('/api/carnet', jsonCarnet, async (req, res) => {
+  const b = req.body || {};
+  if (!b.date || !b.matiere || !b.titre) return res.status(400).json({ error: 'date, matière et titre requis' });
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rows } = await client.query(`
+      INSERT INTO carnet (profile, ${CHAMPS_CARNET.join(', ')})
+      VALUES ($1, ${CHAMPS_CARNET.map((_, i) => `$${i + 2}`).join(', ')}) RETURNING id
+    `, [b.profile || 'ryan', ...CHAMPS_CARNET.map((k) => valeurCarnet(k, b[k]))]);
+    for (const p of photosDepuis(b.photos)) {
+      await client.query('INSERT INTO carnet_photos (carnet_id, type, data) VALUES ($1, $2, $3)', [rows[0].id, p.type, p.data]);
+    }
+    await client.query('COMMIT');
+    res.json({ ok: true, id: rows[0].id });
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
+    console.error('Carnet save error:', err);
+    res.status(500).json({ error: 'Database error' });
+  } finally {
+    client.release();
+  }
+});
+
+// Modifier: la note arrive souvent après la photo (une dictée rapportée
+// avec « Bravo », la note chiffrée plus tard dans le bulletin).
+app.put('/api/carnet/:id', jsonCarnet, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const b = req.body || {};
+  const champs = CHAMPS_CARNET.filter((k) => k in b);
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    if (champs.length) {
+      await client.query(
+        `UPDATE carnet SET ${champs.map((k, i) => `${k} = $${i + 2}`).join(', ')} WHERE id = $1`,
+        [id, ...champs.map((k) => valeurCarnet(k, b[k]))]);
+    }
+    for (const p of photosDepuis(b.photos)) {
+      await client.query('INSERT INTO carnet_photos (carnet_id, type, data) VALUES ($1, $2, $3)', [id, p.type, p.data]);
+    }
+    if (Array.isArray(b.retirerPhotos) && b.retirerPhotos.length) {
+      await client.query('DELETE FROM carnet_photos WHERE carnet_id = $1 AND id = ANY($2::int[])', [id, b.retirerPhotos]);
+    }
+    await client.query('COMMIT');
+    res.json({ ok: true });
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
+    console.error('Carnet update error:', err);
+    res.status(500).json({ error: 'Database error' });
+  } finally {
+    client.release();
+  }
+});
+
+app.delete('/api/carnet/:id', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM carnet WHERE id = $1', [parseInt(req.params.id, 10)]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Carnet delete error:', err);
     res.status(500).json({ error: 'Database error' });
   }
 });
