@@ -9,4 +9,5 @@
 // expliquer la semaine courte — et à rappeler qu'une remise peut remonter.
 export const CONGES = [
   { date: [2026, 10, 12], nom: 'Congé — Action de grâce' },
+  { date: [2026, 11, 2], nom: 'Journée pédagogique' }, // feuille du 2 au 6 nov.
 ];

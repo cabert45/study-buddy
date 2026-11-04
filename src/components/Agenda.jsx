@@ -187,6 +187,21 @@ export default function Agenda({ onClose, onLaunchMode, profile = 'ryan' }) {
           {/* ===== Ce qu'il étudie cette semaine ===== */}
           <section>
             <h3 className="text-xs font-bold uppercase tracking-wide text-s5 mb-2">Cette semaine</h3>
+            {/* Les évaluations annoncées sans jour (feuille du 2 nov.): on les
+                montre pour toute la semaine plutôt que d'inventer une date. */}
+            {semaineCourante(choisi)?.evaluations?.length > 0 && (
+              <div className="rounded-xl border-2 p-2.5 mb-2"
+                style={{ background: COULEURS.test.bg, borderColor: COULEURS.test.border }}>
+                <div className="text-[10px] font-extrabold uppercase" style={{ color: COULEURS.test.text }}>
+                  Évaluations cette semaine — le jour n'est pas écrit sur la feuille
+                </div>
+                <ul className="mt-1 space-y-0.5">
+                  {semaineCourante(choisi).evaluations.map((e) => (
+                    <li key={e} className="text-sm font-bold text-stone leading-tight">• {e}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div className="rounded-xl border-2 border-s2 p-2.5">
                 <div className="text-[10px] font-extrabold uppercase text-s4">Vocabulaire</div>
