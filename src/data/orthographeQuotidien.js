@@ -304,7 +304,12 @@ export const LISTE_SEMAINES = [
     // la semaine, il n'en place aucune sur un jour inventé.
     // Le parent, le 4 nov.: « he had his math test today, Wednesday ».
     evaluations: ['Mathématiques — faite mercredi 4 nov.','Univers social (Terminus p. 6 à 20)', 'Dictée — liste 7', 'Verbes aimer et finir au présent'] },
-  { debut: [2026, 11, 9], liste: 'l8' },
+  // « Plan de travail, semaine du 09 au 13 novembre 2026 »: liste 8, dictée
+  // vendredi 13. Conjugaison: « aller, aimer, finir, avoir et être au présent
+  // de l'indicatif » — les CINQ, pas seulement aller comme la liste 8 le dit.
+  { debut: [2026, 11, 9], liste: 'l8', confirme: true,
+    verbe: 'aller, aimer, finir, avoir et être au présent',
+    verbeCle: 'aller_present+aimer_present+finir_present+avoir_present+etre_present' },
   { debut: [2026, 11, 16], liste: 'l9' },
   { debut: [2026, 11, 23], liste: 'l10' },
 ];

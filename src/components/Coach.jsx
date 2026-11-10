@@ -6,7 +6,7 @@ import { moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data
 import { listeCetteSemaine, semaineCourante, cleDictee } from '../data/orthographeQuotidien';
 import { strategiesCetteSemaine, nomsStrategies } from '../data/tablesStrategies';
 import { mathsCetteSemaine, labelMaths } from '../data/mathsSemaines';
-import { testAReviser, quandLeTest } from '../data/testsPonctuels';
+import { testsAReviser, quandLeTest } from '../data/testsPonctuels';
 import { buildNylaPlan } from '../data/nylaPlanQuotidien';
 import { chargerAvancement, marquerEtape, estFini, estCommence, prochaineEtape, joursFaits } from '../utils/coachAvancement';
 
@@ -181,16 +181,18 @@ function buildRentreePlan(today) {
   // la semaine, il ne le remplace pas: remplir `EXAMS` ferait basculer le
   // Coach dans l'ancienne machinerie et abandonnerait la liste, les
   // strategies et le cahier. Le jour du test, on ne revise plus: c'est fait.
-  const test = testAReviser(ref);
   // Un test sans exercice dans l'app (pas encore de photos des pages) se
   // révise sur papier: minuterie + « Fait! », comme la lecture.
-  const testStep = test && test.reste > 0
-    ? test.mode
-      ? { type: 'app', mode: test.mode, icon: test.icon,
-        label: test.revision ? `${test.icon} ${test.label}` : `${test.icon} ${test.label} — ${quandLeTest(test.reste)}` }
-      : { type: 'chore', icon: test.icon,
-        label: `${test.icon} ${test.label} — ${quandLeTest(test.reste)}` }
-    : null;
+  const etapeTest = (test) => (test.mode
+    ? { type: 'app', mode: test.mode, icon: test.icon,
+      label: test.revision ? `${test.icon} ${test.label}` : `${test.icon} ${test.label} — ${quandLeTest(test.reste)}` }
+    : { type: 'chore', icon: test.icon,
+      label: `${test.icon} ${test.label} — ${quandLeTest(test.reste)}` });
+  // Deux tests la même semaine (sciences mercredi, univers social jeudi):
+  // les deux se révisent, le plus proche d'abord.
+  const [test, test2] = testsAReviser(ref);
+  const testStep = test ? etapeTest(test) : null;
+  const testStep2 = test2 ? etapeTest(test2) : null;
 
   // Le VERBE de la semaine — la 4e ligne de la feuille, et la seule qui
   // n'avait aucun exercice derriere elle jusqu'au 11 oct. 2026. Le creneau
@@ -303,6 +305,7 @@ function buildRentreePlan(today) {
       { type: 'break', label: 'Pause + collation 🍎', mins: 10, icon: '🍎' },
       { type: 'app', mode: maths.mode, label: mathsLabel, mins: 18, icon: '📘' },
       testStep ? { ...testStep, mins: 15 } : { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 15, icon: '🧩' },
+      ...(testStep2 ? [{ ...testStep2, mins: 12 }] : []),
       { type: 'app', mode: 'calcul_rapide_3', label: '⚡ Calcul rapide 3 chiffres', mins: 10, icon: '⚡' },
       lecture(20),
       fin,
@@ -318,6 +321,7 @@ function buildRentreePlan(today) {
     { type: 'app', mode: maths.mode, label: mathsLabel, mins: 11, icon: '📘' },
     { ...verbeStep, mins: 6 },
     testStep ? { ...testStep, mins: 8 } : { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 5, icon: '🧩' },
+    ...(testStep2 ? [{ ...testStep2, mins: 8 }] : []),
     lecture(20), // 20 min demandees par le parent — la feuille de l ecole en demande 15
     fin,
   ];

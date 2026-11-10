@@ -102,6 +102,9 @@ export const CAHIER_SEMAINES = [
   // constructions — les deux semaines précédentes). Le module du cahier qui
   // le travaille est t3m3. La page est confirmée; le module en est déduit.
   { debut: [2026, 11, 2], module: 't3m3', confirme: true },
+  // Feuille du 9 au 13 nov.: « L'accord des mots dans un GN, aide-mémoire
+  // Jazz p. 9 » — c'est le module t2m4 du cahier, mot pour mot.
+  { debut: [2026, 11, 9], module: 't2m4', confirme: true },
 ];
 
 const moduleIndex = {};

@@ -54,6 +54,13 @@ export const MATHS_SEMAINES = [
     debut: [2026, 11, 2], mode: 'matcha_ordre', confirme: true,
     nom: "l'arrondissement et l'approximation", page: 'p. 16-17',
   },
+  {
+    // Feuille du 9 au 13 nov.: « Consolidation des notions étudiées dans les
+    // thèmes 1 et 2 » · « Révision du thème (pages 90 à 93) ». L'évaluation
+    // d'étape (thèmes 1 et 2) était le LUNDI 9 — déjà passée.
+    debut: [2026, 11, 9], mode: 'matcha_revision', confirme: true,
+    nom: 'consolidation des thèmes 1 et 2', page: 'p. 90 à 93',
+  },
 ];
 
 const dateOf = ([y, m, d]) => new Date(y, m - 1, d);
