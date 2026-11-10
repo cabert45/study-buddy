@@ -76,12 +76,12 @@ export const TESTS = [
     source: 'Matcha, thèmes 1 et 2',
   },
   {
-    // « Évaluation du cahier: Éclair de génie (pages 13 à 20) ». L'app n'a que
-    // les p. 3 à 12 (sciences_queue): sans mode, le Coach en fait une étape
-    // papier — relire les pages avec lui — en attendant les photos.
+    // « Évaluation du cahier: Éclair de génie (pages 13 à 20) ». Pages
+    // photographiées la veille au soir (10 nov.) → mode sciences_nuit.
     date: [2026, 11, 11], jours: 3,
     nom: 'Évaluation de sciences',
-    label: 'Sciences — relire Éclair de génie p. 13 à 20',
+    mode: 'sciences_nuit',
+    label: 'Sciences — comment les animaux se repèrent la nuit (p. 13 à 20)',
     icon: '🔬',
     source: 'Éclair de génie, p. 13 à 20',
   },

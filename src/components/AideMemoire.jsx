@@ -6,6 +6,7 @@ import { tableauVerbe, verbeCourant, verbesCourants } from '../generators/verbeS
 // `CLASSES` existe deja ici (les 4 classes de MOTS, generators/quatreClasses):
 // les classes de VERTEBRES sont donc renommees a l'import.
 import { CLASSES as CLASSES_VERTEBRES, UTILITES, DEPLACEMENTS } from '../data/sciencesVertebres';
+import { ANIMAUX_NUIT, DIURNES, NOCTURNES, FONCTIONS } from '../generators/sciencesNuit';
 import { MOTS as MOTS_TERMINUS, RESSOURCES } from '../data/terminusIroquoiens';
 import DroiteNumerique from './DroiteNumerique';
 
@@ -351,6 +352,72 @@ function FicheTerminus() {
   );
 }
 
+// Éclair de génie leçon 2 (p. 13 à 20), évaluation du mercredi 11 nov. 2026.
+// Les phrases sont celles du cahier (DOC 1, DOC 2), photographiées la veille.
+function FicheNuit() {
+  const sens = [
+    ['Le goût', 'la langue', 'les saveurs'],
+    ['L’odorat', 'le nez', 'les odeurs'],
+    ['L’ouïe', 'les oreilles', 'les sons'],
+    ['La vue', 'les yeux', 'les formes, les distances, les mouvements, les couleurs (grâce à la lumière)'],
+    ['Le toucher', 'la peau, les vibrisses', 'les frottements, les pressions, les contacts'],
+  ];
+  return (
+    <>
+      <div className="flex items-baseline gap-2 mb-1 flex-wrap">
+        <span className="text-xs font-extrabold bg-stone text-white rounded-md px-2 py-1">SCIENCES</span>
+        <span className="font-heading text-lg font-extrabold text-stone leading-tight">
+          Comment les animaux se repèrent-ils la nuit?
+        </span>
+      </div>
+      <p className="text-xs font-bold text-s4 mb-3">Éclair de génie · p. 13 à 20 · évaluation mercredi</p>
+
+      <div className="rounded-xl bg-orange-50 border-2 border-orange-200 p-3 mb-3">
+        <p className="text-sm font-extrabold text-fox-d mb-1">LA CONCLUSION À SAVOIR</p>
+        <p className="text-base font-bold text-stone leading-snug">
+          Les animaux de nuit utilisent <b>tous leurs sens</b> (hypothèse C). Leurs sens sont
+          <b> plus aiguisés</b>: ils détectent mieux les bruits, les mouvements et les odeurs.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        <div className="rounded-xl bg-white border-2 border-s2 p-3">
+          <p className="text-sm font-extrabold text-stone">DIURNE = le jour</p>
+          <p className="text-xs font-semibold text-s5 leading-snug">Actif le jour, à l’abri la nuit. Aime un milieu chaud et ensoleillé.</p>
+          <p className="text-sm font-bold text-stone mt-1">{DIURNES.join(', ')}</p>
+        </div>
+        <div className="rounded-xl bg-white border-2 border-s2 p-3">
+          <p className="text-sm font-extrabold text-stone">NOCTURNE = la nuit</p>
+          <p className="text-xs font-semibold text-s5 leading-snug">Actif la nuit, à l’abri le jour. Aime un milieu frais et sombre.</p>
+          <p className="text-sm font-bold text-stone mt-1">{NOCTURNES.join(', ')}</p>
+        </div>
+      </div>
+
+      <CadreCahier>
+        <p className="text-sm font-extrabold text-stone mb-1">LES 5 SENS</p>
+        {sens.map(([s, o, q]) => (
+          <p key={s} className="text-sm font-semibold text-stone leading-snug"><b>{s}</b> — {o} — {q}</p>
+        ))}
+      </CadreCahier>
+
+      <div className="mt-3 rounded-xl bg-white border-2 border-s2 p-3">
+        <p className="text-sm font-extrabold text-stone mb-1">LES ANIMAUX DU DOC 2</p>
+        {ANIMAUX_NUIT.map((a) => (
+          <p key={a.animal} className="text-sm font-semibold text-stone leading-snug"><b>{a.animal}</b> ({a.sens}): {a.fait}</p>
+        ))}
+        <p className="text-sm font-semibold text-stone leading-snug mt-1">
+          {FONCTIONS.filter((f) => f.sens === 'le goût').map((f) => `${f.animal} ${f.quoi}`).join(' · ')}
+          {' — la langue ne sert pas seulement à goûter.'}
+        </p>
+      </div>
+
+      <p className="text-xs font-bold text-fox-d mt-3">
+        Attention aux petits mots: <b>TOUS</b>, <b>SEULEMENT</b>, <b>CERTAINS</b>. Certains animaux sont actifs la nuit — pas tous.
+      </p>
+    </>
+  );
+}
+
 function FicheSciences() {
   return (
     <>
@@ -417,6 +484,7 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
   const estClasses = mode === 'quatre_classes';
   const estVerbe = typeof mode === 'string' && mode.startsWith('verbe_semaine');
   const estSciences = mode === 'sciences_queue';
+  const estNuit = mode === 'sciences_nuit';
   const estTerminus = mode === 'us_iroquoiens';
   const estOrdre = mode === 'matcha_ordre';
   // Par defaut la liste de la semaine. `listeNumero` sert quand on revient sur
@@ -425,9 +493,9 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
   const liste = estOrtho
     ? (listeNumero ? LISTES.find((l) => l.numero === listeNumero) : null) || listeCetteSemaine()
     : null;
-  const strats = estOrtho || estClasses || estVerbe || estSciences || estTerminus || estOrdre ? null : strategiesCetteSemaine();
+  const strats = estOrtho || estClasses || estVerbe || estSciences || estNuit || estTerminus || estOrdre ? null : strategiesCetteSemaine();
   if (estOrtho && !liste) return null;
-  if (!estOrtho && !estClasses && !estVerbe && !estSciences && !estTerminus && !estOrdre && !strats?.length) return null;
+  if (!estOrtho && !estClasses && !estVerbe && !estSciences && !estNuit && !estTerminus && !estOrdre && !strats?.length) return null;
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-4 pb-10">
@@ -436,9 +504,10 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
         {estClasses && <TableauClasses />}
         {estVerbe && <TableauVerbe />}
         {estSciences && <FicheSciences />}
+        {estNuit && <FicheNuit />}
         {estTerminus && <FicheTerminus />}
         {estOrdre && <FicheOrdre />}
-        {!estOrtho && !estClasses && !estVerbe && !estSciences && !estTerminus && !estOrdre && <TableauStrategies strats={strats} />}
+        {!estOrtho && !estClasses && !estVerbe && !estSciences && !estNuit && !estTerminus && !estOrdre && <TableauStrategies strats={strats} />}
 
         <div className="mt-5 flex flex-col sm:flex-row gap-2.5">
           <button
@@ -460,8 +529,8 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
 
         {!dejaCommence && (
           <p className="text-center text-xs font-semibold text-s4 mt-3">
-            Prends 30 secondes pour <b>regarder</b>{estClasses ? ' les 4 sortes de mots' : estVerbe ? ' le verbe au complet' : estSciences || estTerminus || estOrdre ? ' ta fiche' : ' les mots'}. Tu pourras revenir
-            {' les voir'} avec le bouton « 📋 {estClasses ? 'Les 4 sortes' : estVerbe ? 'Mon verbe' : estSciences || estTerminus || estOrdre ? 'Ma fiche' : 'La liste'} ».
+            Prends 30 secondes pour <b>regarder</b>{estClasses ? ' les 4 sortes de mots' : estVerbe ? ' le verbe au complet' : estSciences || estNuit || estTerminus || estOrdre ? ' ta fiche' : ' les mots'}. Tu pourras revenir
+            {' les voir'} avec le bouton « 📋 {estClasses ? 'Les 4 sortes' : estVerbe ? 'Mon verbe' : estSciences || estNuit || estTerminus || estOrdre ? 'Ma fiche' : 'La liste'} ».
           </p>
         )}
       </div>
