@@ -275,8 +275,95 @@ function conclusion() {
   };
 }
 
+// ===== 9. Le BILAN DES CONNAISSANCES du cahier (p. 20), question par question =====
+// Le format le plus proche de l'évaluation: on le pose tel quel.
+// Q1: D ou N? Les phrases ne nomment pas toujours le jour ou la nuit: il faut
+// DÉDUIRE (« une très mauvaise vue » → il vit dans le noir; « la chaleur du
+// Soleil » → le jour).
+const BILAN_DN = [
+  { p: 'Le diable de Tasmanie chasse dès que l’obscurité arrive.', r: 'N', why: 'Il chasse quand l’OBSCURITÉ arrive, donc la nuit: nocturne.' },
+  { p: 'La souris possède une très mauvaise vue.', r: 'N', why: 'Sa vue est très faible: elle se déplace dans l’obscurité avec ses vibrisses, sa queue, son ouïe et son odorat. C’est un animal nocturne.' },
+  { p: 'Les reptiles ont besoin de la chaleur du Soleil pour être actifs.', r: 'D', why: 'Le Soleil, c’est le JOUR: diurnes.' },
+  { p: 'Le hibou chasse quand tout le monde dort.', r: 'N', why: 'Quand tout le monde dort, c’est la nuit: nocturne.' },
+  { p: 'L’écureuil cherche ses noisettes en plein soleil.', r: 'D', why: 'En plein soleil = le jour: diurne (il est dans le DOC 1 avec les diurnes).' },
+  { p: 'Le raton laveur dort à l’abri pendant la journée.', r: 'N', why: 'Il se repose le JOUR, donc il est actif la nuit: nocturne.' },
+];
+function bilanDN() {
+  const b = pick(BILAN_DN);
+  return {
+    category: CATEGORY,
+    type: 'bilan_dn',
+    text: `BILAN 1 — Animal diurne ou nocturne? D pour diurne, N pour nocturne.\n« ${b.p} »`,
+    correct: b.r === 'D' ? 'D (diurne)' : 'N (nocturne)',
+    options: ['D (diurne)', 'N (nocturne)'],
+    explanation: `${b.r === 'D' ? 'D — diurne' : 'N — nocturne'}.\n\n${b.why}`,
+    hint: 'Cherche l’indice: obscurité, nuit, mauvaise vue → N · Soleil, jour, lumière → D.',
+  };
+}
+
+const BILAN_CHOIX = [
+  {
+    text: 'BILAN 2 — Pourquoi le choix de la nourriture n’est-il pas une question de goût pour les animaux sauvages?',
+    correct: 'Parce que l’important pour eux, c’est de trouver de la nourriture.',
+    autres: ['Parce qu’ils ne possèdent pas le sens du goût.', 'Parce qu’ils ne possèdent pas de langue.'],
+    why: 'Ils ont une langue et le sens du goût! Mais c’est la FACILITÉ à trouver la nourriture qui compte: ils mangent ce qui est à leur portée.',
+  },
+  {
+    text: 'BILAN 3 — À quoi peut servir l’odorat chez la fourmi?',
+    correct: 'À signaler un danger: elle libère une substance odorante.',
+    autres: ['À marquer son territoire avec son odeur.', 'À sentir une proie à des kilomètres.'],
+    why: 'La fourmi libère une substance odorante pour signaler un danger. (Marquer son territoire, c’est le guépard; sentir une proie à des kilomètres, c’est le loup.)',
+  },
+  {
+    text: 'BILAN 5a — De quel sens s’agit-il? « Le fennec repère au son ses rares proies dans le désert. »',
+    correct: 'l’ouïe', autres: ['la vue', 'l’odorat', 'le toucher'],
+    why: 'AU SON → les oreilles → l’ouïe. (Le fennec a de très grandes oreilles!)',
+  },
+  {
+    text: 'BILAN 5b — De quel sens s’agit-il? « Avec sa vue perçante, le faucon est un redoutable prédateur. »',
+    correct: 'la vue', autres: ['l’ouïe', 'l’odorat', 'le toucher'],
+    why: 'SA VUE perçante → les yeux → la vue. Le mot est dans la phrase!',
+  },
+  {
+    text: 'BILAN 5c — De quel sens s’agit-il? « Le singe cueille les fruits des arbres avec ses mains. »',
+    correct: 'le toucher', autres: ['la vue', 'le goût', 'l’ouïe'],
+    why: 'Avec ses MAINS, il touche et attrape: c’est le toucher (la peau).',
+  },
+];
+function bilanChoix() {
+  const b = pick(BILAN_CHOIX);
+  return {
+    category: CATEGORY,
+    type: 'bilan_choix',
+    text: b.text,
+    correct: b.correct,
+    options: shuffle([b.correct, ...b.autres]),
+    explanation: `${b.correct}\n\n${b.why}`,
+    hint: 'Cherche le mot-indice dans la phrase: son, vue, mains, odeur…',
+  };
+}
+
+// BILAN 4 — à ÉCRIRE, comme sur la feuille (une case, un mot).
+function bilanPeau() {
+  const bon = 'C’est la bonne réponse! Écris seulement le mot qui manque: peau.';
+  return {
+    category: CATEGORY,
+    type: 'bilan_peau',
+    text: 'BILAN 4 — Quel est l’organe responsable du toucher chez l’être humain?\nLa ______',
+    correct: 'peau',
+    tape: 'mot',
+    presque: { 'la peau': bon, 'sa peau': bon, 'les mains': 'Les mains touchent, oui — mais l’organe du toucher, c’est celui qui couvre TOUT le corps: la peau.', mains: 'Les mains touchent, oui — mais l’organe du toucher, c’est celui qui couvre TOUT le corps: la peau.' },
+    explanation: 'La peau.\n\nGrâce à ta peau, tu sens ce que tu touches. C’est le plus grand organe du corps humain, et elle sert aussi à nous protéger.',
+    hint: 'Elle couvre tout ton corps. C’est le plus grand organe.',
+  };
+}
+
 function buildOne() {
   return pickAdaptive(CATEGORY, [
+    // Le bilan du cahier d'abord: c'est la forme de l'évaluation.
+    { type: 'bilan_dn', w: 18, build: bilanDN },
+    { type: 'bilan_choix', w: 22, build: bilanChoix },
+    { type: 'bilan_peau', w: 8, build: bilanPeau },
     { type: 'diurne_nocturne', w: 18, build: diurneNocturne },
     { type: 'definition', w: 16, build: definition },
     { type: 'trou', w: 24, build: trou },
