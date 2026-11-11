@@ -380,4 +380,308 @@ export function generateSciencesNuit() {
   return buildOne();
 }
 
+// =====================================================================
+// LE DÉFI — plus difficile (11 nov. 2026, le matin de l'évaluation).
+// Ryan a eu 15/15 à la série de base. Le parent: « make another one that's a
+// little bit more difficult … make him write a few things » — les 5 sens, des
+// animaux de nuit du livre. Donc ici: surtout des réponses À ÉCRIRE, des
+// questions « lequel n'est PAS », des animaux nouveaux à déduire par l'indice
+// (comme le fennec du bilan), et le « pourquoi » des hypothèses.
+// =====================================================================
+const CATEGORY_DEFI = 'sciences_nuit_defi';
+
+// « ouïe », « l’ouïe », « l'ouie »… : l'article ne compte pas (la case du
+// cahier ne le demande pas). L'accent, lui, compte (il reste « presque »).
+const sansArticle = (m) => m.replace(/^(le |la |les |l’|l')/, '');
+function formes(mot) {
+  const nu = sansArticle(mot);
+  return [nu, `le ${nu}`, `la ${nu}`, `les ${nu}`, `l’${nu}`, `l'${nu}`, `un ${nu}`, `une ${nu}`, `des ${nu}`];
+}
+
+function aEcrire({ type, text, bonnes, explanation, hint, presque }) {
+  return {
+    category: CATEGORY_DEFI,
+    type,
+    text,
+    correct: sansArticle(bonnes[0]),
+    tape: 'mot',
+    accepte: bonnes.flatMap(formes),
+    presque,
+    explanation,
+    hint,
+  };
+}
+
+// ----- À écrire 1: le sens qui manque dans la liste des cinq -----
+function ecrisSensManquant() {
+  const manque = pick(CINQ_SENS);
+  const liste = CINQ_SENS.map((x) => (x === manque ? '______' : x.sens)).join(', ');
+  return aEcrire({
+    type: 'ecris_sens_manquant',
+    text: `ÉCRIS — Les 5 sens. Lequel manque?\n${liste}`,
+    bonnes: [manque.sens],
+    presque: manque.sens === 'l’ouïe' ? { ouie: 'Presque! « ouïe » prend un tréma sur le i: ï (le bouton est sous la case).' } : undefined,
+    explanation: `${manque.sens}.\n\nLes 5 sens: ${CINQ_SENS.map((x) => `${x.sens} (${x.organe})`).join(', ')}.`,
+    hint: `Son organe: ${manque.organe}.`,
+  });
+}
+
+// ----- À écrire 2: l'organe ↔ le sens -----
+const ORGANES_ECRITS = [
+  { q: 'Avec quel organe perçoit-on les SONS? Les ______', r: 'oreilles' },
+  { q: 'Avec quel organe perçoit-on les ODEURS? Le ______', r: 'nez' },
+  { q: 'Avec quel organe perçoit-on les SAVEURS? La ______', r: 'langue' },
+  { q: 'Avec quel organe perçoit-on les formes et les couleurs? Les ______', r: 'yeux' },
+  { q: 'Les oreilles, c’est le sens de l’______.', r: 'ouïe' },
+  { q: 'Le nez, c’est le sens de l’______.', r: 'odorat' },
+  { q: 'La langue, c’est le sens du ______.', r: 'goût' },
+  { q: 'La peau, c’est le sens du ______.', r: 'toucher' },
+];
+function ecrisOrgane() {
+  const o = pick(ORGANES_ECRITS);
+  return aEcrire({
+    type: 'ecris_organe',
+    text: `ÉCRIS — ${o.q}`,
+    bonnes: [o.r],
+    presque: o.r === 'ouïe' ? { ouie: 'Presque! « ouïe » prend un tréma sur le i: ï (le bouton est sous la case).' } : undefined,
+    explanation: `${o.r}.\n\n${CINQ_SENS.map((x) => `${x.sens} → ${x.organe}`).join('\n')}`,
+    hint: 'Pense à ta fiche des 5 sens.',
+  });
+}
+
+// ----- À écrire 3: un animal nocturne / diurne du cahier -----
+// Le DOC 1, plus les animaux nommés ailleurs dans la leçon (bilan, DOC 2) dont
+// le cahier dit qu'ils sont actifs la nuit (ou le jour).
+const NOCTURNES_CAHIER = [...NOCTURNES, 'la chouette lapone', 'le hibou', 'la souris', 'le diable de Tasmanie'];
+const DIURNES_CAHIER = [...DIURNES, 'le faucon'];
+function ecrisAnimal() {
+  const nuit = Math.random() < 0.65;
+  const bonnes = nuit ? NOCTURNES_CAHIER : DIURNES_CAHIER;
+  const autres = nuit ? DIURNES_CAHIER : NOCTURNES_CAHIER;
+  const piege = Object.fromEntries(autres.flatMap(formes).map((f) => [f,
+    `Attention: ${sansArticle(f)} est ${nuit ? 'DIURNE (actif le jour)' : 'NOCTURNE (actif la nuit)'}. On cherche un animal ${nuit ? 'de NUIT' : 'de JOUR'}.`]));
+  return aEcrire({
+    type: nuit ? 'ecris_nocturne' : 'ecris_diurne',
+    text: `ÉCRIS — Le nom d’un animal ${nuit ? 'NOCTURNE (actif la nuit)' : 'DIURNE (actif le jour)'} de ton cahier.`,
+    bonnes,
+    presque: piege,
+    explanation: `Toutes ces réponses sont bonnes:\n${bonnes.join(', ')}.\n\n${nuit ? 'Nocturne' : 'Diurne'}: ${DEFINITIONS[nuit ? 'nocturne' : 'diurne']}`,
+    hint: nuit ? 'Pense au DOC 1: celui qui vole la nuit et « voit » avec ses oreilles…' : 'Pense au DOC 1: un oiseau à la vue excellente, un papillon orange…',
+  });
+}
+
+// ----- À écrire 4: un animal du cahier qui se sert beaucoup de tel sens -----
+const PAR_SENS = {
+  'l’ouïe': ['la chouette lapone', 'la chouette', 'la chauve-souris', 'le chien', 'le fennec'],
+  'la vue': ['le chat', 'l’aigle', 'la mouche', 'le faucon'],
+  'l’odorat': ['le loup', 'le guépard', 'la fourmi'],
+  'le toucher': ['la souris', 'le singe'],
+};
+const INDICE_SENS = {
+  'l’ouïe': 'Un oiseau de nuit qui entend des proies sous la neige…',
+  'la vue': 'Ses pupilles s’ouvrent beaucoup dans le noir…',
+  'l’odorat': 'Il sent une proie à des kilomètres…',
+  'le toucher': 'Ses vibrisses et sa queue la guident dans le noir…',
+};
+function ecrisAnimalSens() {
+  const sens = pick(Object.keys(PAR_SENS));
+  const faits = ANIMAUX_NUIT.filter((a) => a.sens === sens).map((a) => `${a.animal}: ${a.fait}`).join('\n');
+  return aEcrire({
+    type: 'ecris_animal_sens',
+    text: `ÉCRIS — Le nom d’un animal de ton cahier qui se sert beaucoup de ${sens}.`,
+    bonnes: PAR_SENS[sens],
+    explanation: `Toutes ces réponses sont bonnes: ${PAR_SENS[sens].join(', ')}.${faits ? `\n\n${faits}` : ''}`,
+    hint: INDICE_SENS[sens],
+  });
+}
+
+// ----- À écrire 5: les mots savants de la leçon -----
+const MOTS_ECRITS = [
+  { q: 'La chauve-souris émet des ______ qui reviennent à ses oreilles.', r: 'ultrasons', why: 'Des ULTRASONS: des sons trop aigus pour nos oreilles.' },
+  { q: 'La technique de la chauve-souris s’appelle l’______.', r: 'écholocation', why: 'ÉCHO-LOCATION: l’écho lui dit où se trouve l’obstacle ou la proie.' },
+  { q: 'Les moustaches de la souris s’appellent des ______.', r: 'vibrisses', why: 'Des VIBRISSES: des poils très épais et très sensibles (le toucher).' },
+  { q: 'Les ______ du chat s’ouvrent beaucoup plus que celles de l’être humain.', r: 'pupilles', why: 'La PUPILLE, le rond noir de l’œil, laisse entrer la lumière.' },
+  { q: 'Le loup sent une ______ à des kilomètres de distance.', r: 'proie', why: 'Une PROIE: l’animal qu’un prédateur chasse pour le manger.' },
+  { q: 'Un animal actif la NUIT est un animal ______.', r: 'nocturne', why: 'NOCTURNE = la nuit.' },
+  { q: 'Un animal actif le JOUR est un animal ______.', r: 'diurne', why: 'DIURNE = le jour.' },
+  { q: 'Les animaux de nuit utilisent ______ leurs sens pour se repérer.', r: 'tous', why: 'TOUS leurs sens: c’est la conclusion (hypothèse C).' },
+  { q: 'Pour voir, il faut de la ______.', r: 'lumière', why: 'Sans LUMIÈRE, les yeux ne voient rien.' },
+  { q: 'Le plus grand organe du corps humain, c’est la ______.', r: 'peau', why: 'La PEAU couvre tout le corps: c’est l’organe du toucher.' },
+];
+function ecrisMot() {
+  const m = pick(MOTS_ECRITS);
+  return aEcrire({
+    type: 'ecris_mot',
+    text: `ÉCRIS le mot qui manque:\n« ${m.q} »`,
+    bonnes: [m.r],
+    explanation: `${m.r}.\n\n${m.why}`,
+    hint: `Il commence par « ${m.r[0]} ».`,
+  });
+}
+
+// ----- Choix 1: l'intrus (« lequel n'est PAS… ») -----
+function intrus() {
+  const nuit = Math.random() < 0.5;
+  const groupe = nuit ? NOCTURNES : DIURNES;
+  const autre = nuit ? DIURNES : NOCTURNES;
+  const pasLa = pick(autre);
+  return {
+    category: CATEGORY_DEFI,
+    type: 'intrus',
+    text: `Attention au mot PAS! Lequel n’est PAS un animal ${nuit ? 'nocturne' : 'diurne'}?`,
+    correct: pasLa,
+    options: shuffle([pasLa, ...shuffle(groupe).slice(0, 3)]),
+    explanation: `${pasLa}: il est ${nuit ? 'DIURNE' : 'NOCTURNE'}.\n\nDiurnes: ${DIURNES.join(', ')}.\nNocturnes: ${NOCTURNES.join(', ')}.`,
+    hint: 'Trois se ressemblent, un seul est différent.',
+  };
+}
+
+// ----- Choix 2: le sens que deux animaux ont en commun -----
+const PAIRES = [
+  { a: 'la chouette lapone', b: 'la chauve-souris', r: 'l’ouïe', why: 'La chouette lapone entend des proies sous la neige; la chauve-souris entend l’écho de ses ultrasons.' },
+  { a: 'le chat', b: 'l’aigle', r: 'la vue', why: 'Les pupilles du chat s’ouvrent beaucoup; les yeux de l’aigle agrandissent les images.' },
+  { a: 'l’aigle', b: 'la mouche', r: 'la vue', why: 'Les yeux de l’aigle agrandissent les images; la mouche voit tout autour d’elle.' },
+  { a: 'le loup', b: 'la fourmi', r: 'l’odorat', why: 'Le loup sent une proie à des kilomètres; la fourmi libère une odeur pour signaler un danger.' },
+  { a: 'le guépard', b: 'le loup', r: 'l’odorat', why: 'Le guépard marque son territoire par son odeur; le loup sent une proie à des kilomètres.' },
+  { a: 'le chien', b: 'la chouette lapone', r: 'l’ouïe', why: 'L’ouïe du chien est environ six fois plus développée que la nôtre; la chouette lapone entend à 100 m.' },
+];
+function enCommun() {
+  const p = pick(PAIRES);
+  return {
+    category: CATEGORY_DEFI,
+    type: 'en_commun',
+    text: `D’après ton cahier, quel sens très développé ont en commun ${p.a} et ${p.b}?`,
+    correct: p.r,
+    options: shuffle(['la vue', 'l’ouïe', 'l’odorat', 'le toucher']),
+    explanation: `${p.r}.\n\n${p.why}`,
+    hint: 'Pense à ce que chacun fait de spécial dans le DOC 2.',
+  };
+}
+
+// ----- Choix 3: un animal NOUVEAU, à deviner par le mot-indice (comme le
+// fennec, le faucon et le singe du bilan). Chaque phrase porte son indice.
+const NOUVEAUX = [
+  { p: 'Le hérisson trouve les vers de terre la nuit en reniflant le sol.', r: 'l’odorat', why: 'RENIFLER, c’est avec le NEZ → l’odorat.' },
+  { p: 'Le lynx repère un lièvre de loin avec ses grands yeux.', r: 'la vue', why: 'Ses YEUX → la vue.' },
+  { p: 'Le lapin tourne ses longues oreilles vers le moindre bruit.', r: 'l’ouïe', why: 'Le BRUIT et les OREILLES → l’ouïe.' },
+  { p: 'Le raton laveur tâte sa nourriture avec ses pattes avant, dans le noir.', r: 'le toucher', why: 'TÂTER, c’est toucher → le toucher.' },
+  { p: 'Le chien suit la piste d’une odeur dans la forêt.', r: 'l’odorat', why: 'Une ODEUR → le nez → l’odorat.' },
+  { p: 'Le chat se faufile dans le noir en frôlant les murs avec ses moustaches.', r: 'le toucher', why: 'Les MOUSTACHES (vibrisses) → le toucher.' },
+  { p: 'La baleine entend le chant des autres baleines très loin dans la mer.', r: 'l’ouïe', why: 'ENTENDRE → les oreilles → l’ouïe.' },
+  { p: 'L’ours goûte le miel avec sa langue.', r: 'le goût', why: 'GOÛTER avec la LANGUE → le goût.' },
+];
+function nouvelAnimal() {
+  const n = pick(NOUVEAUX);
+  const opts = ['la vue', 'l’ouïe', 'l’odorat', 'le toucher', 'le goût'];
+  return {
+    category: CATEGORY_DEFI,
+    type: 'nouvel_animal',
+    text: `Un animal qui n’est pas dans ton cahier! De quel sens s’agit-il?\n« ${n.p} »`,
+    correct: n.r,
+    options: shuffle([n.r, ...shuffle(opts.filter((o) => o !== n.r)).slice(0, 3)]),
+    explanation: `${n.r}.\n\n${n.why} Même sans connaître l’animal, le mot-indice donne la réponse.`,
+    hint: 'Cherche le mot-indice: yeux, oreilles, bruit, odeur, renifler, tâter, moustaches, langue…',
+  };
+}
+
+// ----- Choix 4: le POURQUOI -----
+const POURQUOI = [
+  {
+    q: 'Pourquoi l’hypothèse A (« les animaux utilisent leurs oreilles ») n’est-elle pas la meilleure?',
+    r: 'Les oreilles aident, mais les animaux utilisent aussi leurs autres sens.',
+    o: ['Les animaux n’ont pas d’oreilles.', 'Les oreilles ne servent à rien la nuit.'],
+    why: 'La chouette et la chauve-souris utilisent l’ouïe, oui. Mais le loup utilise l’odorat, la souris le toucher, le chat la vue: pas SEULEMENT les oreilles.',
+  },
+  {
+    q: 'Pourquoi l’hypothèse B (« leurs yeux la nuit comme le jour ») est-elle fausse?',
+    r: 'Sans lumière, les yeux ne voient pas comme le jour.',
+    o: ['Parce que les animaux ferment les yeux la nuit.', 'Parce que les animaux n’ont pas d’yeux.'],
+    why: 'Pour voir, il faut de la lumière. La nuit, il y en a très peu: les animaux se servent de leurs autres sens.',
+  },
+  {
+    q: 'La vue de la souris est très faible. Comment fait-elle pour se déplacer la nuit?',
+    r: 'Elle se sert de ses vibrisses, de sa queue, de son ouïe et de son odorat.',
+    o: ['Elle reste immobile toute la nuit.', 'Elle allume la lumière avec ses yeux.'],
+    why: 'Elle a une ouïe et un odorat exceptionnels, et ses vibrisses et sa queue sont des organes du toucher très sensibles.',
+  },
+  {
+    q: 'Pourquoi l’aigle chasse-t-il le jour et non la nuit?',
+    r: 'Ses yeux sont adaptés au jour, pas à l’obscurité.',
+    o: ['Parce qu’il n’a jamais faim la nuit.', 'Parce qu’il a peur des chauves-souris.'],
+    why: 'L’aigle est DIURNE: son excellente vision l’avantage le jour seulement. Les yeux des diurnes ne sont pas adaptés à l’obscurité.',
+  },
+  {
+    q: 'Les souris s’enfuient quand elles entendent arriver un chat. Quel sens les sauve?',
+    r: 'l’ouïe: pour certains animaux, les sons sont un mode de survie',
+    o: ['la vue: elles voient le chat de loin', 'le goût: elles goûtent le danger'],
+    why: 'Le cahier le dit: pour certains animaux, les sons sont un mode de SURVIE. Les souris ENTENDENT le chat et s’enfuient.',
+  },
+  {
+    q: 'La chauve-souris chasse dans le noir complet. Comment trouve-t-elle les insectes?',
+    r: 'Ses ultrasons rebondissent sur l’insecte et reviennent à ses oreilles.',
+    o: ['Elle voit très bien les insectes dans le noir.', 'Elle sent l’odeur des insectes avec sa langue.'],
+    why: 'C’est l’ÉCHOLOCATION: les ultrasons rebondissent sur la proie et reviennent à ses oreilles.',
+  },
+];
+function pourquoi() {
+  const p = pick(POURQUOI);
+  return {
+    category: CATEGORY_DEFI,
+    type: 'pourquoi',
+    text: p.q,
+    correct: p.r,
+    options: shuffle([p.r, ...p.o]),
+    explanation: `${p.r.charAt(0).toUpperCase() + p.r.slice(1)}\n\n${p.why}`,
+    hint: 'Relis la conclusion de ta fiche.',
+  };
+}
+
+// ----- Choix 5: vrai ou faux, un seul détail piégé -----
+const VF_DEFI = [
+  { p: 'La chouette lapone entend des proies cachées sous la neige à 100 km.', r: 'faux', why: 'À 100 MÈTRES (100 m), pas 100 kilomètres! Lis bien l’unité.' },
+  { p: 'L’ouïe du chien est environ six fois plus développée que celle de l’être humain.', r: 'vrai', why: 'C’est écrit dans le DOC 2: environ six fois.' },
+  { p: 'L’aigle voit très bien la nuit.', r: 'faux', why: 'L’aigle est DIURNE: sa vision excellente l’avantage le JOUR seulement.' },
+  { p: 'La souris a une excellente vue.', r: 'faux', why: 'Sa vue est très FAIBLE. Ce sont son ouïe et son odorat qui sont exceptionnels.' },
+  { p: 'Le guépard marque son territoire avec sa langue.', r: 'faux', why: 'Avec son ODEUR (l’odorat), pas avec sa langue.' },
+  { p: 'Le léopard fait sa toilette en se léchant les pattes.', r: 'vrai', why: 'DOC 2: la langue ne sert pas seulement à goûter.' },
+  { p: 'Les vibrisses détectent les couleurs.', r: 'faux', why: 'Elles détectent les mouvements de l’air et les VIBRATIONS (le toucher). Les couleurs, c’est la vue.' },
+  { p: 'Le caméléon attrape ses proies avec sa langue.', r: 'vrai', why: 'DOC 2: la langue a d’autres fonctions que goûter.' },
+  { p: 'La mouche doit tourner la tête pour voir derrière elle.', r: 'faux', why: 'Ses grands yeux voient tout autour d’elle SANS bouger la tête.' },
+  { p: 'TOUS les animaux voient de la même manière.', r: 'faux', why: 'TOUS → piège! La plupart ont la vue, mais ils ne voient pas tous de la même manière.' },
+  { p: 'Certains animaux nocturnes ont une très mauvaise vue.', r: 'vrai', why: 'CERTAINS: la souris, par exemple. Elle se sert de ses autres sens.' },
+  { p: 'Le loup se sert seulement de ses yeux pour chasser la nuit.', r: 'faux', why: 'SEULEMENT → piège! Son odorat est très puissant: il sent une proie à des kilomètres.' },
+];
+function vraiFauxDefi() {
+  const v = pick(VF_DEFI);
+  return {
+    category: CATEGORY_DEFI,
+    type: 'vrai_faux_defi',
+    text: `Vrai ou faux? Lis CHAQUE mot.\n« ${v.p} »`,
+    correct: v.r,
+    options: ['vrai', 'faux'],
+    explanation: `${v.r.toUpperCase()}.\n\n${v.why}`,
+    hint: 'Un seul mot peut rendre la phrase fausse: un chiffre, une unité, TOUS, SEULEMENT.',
+  };
+}
+
+function buildDefi() {
+  return pickAdaptive(CATEGORY_DEFI, [
+    // Plus de la moitié à ÉCRIRE: c'est ce que le parent a demandé.
+    { type: 'ecris_sens_manquant', w: 12, build: ecrisSensManquant },
+    { type: 'ecris_organe', w: 12, build: ecrisOrgane },
+    { type: 'ecris_animal', w: 16, build: ecrisAnimal },
+    { type: 'ecris_animal_sens', w: 12, build: ecrisAnimalSens },
+    { type: 'ecris_mot', w: 18, build: ecrisMot },
+    { type: 'intrus', w: 8, build: intrus },
+    { type: 'en_commun', w: 8, build: enCommun },
+    { type: 'nouvel_animal', w: 12, build: nouvelAnimal },
+    { type: 'pourquoi', w: 12, build: pourquoi },
+    { type: 'vrai_faux_defi', w: 12, build: vraiFauxDefi },
+  ], (q) => `${q.type}|${q.text}`);
+}
+
+export function generateSciencesNuitDefi() {
+  return buildDefi();
+}
+
 export default generateSciencesNuit;

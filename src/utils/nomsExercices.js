@@ -96,6 +96,7 @@ const NOMS = {
   "sciences_labo": "Sciences — Instruments de labo",
   "sciences_queue": "Sciences — la queue des animaux",
   "sciences_nuit": "Sciences — les animaux la nuit",
+  "sciences_nuit_defi": "Sciences — le défi des animaux de nuit",
   "statistique": "Diagrammes",
   "suites": "Suites & régularités",
   "summer": "Été",

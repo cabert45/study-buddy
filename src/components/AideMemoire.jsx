@@ -484,7 +484,7 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
   const estClasses = mode === 'quatre_classes';
   const estVerbe = typeof mode === 'string' && mode.startsWith('verbe_semaine');
   const estSciences = mode === 'sciences_queue';
-  const estNuit = mode === 'sciences_nuit';
+  const estNuit = mode === 'sciences_nuit' || mode === 'sciences_nuit_defi';
   const estTerminus = mode === 'us_iroquoiens';
   const estOrdre = mode === 'matcha_ordre';
   // Par defaut la liste de la semaine. `listeNumero` sert quand on revient sur
