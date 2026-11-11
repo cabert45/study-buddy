@@ -207,9 +207,114 @@ function lacs() {
     'Il est court: 4 lettres.');
 }
 
+// ===== p. 14, question 3: compléter, une case par lettre, la 1re donnée =====
+const CASES = [
+  { avant: 'Les Iroquoiens chassent pour se', mot: 'nourrir', apres: 'et pour se vêtir.' },
+  { avant: 'Les Iroquoiens chassent pour se nourrir et pour se', mot: 'vêtir', apres: '.' },
+  { avant: 'Leurs vêtements sont faits avec des', mot: 'peaux', apres: 'et des fourrures d’animaux.' },
+  { avant: 'Leurs vêtements sont faits avec des peaux et des', mot: 'fourrures', apres: 'd’animaux.' },
+];
+function cases() {
+  const c = pick(CASES);
+  const trou = c.mot[0] + ' ' + '_ '.repeat(c.mot.length - 1).trim();
+  return {
+    category: CATEGORY,
+    type: 'cases_p14',
+    text: `Complète la phrase (p. 14). Il y a ${c.mot.length} lettres, la première est donnée.\n« ${c.avant} ${trou} ${c.apres} »`,
+    correct: c.mot,
+    tape: 'mot',
+    presque: c.mot === 'vêtir' ? { vetir: 'C’est le bon mot! L’accent circonflexe: vêtir.' }
+      : c.mot === 'peaux' ? { peau: 'Presque! « des peaux »: au pluriel, avec un x.', peaus: 'Presque! Les mots en -eau prennent un X au pluriel: peaux.' }
+        : c.mot === 'fourrures' ? { fourrure: 'Presque! « des fourrures »: avec un s.', fourure: 'Presque! Deux r: fourrure.', fourures: 'Presque! Deux r: fourrures.' }
+          : undefined,
+    explanation: `${c.mot}.\n\nLes Iroquoiens chassent pour se NOURRIR et pour se VÊTIR. Leurs vêtements sont faits avec des PEAUX et des FOURRURES d’animaux (et les plumes servent aux bijoux).`,
+    hint: `Il commence par « ${c.mot[0]} » et il a ${c.mot.length} lettres.`,
+  };
+}
+
+// ===== p. 14: les animaux chassés et les poissons pêchés, par leur nom =====
+const NOMMES = [
+  { q: 'Lequel de ces poissons les Iroquoiens pêchent-ils, d’après le cahier?', r: 'le brochet', o: ['le brochet', 'le requin', 'le poisson-clown'],
+    why: 'Les lacs, les rivières et le fleuve sont remplis de poissons: la truite, le brochet, le saumon. Ils pêchent pour SE NOURRIR.' },
+  { q: 'Lequel de ces poissons les Iroquoiens pêchent-ils, d’après le cahier?', r: 'le saumon', o: ['le saumon', 'le requin', 'la baleine'],
+    why: 'La truite, le brochet, le saumon: des poissons des lacs, des rivières et du fleuve. Ils pêchent pour SE NOURRIR.' },
+  { q: 'Lequel de ces poissons les Iroquoiens pêchent-ils, d’après le cahier?', r: 'la truite', o: ['la truite', 'le requin', 'le poisson-clown'],
+    why: 'La truite, le brochet, le saumon. Ils pêchent pour SE NOURRIR.' },
+  { q: 'Lequel de ces animaux est chassé par les Iroquoiens, d’après le cahier?', r: 'l’ours noir', o: ['l’ours noir', 'le lion', 'le kangourou'],
+    why: 'Sur le territoire: la perdrix, l’ours noir, le lièvre, le cerf… Ils chassent pour se NOURRIR et pour se VÊTIR.' },
+  { q: 'Lequel de ces oiseaux est chassé par les Iroquoiens, d’après le cahier?', r: 'la perdrix', o: ['la perdrix', 'le perroquet', 'le pingouin'],
+    why: 'La perdrix: un oiseau du territoire. Les plumes servent aussi à fabriquer des bijoux.' },
+  { q: 'Lequel de ces animaux est chassé par les Iroquoiens, d’après le cahier?', r: 'le lièvre', o: ['le lièvre', 'le zèbre', 'le chameau'],
+    why: 'Le lièvre vit sur le territoire iroquoien. Chasser → se nourrir ET se vêtir.' },
+  { q: 'Pourquoi les Iroquoiens pêchent-ils?', r: 'pour se nourrir', o: ['pour se nourrir', 'pour se soigner', 'pour se vêtir'],
+    why: 'Les poissons: SE NOURRIR. (Les animaux chassés: se nourrir ET se vêtir.)' },
+  { q: 'À quoi servent les plumes des oiseaux chassés?', r: 'à fabriquer des vêtements et des bijoux', o: ['à fabriquer des vêtements et des bijoux', 'à faire des feux', 'à se soigner'],
+    why: 'Les peaux, les fourrures et les plumes servent à fabriquer des vêtements et des BIJOUX.' },
+];
+function nommes() {
+  const n = pick(NOMMES);
+  return q('nommes_p14', n.q, n.r, n.o, `${maj(n.r)}.\n\n${n.why}`, 'Pense aux animaux de NOTRE territoire, ici au Québec.');
+}
+
 // ===== 11. La forêt (p. 13) =====
+// Question 1 de la p. 13, telle quelle: trois images, une étiquette à ÉCRIRE
+// dessous (conifères · feuillus · forêt mixte). La forêt mixte n'avait pas
+// d'image avant le 11 nov.: dessinée par le graphiste (studio/).
+const SOUS_IMAGE = [
+  { img: 'coniferes', mot: 'conifères', alt: 'Des arbres pointus avec des aiguilles',
+    why: 'Des CONIFÈRES: des arbres avec des aiguilles qui produisent des fruits en forme de cône (cocottes). Sapin, épinette, cèdre.' },
+  { img: 'feuillus', mot: 'feuillus', alt: 'Des arbres ronds avec des feuilles',
+    why: 'Des FEUILLUS: des arbres avec des feuilles qui poussent au printemps et tombent à l’automne. Érable, chêne, bouleau.' },
+  { img: 'foret-mixte', mot: 'forêt mixte', alt: 'Des arbres ronds et des arbres pointus mélangés',
+    why: 'Une FORÊT MIXTE: des feuillus ET des conifères mélangés. C’est la forêt du NORD du territoire iroquoien.' },
+];
+function sousImage() {
+  const x = pick(SOUS_IMAGE);
+  const presque = {
+    mixte: 'Presque! L’étiquette du cahier a deux mots: forêt mixte.',
+    'foret mixte': 'C’est ça — il manque l’accent circonflexe: forêt.',
+    conifere: 'Presque! Ici il y a plusieurs arbres: conifères, avec un s (et l’accent è).',
+    coniferes: 'Presque! N’oublie pas l’accent: conifères.',
+    'conifère': 'Presque! Il y a plusieurs arbres: conifères, avec un s.',
+    feuillu: 'Presque! Il y a plusieurs arbres: feuillus, avec un s.',
+  };
+  return {
+    ...avecImage(q('sous_image',
+      'Le cahier dit: « Écris les bons mots sous chaque image. »\n(conifères · feuillus · forêt mixte)\n\nQu’est-ce que j’écris sous cette image?',
+      x.mot, null, `${x.mot}.\n\n${x.why}`, 'Des feuilles? Des aiguilles? Ou les deux mélangés?'), x.img, x.alt),
+    tape: 'mot',
+    accepte: [`des ${x.mot}`, `une ${x.mot}`, `la ${x.mot}`],
+    presque: Object.fromEntries(Object.entries(presque).filter(([k]) => k !== x.mot)),
+  };
+}
+
 function foret() {
-  const genre = pick(['arbre', 'arbre', 'ou', 'image']);
+  const genre = pick(['arbre', 'ou', 'image', 'feuille', 'feuille', 'definition', 'canot']);
+  if (genre === 'feuille') {
+    const erable = Math.random() < 0.5;
+    return avecImage(q('foret',
+      erable ? 'Une feuille d’érable. L’érable est un…' : 'Les aiguilles d’une épinette. L’épinette est un…',
+      erable ? 'feuillu' : 'conifère', ['feuillu', 'conifère'],
+      erable ? 'Un FEUILLU: une feuille large, qui pousse au printemps et tombe à l’automne.'
+        : 'Un CONIFÈRE: des aiguilles, et des fruits en forme de cône (les cocottes).',
+      'Une feuille large, ou des aiguilles?'),
+    erable ? 'feuille-erable' : 'aiguilles-epinette', erable ? 'Une feuille d’érable' : 'Les aiguilles d’une épinette');
+  }
+  if (genre === 'definition') {
+    const conif = Math.random() < 0.5;
+    return q('foret',
+      conif ? 'Un arbre avec des AIGUILLES, qui produit des fruits en forme de cône (cocottes), c’est un…'
+        : 'Un arbre avec des FEUILLES qui poussent au printemps et qui tombent à l’automne, c’est un…',
+      conif ? 'conifère' : 'feuillu', ['conifère', 'feuillu', 'champignon'],
+      conif ? 'CONIFÈRE: aiguilles + cocottes. (Cône → conifère.)' : 'FEUILLU: des feuilles qui tombent à l’automne. (Feuille → feuillu.)',
+      conif ? 'Cône… coni…' : 'Feuille… feuill…');
+  }
+  if (genre === 'canot') {
+    return avecImage(q('foret', 'Avec quelles ressources de la forêt les Iroquoiens fabriquent-ils leurs canots?',
+      'le bois et l’écorce des arbres', ['le bois et l’écorce des arbres', 'les peaux et les fourrures', 'les pierres et le sable'],
+      'Le bois et l’écorce des arbres servent à faire des feux, à construire les habitations (la maison longue) et certains objets, comme le CANOT.',
+      'Regarde le canot: il est fait de quoi?'), 'canot-ecorce', 'Un canot d’écorce sur une rivière');
+  }
   if (genre === 'image') {
     const f = Math.random() < 0.5;
     return avecImage(q('foret', 'Ces arbres sont des…',
@@ -286,7 +391,11 @@ function buildOne() {
     { type: 'saison', w: 6, build: saison },
     { type: 'temps', w: 8, build: temps },
     { type: 'lacs', w: 6, build: lacs },
-    { type: 'foret', w: 8, build: foret },
+    { type: 'foret', w: 12, build: foret },
+    // p. 13 n° 1, à écrire sous l'image (ajouté le 11 nov.)
+    { type: 'sous_image', w: 10, build: sousImage },
+    { type: 'cases_p14', w: 10, build: cases },
+    { type: 'nommes_p14', w: 8, build: nommes },
   ], (x) => `${x.type}|${x.text}`);
 }
 
