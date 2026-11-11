@@ -81,6 +81,8 @@ export const TESTS = [
     date: [2026, 11, 11], jours: 3,
     nom: 'Évaluation de sciences',
     mode: 'sciences_nuit',
+    // Le matin même: 15/15 la veille, le parent a demandé un défi plus dur.
+    matin: 'sciences_nuit_defi',
     label: 'Sciences — comment les animaux se repèrent la nuit (p. 13 à 20)',
     icon: '🔬',
     source: 'Éclair de génie, p. 13 à 20',
@@ -126,7 +128,10 @@ export function testsAReviser(date = new Date()) {
   return TESTS
     .filter((t) => !t.passe)
     .map((t) => ({ ...t, reste: Math.round((dateOf(t.date) - jour) / 86400000) }))
-    .filter((t) => t.reste > 0 && t.reste <= t.jours)
+    // Le jour même, on ne révise plus — sauf un test qui a son « matin »
+    // (une dernière révision avant l'école, un autre exercice).
+    .filter((t) => (t.reste > 0 && t.reste <= t.jours) || (t.reste === 0 && t.matin && date.getHours() < 16))
+    .map((t) => (t.reste === 0 ? { ...t, mode: t.matin, label: `${t.label} · le défi du matin` } : t))
     .sort((a, b) => a.reste - b.reste);
 }
 
