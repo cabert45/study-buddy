@@ -279,7 +279,7 @@ const sciencesUsModes = [
   { id: 'sciences_nuit', label: '🦉 Sciences — les animaux la nuit', desc: 'Diurnes, nocturnes, les 5 sens, l’écholocation — Éclair de génie p. 13-20', badge: 'Mercredi 11' },
   { id: 'sciences_nuit_defi', label: '🦉 Sciences — le défi (plus difficile)', desc: 'Il ÉCRIT: les 5 sens, des animaux de nuit du cahier, les mots savants · des animaux nouveaux à deviner', badge: 'Défi' },
   { id: 'sciences_queue', label: '🔬 Sciences — la queue des animaux', desc: 'Vertébrés, les 5 classes, l’utilité de la queue', badge: '18/20' },
-  { id: 'us_iroquoiens', label: '🏹 Univers social — les Iroquoiens', desc: 'Terminus p. 6-18: le relief, les ressources, la maison longue', badge: 'Jeudi 12' },
+  { id: 'us_iroquoiens', label: '🏹 Univers social — les Iroquoiens', desc: 'Terminus p. 6-22: le relief, les ressources, le village, l’organisation sociale', badge: 'Jeudi 12' },
 ];
 
 export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerbes, onOpenUniversSocial, onOpenSciences, onOpenJeux, onStartTutor, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onStartNylaAddition, onStartNylaCompare, onOpenCompose, onOpenSettings, onSwitchProfile, darkMode, onToggleDark }) {

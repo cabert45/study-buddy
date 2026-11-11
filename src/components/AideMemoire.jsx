@@ -340,6 +340,18 @@ function FicheTerminus() {
         </p>
       </div>
 
+      <div className="mt-3 rounded-xl bg-orange-50 border-2 border-orange-200 p-3">
+        <p className="text-sm font-extrabold text-fox-d mb-1">L’ORGANISATION SOCIALE (p. 22) — du plus petit au plus grand</p>
+        <div className="text-sm font-semibold text-stone leading-snug">
+          <div><b>La famille</b>: un père, une mère et leurs enfants. Au mariage, l’homme va s’installer dans la maison longue de <b>sa femme</b>.</div>
+          <div><b>La maison longue</b>: plusieurs familles qui ont la même <b>ancêtre maternelle</b> (25 à 60 personnes).</div>
+          <div><b>Le clan</b>: les familles d’une ou de plusieurs maisons longues, même ancêtre maternelle.</div>
+          <div><b>Le village</b>: plusieurs clans différents. Sa taille varie beaucoup.</div>
+          <div><b>La nation</b>: plusieurs villages. Même <b>langue</b>, même <b>culture</b>.</div>
+          <div className="mt-1"><b>Ancêtre</b>: personne à l’origine d’une famille, qui a vécu il y a longtemps.</div>
+        </div>
+      </div>
+
       <div className="mt-3 rounded-xl bg-white border-2 border-s2 p-3">
         <p className="text-sm font-extrabold text-stone mb-1">LES AUTRES MOTS</p>
         <div className="text-sm font-semibold text-stone leading-snug">

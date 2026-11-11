@@ -256,6 +256,78 @@ function nommes() {
   return q('nommes_p14', n.q, n.r, n.o, `${maj(n.r)}.\n\n${n.why}`, 'Pense aux animaux de NOTRE territoire, ici au Québec.');
 }
 
+// ===== Station 5 — L'organisation sociale (p. 22, photographiée le 11 nov.) =====
+// La chaîne du cahier, du plus petit au plus grand:
+// la famille → la maison longue → le clan → le village → la nation.
+const ORGA = [
+  { nom: 'la famille', def: 'un père, une mère et leurs enfants' },
+  { nom: 'le clan', def: 'les familles d’une ou de plusieurs maisons longues, qui ont la même ancêtre maternelle' },
+  { nom: 'le village', def: 'plusieurs clans différents' },
+  { nom: 'la nation', def: 'un regroupement de plusieurs villages; ses membres partagent la même langue et la même culture' },
+];
+const CHAINE = 'La famille → la maison longue (plusieurs familles, même ancêtre maternelle, 25 à 60 personnes) → le CLAN (une ou plusieurs maisons longues) → le VILLAGE (plusieurs clans) → la NATION (plusieurs villages, même langue, même culture).';
+const ORGA_Q = [
+  ['La famille iroquoienne est formée…', 'd’un père, d’une mère et de leurs enfants',
+    ['d’un père, d’une mère et de leurs enfants', 'de plusieurs villages', 'de plusieurs clans'], null],
+  ['Lors du mariage, où va s’installer l’homme?', 'dans la maison longue de sa femme',
+    ['dans la maison longue de sa femme', 'dans la maison longue de sa mère à lui', 'seul, dans une nouvelle maison'],
+    'maison-longue'],
+  ['Qui vit dans la même maison longue?', 'plusieurs familles qui ont la même ancêtre maternelle',
+    ['plusieurs familles qui ont la même ancêtre maternelle', 'une seule famille', 'tous les habitants du village'],
+    'interieur'],
+  ['Un ancêtre, c’est…', 'une personne à l’origine d’une famille, qui a vécu il y a longtemps',
+    ['une personne à l’origine d’une famille, qui a vécu il y a longtemps', 'le plus jeune enfant de la famille', 'le chef du village'], null],
+  ['Le clan est formé…', 'des familles d’une ou de plusieurs maisons longues',
+    ['des familles d’une ou de plusieurs maisons longues', 'de plusieurs villages', 'd’un père, d’une mère et de leurs enfants'],
+    'maison-longue'],
+  ['Les familles d’un clan ont la même ancêtre…', 'maternelle (du côté de la mère)',
+    ['maternelle (du côté de la mère)', 'paternelle (du côté du père)'], null],
+  ['Le village est formé…', 'de plusieurs clans différents',
+    ['de plusieurs clans différents', 'd’une seule famille', 'de plusieurs nations'], 'village'],
+  ['La nation est…', 'un regroupement de plusieurs villages',
+    ['un regroupement de plusieurs villages', 'une seule maison longue', 'un père, une mère et leurs enfants'], null],
+  ['Les membres d’une nation partagent…', 'la même langue et la même culture',
+    ['la même langue et la même culture', 'la même maison longue', 'le même lit'], null],
+  ['Laquelle est la PLUS GRANDE?', 'la nation', ['la nation', 'le village', 'le clan', 'la famille'], null],
+  ['Laquelle est la PLUS PETITE?', 'la famille', ['la nation', 'le village', 'le clan', 'la famille'], null],
+  ['Plusieurs clans différents forment…', 'un village', ['un village', 'une famille', 'une maison longue'], 'village'],
+  ['Plusieurs villages forment…', 'une nation', ['une nation', 'un clan', 'une famille'], null],
+  ['La taille des villages iroquoiens…', 'varie beaucoup', ['varie beaucoup', 'est toujours la même'], 'village'],
+  ['Pourquoi les villages doivent-ils être bien organisés?', 'pour que tous les habitants vivent bien ensemble',
+    ['pour que tous les habitants vivent bien ensemble', 'pour faire peur aux animaux', 'pour que l’hiver soit moins long'], null],
+];
+function organisation() {
+  const [t, c, o, img] = pick(ORGA_Q);
+  const x = q('organisation', t, c, o, `${maj(c)}.\n\n${CHAINE}`,
+    'Du plus petit au plus grand: famille → maison longue → clan → village → nation.');
+  return avecImage(x, img, img ? 'Le village iroquoien' : undefined);
+}
+
+// L'ordre, du plus petit au plus grand: le cahier le dessine avec des flèches.
+function ordreOrga() {
+  const bon = 'la famille → le clan → le village → la nation';
+  return q('ordre_orga', 'Place du plus PETIT au plus GRAND:', bon,
+    [bon, 'la nation → le village → le clan → la famille', 'la famille → le village → le clan → la nation', 'le clan → la famille → la nation → le village'],
+    `${bon}.\n\n${CHAINE}`, 'Commence par la plus petite: le père, la mère et les enfants.');
+}
+
+// Le mot, à ÉCRIRE (comme p. 11: le mot, pas la définition).
+function motOrga() {
+  const o = pick([...ORGA, { nom: 'l’ancêtre', def: 'une personne à l’origine d’une famille, qui a vécu il y a longtemps' }]);
+  const nu = o.nom.replace(/^(le |la |l’)/, '');
+  return {
+    category: CATEGORY,
+    type: 'mot_orga',
+    text: `ÉCRIS le mot.\n« ${maj(o.def)}. »\n(famille · clan · village · nation · ancêtre)`,
+    correct: nu,
+    tape: 'mot',
+    accepte: [o.nom, `le ${nu}`, `la ${nu}`, `l'${nu}`, `un ${nu}`, `une ${nu}`],
+    presque: nu === 'ancêtre' ? { ancetre: 'C’est le bon mot! L’accent circonflexe: ancêtre.' } : undefined,
+    explanation: `${nu}.\n\n${CHAINE}`,
+    hint: 'Famille → clan → village → nation.',
+  };
+}
+
 // ===== 11. La forêt (p. 13) =====
 // Question 1 de la p. 13, telle quelle: trois images, une étiquette à ÉCRIRE
 // dessous (conifères · feuillus · forêt mixte). La forêt mixte n'avait pas
@@ -396,6 +468,10 @@ function buildOne() {
     { type: 'sous_image', w: 10, build: sousImage },
     { type: 'cases_p14', w: 10, build: cases },
     { type: 'nommes_p14', w: 8, build: nommes },
+    // Station 5 (p. 22), la matière nouvelle de l'évaluation du 12 nov.: plus de poids.
+    { type: 'organisation', w: 22, build: organisation },
+    { type: 'ordre_orga', w: 8, build: ordreOrga },
+    { type: 'mot_orga', w: 12, build: motOrga },
   ], (x) => `${x.type}|${x.text}`);
 }
 
