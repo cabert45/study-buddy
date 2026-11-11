@@ -71,10 +71,6 @@ const ryanMathModes = [
   { id: 'figures', label: '⬜ Figures & solides', desc: 'Carré, cube, cône, cylindre...', badge: 'Examen' },
   { id: 'heure', label: "🕐 L'heure et le temps", desc: "Lire l'horloge, les durées, le calendrier", badge: 'Cahier' },
   { id: 'angles', label: '📐 Droites et angles', desc: 'Aigu, droit, obtus · parallèles et perpendiculaires', badge: 'Cahier' },
-  { id: 'us_iroquoiens', label: '🏹 Univers social — les Iroquoiens', desc: 'Terminus p. 6-18: le relief, les ressources, la maison longue', badge: 'Révision' },
-  { id: 'sciences_nuit', label: '🦉 Sciences — les animaux la nuit', desc: 'Diurnes, nocturnes, les 5 sens, l’écholocation — Éclair de génie p. 13-20', badge: 'Mercredi 11' },
-  { id: 'sciences_nuit_defi', label: '🦉 Sciences — le défi (plus difficile)', desc: 'Il ÉCRIT: les 5 sens, des animaux de nuit du cahier, les mots savants · des animaux nouveaux à deviner', badge: 'Défi' },
-  { id: 'sciences_queue', label: '🔬 Sciences — la queue des animaux', desc: 'Vertébrés, les 5 classes, l’utilité de la queue', badge: '18/20' },
   { id: 'mesure', label: '📐 Mesure en cm', desc: 'Estimer, comparer, lire la règle', badge: 'Examen' },
   { id: 'calcul', label: 'Calcul', desc: 'Addition et soustraction', badge: 'Priorité' },
   { id: 'terme', label: 'Terme manquant', desc: 'Trouve le nombre mystère', badge: 'Priorité' },
@@ -135,10 +131,6 @@ const grade3MathModes = [
   { id: 'suites', label: '🔢 Suites & régularités', desc: 'Trouve la règle et le prochain nombre' },
   { id: 'heure', label: "🕐 L'heure et le temps", desc: "Lire l'horloge, les durées, le calendrier", badge: 'Cahier' },
   { id: 'angles', label: '📐 Droites et angles', desc: 'Aigu, droit, obtus · parallèles et perpendiculaires', badge: 'Cahier' },
-  { id: 'us_iroquoiens', label: '🏹 Univers social — les Iroquoiens', desc: 'Terminus p. 6-18: le relief, les ressources, la maison longue', badge: 'Révision' },
-  { id: 'sciences_nuit', label: '🦉 Sciences — les animaux la nuit', desc: 'Diurnes, nocturnes, les 5 sens, l’écholocation — Éclair de génie p. 13-20', badge: 'Mercredi 11' },
-  { id: 'sciences_nuit_defi', label: '🦉 Sciences — le défi (plus difficile)', desc: 'Il ÉCRIT: les 5 sens, des animaux de nuit du cahier, les mots savants · des animaux nouveaux à deviner', badge: 'Défi' },
-  { id: 'sciences_queue', label: '🔬 Sciences — la queue des animaux', desc: 'Vertébrés, les 5 classes, l’utilité de la queue', badge: '18/20' },
   { id: 'mesure', label: '📐 Mesure en cm', desc: 'Estimer, comparer, lire la règle' },
   { id: 'figures', label: '⬜ Figures & solides', desc: 'Carré, cube, cône, cylindre...' },
   { id: 'statistique', label: '📊 Diagrammes', desc: 'Légendes, tableaux, totaux' },
@@ -280,6 +272,15 @@ const nylaPont1reModes = [
 ];
 
 // Les mascottes (lion de Ryan, renard, ours…) sont dans ./Mascots — choisies dans ⚙️ Réglages.
+
+// Sciences et univers social: leur propre onglet (11 nov. 2026). Ils vivaient
+// au fond de l'onglet Mathématiques — le parent ne les trouvait pas.
+const sciencesUsModes = [
+  { id: 'sciences_nuit', label: '🦉 Sciences — les animaux la nuit', desc: 'Diurnes, nocturnes, les 5 sens, l’écholocation — Éclair de génie p. 13-20', badge: 'Mercredi 11' },
+  { id: 'sciences_nuit_defi', label: '🦉 Sciences — le défi (plus difficile)', desc: 'Il ÉCRIT: les 5 sens, des animaux de nuit du cahier, les mots savants · des animaux nouveaux à deviner', badge: 'Défi' },
+  { id: 'sciences_queue', label: '🔬 Sciences — la queue des animaux', desc: 'Vertébrés, les 5 classes, l’utilité de la queue', badge: '18/20' },
+  { id: 'us_iroquoiens', label: '🏹 Univers social — les Iroquoiens', desc: 'Terminus p. 6-18: le relief, les ressources, la maison longue', badge: 'Jeudi 12' },
+];
 
 export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerbes, onOpenUniversSocial, onOpenSciences, onOpenJeux, onStartTutor, onStartTimer, onStartChores, onStartCoach, onStartPresentation, onStartFable, onOpenDashboard, onOpenNotifications, onOpenStudyReminder, onStartFlashcard, onOpenFamily, onOpenAgenda, onOpenBioFlashcard, onOpenTestResults, onOpenBoukili, onStartJournal, onStartReading, onStartNylaFlashcard, onStartNylaSpeed, onStartNylaSongs, onStartNylaAddition, onStartNylaCompare, onOpenCompose, onOpenSettings, onSwitchProfile, darkMode, onToggleDark }) {
   // Dispatch a tile click — special-case modes that open their own screen instead of the practice flow
@@ -445,7 +446,8 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
   })();
   const mathModes = isCayla ? caylaMathModes : isNyla ? nylaMathModes : isGrade3 ? grade3MathModes : ryanMathModes;
   const frenchModes = isCayla ? caylaFrenchModes : isNyla ? nylaFrenchModes : isGrade3 ? grade3FrenchModes : ryanFrenchModes;
-  const modes = tab === 'math' ? mathModes : frenchModes;
+  const aSciencesUs = !isCayla && !isNyla;
+  const modes = tab === 'sciences' && aSciencesUs ? sciencesUsModes : tab === 'math' ? mathModes : frenchModes;
   const featured = modes.find(m => m.featured);
   // `m !== featured`, et pas `!m.featured`: une liste avec DEUX modules
   // vedettes n'en affichait qu'un — l'autre disparaissait de l'écran sans rien
@@ -706,6 +708,14 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
           }`}>
           Français
         </button>
+        {aSciencesUs && (
+          <button onClick={() => setTab('sciences')}
+            className={`flex-shrink-0 rounded-xl px-4 py-2.5 text-sm font-bold transition-all ${
+              tab === 'sciences' ? 'bg-stone text-white' : 'bg-white border-2 border-s2 text-s6 hover:border-lava hover:text-lava'
+            }`}>
+            Sciences et univers social
+          </button>
+        )}
       </div>
 
       {/* Featured mode */}
