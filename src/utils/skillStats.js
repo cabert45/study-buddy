@@ -94,9 +94,23 @@ export function skillPriority(category, type, stats = getSkillStats()) {
 // questions (déjà toutes vues) serait remplacé par un autre, et ce qu'il rate ne
 // reviendrait plus.
 const defaultKey = (q) => `${q.type}|${q.text}`;
+// « Make them harder if he gets high scores » (11 nov. 2026): quand la
+// catégorie dépasse 90 % sur au moins 20 réponses, les entrées marquées
+// `dur: true` (les réponses à ÉCRIRE, les « pourquoi ») pèsent 3 fois plus.
+export function niveauCategorie(category, stats = getSkillStats()) {
+  let right = 0, wrong = 0;
+  for (const [k, s] of Object.entries(stats)) {
+    if (!k.startsWith(`${category}|`)) continue;
+    right += s.right; wrong += s.wrong;
+  }
+  const n = right + wrong;
+  return { n, pct: n ? right / n : 0, fort: n >= 20 && right / n >= 0.9 };
+}
+
 export function pickAdaptive(category, entries, keyFn = defaultKey) {
   const stats = getSkillStats();
-  let pool = entries.map((e) => ({ ...e, p: e.w * skillPriority(category, e.type, stats) }));
+  const fort = entries.some((e) => e.dur) && niveauCategorie(category, stats).fort;
+  let pool = entries.map((e) => ({ ...e, p: e.w * (fort && e.dur ? 3 : 1) * skillPriority(category, e.type, stats) }));
   while (pool.length) {
     const total = pool.reduce((t, e) => t + e.p, 0);
     let r = Math.random() * total;

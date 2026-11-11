@@ -337,6 +337,9 @@ function FicheTerminus() {
           Maisons longues (25 m × 10 m, bois, recouvertes d’<b>écorce</b>, 25 à 60 personnes) · foyer = cuisson et chauffage ·
           ouverture dans le toit = la fumée sort · <b>palissade</b> = protège du vent, des animaux, des ennemis · une seule entrée ·
           près d’un cours d’eau · <b>Hochelaga = Montréal</b>, <b>Stadaconé = Québec</b>.
+          <br />Les <b>foyers</b> servent à cuire la nourriture et à se chauffer · on <b>entrepose</b> la nourriture dans la maison longue ·
+          structure en <b>bois</b>, recouverte d’<b>écorce</b> · champs <b>près du village</b> · près de l’eau pour <b>arroser les champs</b> et
+          <b>se déplacer</b> · après <b>10 ou 15 ans</b>: plus de bois autour, sols moins fertiles → nouvel emplacement.
         </p>
       </div>
 

@@ -362,16 +362,16 @@ function buildOne() {
   return pickAdaptive(CATEGORY, [
     // Le bilan du cahier d'abord: c'est la forme de l'évaluation.
     { type: 'bilan_dn', w: 18, build: bilanDN },
-    { type: 'bilan_choix', w: 22, build: bilanChoix },
-    { type: 'bilan_peau', w: 8, build: bilanPeau },
+    { type: 'bilan_choix', w: 22, build: bilanChoix, dur: true },
+    { type: 'bilan_peau', w: 8, build: bilanPeau, dur: true },
     { type: 'diurne_nocturne', w: 18, build: diurneNocturne },
     { type: 'definition', w: 16, build: definition },
     { type: 'trou', w: 24, build: trou },
     { type: 'fonction', w: 14, build: fonction },
     { type: 'quel_sens', w: 20, build: quelSens },
-    { type: 'vrai_faux', w: 18, build: vraiFaux },
-    { type: 'chauve_souris', w: 12, build: chauveSouris },
-    { type: 'conclusion', w: 12, build: conclusion },
+    { type: 'vrai_faux', w: 18, build: vraiFaux, dur: true },
+    { type: 'chauve_souris', w: 12, build: chauveSouris, dur: true },
+    { type: 'conclusion', w: 12, build: conclusion, dur: true },
     { type: 'organe', w: 10, build: organe },
   ], (q) => `${q.type}|${q.text}`);
 }
@@ -667,15 +667,15 @@ function vraiFauxDefi() {
 function buildDefi() {
   return pickAdaptive(CATEGORY_DEFI, [
     // Plus de la moitié à ÉCRIRE: c'est ce que le parent a demandé.
-    { type: 'ecris_sens_manquant', w: 12, build: ecrisSensManquant },
-    { type: 'ecris_organe', w: 12, build: ecrisOrgane },
-    { type: 'ecris_animal', w: 16, build: ecrisAnimal },
-    { type: 'ecris_animal_sens', w: 12, build: ecrisAnimalSens },
-    { type: 'ecris_mot', w: 18, build: ecrisMot },
+    { type: 'ecris_sens_manquant', w: 12, build: ecrisSensManquant, dur: true },
+    { type: 'ecris_organe', w: 12, build: ecrisOrgane, dur: true },
+    { type: 'ecris_animal', w: 16, build: ecrisAnimal, dur: true },
+    { type: 'ecris_animal_sens', w: 12, build: ecrisAnimalSens, dur: true },
+    { type: 'ecris_mot', w: 18, build: ecrisMot, dur: true },
     { type: 'intrus', w: 8, build: intrus },
     { type: 'en_commun', w: 8, build: enCommun },
-    { type: 'nouvel_animal', w: 12, build: nouvelAnimal },
-    { type: 'pourquoi', w: 12, build: pourquoi },
+    { type: 'nouvel_animal', w: 12, build: nouvelAnimal, dur: true },
+    { type: 'pourquoi', w: 12, build: pourquoi, dur: true },
     { type: 'vrai_faux_defi', w: 12, build: vraiFauxDefi },
   ], (q) => `${q.type}|${q.text}`);
 }

@@ -328,6 +328,81 @@ function motOrga() {
   };
 }
 
+// ===== p. 19-20 (station 4, le village), les exercices 2 à 5 du cahier =====
+// Photographiés le 11 nov., la veille de l'évaluation.
+const BANQUE = '(bois · familles · foyers · maisons longues · nourriture)';
+const P19_TROUS = [
+  { t: 'Les Iroquoiens habitent dans des ______.', r: 'maisons longues', presque: { 'maison longue': 'Presque! « des »: au pluriel, maisons longues (deux s).', 'maisons longue': 'Presque! longues prend aussi un s.' } },
+  { t: 'Plusieurs ______ habitent dans la même maison longue.', r: 'familles', presque: { famille: 'Presque! « Plusieurs »: au pluriel, familles.' } },
+  { t: 'Les ______ servent à cuire la nourriture et à se chauffer.', r: 'foyers', presque: { foyer: 'Presque! « Les »: au pluriel, foyers.' } },
+  { t: 'Les foyers servent à cuire la ______ et à se chauffer.', r: 'nourriture' },
+  { t: 'La structure des maisons longues est faite de ______.', r: 'bois' },
+];
+function p19Trou() {
+  const x = pick(P19_TROUS);
+  return {
+    category: CATEGORY,
+    type: 'p19_trou',
+    text: `ÉCRIS le mot qui manque (p. 20, n° 2):\n« ${x.t} »\n${BANQUE}`,
+    correct: x.r,
+    tape: 'mot',
+    presque: x.presque,
+    explanation: `${x.r}.\n\nLes Iroquoiens habitent dans des MAISONS LONGUES. Plusieurs FAMILLES habitent dans la même maison longue. `
+      + 'Les FOYERS servent à cuire la NOURRITURE et à se chauffer. La structure des maisons longues est faite de BOIS (recouverte d’écorce).',
+    hint: 'Choisis dans la banque de mots, et regarde si c’est au pluriel.',
+  };
+}
+
+const P19_CHOIX = [
+  ['Pourquoi les Iroquoiens construisent-ils leur village près d’un cours d’eau? (Le cahier demande DEUX raisons.)',
+    'Ils ont besoin d’eau pour arroser leurs champs ET ils se déplacent souvent sur les cours d’eau.',
+    ['Ils ont besoin d’eau pour arroser leurs champs ET ils se déplacent souvent sur les cours d’eau.',
+      'Ils aiment entendre le bruit de l’eau ET ils ont besoin d’eau pour faire des feux.',
+      'Ils ont besoin d’eau pour faire des feux ET pour arroser leurs champs.'],
+    'Arroser les champs + se déplacer en canot. On ne fait pas de feu avec de l’eau (l’eau ÉTEINT le feu)! Et le bruit de l’eau n’est pas une raison du cahier.', 'village'],
+  ['Les Iroquoiens L’ENTREPOSENT dans les maisons longues. De quoi parle-t-on?', 'la nourriture',
+    ['la nourriture', 'la fumée', 'l’écorce'], 'Entreposer = ranger pour plus tard. On entrepose la NOURRITURE (le maïs) dans la maison longue.', 'interieur'],
+  ['Les Iroquoiens percent des trous dans le toit des maisons longues pour LA faire sortir. De quoi parle-t-on?', 'la fumée',
+    ['la nourriture', 'la fumée', 'l’écorce'], 'La FUMÉE des foyers sort par les trous du toit.', 'maison-longue'],
+  ['Les Iroquoiens L’utilisent pour recouvrir l’extérieur des maisons longues. De quoi parle-t-on?', 'l’écorce',
+    ['la nourriture', 'la fumée', 'l’écorce'], 'L’ÉCORCE des arbres recouvre l’extérieur. La structure, elle, est en bois.', 'maison-longue'],
+  ['Après 10 ou 15 ans, pourquoi les Iroquoiens doivent-ils déplacer leur village?', 'le bois autour est coupé et les sols sont moins fertiles',
+    ['le bois autour est coupé et les sols sont moins fertiles', 'ils s’ennuient', 'les maisons longues sont trop grandes'],
+    'Après 10 ou 15 ans, le bois autour du village a été coupé et les sols sont moins fertiles: ils trouvent un NOUVEL EMPLACEMENT.', 'village'],
+  ['Après combien de temps les Iroquoiens déplacent-ils leur village?', 'après 10 ou 15 ans',
+    ['après 10 ou 15 ans', 'chaque hiver', 'après 100 ans'], 'Après 10 ou 15 ans: plus de bois autour, des sols moins fertiles.', 'village'],
+  ['Les Iroquoiens ont besoin du bois de la forêt pour…', 'construire leurs habitations, cuire leur nourriture et se chauffer',
+    ['construire leurs habitations, cuire leur nourriture et se chauffer', 'arroser leurs champs', 'se soigner'],
+    'Le bois: construire les habitations, cuire la nourriture et se chauffer. C’est pour ça que les villages sont entourés de forêts.', null],
+  ['Où sont situés les champs des Iroquoiens?', 'près du village',
+    ['près du village', 'très loin, dans les montagnes', 'dans la maison longue'], 'Les Iroquoiens cultivent les champs situés PRÈS du village.', 'ete'],
+];
+function p19Choix() {
+  const [t, c, o, why, img] = pick(P19_CHOIX);
+  return avecImage(q('p19_choix', t, c, o, `${maj(c)}\n\n${why}`, 'Relis la page du village.'), img, img ? 'Le village iroquoien' : undefined);
+}
+
+// n° 5: les encadrés de la photo — « La ______, pour le bois et les animaux »,
+// « Un ______, pour arroser les champs ».
+function p20Encadre() {
+  const foret = Math.random() < 0.5;
+  return {
+    category: CATEGORY,
+    type: 'p20_encadre',
+    text: foret
+      ? 'ÉCRIS (p. 20, n° 5) — Quelle ressource incite les Iroquoiens à s’installer là?\n« La ______, pour le bois et les animaux. »'
+      : 'ÉCRIS (p. 20, n° 5) — Quelle ressource incite les Iroquoiens à s’installer là?\n« Un ______, pour arroser les champs. »',
+    correct: foret ? 'forêt' : 'cours d’eau',
+    tape: 'mot',
+    accepte: foret ? ['la forêt'] : ['cours d\'eau', 'un cours d’eau', 'un cours d\'eau', 'lac', 'fleuve', 'un lac', 'un fleuve'],
+    presque: foret ? { foret: 'C’est le bon mot! L’accent circonflexe: forêt.', bois: 'Le bois vient de la forêt: écris la ressource, la forêt.' }
+      : { riviere: 'Bonne idée! Mais « Un ______ »: masculin. Le cahier écrit: un cours d’eau.', 'rivière': 'Bonne idée! Mais « Un ______ »: masculin. Le cahier écrit: un cours d’eau.', eau: 'Presque! Trois mots: un cours d’eau.' },
+    explanation: foret ? 'La forêt.\n\nLa forêt donne le bois (habitations, feux) et les animaux (se nourrir, se vêtir).'
+      : 'Un cours d’eau.\n\nL’eau pour arroser les champs, boire, pêcher, et se déplacer en canot.',
+    hint: foret ? 'Plein d’arbres…' : 'De l’eau qui coule…',
+  };
+}
+
 // ===== 11. La forêt (p. 13) =====
 // Question 1 de la p. 13, telle quelle: trois images, une étiquette à ÉCRIRE
 // dessous (conifères · feuillus · forêt mixte). La forêt mixte n'avait pas
@@ -452,37 +527,59 @@ function village() {
 function buildOne() {
   return pickAdaptive(CATEGORY, [
     // Ses trois trous d'abord.
-    { type: 'mot_relief', w: 18, build: motRelief },
+    { type: 'mot_relief', w: 18, build: motRelief, dur: true },
     { type: 'mot_ou_def', w: 8, build: motOuDefinition },
     { type: 'ressource', w: 16, build: ressource },
-    { type: 'plusieurs', w: 10, build: plusieurs },
+    { type: 'plusieurs', w: 10, build: plusieurs, dur: true },
     { type: 'village', w: 14, build: village },
     { type: 'mot_vocab', w: 12, build: motVocab },
-    { type: 'atout', w: 10, build: atoutContrainte },
+    { type: 'atout', w: 10, build: atoutContrainte, dur: true },
     { type: 'mode_vie', w: 10, build: modeDeVie },
     { type: 'saison', w: 6, build: saison },
     { type: 'temps', w: 8, build: temps },
     { type: 'lacs', w: 6, build: lacs },
     { type: 'foret', w: 12, build: foret },
     // p. 13 n° 1, à écrire sous l'image (ajouté le 11 nov.)
-    { type: 'sous_image', w: 10, build: sousImage },
-    { type: 'cases_p14', w: 10, build: cases },
+    { type: 'sous_image', w: 10, build: sousImage, dur: true },
+    { type: 'cases_p14', w: 10, build: cases, dur: true },
     { type: 'nommes_p14', w: 8, build: nommes },
     // Station 5 (p. 22), la matière nouvelle de l'évaluation du 12 nov.: plus de poids.
     { type: 'organisation', w: 22, build: organisation },
-    { type: 'ordre_orga', w: 8, build: ordreOrga },
-    { type: 'mot_orga', w: 12, build: motOrga },
+    { type: 'ordre_orga', w: 8, build: ordreOrga, dur: true },
+    { type: 'mot_orga', w: 12, build: motOrga, dur: true },
+    // p. 19-20: les exercices 2 à 5 du cahier (11 nov.)
+    { type: 'p19_trou', w: 12, build: p19Trou, dur: true },
+    { type: 'p19_choix', w: 14, build: p19Choix },
+    { type: 'p20_encadre', w: 6, build: p20Encadre, dur: true },
   ], (x) => `${x.type}|${x.text}`);
 }
 
 // Même garde que les sciences: le répertoire est étroit, mais jamais deux
 // fois la même question de suite.
+//
+// « How many tests does he have to do to cover all? » (11 nov. 2026): le
+// répertoire compte ~120 questions différentes. Tirées au hasard, il fallait
+// ~17 séances de 15 pour en voir 95 %. On prend maintenant d'abord une
+// question JAMAIS VUE (mémorisée sur l'appareil): tout est vu en ~8-9 séances,
+// puis les ratées reviennent (pickAdaptive) et les difficiles prennent le
+// dessus quand il dépasse 90 %.
 let dernierTexte = null;
+const CLE_VUS = 'us_iroquoiens_vus';
+const cleVue = (x) => `${x.type}|${x.text}|${x.correct}`;
+function lireVus() {
+  try { return new Set(JSON.parse(localStorage.getItem(CLE_VUS) || '[]')); } catch { return new Set(); }
+}
+export function questionsVuesIroquoiens() { return lireVus().size; }
 export function generateIroquoiens() {
+  const vus = lireVus();
   let x = buildOne();
-  for (let i = 0; i < 6 && x && x.text === dernierTexte; i++) {
+  for (let i = 0; i < 40 && x && (vus.has(cleVue(x)) || x.text === dernierTexte); i++) {
     const autre = buildOne();
     if (autre) x = autre;
+  }
+  if (x) {
+    vus.add(cleVue(x));
+    try { localStorage.setItem(CLE_VUS, JSON.stringify([...vus])); } catch { /* pas de stockage: tant pis */ }
   }
   dernierTexte = x ? x.text : null;
   return x;
