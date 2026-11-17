@@ -342,7 +342,21 @@ export function listeCetteSemaine(date = new Date()) {
   // Une semaine peut annoncer un autre verbe que celui de sa liste (2 nov.:
   // liste 7, mais révision aimer + finir). La feuille tranche.
   const l = listeById(w.liste);
-  return w.verbeCle ? { ...l, verbe: w.verbe, verbeMode: 'verbe_semaine', verbeCle: w.verbeCle } : l;
+  if (w.verbeCle) return { ...l, verbe: w.verbe, verbeMode: 'verbe_semaine', verbeCle: w.verbeCle };
+  // Semaine sans feuille (pas encore confirmée): on garde le verbe de la
+  // dernière feuille reçue, pas celui du cartable. Le 17 nov., le vendredi
+  // après-midi passait à la liste 10 et annonçait « être à l'imparfait »,
+  // alors que la classe est encore au présent. Le parent: « Why are you
+  // putting imparfait? It says présent. » C'est la feuille qui décide.
+  if (!w.confirme) {
+    for (let k = i - 1; k >= 0; k--) {
+      const p = LISTE_SEMAINES[k];
+      if (p.confirme) {
+        return p.verbeCle ? { ...l, verbe: p.verbe, verbeMode: 'verbe_semaine', verbeCle: p.verbeCle } : l;
+      }
+    }
+  }
+  return l;
 }
 
 export function semaineCourante(date = new Date()) {
