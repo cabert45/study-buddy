@@ -61,6 +61,17 @@ export const MATHS_SEMAINES = [
     debut: [2026, 11, 9], mode: 'matcha_revision', confirme: true,
     nom: 'consolidation des thèmes 1 et 2', page: 'p. 90 à 93',
   },
+  {
+    // Feuille du 16 au 20 nov.: « La soustraction de grands nombres:
+    // aide-mémoire Matcha p. 22 » puis « le sens de la multiplication:
+    // aide-mémoire Matcha p. 23 ». Deux leçons dans la semaine, dans cet
+    // ordre: la p. 22 jusqu'au mardi, la p. 23 à partir du mercredi
+    // (`ensuite`). L'agenda montre les deux.
+    debut: [2026, 11, 16], mode: 'soustraction_grands', confirme: true,
+    nom: 'la soustraction de grands nombres, puis le sens de la multiplication', page: 'p. 22-23',
+    jour: { nom: 'la soustraction de grands nombres', page: 'p. 22' },
+    ensuite: { desJour: 3, mode: 'sens_multiplication', nom: 'le sens de la multiplication', page: 'p. 23' },
+  },
 ];
 
 const dateOf = ([y, m, d]) => new Date(y, m - 1, d);
@@ -75,6 +86,19 @@ function semaineIndex(rawDate) {
 export function mathsCetteSemaine(date = new Date()) {
   const i = semaineIndex(date);
   return i >= 0 ? MATHS_SEMAINES[i] : MATHS_SEMAINES[0];
+}
+
+// La leçon du JOUR, quand la semaine en a deux (feuille du 16 nov.: p. 22 au
+// début de la semaine, p. 23 à partir du mercredi). Le dimanche prépare le
+// lundi; le samedi garde la 2e leçon.
+export function mathsDuJour(date = new Date()) {
+  const m = mathsCetteSemaine(date);
+  if (!m.ensuite) return m;
+  const j = date.getDay();
+  const deuxieme = j === 6 || (j >= m.ensuite.desJour && j <= 5);
+  return deuxieme
+    ? { ...m, mode: m.ensuite.mode, nom: m.ensuite.nom, page: m.ensuite.page }
+    : { ...m, ...(m.jour || {}) };
 }
 
 // « 📘 Cahier Matcha — la mesure du temps et l'heure (p. 12-13) »

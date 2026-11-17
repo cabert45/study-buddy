@@ -280,6 +280,135 @@ function FicheOrdre() {
   );
 }
 
+// ===== Feuille du 16 au 20 nov. 2026 =====
+// Une colonne posée comme dans le cahier: chiffres alignés, police à chasse fixe.
+function Colonne({ lignes }) {
+  return (
+    <pre className="font-mono text-lg font-bold text-stone leading-snug my-2 mx-auto w-fit">{lignes.join('\n')}</pre>
+  );
+}
+
+function FicheSoustraction() {
+  return (
+    <>
+      <div className="flex items-baseline gap-2 mb-1 flex-wrap">
+        <span className="text-xs font-extrabold bg-stone text-white rounded-md px-2 py-1">MATCHA</span>
+        <span className="font-heading text-lg font-extrabold text-stone leading-tight">La soustraction de grands nombres</span>
+      </div>
+      <p className="text-xs font-bold text-s4 mb-3">Aide-mémoire p. 22 · on commence TOUJOURS par les unités</p>
+
+      <div className="rounded-xl bg-orange-50 border-2 border-orange-200 p-3 mb-3">
+        <p className="text-sm font-extrabold text-fox-d mb-1">523 − 187: LE CHIFFRE DU HAUT EST TROP PETIT? J’ÉCHANGE.</p>
+        <Colonne lignes={['   5 2 3', ' − 1 8 7', ' -------', '   3 3 6']} />
+        <div className="text-sm font-semibold text-stone leading-snug">
+          <div>1. Unités: 3 − 7, pas assez! Je prends <b>1 dizaine</b> → <b>13</b> unités. 13 − 7 = <b>6</b>. Il reste <b>1</b> dizaine.</div>
+          <div>2. Dizaines: 1 − 8, pas assez! Je prends <b>1 centaine</b> → <b>11</b> dizaines. 11 − 8 = <b>3</b>. Il reste <b>4</b> centaines.</div>
+          <div>3. Centaines: 4 − 1 = <b>3</b>. Réponse: <b className="text-lava">336</b>.</div>
+        </div>
+        <p className="text-xs font-bold text-fox-d mt-1">Jamais « 7 − 3 » à l’envers: c’est TOUJOURS le haut moins le bas.</p>
+      </div>
+
+      <CadreCahier>
+        <p className="text-sm font-extrabold text-stone mb-1">LE PIÈGE: UN 0 AU MILIEU — 503 − 278</p>
+        <div className="text-sm font-semibold text-stone leading-snug">
+          <div>Pas de dizaines à prêter! Alors je prends <b>1 centaine</b> → 10 dizaines.</div>
+          <div>Puis je prends <b>1 de ces dizaines</b> → 13 unités. Il reste <b>9</b> dizaines et <b>4</b> centaines.</div>
+          <div>13 − 8 = 5 · 9 − 7 = 2 · 4 − 2 = 2 → <b className="text-lava">225</b></div>
+        </div>
+      </CadreCahier>
+
+      <div className="mt-3 rounded-xl bg-white border-2 border-s2 p-3">
+        <p className="text-sm font-extrabold text-stone mb-1">JE VÉRIFIE AVEC UNE ADDITION</p>
+        <p className="text-sm font-semibold text-stone leading-snug">
+          225 + 278 = <b>503</b> ✓ — la réponse + le nombre enlevé redonne le nombre du départ.
+        </p>
+      </div>
+    </>
+  );
+}
+
+function FicheMultiplication() {
+  return (
+    <>
+      <div className="flex items-baseline gap-2 mb-1 flex-wrap">
+        <span className="text-xs font-extrabold bg-stone text-white rounded-md px-2 py-1">MATCHA</span>
+        <span className="font-heading text-lg font-extrabold text-stone leading-tight">Le sens de la multiplication</span>
+      </div>
+      <p className="text-xs font-bold text-s4 mb-3">Aide-mémoire p. 23 · × veut dire « FOIS »</p>
+
+      <div className="rounded-xl bg-orange-50 border-2 border-orange-200 p-3 mb-3">
+        <p className="text-sm font-extrabold text-fox-d mb-1">3 SACS DE 4 BILLES</p>
+        <div className="text-sm font-semibold text-stone leading-snug">
+          <div>Des <b>groupes égaux</b>: 4 + 4 + 4 = 12</div>
+          <div>Le 4 est là <b>3 fois</b>: <b>3 × 4 = 12</b> (« 3 fois 4 »)</div>
+        </div>
+        <p className="text-xs font-bold text-fox-d mt-1">Pas 3 + 4 = 7! « Dans CHAQUE sac » → des groupes égaux → ×.</p>
+      </div>
+
+      <CadreCahier>
+        <p className="text-sm font-extrabold text-stone mb-1">EN RANGÉES (un rectangle)</p>
+        <Colonne lignes={['● ● ● ●', '● ● ● ●', '● ● ● ●']} />
+        <p className="text-sm font-semibold text-stone leading-snug">
+          <b>3</b> rangées de <b>4</b> → 3 × 4 = <b>12</b>. Je tourne le rectangle: 4 rangées de 3 → 4 × 3 = <b>12</b> aussi.
+        </p>
+      </CadreCahier>
+
+      <div className="mt-3 rounded-xl bg-white border-2 border-s2 p-3">
+        <p className="text-sm font-extrabold text-stone mb-1">LES MOTS</p>
+        <p className="text-sm font-semibold text-stone leading-snug">
+          3 × 4 = 12 → 3 et 4 sont les <b>facteurs</b>, 12 est le <b>produit</b>.
+          <span className="text-s4"> (En addition, le résultat s’appelle la somme.)</span>
+        </p>
+      </div>
+    </>
+  );
+}
+
+function FicheFeminin() {
+  return (
+    <>
+      <div className="flex items-baseline gap-2 mb-1 flex-wrap">
+        <span className="text-xs font-extrabold bg-stone text-white rounded-md px-2 py-1">JAZZ</span>
+        <span className="font-heading text-lg font-extrabold text-stone leading-tight">Le féminin des noms</span>
+      </div>
+      <p className="text-xs font-bold text-s4 mb-3">Aide-mémoire p. 9 · la règle générale</p>
+
+      <div className="rounded-xl bg-orange-50 border-2 border-orange-200 p-3 mb-3">
+        <p className="text-sm font-extrabold text-fox-d mb-1">J’AJOUTE UN e</p>
+        <div className="text-sm font-semibold text-stone leading-snug">
+          <div>un ami → une ami<b className="text-lava">e</b></div>
+          <div>un cousin → une cousin<b className="text-lava">e</b></div>
+          <div>le marchand → la marchand<b className="text-lava">e</b></div>
+        </div>
+        <p className="text-xs font-bold text-fox-d mt-1">Le déterminant change aussi: <b>un → une</b>, <b>le → la</b>.</p>
+      </div>
+
+      <CadreCahier>
+        <p className="text-sm font-extrabold text-stone mb-1">DÉJÀ UN e À LA FIN? LE NOM NE BOUGE PAS</p>
+        <p className="text-sm font-semibold text-stone leading-snug">
+          un élève → une élève · un artiste → une artiste<br />
+          <span className="text-s4">Seul le déterminant change. Jamais « élèvee ».</span>
+        </p>
+      </CadreCahier>
+
+      <div className="mt-3 rounded-xl bg-white border-2 border-s2 p-3">
+        <p className="text-sm font-extrabold text-stone mb-1">LE TRUC DE LA LETTRE MUETTE</p>
+        <p className="text-sm font-semibold text-stone leading-snug">
+          un marchan<b>d</b> (on n’entend pas le d) → une marchan<b className="text-lava">d</b>e (on l’entend!).
+          Pour trouver une lettre muette, je pense au féminin.
+        </p>
+      </div>
+    </>
+  );
+}
+
+// Les fiches qui ne demandent rien d'autre que le mode.
+export const FICHES = {
+  soustraction_grands: FicheSoustraction,
+  sens_multiplication: FicheMultiplication,
+  feminin_noms: FicheFeminin,
+};
+
 // Univers social — Terminus p. 6 à 18. Les mots du relief viennent en
 // premier: c'est la page qu'il a ratée au complet (il écrivait la définition).
 function FicheTerminus() {
@@ -501,7 +630,10 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
   const estSciences = mode === 'sciences_queue';
   const estNuit = mode === 'sciences_nuit' || mode === 'sciences_nuit_defi';
   const estTerminus = mode === 'us_iroquoiens';
-  const estOrdre = mode === 'matcha_ordre';
+  // estOrdre couvre aussi les fiches de FICHES: elles se comportent pareil
+  // (« Ma fiche », pas de liste ni de stratégies).
+  const FicheSimple = FICHES[mode] || null;
+  const estOrdre = mode === 'matcha_ordre' || !!FicheSimple;
   // Par defaut la liste de la semaine. `listeNumero` sert quand on revient sur
   // une liste deja vue (revision) : la page du cahier doit montrer CES mots-la,
   // pas ceux de cette semaine.
@@ -521,7 +653,7 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
         {estSciences && <FicheSciences />}
         {estNuit && <FicheNuit />}
         {estTerminus && <FicheTerminus />}
-        {estOrdre && <FicheOrdre />}
+        {estOrdre && (FicheSimple ? <FicheSimple /> : <FicheOrdre />)}
         {!estOrtho && !estClasses && !estVerbe && !estSciences && !estNuit && !estTerminus && !estOrdre && <TableauStrategies strats={strats} />}
 
         <div className="mt-5 flex flex-col sm:flex-row gap-2.5">

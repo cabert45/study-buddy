@@ -5,7 +5,7 @@ import { EXAMS, dicteeWeekForDate, dicteeActiveOn, daysBetween } from '../data/e
 import { moduleCetteSemaine, moduleSemaineProchaine, titreModule } from '../data/cahierFrancais';
 import { listeCetteSemaine, semaineCourante, cleDictee } from '../data/orthographeQuotidien';
 import { strategiesCetteSemaine, nomsStrategies } from '../data/tablesStrategies';
-import { mathsCetteSemaine, labelMaths } from '../data/mathsSemaines';
+import { mathsDuJour, labelMaths } from '../data/mathsSemaines';
 import { testsAReviser, quandLeTest } from '../data/testsPonctuels';
 import { buildNylaPlan } from '../data/nylaPlanQuotidien';
 import { chargerAvancement, marquerEtape, estFini, estCommence, prochaineEtape, joursFaits } from '../utils/coachAvancement';
@@ -150,6 +150,10 @@ function remiseDeLaSemaine(today) {
     jours,
     quoi: `feuille Liste ${liste.numero} + feuille de maths`,
     quand: jours === 0 ? "aujourd'hui" : jours === 1 ? 'demain' : `dans ${jours} jours`,
+    // Feuille du 16 nov.: le jeudi 19, c'est la DICTÉE de la liste 9, pas
+    // une feuille à remettre (`remiseDictee` sur la semaine).
+    dictee: !!w.remiseDictee,
+    numero: liste.numero,
   };
 }
 
@@ -174,7 +178,7 @@ function buildRentreePlan(today) {
   const cahier = cahierStep(ref, isWeekend ? 6 : 7);
   // Les maths suivent la feuille, elles aussi (data/mathsSemaines): la
   // décomposition jusqu'au 9 octobre, l'heure à partir du 12.
-  const maths = mathsCetteSemaine(ref);
+  const maths = mathsDuJour(ref);
   const mathsLabel = labelMaths(maths);
 
   // Un test annonce sur la feuille (data/testsPonctuels) s'AJOUTE au plan de
@@ -269,7 +273,10 @@ function buildRentreePlan(today) {
   // Coach et le premier exercice est là. Un message n'apparaît que si la
   // feuille se remet aujourd'hui ou demain — là, ça vaut l'interruption.
   const rappelRemise = remise && remise.jours <= 1 && !isWeekend
-    ? [{ type: 'message', label: `📌 La feuille (${remise.quoi}) se remet ${remise.quand}!`, mins: 1, icon: '📌' }]
+    ? [{ type: 'message', mins: 1, icon: '📌',
+      label: remise.dictee
+        ? `📌 Dictée de la liste ${remise.numero} ${remise.quand}!`
+        : `📌 La feuille (${remise.quoi}) se remet ${remise.quand}!` }]
     : [];
 
   // Lecture: 15 min par jour, c'est la première ligne de la feuille de

@@ -55,7 +55,8 @@ function marqueursDuJour(date) {
   });
 
   const sem = semaineCourante(date);
-  if (sem && sem.remise && memeJour(dateOf(sem.remise), date)) {
+  // (Semaine du 16 nov.: le jeudi, c'est la dictée seulement — pas de feuille.)
+  if (sem && sem.remise && !sem.remiseDictee && memeJour(dateOf(sem.remise), date)) {
     const l = listeCetteSemaine(date);
     m.push({ kind: 'remise', icon: '📌', label: `Remise — feuille liste ${l.numero} + feuille de maths` });
   }

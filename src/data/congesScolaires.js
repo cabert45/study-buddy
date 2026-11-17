@@ -10,4 +10,5 @@
 export const CONGES = [
   { date: [2026, 10, 12], nom: 'Congé — Action de grâce' },
   { date: [2026, 11, 2], nom: 'Journée pédagogique' }, // feuille du 2 au 6 nov.
+  { date: [2026, 11, 20], nom: 'Journée pédagogique' }, // feuille du 16 au 20 nov.
 ];

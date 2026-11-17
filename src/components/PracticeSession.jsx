@@ -30,6 +30,9 @@ import { generatePresentIndicatif } from '../generators/presentIndicatif';
 import { generateFractions } from '../generators/fractions';
 import { generateSuites } from '../generators/suites';
 import { generateMultDiv } from '../generators/multDiv';
+import { generateSoustractionGrands } from '../generators/soustractionGrands';
+import { generateSensMultiplication } from '../generators/sensMultiplication';
+import { generateFemininNoms } from '../generators/femininNoms';
 import { generateRepresenter } from '../generators/representer';
 import { generateFigures } from '../generators/figures';
 import { generateMesure } from '../generators/mesure';
@@ -84,7 +87,7 @@ import { saveSession } from '../utils/storage';
 import { modeTape, memeReponse, diagnosticTape } from '../utils/reponseTapee';
 import { incrementStudyRounds } from '../utils/studyRounds';
 import { getLevel, recordSession, aideProblemes, NIVEAU_LABELS } from '../utils/mastery';
-import AideMemoire from './AideMemoire';
+import AideMemoire, { FICHES } from './AideMemoire';
 import { notifySessionResult } from '../utils/notifications';
 import { speak, speakSlow, speakMotFrancais } from '../utils/speech';
 import TensOnes from './TensOnes';
@@ -259,6 +262,10 @@ function getGenerator(mode) {
     case 'strategies': return generateStrategies;
     case 'matcha_nombres': return generateMatchaNombres;
     case 'matcha_ordre': return generateMatchaOrdre;
+    // Feuille du 16 au 20 nov.: Matcha p. 22 et p. 23, Jazz p. 9.
+    case 'soustraction_grands': return generateSoustractionGrands;
+    case 'sens_multiplication': return generateSensMultiplication;
+    case 'feminin_noms': return generateFemininNoms;
     case 't1_revision': return generateT1Revision;
     case 'francais_mix':
       // Weighted by Ryan's French exam results:
@@ -357,6 +364,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
   // questions: on ne mémorise pas ce qu'on ne nous a pas montré.
   const aMemoire = mode === 'orthographe' || mode === 'strategies' || mode === 'calcul_rapide_tables' || mode === 'quatre_classes'
     || mode === 'sciences_queue' || mode === 'sciences_nuit' || mode === 'sciences_nuit_defi' || mode === 'us_iroquoiens' || mode === 'matcha_ordre'
+    || !!FICHES[mode]
     || (typeof mode === 'string' && mode.startsWith('verbe_semaine'));
   const [memoireOuvert, setMemoireOuvert] = useState(aMemoire);
   const [memoireVu, setMemoireVu] = useState(false);
@@ -766,7 +774,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
           {aMemoire && (
             <button onClick={() => setMemoireOuvert(true)}
               className="text-xs font-bold text-lava bg-orange-50 border border-orange-200 rounded-lg px-2.5 py-1 hover:bg-orange-100">
-              📋 {mode === 'orthographe' ? 'La liste' : mode === 'quatre_classes' ? 'Les 4 sortes' : String(mode).startsWith('verbe_semaine') ? 'Mon verbe' : mode === 'sciences_queue' || mode === 'sciences_nuit' || mode === 'sciences_nuit_defi' || mode === 'us_iroquoiens' || mode === 'matcha_ordre' ? 'Ma fiche' : 'Le tableau'}
+              📋 {mode === 'orthographe' ? 'La liste' : mode === 'quatre_classes' ? 'Les 4 sortes' : String(mode).startsWith('verbe_semaine') ? 'Mon verbe' : mode === 'sciences_queue' || mode === 'sciences_nuit' || mode === 'sciences_nuit_defi' || mode === 'us_iroquoiens' || mode === 'matcha_ordre' || FICHES[mode] ? 'Ma fiche' : 'Le tableau'}
             </button>
           )}
           <div className="text-sm font-bold text-s4">
@@ -827,6 +835,9 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
           {question.category === 'fractions' && 'Fractions'}
           {question.category === 'suites' && 'Suites et régularités'}
           {question.category === 'mult_div' && 'Multiplication & Division'}
+          {question.category === 'soustraction_grands' && 'Soustraction de grands nombres'}
+          {question.category === 'sens_multiplication' && 'Le sens de la multiplication'}
+          {question.category === 'feminin_noms' && 'Le féminin des noms'}
           {question.category === 'representer' && 'Représenter un nombre'}
           {question.category === 'figures' && 'Figures planes & solides'}
           {question.category === 'mesure' && 'Mesure en centimètres'}

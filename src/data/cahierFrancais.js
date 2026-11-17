@@ -43,7 +43,7 @@ export const CAHIER_THEMES = [
     id: 't3', numero: 3, titre: 'Rétro, info, vieillot!', page: 76,
     modules: [
       { id: 't3_cles1', label: "Des clés — L'ordre des idées", pages: '78', notions: ["L'ordre des idées"], mode: null },
-      { id: 't3m1', numero: 1, lecture: "L'automobile · La Ford T", pages: '80-87', notions: ['Le féminin des noms', 'Voc en vrac'], mode: 'pluriels_ryan' },
+      { id: 't3m1', numero: 1, lecture: "L'automobile · La Ford T", pages: '80-87', notions: ['Le féminin des noms', 'Voc en vrac'], mode: 'feminin_noms' },
       { id: 't3m2', numero: 2, lecture: 'La télévision de grand-papa', pages: '88-95', notions: ['Le pluriel des noms', 'Voc en vrac'], mode: 'pluriels_ryan' },
       { id: 't3_cles2', label: 'Des clés — Les mots de substitution', pages: '96', notions: ['Mots de substitution'], mode: null },
       { id: 't3m3', numero: 3, lecture: "D'hier à aujourd'hui · Les pets-de-sœurs", pages: '98-103', notions: ["Le verbe à l'infinitif"], mode: 'infinitif' },
@@ -105,6 +105,11 @@ export const CAHIER_SEMAINES = [
   // Feuille du 9 au 13 nov.: « L'accord des mots dans un GN, aide-mémoire
   // Jazz p. 9 » — c'est le module t2m4 du cahier, mot pour mot.
   { debut: [2026, 11, 9], module: 't2m4', confirme: true },
+  // Feuille du 16 au 20 nov.: « Le féminin des noms: règle générale:
+  // aide-mémoire Jazz p. 9 » — module t3m1 (« L'automobile · La Ford T »,
+  // notion « Le féminin des noms »). Le devoir: lire le texte des p. 70-71
+  // (t2m5, « Les lunettes magiques ») et en rédiger un court résumé — sur papier.
+  { debut: [2026, 11, 16], module: 't3m1', confirme: true },
 ];
 
 const moduleIndex = {};

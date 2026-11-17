@@ -310,7 +310,13 @@ export const LISTE_SEMAINES = [
   { debut: [2026, 11, 9], liste: 'l8', confirme: true,
     verbe: 'aller, aimer, finir, avoir et être au présent',
     verbeCle: 'aller_present+aimer_present+finir_present+avoir_present+etre_present' },
-  { debut: [2026, 11, 16], liste: 'l9' },
+  // « Plan de travail, semaine du 16 au 20 novembre 2026 »: liste 9, dictée
+  // le JEUDI 19 (vendredi 20 = journée pédagogique). Conjugaison: encore
+  // « aller, aimer, finir, avoir et être au présent de l'indicatif » — PAS
+  // « avoir à l'imparfait » comme la liste 9 l'annonce dans le cartable.
+  { debut: [2026, 11, 16], liste: 'l9', remise: [2026, 11, 19], remiseDictee: true, confirme: true,
+    verbe: 'aller, aimer, finir, avoir et être au présent',
+    verbeCle: 'aller_present+aimer_present+finir_present+avoir_present+etre_present' },
   { debut: [2026, 11, 23], liste: 'l10' },
 ];
 
