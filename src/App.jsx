@@ -51,6 +51,7 @@ import NylaAddition from './components/NylaAddition';
 import NylaCompare from './components/NylaCompare';
 import NylaTuteur from './components/NylaTuteur';
 import DicteeOrale from './components/DicteeOrale';
+import LectureHaute from './components/LectureHaute';
 
 export default function App() {
   const guest = isGuest(); // camarade de classe via /laval: jamais les profils de la famille
@@ -124,6 +125,14 @@ export default function App() {
     // Le tuteur parlant a son propre ecran (micro + voix), pas une serie de
     // questions a choix multiples.
     // La dictee a voix haute a son propre ecran (micro + voix).
+    // « Écoute, puis lis » (22 nov.): son propre écran (voix + micro). Le
+    // contexte du Coach est gardé: c'est la fin des QUESTIONS qui coche l'étape.
+    if (typeof selectedMode === 'string' && selectedMode.startsWith('lecture_haute:')) {
+      setFlashcardWeek(null); setNylaDeck(null);
+      setMode(selectedMode);
+      setScreen('lecturehaute');
+      return;
+    }
     if (selectedMode === 'dictee_orale') {
       setFlashcardWeek(null); setMode(null); setNylaDeck(null);
       setScreen('dicteeorale');
@@ -410,6 +419,10 @@ export default function App() {
       {screen === 'nylacompare' && <NylaCompare onHome={goHome} />}
       {screen === 'nylatuteur' && <NylaTuteur onHome={goHome} onFinish={goHome} />}
       {screen === 'dicteeorale' && <DicteeOrale onHome={goHome} onFinish={goHome} />}
+      {screen === 'lecturehaute' && (
+        <LectureHaute id={String(mode || '').split(':')[1]} onHome={goHome}
+          onStartPractice={(m) => startPractice(m, venuDuCoach)} />
+      )}
       {nylaDeck && screen === 'menu' && (
         <NylaFlashcard
           deck={nylaDeck}

@@ -331,13 +331,12 @@ function buildRentreePlan(today) {
       { type: 'app', mode: 'dictee_liste', label: `🎧 Dictée — Liste ${liste.numero}`, mins: 7, icon: '🎧' },
       { ...deuxieme, mins: 12 },
       { ...verbeStep, mins: 8 },
-      ...(devoirLecture ? [{ ...devoirLecture, mins: 10 }] : []),
       { type: 'break', label: 'Pause + collation 🍎', mins: 10, icon: '🍎' },
       { type: 'app', mode: maths.mode, label: mathsLabel, mins: 18, icon: '📘' },
       testStep ? { ...testStep, mins: 15 } : { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 15, icon: '🧩' },
       ...(testStep2 ? [{ ...testStep2, mins: 12 }] : []),
       { type: 'app', mode: 'calcul_rapide_3', label: '⚡ Calcul rapide 3 chiffres', mins: 10, icon: '⚡' },
-      lecture(20),
+      devoirLecture ? { ...devoirLecture, mins: 20 } : lecture(20),
       fin,
     ];
   }
@@ -350,10 +349,12 @@ function buildRentreePlan(today) {
     { ...deuxieme, mins: 8 },
     { type: 'app', mode: maths.mode, label: mathsLabel, mins: 11, icon: '📘' },
     { ...verbeStep, mins: 6 },
-    // Le devoir de lecture prend la place des problèmes à étapes (même heure).
-    testStep ? { ...testStep, mins: 8 } : devoirLecture ? { ...devoirLecture, mins: 7 } : { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 5, icon: '🧩' },
+    testStep ? { ...testStep, mins: 8 } : { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 5, icon: '🧩' },
     ...(testStep2 ? [{ ...testStep2, mins: 8 }] : []),
-    lecture(20), // 20 min demandees par le parent — la feuille de l ecole en demande 15
+    // La lecture de la semaine EST le texte de la feuille quand il y en a un
+    // (« Relis attentivement le texte aux pages 56 et 57 »): écoute, lis au
+    // micro, puis les questions — à la place de Boukili, jusqu'au jeudi.
+    devoirLecture ? { ...devoirLecture, mins: 20 } : lecture(20), // 20 min demandees par le parent — la feuille de l ecole en demande 15
     fin,
   ];
 }

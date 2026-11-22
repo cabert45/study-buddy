@@ -148,6 +148,7 @@ const grade3FrenchModes = [
   { id: 'dictee_orale', label: '🎙️ Dictée à voix haute', desc: 'Épelle les mots tout haut — le coach t’écoute' },
   { id: 'cahier_jazz', label: '📒 Mon cahier Jazz', desc: 'Ce que tu fais en classe — et un pas d\'avance', featured: true, groupKind: 'cahier' },
   // Feuille du 16 au 20 nov. 2026: « Le féminin des noms: règle générale », Jazz p. 9.
+  { id: 'lecture_haute:monstre_du_lac', label: 'Écoute, puis lis: Le monstre du lac', desc: "L'app lit l'histoire, puis tu la lis au micro — elle vérifie chaque mot", badge: 'Cette semaine' },
   { id: 'monstre_du_lac', label: 'Le monstre du lac (Jazz p. 56-57)', desc: 'Qui? Quoi? Où? + les marqueurs de relation — le devoir de lecture', badge: 'Cette semaine' },
   { id: 'feminin_noms', label: 'Le féminin des noms', desc: 'un ami → une amie · un élève → une élève', badge: 'Révision' },
   // Remise le 25 sept. — elle reste pour la révision, mais elle n'est plus à
@@ -166,8 +167,6 @@ const grade3FrenchModes = [
   { id: 't1_revision', label: '📝 Classes de mots', desc: 'Nom, déterminant, adjectif, verbe, pronom — Thème 1', badge: 'En classe' },
   { id: 'francais_mix', label: 'Mix Français', desc: 'Grammaire, verbes, adjectifs' },
   { id: 'passe_compose', label: '⏪ Passé composé', desc: 'Auxiliaire être/avoir — 9/17 au dernier examen', badge: 'Priorité' },
-  { id: 'present_indicatif', label: '✏️ Présent — 1er groupe', desc: 'je chante, tu chantes...' },
-  { id: 'futur_simple', label: '➡️ Futur simple', desc: 'Verbes -er au futur' },
   { id: 'homophones', label: '🔀 Homophones', desc: 'a/à · et/est · son/sont · ont/on' },
   { id: 'pluriels_ryan', label: '🔤 Pluriel & Féminin', desc: 'chevaux, gâteaux, heureuse, première...' },
   { id: 'adjectif', label: '🎨 Adjectifs', desc: 'Accord en genre et en nombre' },
