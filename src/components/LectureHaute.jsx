@@ -197,7 +197,11 @@ export default function LectureHaute({ id = 'monstre_du_lac', morceau: morceauIn
           <p className="text-sm font-semibold text-s4 mb-3">Suis avec ton doigt la phrase en jaune. Écoute comment on fait les pauses aux virgules et aux points, et la voix qui change quand un personnage parle. Touche une phrase pour la réentendre.</p>
           <div className="bg-white border-2 border-s1 rounded-3xl p-4 sm:p-6 space-y-3">
             {indices.map((p) => [L.paragraphes[p], p]).map(([ph, p]) => (
-              <p key={p} className="text-lg leading-relaxed text-stone">
+              <React.Fragment key={p}>
+              {L.images && L.images[p] && (
+                <img src={L.images[p].src} alt={L.images[p].alt} loading="lazy" className="w-full max-w-md mx-auto rounded-2xl my-2" />
+              )}
+              <p className="text-lg leading-relaxed text-stone">
                 {ph.map((s, i) => (
                   <span key={i} onClick={() => lire([[p, i]])}
                     className={`cursor-pointer rounded px-0.5 ${lecture && lecture[0] === p && lecture[1] === i ? 'bg-yellow-200' : 'hover:bg-orange-50'}`}>
@@ -205,6 +209,7 @@ export default function LectureHaute({ id = 'monstre_du_lac', morceau: morceauIn
                   </span>
                 ))}
               </p>
+              </React.Fragment>
             ))}
           </div>
           <button onClick={() => { couper(); setEtape('lis'); }} className={`${bouton} mt-5 w-full`} style={orange}>
@@ -224,6 +229,9 @@ export default function LectureHaute({ id = 'monstre_du_lac', morceau: morceauIn
             ))}
           </div>
 
+          {L.images && L.images[para] && (
+            <img src={L.images[para].src} alt={L.images[para].alt} loading="lazy" className="w-full max-w-sm mx-auto rounded-2xl mb-3" />
+          )}
           <div className="bg-white border-2 border-s1 rounded-3xl p-4 sm:p-6">
             {!resultat ? (
               <p className="text-xl leading-relaxed text-stone">

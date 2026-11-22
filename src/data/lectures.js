@@ -14,6 +14,16 @@ export const LECTURES = {
     titre: 'Le monstre du lac',
     source: 'Jazz 3e année, p. 56-57 · Stéphanie Gervais, Le monstre du lac (2023)',
     questions: 'monstre_du_lac',
+    // Images originales (le graphiste, 22 nov.), placées AVANT le paragraphe
+    // indiqué. Jamais celles du cahier.
+    images: {
+      0: { src: '/visuels/lectures/monstre-lac-feu.jpg', alt: 'Un grand-père raconte une histoire aux enfants près d’un feu, au bord du lac.' },
+      2: { src: '/visuels/lectures/monstre-lac-camp.jpg', alt: 'Un vieux camp de bûcherons dans la forêt, avec une famille devant.' },
+      7: { src: '/visuels/lectures/monstre-lac-fenetre.jpg', alt: 'Un garçon en pyjama regarde par la fenêtre; ses parents courent vers le lac.' },
+      8: { src: '/visuels/lectures/monstre-lac-creature.jpg', alt: 'Une étrange créature nage dans le lac, la nuit, et laisse un grand sillage.' },
+      9: { src: '/visuels/lectures/monstre-lac-vieil-homme.jpg', alt: 'Le matin, les parents parlent avec un vieil homme autochtone qui montre le lac.' },
+      11: { src: '/visuels/lectures/monstre-lac-couverture.jpg', alt: 'Une fille enroulée dans sa couverture regarde le lac; le grand-père boit son chocolat chaud.' },
+    },
     // Trois morceaux, un par soir (le parent, 22 nov.: « It's such a long
     // text… »). Indices de paragraphes [premier, dernier], et les lignes du cahier.
     morceaux: [

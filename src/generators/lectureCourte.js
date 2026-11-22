@@ -23,10 +23,11 @@ function shuffle(arr) {
 const TEXTES = [
   {
     titre: 'La tempête de neige',
-    texte: "Samedi matin, Félix ouvre les rideaux de sa chambre. Toute la cour est blanche! Il enfile vite son habit de neige et ses mitaines. Puis, il court chez sa voisine Rosalie. Les deux amis construisent un énorme fort derrière la maison. Quand maman les appelle pour le dîner, Félix a les joues rouges et un grand sourire.",
+    image: '/visuels/lectures/court-tempete-neige.jpg',
+    texte: "Samedi matin, Félix ouvre les rideaux de sa chambre. Toute la cour est blanche! Il enfile vite son habit de neige et ses mitaines. Puis, il court chez sa voisine Rosalie. Les deux amis construisent un énorme fort devant la maison. Quand maman les appelle pour le dîner, Félix a les joues rouges et un grand sourire.",
     q: [
       { t: 'qui', q: 'Qui construit le fort avec Félix?', c: 'Rosalie, sa voisine', o: ['Rosalie, sa voisine', 'sa maman', 'son frère', 'son chien'], w: '« il court chez sa voisine Rosalie. Les deux amis construisent… »' },
-      { t: 'ou', q: 'Où construisent-ils le fort?', c: 'derrière la maison', o: ['derrière la maison', 'à l’école', 'au parc', 'dans la chambre'], w: '« un énorme fort derrière la maison »' },
+      { t: 'ou', q: 'Où construisent-ils le fort?', c: 'devant la maison', o: ['devant la maison', 'à l’école', 'au parc', 'dans la chambre'], w: '« un énorme fort devant la maison »' },
       { t: 'quoi', q: 'Que se passe-t-il dans ce texte?', c: 'Félix et Rosalie jouent dans la neige et construisent un fort.', o: ['Félix et Rosalie jouent dans la neige et construisent un fort.', 'Félix est malade et reste au lit.', 'Félix va à l’école en autobus.', 'Rosalie déménage dans une autre ville.'], w: 'Quelqu’un (Félix et Rosalie) + fait (construisent) + quelque chose (un fort dans la neige).' },
       { t: 'marqueur', q: '« Puis, il court chez sa voisine Rosalie. »\nQuel mot est le marqueur de relation?', c: 'Puis', o: ['Puis', 'court', 'voisine', 'Rosalie'], w: 'PUIS dit ce qui vient ensuite: il s’habille, PUIS il court chez Rosalie.' },
       { t: 'inference', q: 'Comment se sent Félix à la fin?', c: 'content', o: ['content', 'triste', 'fâché', 'malade'], w: 'L’indice: « un grand sourire ». Les joues rouges, c’est le froid.' },
@@ -34,6 +35,7 @@ const TEXTES = [
   },
   {
     titre: 'Le chiot perdu',
+    image: '/visuels/lectures/court-chiot.jpg',
     texte: "Après l’école, Maya entend des petits cris près de la clôture du parc. Elle s’approche doucement et découvre un chiot tout mouillé. Il tremble et il n’a pas de collier. Maya l’enveloppe dans son foulard et l’apporte à la maison. Papa appelle la clinique vétérinaire du quartier, mais personne n’a perdu de chien. Alors, Maya demande: « Est-ce qu’on peut le garder? »",
     q: [
       { t: 'qui', q: 'Qui trouve le chiot?', c: 'Maya', o: ['Maya', 'Papa', 'le vétérinaire', 'son professeur'], w: '« Maya entend des petits cris… et découvre un chiot »' },
@@ -45,6 +47,7 @@ const TEXTES = [
   },
   {
     titre: 'La cabane à sucre',
+    image: '/visuels/lectures/court-cabane-sucre.jpg',
     texte: "Au printemps, la classe de Mme Lavoie visite une cabane à sucre. D’abord, monsieur Gagnon montre comment on récolte l’eau d’érable. Ensuite, il fait bouillir l’eau longtemps pour la transformer en sirop. Les élèves goûtent la tire sur la neige. Léa en prend trois bâtons! Dans l’autobus du retour, presque tous les enfants dorment.",
     q: [
       { t: 'qui', q: 'Qui explique comment on fait le sirop?', c: 'monsieur Gagnon', o: ['monsieur Gagnon', 'Mme Lavoie', 'Léa', 'le chauffeur'], w: '« monsieur Gagnon montre comment on récolte l’eau d’érable »' },
@@ -56,6 +59,7 @@ const TEXTES = [
   },
   {
     titre: 'Le match de hockey',
+    image: '/visuels/lectures/court-hockey.jpg',
     texte: "Ce soir, les Castors jouent la finale à l’aréna. Noah est le gardien de but de l’équipe. Ses mains sont moites et son cœur bat très fort. Au troisième tiers, un joueur adverse lance la rondelle de toutes ses forces. Noah plonge et l’attrape avec sa mitaine! La foule crie et ses coéquipiers sautent sur la glace.",
     q: [
       { t: 'qui', q: 'Qui est le gardien de but?', c: 'Noah', o: ['Noah', 'un joueur adverse', 'l’entraîneur', 'la foule'], w: '« Noah est le gardien de but de l’équipe »' },
@@ -67,6 +71,7 @@ const TEXTES = [
   },
   {
     titre: 'Le gâteau raté',
+    image: '/visuels/lectures/court-gateau.jpg',
     texte: "Pour la fête de sa mère, Samuel veut préparer un gâteau au chocolat. Il mélange la farine, les œufs et le sucre dans un grand bol. Pendant que le gâteau cuit, il joue à un jeu vidéo dans le salon. Tout à coup, une odeur de brûlé remplit la cuisine! Samuel court ouvrir le four. Le gâteau est tout noir. Il baisse la tête, les yeux pleins d’eau.",
     q: [
       { t: 'qui', q: 'Pour qui Samuel prépare-t-il le gâteau?', c: 'pour sa mère', o: ['pour sa mère', 'pour son ami', 'pour lui-même', 'pour son professeur'], w: '« Pour la fête de sa mère… »' },
@@ -78,6 +83,7 @@ const TEXTES = [
   },
   {
     titre: 'La sortie au musée',
+    image: '/visuels/lectures/court-musee.jpg',
     texte: "Jeudi, la classe de Ryan visite le musée des dinosaures, à Montréal. Dans la grande salle, un squelette de tyrannosaure touche presque le plafond. Zoé recule de deux pas. « Il est mort depuis des millions d’années », lui dit le guide en souriant. Ensuite, les élèves fouillent dans un bac de sable, comme de vrais paléontologues. Ryan trouve une dent en plastique!",
     q: [
       { t: 'qui', q: 'Qui parle à Zoé en souriant?', c: 'le guide', o: ['le guide', 'Ryan', 'un dinosaure', 'son professeur'], w: '« lui dit le guide en souriant »' },
@@ -89,6 +95,7 @@ const TEXTES = [
   },
   {
     titre: 'Le nouveau voisin',
+    image: '/visuels/lectures/court-voisin.jpg',
     texte: "Un camion de déménagement s’arrête devant la maison d’à côté. Un garçon de l’âge d’Arthur descend avec un ballon de soccer sous le bras. Arthur le regarde par la fenêtre, mais il n’ose pas sortir. Le lendemain, le garçon frappe à sa porte. « Salut! Je m’appelle Karim. Veux-tu jouer au soccer? » Arthur sourit et attrape ses espadrilles.",
     q: [
       { t: 'qui', q: 'Comment s’appelle le nouveau voisin?', c: 'Karim', o: ['Karim', 'Arthur', 'Noah', 'Félix'], w: '« Je m’appelle Karim. »' },
@@ -100,6 +107,7 @@ const TEXTES = [
   },
   {
     titre: 'La panne d’électricité',
+    image: '/visuels/lectures/court-panne.jpg',
     texte: "Pendant le souper, toutes les lumières de la maison s’éteignent d’un coup. Il fait noir comme dans un four! Nina se serre contre son grand-père. Celui-ci allume une lampe de poche, puis il sort des bougies du tiroir. Toute la famille s’installe dans le salon pour jouer aux cartes. Finalement, Nina trouve que c’est la meilleure soirée de la semaine.",
     q: [
       { t: 'qui', q: 'Qui allume la lampe de poche?', c: 'le grand-père de Nina', o: ['le grand-père de Nina', 'Nina', 'sa mère', 'un électricien'], w: '« Nina se serre contre son grand-père. Celui-ci allume une lampe de poche » — CELUI-CI, c’est le grand-père.' },
@@ -111,6 +119,7 @@ const TEXTES = [
   },
   {
     titre: 'Le concours de dessin',
+    image: '/visuels/lectures/court-dessin.jpg',
     texte: "La bibliothèque du quartier organise un concours de dessin sur le thème de l’hiver. Élise dessine un bonhomme de neige avec un foulard rouge. Son frère Thomas, lui, dessine une bataille de boules de neige. Ils remettent leurs dessins vendredi. Une semaine plus tard, la bibliothécaire téléphone: Thomas a gagné le premier prix! Élise le félicite, même si elle aurait aimé gagner, elle aussi.",
     q: [
       { t: 'qui', q: 'Qui gagne le premier prix?', c: 'Thomas', o: ['Thomas', 'Élise', 'la bibliothécaire', 'personne'], w: '« Thomas a gagné le premier prix! »' },
@@ -122,6 +131,7 @@ const TEXTES = [
   },
   {
     titre: 'Le camp de jour',
+    image: '/visuels/lectures/court-camp-jour.jpg',
     texte: "Cet été, Léon va au camp de jour pour la première fois. Le premier matin, il ne connaît personne et il reste près de la porte. Une animatrice s’approche et lui demande son nom. Elle le présente à un groupe qui joue au ballon-chasseur. À midi, Léon mange avec ses nouveaux amis. Le soir, il raconte tout à sa mère, sans même reprendre son souffle!",
     q: [
       { t: 'qui', q: 'Qui aide Léon le premier matin?', c: 'une animatrice', o: ['une animatrice', 'sa mère', 'son frère', 'le directeur'], w: '« Une animatrice s’approche et lui demande son nom »' },
@@ -169,6 +179,8 @@ export function generateLectureCourte() {
     correct: x.c,
     options: shuffle(x.o),
     hint: INDICE[x.t],
+    image: x.T.image,
+    imageAlt: x.T.titre,
     explanation: x.w,
   };
 }
