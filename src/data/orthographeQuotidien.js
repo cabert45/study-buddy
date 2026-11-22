@@ -325,7 +325,9 @@ export const LISTE_SEMAINES = [
     dictee: [2026, 11, 27], confirme: true,
     // Le devoir de lecture (« Le monstre du lac », Jazz p. 56-57): qui, quoi,
     // où, marqueurs de relation — au Coach jusqu'à la vérification de jeudi.
-    devoirLecture: { mode: 'lecture_haute:monstre_du_lac', label: '📖 Le monstre du lac — écoute, lis à voix haute, puis les questions (Jazz p. 56-57)', jusquau: [2026, 11, 26] },
+    devoirLecture: { mode: 'lecture_haute:monstre_du_lac', label: '📖 Le monstre du lac', jusquau: [2026, 11, 26],
+      // Un morceau par soir: lundi 1, mardi 2, mercredi 3, jeudi tout (relecture).
+      morceauxParJour: { 1: 1, 2: 2, 3: 3, 4: 0 } },
     verbe: "aller, aimer, finir, avoir et être au présent + avoir et aimer à l'imparfait",
     verbeCle: 'aller_present+aimer_present+finir_present+avoir_present+etre_present+avoir_imparfait+aimer_imparfait' },
 ];

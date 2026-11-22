@@ -420,7 +420,7 @@ export default function App() {
       {screen === 'nylatuteur' && <NylaTuteur onHome={goHome} onFinish={goHome} />}
       {screen === 'dicteeorale' && <DicteeOrale onHome={goHome} onFinish={goHome} />}
       {screen === 'lecturehaute' && (
-        <LectureHaute id={String(mode || '').split(':')[1]} onHome={goHome}
+        <LectureHaute key={mode} id={String(mode || '').split(':')[1]} morceau={String(mode || '').split(':')[2] || 0} onHome={goHome}
           onStartPractice={(m) => startPractice(m, venuDuCoach)} />
       )}
       {nylaDeck && screen === 'menu' && (

@@ -149,6 +149,7 @@ const grade3FrenchModes = [
   { id: 'cahier_jazz', label: '📒 Mon cahier Jazz', desc: 'Ce que tu fais en classe — et un pas d\'avance', featured: true, groupKind: 'cahier' },
   // Feuille du 16 au 20 nov. 2026: « Le féminin des noms: règle générale », Jazz p. 9.
   { id: 'lecture_haute:monstre_du_lac', label: 'Écoute, puis lis: Le monstre du lac', desc: "L'app lit l'histoire, puis tu la lis au micro — elle vérifie chaque mot", badge: 'Cette semaine' },
+  { id: 'lecture_courte', label: 'Lectures courtes', desc: 'Un petit texte neuf: qui? où? quoi? marqueurs? indices? — 5 minutes', badge: 'Chaque jour' },
   { id: 'monstre_du_lac', label: 'Le monstre du lac (Jazz p. 56-57)', desc: 'Qui? Quoi? Où? + les marqueurs de relation — le devoir de lecture', badge: 'Cette semaine' },
   { id: 'feminin_noms', label: 'Le féminin des noms', desc: 'un ami → une amie · un élève → une élève', badge: 'Révision' },
   // Remise le 25 sept. — elle reste pour la révision, mais elle n'est plus à

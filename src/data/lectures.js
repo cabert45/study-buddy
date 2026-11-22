@@ -14,6 +14,13 @@ export const LECTURES = {
     titre: 'Le monstre du lac',
     source: 'Jazz 3e année, p. 56-57 · Stéphanie Gervais, Le monstre du lac (2023)',
     questions: 'monstre_du_lac',
+    // Trois morceaux, un par soir (le parent, 22 nov.: « It's such a long
+    // text… »). Indices de paragraphes [premier, dernier], et les lignes du cahier.
+    morceaux: [
+      { de: 0, a: 5, lignes: '1 à 21', titre: 'Le vieux camp' },
+      { de: 6, a: 8, lignes: '22 à 35', titre: 'La nuit du monstre' },
+      { de: 9, a: 12, lignes: '36 à 55', titre: 'La légende' },
+    ],
     paragraphes: [
       ['— Ce que je vais vous raconter remonte à très longtemps, à une époque où les téléphones cellulaires, les ordinateurs et les tablettes n\'existaient même pas…'],
       ['— Wow, vraiment? lance Magalie, étonnée.'],

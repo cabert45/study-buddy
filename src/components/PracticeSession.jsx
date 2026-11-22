@@ -33,7 +33,8 @@ import { generateMultDiv } from '../generators/multDiv';
 import { generateSoustractionGrands } from '../generators/soustractionGrands';
 import { generateSensMultiplication } from '../generators/sensMultiplication';
 import { generateSensDivision } from '../generators/sensDivision';
-import { generateMonstreDuLac } from '../generators/monstreDuLac';
+import { generateMonstreDuLac, setMorceauMonstre } from '../generators/monstreDuLac';
+import { generateLectureCourte } from '../generators/lectureCourte';
 import { generateFemininNoms } from '../generators/femininNoms';
 import { generateRepresenter } from '../generators/representer';
 import { generateFigures } from '../generators/figures';
@@ -164,6 +165,11 @@ function getGenerator(mode) {
     setVerbeSemaine(mode.slice('verbe_semaine:'.length));
     return generateVerbeSemaine;
   }
+  // « monstre_du_lac:2 »: les questions du 2e morceau du texte seulement.
+  if (typeof mode === 'string' && mode.startsWith('monstre_du_lac')) {
+    setMorceauMonstre(mode.split(':')[1] || 0);
+    return generateMonstreDuLac;
+  }
   if (typeof mode === 'string' && mode.startsWith('nyla_son:')) {
     setCurrentSon(mode.slice('nyla_son:'.length));
     return generateNyla1reSons;
@@ -269,6 +275,7 @@ function getGenerator(mode) {
     case 'sens_multiplication': return generateSensMultiplication;
     case 'sens_division': return generateSensDivision;
     case 'monstre_du_lac': return generateMonstreDuLac;
+    case 'lecture_courte': return generateLectureCourte;
     case 'feminin_noms': return generateFemininNoms;
     case 't1_revision': return generateT1Revision;
     case 'francais_mix':
@@ -368,7 +375,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
   // questions: on ne mémorise pas ce qu'on ne nous a pas montré.
   const aMemoire = mode === 'orthographe' || mode === 'strategies' || mode === 'calcul_rapide_tables' || mode === 'quatre_classes'
     || mode === 'sciences_queue' || mode === 'sciences_nuit' || mode === 'sciences_nuit_defi' || mode === 'us_iroquoiens' || mode === 'matcha_ordre'
-    || !!FICHES[mode]
+    || !!FICHES[mode] || !!FICHES[String(mode).split(':')[0]]
     || (typeof mode === 'string' && mode.startsWith('verbe_semaine'));
   const [memoireOuvert, setMemoireOuvert] = useState(aMemoire);
   // Les verbes se travaillent DE MÉMOIRE (le parent, 22 nov.): le tableau
@@ -781,7 +788,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
           {aMemoire && !deMemoire && (
             <button onClick={() => setMemoireOuvert(true)}
               className="text-xs font-bold text-lava bg-orange-50 border border-orange-200 rounded-lg px-2.5 py-1 hover:bg-orange-100">
-              📋 {mode === 'orthographe' ? 'La liste' : mode === 'quatre_classes' ? 'Les 4 sortes' : String(mode).startsWith('verbe_semaine') ? 'Mon verbe' : mode === 'sciences_queue' || mode === 'sciences_nuit' || mode === 'sciences_nuit_defi' || mode === 'us_iroquoiens' || mode === 'matcha_ordre' || FICHES[mode] ? 'Ma fiche' : 'Le tableau'}
+              📋 {mode === 'orthographe' ? 'La liste' : mode === 'quatre_classes' ? 'Les 4 sortes' : String(mode).startsWith('verbe_semaine') ? 'Mon verbe' : mode === 'sciences_queue' || mode === 'sciences_nuit' || mode === 'sciences_nuit_defi' || mode === 'us_iroquoiens' || mode === 'matcha_ordre' || FICHES[mode] || FICHES[String(mode).split(':')[0]] ? 'Ma fiche' : 'Le tableau'}
             </button>
           )}
           <div className="text-sm font-bold text-s4">
@@ -846,6 +853,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
           {question.category === 'sens_multiplication' && 'Le sens de la multiplication'}
           {question.category === 'sens_division' && 'Le sens de la division'}
           {question.category === 'monstre_du_lac' && 'Le monstre du lac — Jazz p. 56-57'}
+          {question.category === 'lecture_courte' && 'Lecture courte — qui, où, quoi, indices'}
           {question.category === 'feminin_noms' && 'Le féminin des noms'}
           {question.category === 'representer' && 'Représenter un nombre'}
           {question.category === 'figures' && 'Figures planes & solides'}

@@ -3,6 +3,7 @@ import { speakAndWait, stopSpeech } from '../utils/speech';
 import { ecouterUnTour } from '../utils/micro';
 import { saveSession } from '../utils/storage';
 import { LECTURES, texteDe, voixDe, corrigerLecture } from '../data/lectures';
+import ChasseMarqueurs from './ChasseMarqueurs';
 import { IconVoix, IconMicro, IconRepete, IconCoche, IconFleche, IconPause } from './Icones';
 
 // « Écoute, puis lis » — comme Boukili (le parent, 22 nov. 2026):
@@ -24,16 +25,22 @@ import { IconVoix, IconMicro, IconRepete, IconCoche, IconFleche, IconPause } fro
 // prononciation que la transcription répare toute seule. Elle voit les mots
 // sautés, remplacés, et la vitesse.
 
-export default function LectureHaute({ id = 'monstre_du_lac', onHome, onStartPractice }) {
+export default function LectureHaute({ id = 'monstre_du_lac', morceau: morceauInitial = 0, onHome, onStartPractice }) {
   const L = LECTURES[id];
-  const [etape, setEtape] = useState('ecoute'); // ecoute | lis | fin
+  // Un morceau à la fois (0 = toute l'histoire). Les indices de paragraphes
+  // restent ceux du texte entier: les scores et la voix s'y retrouvent.
+  const [morceau, setMorceau] = useState(Number(morceauInitial) || 0);
+  const M = morceau && L && L.morceaux ? L.morceaux[morceau - 1] : null;
+  const indices = L ? (M ? Array.from({ length: M.a - M.de + 1 }, (_, i) => M.de + i) : L.paragraphes.map((_, i) => i)) : [];
+  const modeQuestions = L ? (M ? `${L.questions}:${morceau}` : L.questions) : '';
+  const [etape, setEtape] = useState('ecoute'); // ecoute | lis | chasse | fin
   const [lecture, setLecture] = useState(null); // [p, s] en cours de lecture
   const [enLecture, setEnLecture] = useState(false);
   // Pause (le parent, 22 nov.): on garde la suite à partir de la phrase en
   // cours, et « Reprendre » repart de cette phrase-là.
   const [pausee, setPausee] = useState(null);
   const suiteRef = useRef({ suite: [], i: 0 });
-  const [para, setPara] = useState(0);
+  const [para, setPara] = useState(indices[0] || 0);
   const [micro, setMicro] = useState('repos'); // repos | ouvert | transcrit
   const [niveau, setNiveau] = useState(0);
   const [resultat, setResultat] = useState(null);
@@ -62,7 +69,7 @@ export default function LectureHaute({ id = 'monstre_du_lac', onHome, onStartPra
     }
     if (seq.current === moi) { setLecture(null); setEnLecture(false); }
   };
-  const tout = () => L.paragraphes.flatMap((ph, p) => ph.map((_, s) => [p, s]));
+  const tout = () => indices.flatMap((p) => L.paragraphes[p].map((_, s) => [p, s]));
   const unPara = (p) => L.paragraphes[p].map((_, s) => [p, s]);
   const couper = () => { seq.current++; stopSpeech(); setLecture(null); setEnLecture(false); setPausee(null); };
   const mettreEnPause = () => {
@@ -116,7 +123,8 @@ export default function LectureHaute({ id = 'monstre_du_lac', onHome, onStartPra
 
   const suivant = () => {
     setResultat(null); setMessage('');
-    if (para + 1 < L.paragraphes.length) setPara(para + 1);
+    const j = indices.indexOf(para);
+    if (j + 1 < indices.length) setPara(indices[j + 1]);
     else terminer();
   };
 
@@ -126,7 +134,7 @@ export default function LectureHaute({ id = 'monstre_du_lac', onHome, onStartPra
     const total = liste.reduce((a, r) => a + r.total, 0);
     const ok = liste.reduce((a, r) => a + r.nbOk, 0);
     if (total) {
-      saveSession(`lecture_haute:${id}`, total, ok, [{ category: 'lecture_haute', correct: ok / total >= 0.9 }]).catch(() => {});
+      saveSession(`lecture_haute:${id}${morceau ? `:${morceau}` : ''}`, total, ok, [{ category: 'lecture_haute', correct: ok / total >= 0.9 }]).catch(() => {});
     }
     setEtape('fin');
   };
@@ -144,15 +152,28 @@ export default function LectureHaute({ id = 'monstre_du_lac', onHome, onStartPra
   return (
     <div className="max-w-3xl mx-auto px-4 pt-4 pb-12">
       <button onClick={() => { couper(); onHome(); }} className="text-s4 font-bold text-sm hover:text-lava">← Menu</button>
-      <h2 className="font-heading text-2xl font-extrabold text-stone mt-2">{L.titre}</h2>
-      <p className="text-xs font-bold text-s4 mb-4">{L.source}</p>
+      <h2 className="font-heading text-2xl font-extrabold text-stone mt-2">{L.titre}{M ? ` — ${M.titre}` : ''}</h2>
+      <p className="text-xs font-bold text-s4 mb-3">{L.source}{M ? ` · lignes ${M.lignes}` : ''}</p>
+      {L.morceaux && (
+        <div className="flex gap-1.5 mb-4 flex-wrap items-center">
+          <span className="text-xs font-extrabold text-s4 uppercase tracking-wide mr-1">Morceau</span>
+          {[...L.morceaux.map((_, i) => i + 1), 0].map((n) => (
+            <button key={n} onClick={() => { couper(); setMorceau(n); setEtape('ecoute'); setResultat(null); setMessage('');
+              const m2 = n ? L.morceaux[n - 1] : null; setPara(m2 ? m2.de : 0); }}
+              className={`px-3 py-1 rounded-full text-sm font-extrabold border-2 ${morceau === n ? 'bg-stone text-white border-stone' : 'bg-white text-stone border-s2'}`}>
+              {n ? n : 'Tout'}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="flex gap-2 mb-5">
         <Onglet k="ecoute" n={1} label="J'écoute" />
         <Onglet k="lis" n={2} label="Je lis" />
-        <button onClick={() => { couper(); onStartPractice(L.questions); }}
+        <Onglet k="chasse" n={3} label="Marqueurs" />
+        <button onClick={() => { couper(); onStartPractice(modeQuestions); }}
           className="flex-1 py-2.5 rounded-xl font-heading font-extrabold text-sm border-2 bg-white text-stone border-s2">
-          3. Les questions
+          4. Questions
         </button>
       </div>
 
@@ -161,9 +182,21 @@ export default function LectureHaute({ id = 'monstre_du_lac', onHome, onStartPra
           <div className="flex flex-wrap gap-2 mb-4">
             <Controles suite={tout()} label="Écouter toute l'histoire" />
           </div>
+          {(morceau === 1 || morceau === 0) && (
+            <div className="rounded-2xl bg-orange-50 border-2 border-orange-200 p-3 mb-3">
+              <p className="font-heading font-extrabold text-fox-d">Avant de lire: devine!</p>
+              <p className="text-sm font-semibold text-stone">Regarde le titre et l'image du cahier. Un monstre dans un lac… Qu'est-ce qui va arriver, d'après toi? Dis-le à voix haute, puis écoute pour savoir si tu avais raison.</p>
+            </div>
+          )}
+          {morceau > 1 && (
+            <div className="rounded-2xl bg-orange-50 border-2 border-orange-200 p-3 mb-3">
+              <p className="font-heading font-extrabold text-fox-d">Hier, dans l'histoire…</p>
+              <p className="text-sm font-semibold text-stone">{morceau === 2 ? "Léo, le grand-père, raconte aux enfants qu'il dormait dans un vieux camp de bûcherons quand il était petit. Qu'est-ce qui va lui arriver une nuit?" : "Une nuit, Léo a vu une étrange créature dans le lac. Ses parents l'ont vue aussi. Qu'est-ce qu'ils vont découvrir?"}</p>
+            </div>
+          )}
           <p className="text-sm font-semibold text-s4 mb-3">Suis avec ton doigt la phrase en jaune. Écoute comment on fait les pauses aux virgules et aux points, et la voix qui change quand un personnage parle. Touche une phrase pour la réentendre.</p>
           <div className="bg-white border-2 border-s1 rounded-3xl p-4 sm:p-6 space-y-3">
-            {L.paragraphes.map((ph, p) => (
+            {indices.map((p) => [L.paragraphes[p], p]).map(([ph, p]) => (
               <p key={p} className="text-lg leading-relaxed text-stone">
                 {ph.map((s, i) => (
                   <span key={i} onClick={() => lire([[p, i]])}
@@ -183,7 +216,7 @@ export default function LectureHaute({ id = 'monstre_du_lac', onHome, onStartPra
       {etape === 'lis' && (
         <>
           <div className="flex items-center gap-1.5 mb-3 flex-wrap">
-            {L.paragraphes.map((_, p) => (
+            {indices.map((p) => (
               <button key={p} onClick={() => { couper(); setPara(p); setResultat(null); setMessage(''); }}
                 className={`w-7 h-7 rounded-full text-xs font-extrabold border-2 ${p === para ? 'border-lava text-lava bg-white' : scores[p] ? (scores[p].pct >= 90 ? 'bg-green-500 border-green-500 text-white' : 'bg-amber-400 border-amber-400 text-white') : 'bg-white border-s2 text-s4'}`}>
                 {p + 1}
@@ -240,12 +273,17 @@ export default function LectureHaute({ id = 'monstre_du_lac', onHome, onStartPra
               </button>
               {resultat && (
                 <button onClick={suivant} className={`${bouton} bg-stone sm:col-span-2`}>
-                  {para + 1 < L.paragraphes.length ? <>Paragraphe suivant <IconFleche size={20} /></> : <>J'ai fini l'histoire <IconCoche size={20} /></>}
+                  {indices.indexOf(para) + 1 < indices.length ? <>Paragraphe suivant <IconFleche size={20} /></> : <>{M ? "J'ai fini ce morceau" : "J'ai fini l'histoire"} <IconCoche size={20} /></>}
                 </button>
               )}
             </div>
           )}
         </>
+      )}
+
+      {etape === 'chasse' && (
+        <ChasseMarqueurs key={morceau} paragraphes={indices.map((p) => L.paragraphes[p])}
+          onFini={() => { couper(); onStartPractice(modeQuestions); }} />
       )}
 
       {etape === 'fin' && (() => {
@@ -255,15 +293,15 @@ export default function LectureHaute({ id = 'monstre_du_lac', onHome, onStartPra
         const mpms = liste.map((r) => r.mpm).filter(Boolean);
         return (
           <div className="bg-white border-2 border-s1 rounded-3xl p-6 text-center">
-            <p className="font-heading text-2xl font-extrabold text-stone mb-2">Tu as lu l'histoire!</p>
+            <p className="font-heading text-2xl font-extrabold text-stone mb-2">{M ? `Tu as lu le morceau ${morceau}!` : "Tu as lu l'histoire!"}</p>
             {total > 0 && (
               <p className="font-semibold text-s4 mb-4">
-                {ok} mots lus sur {total} ({Math.round((ok / total) * 100)} %) · {liste.length} paragraphes sur {L.paragraphes.length}
+                {ok} mots lus sur {total} ({Math.round((ok / total) * 100)} %) · {liste.length} paragraphes sur {indices.length}
                 {mpms.length ? ` · environ ${Math.round(mpms.reduce((a, b) => a + b, 0) / mpms.length)} mots par minute` : ''}
               </p>
             )}
-            <button onClick={() => onStartPractice(L.questions)} className={`${bouton} w-full`} style={orange}>
-              Maintenant, les questions <IconFleche size={20} />
+            <button onClick={() => setEtape('chasse')} className={`${bouton} w-full`} style={orange}>
+              Maintenant, la chasse aux marqueurs <IconFleche size={20} />
             </button>
           </div>
         );

@@ -401,6 +401,38 @@ function FicheDivision() {
   );
 }
 
+// La méthode des 4 questions (le parent, 22 nov.: « Ryan is not good at
+// this… how can we help him get to this level? »). Une recette par question,
+// toujours la même, avec des exemples du texte de la semaine.
+function FicheLecture() {
+  const ligne = (titre, couleur, recette, exemple) => (
+    <div className="rounded-xl bg-white border-2 p-3" style={{ borderColor: couleur }}>
+      <p className="font-heading font-extrabold text-base" style={{ color: couleur }}>{titre}</p>
+      <p className="text-sm font-semibold text-stone leading-snug">{recette}</p>
+      <p className="text-xs font-bold text-s4 mt-1">{exemple}</p>
+    </div>
+  );
+  return (
+    <>
+      <div className="flex items-baseline gap-2 mb-1 flex-wrap">
+        <span className="text-xs font-extrabold bg-stone text-white rounded-md px-2 py-1">LECTURE</span>
+        <span className="font-heading text-lg font-extrabold text-stone leading-tight">Ma méthode de détective</span>
+      </div>
+      <p className="text-xs font-bold text-s4 mb-3">Pour chaque question, je RETOURNE dans le texte. La réponse est écrite quelque part!</p>
+      <div className="grid gap-2.5 sm:grid-cols-2">
+        {ligne('QUI?', '#c74a15', 'Je cherche les noms avec une majuscule. Qui parle? Je regarde après le tiret (—).', 'Léo, Magalie, Alexandra, Yolande')}
+        {ligne('OÙ?', '#2563eb', 'Je cherche les mots de lieu.', 'le lac, le chalet, le camp, la forêt, la fenêtre')}
+        {ligne('QUOI?', '#16a34a', 'Je dis une phrase: Quelqu’un + voit / fait / veut + quelque chose.', '« Léo voit un monstre dans le lac. »')}
+        {ligne('ENTRE LES LIGNES', '#7c3aed', 'Je cherche les indices et je dis: « Je pense que… PARCE QUE le texte dit… »', '« Magalie a peur parce que le texte dit qu’elle frissonne. »')}
+      </div>
+      <div className="mt-3 rounded-xl bg-orange-50 border-2 border-orange-200 p-3">
+        <p className="text-sm font-extrabold text-fox-d">LES MARQUEURS DE RELATION</p>
+        <p className="text-sm font-semibold text-stone">Les petits mots qui RELIENT les idées: <b>et</b> · <b>puis</b> · <b>alors</b> · <b>de plus</b> · <b>c’est-à-dire</b> · <b>mais</b> · <b>ensuite</b></p>
+      </div>
+    </>
+  );
+}
+
 function FicheFeminin() {
   return (
     <>
@@ -444,6 +476,8 @@ export const FICHES = {
   soustraction_grands: FicheSoustraction,
   sens_multiplication: FicheMultiplication,
   sens_division: FicheDivision,
+  monstre_du_lac: FicheLecture,
+  lecture_courte: FicheLecture,
   feminin_noms: FicheFeminin,
 };
 
@@ -670,7 +704,7 @@ export default function AideMemoire({ mode, onStart, onClose, dejaCommence, list
   const estTerminus = mode === 'us_iroquoiens';
   // estOrdre couvre aussi les fiches de FICHES: elles se comportent pareil
   // (« Ma fiche », pas de liste ni de stratégies).
-  const FicheSimple = FICHES[mode] || null;
+  const FicheSimple = FICHES[mode] || FICHES[String(mode || '').split(':')[0]] || null;
   const estOrdre = mode === 'matcha_ordre' || !!FicheSimple;
   // Par defaut la liste de la semaine. `listeNumero` sert quand on revient sur
   // une liste deja vue (revision) : la page du cahier doit montrer CES mots-la,

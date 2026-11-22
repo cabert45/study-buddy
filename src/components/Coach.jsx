@@ -304,8 +304,12 @@ function buildRentreePlan(today) {
   // du texte au Coach, jusqu'au jour de la vérification inclus.
   const semDevoir = semaineCourante(ref);
   const dl = semDevoir && semDevoir.devoirLecture;
+  const morceauDuJour = dl && dl.morceauxParJour ? (dl.morceauxParJour[ref.getDay()] ?? 0) : 0;
   const devoirLecture = dl && ref <= new Date(dl.jusquau[0], dl.jusquau[1] - 1, dl.jusquau[2], 23, 59)
-    ? { type: 'app', mode: dl.mode, label: dl.label, icon: '📖' }
+    ? { type: 'app', mode: morceauDuJour ? `${dl.mode}:${morceauDuJour}` : dl.mode, icon: '📖',
+      label: morceauDuJour
+        ? `${dl.label} — morceau ${morceauDuJour} sur 3: écoute, lis, chasse aux marqueurs, questions`
+        : `${dl.label} — toute l'histoire: je relis, puis les questions` }
     : null;
 
   const lecture = (mins) => ({
@@ -354,7 +358,13 @@ function buildRentreePlan(today) {
     // La lecture de la semaine EST le texte de la feuille quand il y en a un
     // (« Relis attentivement le texte aux pages 56 et 57 »): écoute, lis au
     // micro, puis les questions — à la place de Boukili, jusqu'au jeudi.
-    devoirLecture ? { ...devoirLecture, mins: 20 } : lecture(20), // 20 min demandees par le parent — la feuille de l ecole en demande 15
+    // Sans texte de la feuille (à partir du 27 nov.): 5 minutes de lecture
+    // courte (qui, où, quoi, marqueurs, indices) + 15 minutes de Boukili —
+    // la feuille demande 15 à 20 minutes, la compréhension se travaille chaque jour.
+    ...(devoirLecture ? [{ ...devoirLecture, mins: 20 }]
+      : ref >= new Date(2026, 10, 27)
+        ? [{ type: 'app', mode: 'lecture_courte', label: '📖 Lecture courte — qui? où? quoi? indices?', mins: 5, icon: '📖' }, lecture(15)]
+        : [lecture(20)]), // 20 min demandees par le parent — la feuille de l ecole en demande 15
     fin,
   ];
 }

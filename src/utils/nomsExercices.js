@@ -52,6 +52,7 @@ const NOMS = {
   "sens_multiplication": "Le sens de la multiplication",
   "sens_division": "Le sens de la division",
   "monstre_du_lac": "Le monstre du lac (lecture)",
+  "lecture_courte": "Lecture courte",
   "feminin_noms": "Le féminin des noms",
   "mental": "Mental",
   "mesure": "Mesure en cm",
