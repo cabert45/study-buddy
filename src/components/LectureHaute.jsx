@@ -3,7 +3,7 @@ import { speakAndWait, stopSpeech } from '../utils/speech';
 import { ecouterUnTour } from '../utils/micro';
 import { saveSession } from '../utils/storage';
 import { LECTURES, texteDe, voixDe, corrigerLecture } from '../data/lectures';
-import { IconVoix, IconMicro, IconRepete, IconCoche, IconFleche } from './Icones';
+import { IconVoix, IconMicro, IconRepete, IconCoche, IconFleche, IconPause } from './Icones';
 
 // « Écoute, puis lis » — comme Boukili (le parent, 22 nov. 2026):
 // « make the app read it so that he really understands how to read it, so
@@ -29,6 +29,10 @@ export default function LectureHaute({ id = 'monstre_du_lac', onHome, onStartPra
   const [etape, setEtape] = useState('ecoute'); // ecoute | lis | fin
   const [lecture, setLecture] = useState(null); // [p, s] en cours de lecture
   const [enLecture, setEnLecture] = useState(false);
+  // Pause (le parent, 22 nov.): on garde la suite à partir de la phrase en
+  // cours, et « Reprendre » repart de cette phrase-là.
+  const [pausee, setPausee] = useState(null);
+  const suiteRef = useRef({ suite: [], i: 0 });
   const [para, setPara] = useState(0);
   const [micro, setMicro] = useState('repos'); // repos | ouvert | transcrit
   const [niveau, setNiveau] = useState(0);
@@ -47,8 +51,12 @@ export default function LectureHaute({ id = 'monstre_du_lac', onHome, onStartPra
     stopSpeech();
     const moi = ++seq.current;
     setEnLecture(true);
-    for (const [p, s] of suite) {
+    setPausee(null);
+    suiteRef.current = { suite, i: 0 };
+    for (let k = 0; k < suite.length; k++) {
+      const [p, s] = suite[k];
       if (seq.current !== moi) return;
+      suiteRef.current.i = k;
       setLecture([p, s]);
       await speakAndWait(voixDe(L.paragraphes[p][s]), { rate: 0.85 });
     }
@@ -56,7 +64,29 @@ export default function LectureHaute({ id = 'monstre_du_lac', onHome, onStartPra
   };
   const tout = () => L.paragraphes.flatMap((ph, p) => ph.map((_, s) => [p, s]));
   const unPara = (p) => L.paragraphes[p].map((_, s) => [p, s]);
-  const couper = () => { seq.current++; stopSpeech(); setLecture(null); setEnLecture(false); };
+  const couper = () => { seq.current++; stopSpeech(); setLecture(null); setEnLecture(false); setPausee(null); };
+  const mettreEnPause = () => {
+    const { suite, i } = suiteRef.current;
+    const reste = suite.slice(i);
+    seq.current++; stopSpeech(); setEnLecture(false);
+    setPausee(reste.length ? reste : null);
+  };
+  // Les boutons de la voix: lire / pause / reprendre / arrêter.
+  const Controles = ({ suite, label }) => (enLecture ? (
+    <>
+      <button onClick={mettreEnPause} className={`${bouton} bg-white !text-fox-d border-2 border-orange-200`}><IconPause size={20} /> Pause</button>
+      <button onClick={couper} className={`${bouton} bg-stone`}>■ Arrêter</button>
+    </>
+  ) : pausee ? (
+    <>
+      <button onClick={() => lire(pausee)} className={bouton} style={orange}><IconVoix size={22} /> Reprendre</button>
+      <button onClick={() => lire(suite)} className={`${bouton} bg-white !text-fox-d border-2 border-orange-200`}><IconRepete size={20} /> Recommencer</button>
+    </>
+  ) : (
+    <button onClick={() => lire(suite)} className={`${bouton} ${label.includes('abord') ? 'bg-white !text-fox-d border-2 border-orange-200' : ''}`} style={label.includes('abord') ? undefined : orange}>
+      <IconVoix size={22} /> {label}
+    </button>
+  ));
 
   const lireAuMicro = async () => {
     couper();
@@ -129,13 +159,7 @@ export default function LectureHaute({ id = 'monstre_du_lac', onHome, onStartPra
       {etape === 'ecoute' && (
         <>
           <div className="flex flex-wrap gap-2 mb-4">
-            {!enLecture ? (
-              <button onClick={() => lire(tout())} className={bouton} style={orange}>
-                <IconVoix size={22} /> Écouter toute l'histoire
-              </button>
-            ) : (
-              <button onClick={couper} className={`${bouton} bg-stone`}>■ Arrêter</button>
-            )}
+            <Controles suite={tout()} label="Écouter toute l'histoire" />
           </div>
           <p className="text-sm font-semibold text-s4 mb-3">Suis avec ton doigt la phrase en jaune. Écoute comment on fait les pauses aux virgules et aux points, et la voix qui change quand un personnage parle. Touche une phrase pour la réentendre.</p>
           <div className="bg-white border-2 border-s1 rounded-3xl p-4 sm:p-6 space-y-3">
@@ -210,13 +234,7 @@ export default function LectureHaute({ id = 'monstre_du_lac', onHome, onStartPra
 
           {micro === 'repos' && (
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {!enLecture ? (
-                <button onClick={() => lire(unPara(para))} className={`${bouton} bg-white !text-fox-d border-2 border-orange-200`}>
-                  <IconVoix size={22} /> Écoute d'abord
-                </button>
-              ) : (
-                <button onClick={couper} className={`${bouton} bg-stone`}>■ Arrêter</button>
-              )}
+              <Controles suite={unPara(para)} label="Écoute d'abord" />
               <button onClick={lireAuMicro} className={bouton} style={orange}>
                 {resultat ? <><IconRepete size={22} /> Je relis</> : <><IconMicro size={22} /> Je lis</>}
               </button>
