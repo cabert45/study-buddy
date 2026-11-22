@@ -371,6 +371,9 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
     || !!FICHES[mode]
     || (typeof mode === 'string' && mode.startsWith('verbe_semaine'));
   const [memoireOuvert, setMemoireOuvert] = useState(aMemoire);
+  // Les verbes se travaillent DE MÉMOIRE (le parent, 22 nov.): le tableau
+  // avant de commencer, puis plus de tableau ni d'indice pendant les questions.
+  const deMemoire = typeof mode === 'string' && mode.startsWith('verbe_semaine');
   const [memoireVu, setMemoireVu] = useState(false);
 
   const generate = useCallback(() => getGenerator(mode), [mode]);
@@ -775,7 +778,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
           ← Menu
         </button>
         <div className="flex items-center gap-3">
-          {aMemoire && (
+          {aMemoire && !deMemoire && (
             <button onClick={() => setMemoireOuvert(true)}
               className="text-xs font-bold text-lava bg-orange-50 border border-orange-200 rounded-lg px-2.5 py-1 hover:bg-orange-100">
               📋 {mode === 'orthographe' ? 'La liste' : mode === 'quatre_classes' ? 'Les 4 sortes' : String(mode).startsWith('verbe_semaine') ? 'Mon verbe' : mode === 'sciences_queue' || mode === 'sciences_nuit' || mode === 'sciences_nuit_defi' || mode === 'us_iroquoiens' || mode === 'matcha_ordre' || FICHES[mode] ? 'Ma fiche' : 'Le tableau'}
@@ -1287,7 +1290,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
         )}
 
         {/* Hint button for terme manquant — hidden for Nyla (she can't read it) */}
-        {question.hint && !showHint && !showResult && !(question.category || '').startsWith('nyla') && (
+        {question.hint && !deMemoire && !showHint && !showResult && !(question.category || '').startsWith('nyla') && (
           <button
             onClick={() => setShowHint(true)}
             className="text-sm text-fox font-semibold mb-3 block"
@@ -1295,7 +1298,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
             💡 Indice
           </button>
         )}
-        {showHint && !showResult && (
+        {showHint && !deMemoire && !showResult && (
           <div className="bg-orange-50 rounded-xl p-3 mb-4 text-sm font-semibold text-fox-d border-2 border-orange-200">
             💡 {question.hint}
           </div>

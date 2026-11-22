@@ -171,7 +171,7 @@ const grade3FrenchModes = [
   { id: 'homophones', label: '🔀 Homophones', desc: 'a/à · et/est · son/sont · ont/on' },
   { id: 'pluriels_ryan', label: '🔤 Pluriel & Féminin', desc: 'chevaux, gâteaux, heureuse, première...' },
   { id: 'adjectif', label: '🎨 Adjectifs', desc: 'Accord en genre et en nombre' },
-  { id: 'verbe_semaine', label: '✏️ Mon verbe de la semaine', desc: "Celui de la feuille — surtout au pluriel", badge: 'Cette semaine' },
+  { id: 'verbe_semaine', label: '✏️ Mes verbes', desc: 'Choisis le temps (présent, imparfait) et le verbe — ou tous ensemble', badge: 'Cette semaine' },
   { id: 'groupe_nom', label: '🧱 Groupe du nom', desc: 'GN: dét + nom + adjectif' },
   { id: 'apostrophe', label: "' Apostrophe", desc: "l'ami, j'ai, c'est..." },
   { id: 'm_devant_bmp', label: 'm devant b/m/p', desc: 'tomber, immense, campagne' },
@@ -294,6 +294,8 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
   const launchMode = (id) => {
     if (id === 'biographie_jr_flashcard') return onOpenBioFlashcard && onOpenBioFlashcard();
     if (id === 'verbes_avoir_etre' && onOpenVerbes) return onOpenVerbes();
+    // « Mon verbe »: on CHOISIT le temps et le verbe (le parent, 22 nov.).
+    if (id === 'verbe_semaine') return setVerbesChoixOpen(true);
     if (id === 'univers_social' && onOpenUniversSocial) return onOpenUniversSocial();
     if (id === 'sciences_labo' && onOpenSciences) return onOpenSciences();
     if (id === 'tuteur') return onStartTutor && onStartTutor();
@@ -318,6 +320,9 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
     profile === 'ryan' && new Date() >= new Date(2026, 8, 1) ? 'french' : 'math'
   );
   const [dicteesOpen, setDicteesOpen] = useState(false);
+  const [verbesChoixOpen, setVerbesChoixOpen] = useState(false);
+  const [choixTemps, setChoixTemps] = useState(['present']);
+  const [choixVerbes, setChoixVerbes] = useState(['aller']);
   const [nylaWordsOpen, setNylaWordsOpen] = useState(false);
   const [nylaSonsOpen, setNylaSonsOpen] = useState(false);
   const [cahierOpen, setCahierOpen] = useState(false);
@@ -1043,6 +1048,63 @@ export default function Menu({ profile, onStartPractice, onOpenBlocs, onOpenVerb
           </div>
         </div>
       )}
+
+      {/* « Mon verbe »: choisir le temps et le verbe. Le parent, 22 nov.:
+          « separate the verbs… choose which temps, présent or imparfait, and
+          which one — and the option to put them all together ». */}
+      {verbesChoixOpen && (() => {
+        const NOMS_V = { aller: 'aller', aimer: 'aimer', finir: 'finir', avoir: 'avoir', etre: 'être' };
+        const NOMS_T = { present: 'Présent', imparfait: 'Imparfait' };
+        const basculer = (liste, setListe, x) => setListe(liste.includes(x) ? (liste.length > 1 ? liste.filter((y) => y !== x) : liste) : [...liste, x]);
+        const cles = choixVerbes.flatMap((v) => choixTemps.map((t) => `${v}_${t}`));
+        const pastille = (actif) => `px-4 py-2.5 rounded-xl font-heading font-extrabold text-base border-2 transition-all ${actif ? 'bg-lava text-white border-lava' : 'bg-white text-stone border-s2 hover:border-fox'}`;
+        const feuille = listeCetteSemaine();
+        return (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4"
+            onClick={() => setVerbesChoixOpen(false)}>
+            <div onClick={(e) => e.stopPropagation()}
+              className="bg-cream rounded-2xl p-5 max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl border-2 border-s1">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-heading text-xl font-extrabold text-stone">Mes verbes</h3>
+                <button onClick={() => setVerbesChoixOpen(false)}
+                  className="w-9 h-9 rounded-full bg-white border-2 border-s2 text-s4 font-bold hover:border-lava hover:text-lava">✕</button>
+              </div>
+
+              <p className="text-xs font-extrabold text-s4 uppercase tracking-wide mb-2">1. Le temps</p>
+              <div className="flex flex-wrap gap-2 mb-1">
+                {Object.keys(NOMS_T).map((t) => (
+                  <button key={t} onClick={() => setChoixTemps([t])} className={pastille(choixTemps.length === 1 && choixTemps[0] === t)}>{NOMS_T[t]}</button>
+                ))}
+                <button onClick={() => setChoixTemps(['present', 'imparfait'])} className={pastille(choixTemps.length === 2)}>Les deux</button>
+              </div>
+
+              <p className="text-xs font-extrabold text-s4 uppercase tracking-wide mt-4 mb-2">2. Le verbe (touche-en un ou plusieurs)</p>
+              <div className="flex flex-wrap gap-2 mb-1">
+                {Object.keys(NOMS_V).map((v) => (
+                  <button key={v} onClick={() => basculer(choixVerbes, setChoixVerbes, v)} className={pastille(choixVerbes.includes(v))}>{NOMS_V[v]}</button>
+                ))}
+                <button onClick={() => setChoixVerbes(Object.keys(NOMS_V))} className={pastille(choixVerbes.length === 5)}>Tous</button>
+              </div>
+
+              <div className="mt-4 rounded-xl bg-orange-50 border-2 border-orange-200 p-3 text-sm font-semibold text-fox-d">
+                Le tableau s'affiche AVANT les questions. Une fois commencé: pas de tableau, pas d'indice — de mémoire!
+              </div>
+
+              <button onClick={() => { setVerbesChoixOpen(false); onStartPractice(`verbe_semaine:${cles.join('+')}`); }}
+                className="mt-4 w-full rounded-2xl py-4 font-heading text-lg font-extrabold text-white shadow-sm"
+                style={{ background: 'linear-gradient(90deg, #c74a15, #e8622a)' }}>
+                ▶ {choixVerbes.length === 5 ? 'Tous les verbes' : choixVerbes.map((v) => NOMS_V[v]).join(', ')} — {choixTemps.length === 2 ? 'présent et imparfait' : choixTemps[0] === 'present' ? 'présent' : 'imparfait'}
+              </button>
+              {feuille && feuille.verbeCle && (
+                <button onClick={() => { setVerbesChoixOpen(false); onStartPractice(`verbe_semaine:${feuille.verbeCle}`); }}
+                  className="mt-2 w-full rounded-2xl py-3 font-heading text-base font-extrabold text-fox-d bg-white border-2 border-orange-200 hover:border-fox">
+                  Ceux de la feuille: {feuille.verbe}
+                </button>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Dictées sub-menu modal */}
       {dicteesOpen && (

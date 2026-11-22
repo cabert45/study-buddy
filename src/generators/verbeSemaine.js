@@ -99,6 +99,39 @@ export const VERBES = {
     regle: 'Radical AV- + ais · ais · ait · ions · iez · aient',
     note: "À l'imparfait, les trois personnes du singulier se disent pareil: j'avais, tu avais, il avait.",
   },
+  // Le parent, 22 nov.: « separate the verbs… so we can choose which temps
+  // and which verb ». Pour que chaque verbe existe aux DEUX temps, aller et
+  // finir ont aussi leur imparfait.
+  aller_imparfait: {
+    verbe: 'aller', temps: "imparfait", groupe: 'verbe irrégulier',
+    formes: { je: "j'allais", tu: 'tu allais', il: 'il allait', nous: 'nous allions', vous: 'vous alliez', ils: 'ils allaient' },
+    muette: { je: 's', tu: 's', il: 't', ils: 'ent' },
+    regle: 'Radical ALL- + ais · ais · ait · ions · iez · aient',
+    note: "À l'imparfait, aller redevient régulier: j'ALLais (pas « je vais »).",
+    radical: 'all',
+    presque: {
+      je: { 'je allais': "Devant une voyelle, je devient j' → j'allais.", "j'allait": "Avec je, c'est -AIS: j'allais." },
+      il: { 'il allais': "Avec il/elle, c'est -AIT: il allait.", allais: "Avec il/elle, c'est -AIT: il allait.", 'il va': "Ça, c'est le présent. À l'imparfait: il allait." },
+      nous: { 'nous allons': "Ça, c'est le présent. À l'imparfait: nous allIONS.", allons: "Ça, c'est le présent. À l'imparfait: nous allIONS." },
+      vous: { 'vous allez': "Ça, c'est le présent. À l'imparfait: vous allIEZ.", allez: "Ça, c'est le présent. À l'imparfait: vous allIEZ." },
+      ils: { 'ils allait': "Avec ils, c'est -AIENT: ils allaient.", allait: "Avec ils, c'est -AIENT: ils allaient.", 'ils vont': "Ça, c'est le présent. À l'imparfait: ils allaient." },
+    },
+  },
+  finir_imparfait: {
+    verbe: 'finir', temps: "imparfait", groupe: '2e groupe (-IR)',
+    formes: { je: 'je finissais', tu: 'tu finissais', il: 'il finissait', nous: 'nous finissions', vous: 'vous finissiez', ils: 'ils finissaient' },
+    muette: { je: 's', tu: 's', il: 't', ils: 'ent' },
+    regle: 'Radical FINISS- + ais · ais · ait · ions · iez · aient',
+    note: "À l'imparfait, finir garde ses deux S à TOUTES les personnes: je finiSSais.",
+    radical: 'finiss',
+    presque: {
+      je: { 'je finisais': 'Deux S: je finiSSais.', 'je finais': "À l'imparfait, finir prend -ISS-: je finiSSais.", 'je finissait': "Avec je, c'est -AIS: je finissais." },
+      il: { 'il finissais': "Avec il/elle, c'est -AIT: il finissait.", finissais: "Avec il/elle, c'est -AIT: il finissait.", 'il finit': "Ça, c'est le présent. À l'imparfait: il finissait." },
+      nous: { 'nous finissons': "Ça, c'est le présent. À l'imparfait: nous finissIONS.", finissons: "Ça, c'est le présent. À l'imparfait: nous finissIONS." },
+      vous: { 'vous finissez': "Ça, c'est le présent. À l'imparfait: vous finissIEZ.", finissez: "Ça, c'est le présent. À l'imparfait: vous finissIEZ." },
+      ils: { 'ils finissait': "Avec ils, c'est -AIENT: ils finissaient.", finissait: "Avec ils, c'est -AIENT: ils finissaient.", 'ils finissent': "Ça, c'est le présent. À l'imparfait: ils finissaient." },
+    },
+  },
   // Feuille du 23 nov.: « Écris deux phrases en utilisant le verbe aimer à
   // l'imparfait ». Le piège: nous aimIONS, vous aimIEZ (le I qu'on n'entend pas fort).
   aimer_imparfait: {
@@ -138,6 +171,9 @@ export function setVerbeSemaine(cle) {
   courant = cles[0];
 }
 export const verbeCourant = () => VERBES[courant];
+// Pour le choix du menu (verbe × temps).
+export const VERBES_CHOIX = ['aller', 'aimer', 'finir', 'avoir', 'etre'];
+export const TEMPS_CHOIX = ['present', 'imparfait'];
 export const verbesCourants = () => groupe.map((k) => VERBES[k]);
 
 // Le tableau complet, montré AVANT les questions (« la liste avant les
@@ -172,7 +208,7 @@ function conjugue(forcerPluriel = false) {
   return {
     category: CATEGORY,
     type: 'conjugate',
-    text: `Conjugue « ${v.verbe} » au ${v.temps} avec « ${AFFICHE[p]} ».`,
+    text: `Conjugue « ${v.verbe} » ${v.temps === 'présent' ? 'au présent' : "à l'imparfait"} avec « ${AFFICHE[p]} ».`,
     correct,
     tape: 'mot',
     presque: v.presque?.[p],
@@ -274,7 +310,9 @@ function terminaison() {
   const p = personneFraiche(['nous', 'vous', 'ils']);
   const forme = sansPronom(v.formes[p]);
   const correct = forme.slice(v.radical.length);
-  const leurres = ['ons', 'ez', 'ent', 'issons', 'issez', 'issent', 'issont', 'ont'].filter((t) => t !== correct);
+  const leurres = (v.temps === 'imparfait'
+    ? ['ions', 'iez', 'aient', 'ait', 'ais', 'ons', 'ez', 'ent']
+    : ['ons', 'ez', 'ent', 'issons', 'issez', 'issent', 'issont', 'ont']).filter((t) => t !== correct);
   const pr = AFFICHE[p].split(' / ')[0];
   return {
     category: CATEGORY,
