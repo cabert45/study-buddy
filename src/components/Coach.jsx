@@ -144,11 +144,25 @@ function remiseDeLaSemaine(today) {
   const jour = new Date(w.remise[0], w.remise[1] - 1, w.remise[2]);
   const t = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const jours = Math.round((jour - t) / 86400000);
-  if (jours < 0) return null;
   const liste = listeCetteSemaine(today);
+  // Feuille du 23 nov.: jeudi = vérification des devoirs, vendredi = dictée
+  // (`dictee` sur la semaine, un autre jour que la remise).
+  let dicteeJours = null;
+  if (w.dictee) {
+    const d = new Date(w.dictee[0], w.dictee[1] - 1, w.dictee[2]);
+    dicteeJours = Math.round((d - t) / 86400000);
+    if (dicteeJours < 0) dicteeJours = null;
+  }
+  const quandDe = (n) => (n === 0 ? "aujourd'hui" : n === 1 ? 'demain' : `dans ${n} jours`);
+  if (jours < 0) {
+    if (dicteeJours === null) return null;
+    return { jours: dicteeJours, quoi: `dictée liste ${liste.numero}`, quand: quandDe(dicteeJours), dictee: true, numero: liste.numero };
+  }
   return {
     jours,
-    quoi: `feuille Liste ${liste.numero} + feuille de maths`,
+    dicteeJours,
+    dicteeQuand: dicteeJours === null ? null : quandDe(dicteeJours),
+    quoi: w.remiseQuoi || `feuille Liste ${liste.numero} + feuille de maths`,
     quand: jours === 0 ? "aujourd'hui" : jours === 1 ? 'demain' : `dans ${jours} jours`,
     // Feuille du 16 nov.: le jeudi 19, c'est la DICTÉE de la liste 9, pas
     // une feuille à remettre (`remiseDictee` sur la semaine).
@@ -276,7 +290,7 @@ function buildRentreePlan(today) {
     ? [{ type: 'message', mins: 1, icon: '📌',
       label: remise.dictee
         ? `📌 Dictée de la liste ${remise.numero} ${remise.quand}!`
-        : `📌 La feuille (${remise.quoi}) se remet ${remise.quand}!` }]
+        : `📌 ${remise.quoi.startsWith('feuille') ? `La feuille (${remise.quoi}) se remet` : `${remise.quoi[0].toUpperCase()}${remise.quoi.slice(1)}:`} ${remise.quand}!${remise.dicteeJours === 1 ? ` Et dictée de la liste ${remise.numero} demain!` : ''}` }]
     : [];
 
   // Lecture: 15 min par jour, c'est la première ligne de la feuille de

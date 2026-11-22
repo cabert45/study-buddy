@@ -99,6 +99,23 @@ export const VERBES = {
     regle: 'Radical AV- + ais · ais · ait · ions · iez · aient',
     note: "À l'imparfait, les trois personnes du singulier se disent pareil: j'avais, tu avais, il avait.",
   },
+  // Feuille du 23 nov.: « Écris deux phrases en utilisant le verbe aimer à
+  // l'imparfait ». Le piège: nous aimIONS, vous aimIEZ (le I qu'on n'entend pas fort).
+  aimer_imparfait: {
+    verbe: 'aimer', temps: "imparfait", groupe: '1er groupe (-ER)',
+    formes: { je: "j'aimais", tu: 'tu aimais', il: 'il aimait', nous: 'nous aimions', vous: 'vous aimiez', ils: 'ils aimaient' },
+    muette: { je: 's', tu: 's', il: 't', ils: 'ent' },
+    regle: 'Radical AIM- + ais · ais · ait · ions · iez · aient',
+    note: "Même musique qu'avoir à l'imparfait: j'avais / j'aimais, ils avaient / ils aimaient.",
+    radical: 'aim',
+    presque: {
+      il: { 'il aimais': "Avec il/elle, c'est -AIT: il aimait. (-AIS, c'est pour je et tu.)", aimais: "Avec il/elle, c'est -AIT: il aimait. (-AIS, c'est pour je et tu.)", 'il aimé': "Ça, c'est le participe (j'ai aimé). À l'imparfait: il aimait.", aimé: "Ça, c'est le participe (j'ai aimé). À l'imparfait: il aimait." },
+      ils: { 'ils aimait': "Presque! Avec ils, c'est -AIENT: ils aimaient.", aimait: "Presque! Avec ils, c'est -AIENT: ils aimaient.", 'ils aimaients': "Pas de S: ils aimaient.", aimaients: "Pas de S: ils aimaient." },
+      nous: { 'nous aimons': "Ça, c'est le présent. À l'imparfait: nous aimIONS.", aimons: "Ça, c'est le présent. À l'imparfait: nous aimIONS." },
+      vous: { 'vous aimez': "Ça, c'est le présent. À l'imparfait: vous aimIEZ.", aimez: "Ça, c'est le présent. À l'imparfait: vous aimIEZ." },
+      je: { "j'aimait": "Avec je, c'est -AIS: j'aimais.", aimait: "Avec je, c'est -AIS: j'aimais." },
+    },
+  },
   etre_imparfait: {
     verbe: 'être', temps: "imparfait", groupe: 'auxiliaire',
     formes: { je: "j'étais", tu: 'tu étais', il: 'il était', nous: 'nous étions', vous: 'vous étiez', ils: 'ils étaient' },

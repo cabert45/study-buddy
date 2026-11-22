@@ -364,6 +364,43 @@ function FicheMultiplication() {
   );
 }
 
+function FicheDivision() {
+  return (
+    <>
+      <div className="flex items-baseline gap-2 mb-1 flex-wrap">
+        <span className="text-xs font-extrabold bg-stone text-white rounded-md px-2 py-1">MATCHA</span>
+        <span className="font-heading text-lg font-extrabold text-stone leading-tight">Le sens de la division</span>
+      </div>
+      <p className="text-xs font-bold text-s4 mb-3">Aide-mémoire p. 24 · ÷ veut dire « divisé par »</p>
+
+      <div className="rounded-xl bg-orange-50 border-2 border-orange-200 p-3 mb-3">
+        <p className="text-sm font-extrabold text-fox-d mb-1">1. JE PARTAGE ÉGALEMENT</p>
+        <div className="text-sm font-semibold text-stone leading-snug">
+          <div>12 billes dans <b>3 sacs</b>: combien dans <b>chaque</b> sac?</div>
+          <div>Je distribue une à une, comme des cartes → <b>4</b> dans chaque sac.</div>
+          <div><b>12 ÷ 3 = 4</b></div>
+        </div>
+      </div>
+
+      <CadreCahier>
+        <p className="text-sm font-extrabold text-stone mb-1">2. JE FAIS DES GROUPES</p>
+        <Colonne lignes={['● ● ● ●', '● ● ● ●', '● ● ● ●']} />
+        <p className="text-sm font-semibold text-stone leading-snug">
+          12 billes, <b>4 par sac</b>: combien de sacs? → 3 paquets de 4 → <b>3</b> sacs. <b>12 ÷ 4 = 3</b>
+        </p>
+      </CadreCahier>
+
+      <div className="mt-3 rounded-xl bg-white border-2 border-s2 p-3">
+        <p className="text-sm font-extrabold text-stone mb-1">JE VÉRIFIE AVEC ×</p>
+        <p className="text-sm font-semibold text-stone leading-snug">
+          12 ÷ 3 = 4 <b>parce que</b> 3 × 4 = 12. La division défait la multiplication.
+          <span className="text-s4"> La réponse est toujours plus PETITE que le nombre partagé: si j’obtiens 36, j’ai multiplié!</span>
+        </p>
+      </div>
+    </>
+  );
+}
+
 function FicheFeminin() {
   return (
     <>
@@ -406,6 +443,7 @@ function FicheFeminin() {
 export const FICHES = {
   soustraction_grands: FicheSoustraction,
   sens_multiplication: FicheMultiplication,
+  sens_division: FicheDivision,
   feminin_noms: FicheFeminin,
 };
 

@@ -110,6 +110,11 @@ export const CAHIER_SEMAINES = [
   // notion « Le féminin des noms »). Le devoir: lire le texte des p. 70-71
   // (t2m5, « Les lunettes magiques ») et en rédiger un court résumé — sur papier.
   { debut: [2026, 11, 16], module: 't3m1', confirme: true },
+  // Feuille du 23 au 27 nov.: « La révision des accords dans un GN:
+  // aide-mémoire Jazz p. 9 » — retour au module t2m4 (accord dans le GN).
+  // Lecture: relire p. 56-57 (« Le monstre du lac »), qui/quoi/où +
+  // encercler les marqueurs de relation — sur papier.
+  { debut: [2026, 11, 23], module: 't2m4', confirme: true },
 ];
 
 const moduleIndex = {};

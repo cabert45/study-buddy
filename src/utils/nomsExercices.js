@@ -50,6 +50,7 @@ const NOMS = {
   "matcha_revision": "Révision Matcha — tout depuis septembre",
   "soustraction_grands": "La soustraction de grands nombres",
   "sens_multiplication": "Le sens de la multiplication",
+  "sens_division": "Le sens de la division",
   "feminin_noms": "Le féminin des noms",
   "mental": "Mental",
   "mesure": "Mesure en cm",

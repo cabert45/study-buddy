@@ -72,6 +72,15 @@ export const MATHS_SEMAINES = [
     jour: { nom: 'la soustraction de grands nombres', page: 'p. 22' },
     ensuite: { desJour: 3, mode: 'sens_multiplication', nom: 'le sens de la multiplication', page: 'p. 23' },
   },
+  {
+    // Feuille du 23 au 27 nov.: « Consolidation du sens de la multiplication.
+    // Le sens de la division: aide-mémoire Matcha p. 24 ». La consolidation
+    // le dimanche et le lundi, la division (nouvelle) à partir du mardi.
+    debut: [2026, 11, 23], mode: 'sens_division', confirme: true,
+    nom: 'consolidation de la multiplication, puis le sens de la division', page: 'p. 23-24',
+    jour: { mode: 'sens_multiplication', nom: 'consolidation du sens de la multiplication', page: 'p. 23' },
+    ensuite: { desJour: 2, mode: 'sens_division', nom: 'le sens de la division', page: 'p. 24' },
+  },
 ];
 
 const dateOf = ([y, m, d]) => new Date(y, m - 1, d);

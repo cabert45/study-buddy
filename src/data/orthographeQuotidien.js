@@ -317,7 +317,14 @@ export const LISTE_SEMAINES = [
   { debut: [2026, 11, 16], liste: 'l9', remise: [2026, 11, 19], remiseDictee: true, confirme: true,
     verbe: 'aller, aimer, finir, avoir et être au présent',
     verbeCle: 'aller_present+aimer_present+finir_present+avoir_present+etre_present' },
-  { debut: [2026, 11, 23], liste: 'l10' },
+  // « Plan de travail, semaine du 23 au 27 novembre 2026 »: liste 10.
+  // JEUDI 26 = vérification des devoirs; VENDREDI 27 = dictée liste 10.
+  // Conjugaison: les cinq au présent + « verbe avoir à l'imparfait »;
+  // devoir: 4 phrases au présent + 2 phrases avec AIMER à l'imparfait.
+  { debut: [2026, 11, 23], liste: 'l10', remise: [2026, 11, 26], remiseQuoi: 'vérification des devoirs',
+    dictee: [2026, 11, 27], confirme: true,
+    verbe: "aller, aimer, finir, avoir et être au présent + avoir et aimer à l'imparfait",
+    verbeCle: 'aller_present+aimer_present+finir_present+avoir_present+etre_present+avoir_imparfait+aimer_imparfait' },
 ];
 
 export const listeById = (id) => LISTES.find((l) => l.id === id) || null;

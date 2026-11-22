@@ -32,6 +32,7 @@ import { generateSuites } from '../generators/suites';
 import { generateMultDiv } from '../generators/multDiv';
 import { generateSoustractionGrands } from '../generators/soustractionGrands';
 import { generateSensMultiplication } from '../generators/sensMultiplication';
+import { generateSensDivision } from '../generators/sensDivision';
 import { generateFemininNoms } from '../generators/femininNoms';
 import { generateRepresenter } from '../generators/representer';
 import { generateFigures } from '../generators/figures';
@@ -265,6 +266,7 @@ function getGenerator(mode) {
     // Feuille du 16 au 20 nov.: Matcha p. 22 et p. 23, Jazz p. 9.
     case 'soustraction_grands': return generateSoustractionGrands;
     case 'sens_multiplication': return generateSensMultiplication;
+    case 'sens_division': return generateSensDivision;
     case 'feminin_noms': return generateFemininNoms;
     case 't1_revision': return generateT1Revision;
     case 'francais_mix':
@@ -837,6 +839,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
           {question.category === 'mult_div' && 'Multiplication & Division'}
           {question.category === 'soustraction_grands' && 'Soustraction de grands nombres'}
           {question.category === 'sens_multiplication' && 'Le sens de la multiplication'}
+          {question.category === 'sens_division' && 'Le sens de la division'}
           {question.category === 'feminin_noms' && 'Le féminin des noms'}
           {question.category === 'representer' && 'Représenter un nombre'}
           {question.category === 'figures' && 'Figures planes & solides'}

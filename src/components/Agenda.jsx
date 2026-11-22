@@ -58,12 +58,16 @@ function marqueursDuJour(date) {
   // (Semaine du 16 nov.: le jeudi, c'est la dictée seulement — pas de feuille.)
   if (sem && sem.remise && !sem.remiseDictee && memeJour(dateOf(sem.remise), date)) {
     const l = listeCetteSemaine(date);
-    m.push({ kind: 'remise', icon: '📌', label: `Remise — feuille liste ${l.numero} + feuille de maths` });
+    m.push({ kind: 'remise', icon: '📌', label: sem.remiseQuoi ? `Remise — ${sem.remiseQuoi}` : `Remise — feuille liste ${l.numero} + feuille de maths` });
   }
 
-  // La dictée se fait le jour de la remise (ou le vendredi quand rien n'est dit).
+  // La dictée se fait le jour de la remise (ou le vendredi quand rien n'est dit),
+  // sauf si la feuille lui donne son propre jour (`dictee`, semaine du 23 nov.).
   const estRemise = sem && sem.remise && memeJour(dateOf(sem.remise), date);
-  if (estRemise || (jour === 5 && !(sem && sem.remise))) {
+  const estDictee = sem && sem.dictee
+    ? memeJour(dateOf(sem.dictee), date)
+    : (estRemise || (jour === 5 && !(sem && sem.remise)));
+  if (estDictee) {
     const l = listeCetteSemaine(date);
     m.push({ kind: 'dictee', icon: '🎧', label: `Dictée — liste ${l.numero}` });
   }

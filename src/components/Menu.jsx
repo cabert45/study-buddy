@@ -117,8 +117,9 @@ const ryanFrenchModes = [
 const grade3MathModes = [
   { id: 'feuille_matcha', label: '📐 Ma feuille de maths', desc: 'Matcha AS.1.02 — échanger les blocs, poser les colonnes', badge: 'À revoir' },
   // Feuille du 16 au 20 nov. 2026: Matcha p. 22 (soustraction) et p. 23 (multiplication).
-  { id: 'soustraction_grands', label: 'La soustraction de grands nombres', desc: 'Échanger, même quand il y a un 0 au milieu (503 − 278)', badge: 'Cette semaine' },
+  { id: 'soustraction_grands', label: 'La soustraction de grands nombres', desc: 'Échanger, même quand il y a un 0 au milieu (503 − 278)', badge: 'Révision' },
   { id: 'sens_multiplication', label: 'Le sens de la multiplication', desc: 'Groupes égaux, 4 + 4 + 4 = 3 × 4, rangées, facteurs et produit', badge: 'Cette semaine' },
+  { id: 'sens_division', label: 'Le sens de la division', desc: 'Partager également, faire des groupes, 12 ÷ 3 = 4 parce que 3 × 4 = 12', badge: 'Cette semaine' },
   { id: 'matcha_revision', label: 'Révision Matcha — tout depuis septembre', desc: 'Arrondir, ranger, les blocs, les sacs de 100, l’heure, les angles', badge: 'Révision' },
   { id: 'matcha_ordre', label: "🔢 L'ordre des nombres", desc: 'Arrondir, ranger, la droite numérique — sur ses erreurs de la feuille', badge: 'Révision' },
   { id: 'matcha_nombres', label: '📘 Mon cahier Matcha', desc: 'Thème 1 en classe: blocs, valeur de position, nombres jusqu\'à 9 999', featured: true },
@@ -147,7 +148,7 @@ const grade3FrenchModes = [
   { id: 'dictee_orale', label: '🎙️ Dictée à voix haute', desc: 'Épelle les mots tout haut — le coach t’écoute' },
   { id: 'cahier_jazz', label: '📒 Mon cahier Jazz', desc: 'Ce que tu fais en classe — et un pas d\'avance', featured: true, groupKind: 'cahier' },
   // Feuille du 16 au 20 nov. 2026: « Le féminin des noms: règle générale », Jazz p. 9.
-  { id: 'feminin_noms', label: 'Le féminin des noms', desc: 'un ami → une amie · un élève → une élève', badge: 'Cette semaine' },
+  { id: 'feminin_noms', label: 'Le féminin des noms', desc: 'un ami → une amie · un élève → une élève', badge: 'Révision' },
   // Remise le 25 sept. — elle reste pour la révision, mais elle n'est plus à
   // remettre: un badge qui ment, c'est le parent qui cherche une feuille déjà
   // dans le sac.
