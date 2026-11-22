@@ -323,6 +323,9 @@ export const LISTE_SEMAINES = [
   // devoir: 4 phrases au présent + 2 phrases avec AIMER à l'imparfait.
   { debut: [2026, 11, 23], liste: 'l10', remise: [2026, 11, 26], remiseQuoi: 'vérification des devoirs',
     dictee: [2026, 11, 27], confirme: true,
+    // Le devoir de lecture (« Le monstre du lac », Jazz p. 56-57): qui, quoi,
+    // où, marqueurs de relation — au Coach jusqu'à la vérification de jeudi.
+    devoirLecture: { mode: 'monstre_du_lac', label: '📖 Le monstre du lac — qui? quoi? où? + marqueurs (Jazz p. 56-57)', jusquau: [2026, 11, 26] },
     verbe: "aller, aimer, finir, avoir et être au présent + avoir et aimer à l'imparfait",
     verbeCle: 'aller_present+aimer_present+finir_present+avoir_present+etre_present+avoir_imparfait+aimer_imparfait' },
 ];

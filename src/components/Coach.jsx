@@ -300,6 +300,14 @@ function buildRentreePlan(today) {
   // et mets-lui un temps. 20 minutes, ça fait 3 ou 4 livres. » (26 sept. 2026)
   // La feuille de l'école demande 15 minutes; on vise 20, et on lui dit combien
   // de livres ça représente — une durée seule ne dit pas quand on a fini.
+  // Un devoir de lecture sur la feuille (semaine du 23 nov.): les questions
+  // du texte au Coach, jusqu'au jour de la vérification inclus.
+  const semDevoir = semaineCourante(ref);
+  const dl = semDevoir && semDevoir.devoirLecture;
+  const devoirLecture = dl && ref <= new Date(dl.jusquau[0], dl.jusquau[1] - 1, dl.jusquau[2], 23, 59)
+    ? { type: 'app', mode: dl.mode, label: dl.label, icon: '📖' }
+    : null;
+
   const lecture = (mins) => ({
     type: 'chore', mins, icon: '📖', boukili: true,
     label: `Lecture — ${mins} minutes · 3 ou 4 livres`,
@@ -323,6 +331,7 @@ function buildRentreePlan(today) {
       { type: 'app', mode: 'dictee_liste', label: `🎧 Dictée — Liste ${liste.numero}`, mins: 7, icon: '🎧' },
       { ...deuxieme, mins: 12 },
       { ...verbeStep, mins: 8 },
+      ...(devoirLecture ? [{ ...devoirLecture, mins: 10 }] : []),
       { type: 'break', label: 'Pause + collation 🍎', mins: 10, icon: '🍎' },
       { type: 'app', mode: maths.mode, label: mathsLabel, mins: 18, icon: '📘' },
       testStep ? { ...testStep, mins: 15 } : { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 15, icon: '🧩' },
@@ -341,7 +350,8 @@ function buildRentreePlan(today) {
     { ...deuxieme, mins: 8 },
     { type: 'app', mode: maths.mode, label: mathsLabel, mins: 11, icon: '📘' },
     { ...verbeStep, mins: 6 },
-    testStep ? { ...testStep, mins: 8 } : { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 5, icon: '🧩' },
+    // Le devoir de lecture prend la place des problèmes à étapes (même heure).
+    testStep ? { ...testStep, mins: 8 } : devoirLecture ? { ...devoirLecture, mins: 7 } : { type: 'app', mode: 'multi_step', label: '🧩 Problèmes à étapes', mins: 5, icon: '🧩' },
     ...(testStep2 ? [{ ...testStep2, mins: 8 }] : []),
     lecture(20), // 20 min demandees par le parent — la feuille de l ecole en demande 15
     fin,

@@ -33,6 +33,7 @@ import { generateMultDiv } from '../generators/multDiv';
 import { generateSoustractionGrands } from '../generators/soustractionGrands';
 import { generateSensMultiplication } from '../generators/sensMultiplication';
 import { generateSensDivision } from '../generators/sensDivision';
+import { generateMonstreDuLac } from '../generators/monstreDuLac';
 import { generateFemininNoms } from '../generators/femininNoms';
 import { generateRepresenter } from '../generators/representer';
 import { generateFigures } from '../generators/figures';
@@ -267,6 +268,7 @@ function getGenerator(mode) {
     case 'soustraction_grands': return generateSoustractionGrands;
     case 'sens_multiplication': return generateSensMultiplication;
     case 'sens_division': return generateSensDivision;
+    case 'monstre_du_lac': return generateMonstreDuLac;
     case 'feminin_noms': return generateFemininNoms;
     case 't1_revision': return generateT1Revision;
     case 'francais_mix':
@@ -840,6 +842,7 @@ export default function PracticeSession({ mode, onFinish, onHome, questionCount,
           {question.category === 'soustraction_grands' && 'Soustraction de grands nombres'}
           {question.category === 'sens_multiplication' && 'Le sens de la multiplication'}
           {question.category === 'sens_division' && 'Le sens de la division'}
+          {question.category === 'monstre_du_lac' && 'Le monstre du lac — Jazz p. 56-57'}
           {question.category === 'feminin_noms' && 'Le féminin des noms'}
           {question.category === 'representer' && 'Représenter un nombre'}
           {question.category === 'figures' && 'Figures planes & solides'}

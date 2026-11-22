@@ -148,6 +148,7 @@ const grade3FrenchModes = [
   { id: 'dictee_orale', label: '🎙️ Dictée à voix haute', desc: 'Épelle les mots tout haut — le coach t’écoute' },
   { id: 'cahier_jazz', label: '📒 Mon cahier Jazz', desc: 'Ce que tu fais en classe — et un pas d\'avance', featured: true, groupKind: 'cahier' },
   // Feuille du 16 au 20 nov. 2026: « Le féminin des noms: règle générale », Jazz p. 9.
+  { id: 'monstre_du_lac', label: 'Le monstre du lac (Jazz p. 56-57)', desc: 'Qui? Quoi? Où? + les marqueurs de relation — le devoir de lecture', badge: 'Cette semaine' },
   { id: 'feminin_noms', label: 'Le féminin des noms', desc: 'un ami → une amie · un élève → une élève', badge: 'Révision' },
   // Remise le 25 sept. — elle reste pour la révision, mais elle n'est plus à
   // remettre: un badge qui ment, c'est le parent qui cherche une feuille déjà
